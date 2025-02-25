@@ -26,11 +26,9 @@ const CeoQuote = () => {
             height={82} 
             className="absolute -top-8 left-0"
           />
-
-            <p id="ceo_quote" className="text-4xl font-bold mb-4 mt-20 font-[var(--font-balboa)]">
-            Chart Nomads isn't just a platform; it's a movement. It's a vision for a better and more transparent trading industry that I believe we can all achieve together!
-            </p>
-
+          <p id="ceo_quote" className="text-4xl font-bold mb-4 mt-20 font-[var(--font-balboa)]">
+            Chart Nomads isn&apos;t just a platform; it&apos;s a movement. It&apos;s a vision for a better and more transparent trading industry that I believe we can all achieve together!
+          </p>
           <footer className="mt-10 text-900 font-semibold">
             <span className="block text-xl">Delyan Zlatkow</span>
             <span className="text-sm font-medium">CEO & Founder</span>

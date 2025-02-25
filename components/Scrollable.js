@@ -53,11 +53,11 @@ const ScrollableSection = () => {
                     Everything about prop firms in one place
                 </h2>
                 <p className="text-lg text-black">
-                    Doesn't matter if you want to compare different firms, read genuine reviews, or just 
+                    Doesn&apos;t matter if you want to compare different firms, read genuine reviews, or just 
                     want to find the best deals.
                 </p>
                 <p className="text-lg text-black">
-                    We've got you covered.
+                  We&apos;ve got you covered.
                 </p>
                 <button className="text-[#EDB900] mt-4 bg-black py-3 px-6 rounded-lg hover:opacity-90 transition">
                     Learn more

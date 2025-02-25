@@ -1,4 +1,6 @@
 import React from "react";
+import Image from "next/image";
+
 
 const benefits = [
   {
@@ -67,7 +69,7 @@ const Benefits = () => {
             >
               {/* Icon */}
               <div className="mb-4">
-                <img src={benefit.icon} alt={benefit.title} className="w-16 h-16 rounded-[10px]"/>
+                <Image src={benefit.icon} alt={benefit.title} className="w-16 h-16 rounded-[10px]"/>
               </div>
               {/* Title */}
               <h3 className="text-xl mb-2">{benefit.title}</h3>

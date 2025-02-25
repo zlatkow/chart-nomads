@@ -1,6 +1,4 @@
-import { useState } from "react";
 import Link from "next/link";
-import { FiChevronDown, FiChevronUp } from "react-icons/fi";
 import { FaFacebookF, FaInstagram, FaXTwitter, FaLinkedinIn, FaYoutube, FaTiktok, FaDiscord } from "react-icons/fa6";
 import Image from "next/image";
 
@@ -78,7 +76,7 @@ const Navbar = () => {
                 <hr className="border-t border-[rgba(109,109,109,0.2)] my-4 mx-4" />
                   <div className="w-full flex flex-col items-end pr-6"> 
                     <div className="flex flex-col items-start pl-2"> {/* ✅ Added `pl-2` to shift "LET'S CONNECT!" slightly to the right */}
-                      <span className="text-[#EDB900] font-bold mb-2">LET'S CONNECT!</span> 
+                    <span className="text-[#EDB900] font-bold mb-2">LET&apos;S CONNECT!</span>
                       <div className="flex space-x-4">
                         <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
                           <FaFacebookF className="text-lg text-white hover:text-[#EDB900] transition-colors duration-200 cursor-pointer" />

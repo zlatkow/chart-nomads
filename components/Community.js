@@ -12,9 +12,8 @@ const Community = () => {
           <h2 className="text-4xl font-bold text-black mb-4">JOIN OUR COMMUNITY.</h2>
           <p className="text-black text-lg leading-relaxed">
             Connect with like-minded individuals, stay updated with exclusive content, and enjoy fun activities.
-            Whether you're here to chat, collaborate, or just have fun, our vibrant community welcomes you!
+            Whether you&apos;re here to chat, collaborate, or just have fun, our vibrant community welcomes you!
           </p>
-
           {/* CTA Button */}
             <a 
                 href="https://discord.gg/chartnomads" 
