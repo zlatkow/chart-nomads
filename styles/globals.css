@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: 'Balboa';
+  src: url('/fonts/BalboaW01Medium.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Cascadia Mono';
+  src: url('/fonts/CascadiaMonoPL-Regular.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+body {
+  background-color: #0f0f0f !important;
+  @apply text-white;
+  font-family: 'Cascadia Mono', monospace;
+}
+
+h1, h2, h3 {
+  font-family: 'Balboa', sans-serif;
+}
+
+#hero-typed {
+  font-family: 'Cascadia Mono', monospace;
+}
+
+/* Noise overlay effect */
+.noise-overlay::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url("/dotgrain_resized.webp"); /* Replace with your noise texture */
+  opacity: 0.07; /* Adjust intensity */
+  pointer-events: none; /* Ensures it doesn't block clicks */
+  z-index: 2; /* Highest layer */
+}
+
+#ceo_quote {
+  font-family: 'Balboa', sans-serif;
+}
+
+.swiper-pagination-bullet {
+  background: #0f0f0f28!important; /* Default inactive bullet color */
+  width: 12px !important;
+  height: 12px !important;
+  margin: 0 6px !important;
+  opacity: 1 !important; /* Ensure visibility */
+}
+
+.swiper-pagination-bullet-active {
+  background: #0f0f0f !important; /* Active bullet color */
+  transform: scale(1.2); /* Slightly bigger active dot */
+}
+
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 5px; /* Adjust width */
+}
+
+/* Track (background) */
+::-webkit-scrollbar-track {
+  background: #0F0F0F; /* Dark background */
+  border-radius: 10px;
+}
+
+/* Thumb (scrolling bar) */
+::-webkit-scrollbar-thumb {
+  background: #FFC72C; /* Yellow color */
+  border-radius: 10px;
+}
+
+/* Thumb hover effect */
+::-webkit-scrollbar-thumb:hover {
+  background: #E6B800; /* Slightly darker yellow on hover */
+}
+
+
