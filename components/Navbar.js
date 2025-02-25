@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { FaFacebookF, FaInstagram, FaXTwitter, FaLinkedinIn, FaYoutube, FaTiktok, FaDiscord } from "react-icons/fa6";
 import Image from "next/image";
+import { FiChevronDown } from "react-icons/fi";
 
 const Navbar = () => {
   return (
