@@ -112,7 +112,7 @@ const Navbar = () => {
         <div className="relative group">
           <button className="hover:text-[#EDB900] transition-all">
             <Image
-              src="/profile.webp"
+              src="/avatars/delyan_zlatkov.webp"
               alt="User"
               width={50}
               height={50}
