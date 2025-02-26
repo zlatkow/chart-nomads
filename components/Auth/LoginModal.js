@@ -75,7 +75,13 @@ const LoginModal = ({ isOpen, onClose }) => {
       >
         <button onClick={onClose} className="absolute top-5 right-5 text-white text-2xl">✕</button>
         <div className="mb-6 text-center">
-          <img src="/logo.webp" alt="Chart Nomads" className="w-40 mb-10 mt-5 mx-auto" />
+          <Image
+            src="/logo.webp"
+            alt="Chart Nomads"
+            width={160} // Adjust width as needed
+            height={160} // Adjust height as needed
+            className="w-40 mb-10 mt-5 mx-auto"
+          />
           <h2 className="text-4xl text-[#EDB900] text-left">{isSignUp ? "Create an account" : "Welcome back!"}</h2>
           <p className="text-xs mt-2 text-left">{isSignUp ? "Join us now!" : "Please enter your details."}</p>
         </div>

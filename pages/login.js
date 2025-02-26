@@ -15,7 +15,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [isSignUp] = useState(false);
 
   const handleOAuthSignIn = async (provider) => {
     try {
@@ -76,7 +76,13 @@ const Login = () => {
         onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside the modal
       >
         <div className="mb-6 text-center">
-          <img src="/logo.webp" alt="Chart Nomads" className="w-40 mb-10 mt-5 mx-auto" />
+            <Image
+            src="/logo.webp"
+            alt="Chart Nomads"
+            width={160} // Adjust width as needed
+            height={160} // Adjust height as needed
+            className="w-40 mb-10 mt-5 mx-auto"
+            />
           <h2 className="text-4xl text-[#EDB900] text-left">{isSignUp ? "Create an account" : "Welcome back!"}</h2>
           <p className="text-xs mt-2 text-left">{isSignUp ? "Join us now!" : "Please enter your details."}</p>
         </div>
