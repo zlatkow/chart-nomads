@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { supabase } from "../lib/supabase";
 import Navbar from "../components/Navbar";
 import Hero from "../components/Hero";
 import Scrollable from "../components/Scrollable";
