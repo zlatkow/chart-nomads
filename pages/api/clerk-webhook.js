@@ -22,8 +22,10 @@ export default async function handler(req, res) {
   try {
     evt = wh.verify(payload, headers);
   } catch (err) {
-    return res.status(400).json({ error: "Webhook signature verification failed." });
+    console.error("Webhook signature verification failed:", err); // Log the error
+    return res.status(400).json({ error: "Webhook signature verification failed." }); // Generic response
   }
+  
 
   const eventType = evt.type;
   const user = evt.data;
