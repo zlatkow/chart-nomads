@@ -1,45 +1,56 @@
-import { Webhook } from "svix"; // Ensure svix is installed
-import { buffer } from "micro";
+import { Webhook } from "svix";
+import { createClient } from "@supabase/supabase-js";
 
-export const config = {
-  api: {
-    bodyParser: false, // Required for Clerk webhooks
-  },
-};
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY; // MUST be Service Role Key!
+const CLERK_WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;
+
+// Initialize Supabase
+const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method Not Allowed" }); // ❌ Handle wrong method
+    return res.status(405).json({ error: "Method Not Allowed" });
   }
 
+  // Verify webhook signature from Clerk
+  const headers = req.headers;
+  const payload = await req.text();
+  const wh = new Webhook(CLERK_WEBHOOK_SECRET);
+
+  let evt;
   try {
-    const payload = await buffer(req);
-    const headers = req.headers;
-
-    // ✅ Verify the webhook signature
-    const wh = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
-    const evt = wh.verify(payload.toString(), headers);
-
-    console.log("Webhook received:", evt);
-
-    // Handle different webhook event types
-    switch (evt.type) {
-      case "user.created":
-        console.log("User Created Event:", evt.data);
-        break;
-      case "user.updated":
-        console.log("User Updated Event:", evt.data);
-        break;
-      case "user.deleted":
-        console.log("User Deleted Event:", evt.data);
-        break;
-      default:
-        console.log("Unhandled event:", evt.type);
-    }
-
-    return res.status(200).json({ success: true });
-  } catch (error) {
-    console.error("Webhook Error:", error);
+    evt = wh.verify(payload, headers);
+  } catch (err) {
     return res.status(400).json({ error: "Webhook signature verification failed." });
   }
+
+  const eventType = evt.type;
+  const user = evt.data;
+
+  console.log("Webhook event:", eventType, user);
+
+  if (eventType === "user.created") {
+    const { id, primary_email_address, first_name, last_name } = user;
+
+    // Insert new user into Supabase
+    const { data, error } = await supabase.from("users").insert([
+      {
+        id,
+        email: primary_email_address,
+        first_name,
+        last_name,
+      },
+    ]);
+
+    if (error) {
+      console.error("Error inserting user into Supabase:", error);
+      return res.status(500).json({ error: "Failed to insert user into Supabase" });
+    }
+
+    console.log("User inserted successfully:", data);
+    return res.status(200).json({ message: "User created successfully" });
+  }
+
+  return res.status(400).json({ error: "Unhandled event type" });
 }
