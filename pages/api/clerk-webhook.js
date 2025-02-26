@@ -1,45 +1,45 @@
-// app/api/clerk-webhook/route.js
-import { Webhook } from "svix";
-import { createClient } from "@supabase/supabase-js";
+import { Webhook } from "svix"; // Ensure svix is installed
+import { buffer } from "micro";
 
-export async function POST(req) {
-  const payload = await req.text();
-  const headers = req.headers;
-  const webhookSecret = process.env.CLERK_WEBHOOK_SECRET;
+export const config = {
+  api: {
+    bodyParser: false, // Required for Clerk webhooks
+  },
+};
+
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method Not Allowed" }); // ❌ Handle wrong method
+  }
 
   try {
-    // Verify the webhook signature
-    const wh = new Webhook(webhookSecret);
-    const event = wh.verify(payload, headers);
+    const payload = await buffer(req);
+    const headers = req.headers;
 
-    console.log("🔹 Clerk Webhook Event:", event);
+    // ✅ Verify the webhook signature
+    const wh = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
+    const evt = wh.verify(payload.toString(), headers);
 
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_ROLE_KEY // Use Service Role for writes
-    );
+    console.log("Webhook received:", evt);
 
-    if (event.type === "user.created") {
-      const { id, primary_email_address, first_name, last_name } = event.data;
-
-      const { data, error } = await supabase.from("users").insert([
-        {
-          id,
-          email: primary_email_address,
-          first_name,
-          last_name,
-        },
-      ]);
-
-      if (error) throw error;
-      console.log("✅ User added to Supabase:", data);
+    // Handle different webhook event types
+    switch (evt.type) {
+      case "user.created":
+        console.log("User Created Event:", evt.data);
+        break;
+      case "user.updated":
+        console.log("User Updated Event:", evt.data);
+        break;
+      case "user.deleted":
+        console.log("User Deleted Event:", evt.data);
+        break;
+      default:
+        console.log("Unhandled event:", evt.type);
     }
 
-    return new Response(JSON.stringify({ success: true }), { status: 200 });
-  } catch (err) {
-    console.error("❌ Webhook verification failed:", err);
-    return new Response(JSON.stringify({ error: "Invalid webhook" }), {
-      status: 400,
-    });
+    return res.status(200).json({ success: true });
+  } catch (error) {
+    console.error("Webhook Error:", error);
+    return res.status(400).json({ error: "Webhook signature verification failed." });
   }
 }
