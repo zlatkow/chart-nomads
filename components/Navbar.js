@@ -1,11 +1,37 @@
+"use client";
+import { useState } from "react";
+import { useUser } from "@clerk/nextjs";
+import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton, useAuth } from "@clerk/nextjs";
+import LoginModal from "../components/Auth/LoginModal"; // ✅ Ensure the path is correct
 import Link from "next/link";
 import { FaFacebookF, FaInstagram, FaXTwitter, FaLinkedinIn, FaYoutube, FaTiktok, FaDiscord } from "react-icons/fa6";
 import Image from "next/image";
 import { FiChevronDown } from "react-icons/fi";
 
-const Navbar = () => {
+
+const UserProfile = () => {
+  const { user } = useUser(); // Get user info
+
   return (
-    <nav className="text-white py-4 border-b border-[rgba(109,109,109,0.2)] bg-[#0f0f0f] z-[100] fixed top-0 left-0 w-full">
+    <button className="hover:text-[#EDB900] transition-all">
+      <Image
+        src={user?.imageUrl || "/profile_default.png"} // Default image fallback
+        alt="User"
+        width={50}
+        height={50}
+        className="w-[50px] h-[50px] rounded-full"
+      />
+    </button>
+  );
+};
+
+
+const Navbar = () => {
+  const [isLoginOpen, setIsLoginOpen] = useState(false); // ✅ Fix: Add state
+  const { signOut } = useAuth(); // ✅ Get signOut function
+
+  return (
+    <nav className="text-white py-4 border-b border-[rgba(109,109,109,0.2)] bg-[#0f0f0f] z-[100] fixed top-0 left-0 w-full px-10">
       <div className="max-w-[1280px] mx-auto flex justify-between items-center px-6">
         {/* Left Side - Logo */}
         <div className="text-yellow-400 text-2xl font-bold flex items-center space-x-2">
@@ -13,7 +39,7 @@ const Navbar = () => {
         </div>
 
         {/* Center - Navigation Links */}
-        <div className="rounded-[10px] flex space-x-6 text-m tracking-wide font-medium">
+        <div className="rounded-[10px] flex space-x-6 text-m tracking-wide font-medium ml-[300px]">
           {["Home", "News", "Blog"].map((item, index) => (
             <Link key={index} href={item === "Home" ? "/" : `/${item.toLowerCase()}`}>
               <span className="capitalize hover:text-[#EDB900] cursor-pointer transition-all h-[50px] flex items-center">
@@ -109,32 +135,77 @@ const Navbar = () => {
         </div>
 
         {/* Right Side - User Profile */}
-        <div className="relative group">
-          <button className="hover:text-[#EDB900] transition-all">
-            <Image
-              src="/avatars/delyan_zlatkov.webp"
-              alt="User"
-              width={50}
-              height={50}
-              className="w-[50px] h-[50px] rounded-full"
-            />
-          </button>
-
-          {/* Profile Dropdown */}
-          <div className="absolute top-12 right-0 bg-[#0f0f0f] p-4 rounded-lg shadow-lg w-36 border border-[rgba(109,109,109,0.2)]
-            opacity-0 invisible group-hover:visible group-hover:opacity-100 transition-opacity duration-200 pointer-events-none group-hover:pointer-events-auto hover:border border-[rgba(109,109,109,0.2)]">
-            {["Dashboard", "Settings", "Logout"].map((item, index) => (
-              <Link key={index} href={`/${item.toLowerCase()}`}>
+        <SignedOut>
+          <div className="relative group">
+            <button onClick={() => setIsLoginOpen(true)} className="hover:text-[#EDB900] transition-all bg-[#EDB900] rounded-full hover:opacity-70 transition">
+              <Image
+                src="/profile_default.png"
+                alt="User"
+                width={50}
+                height={50}
+                className="w-[50px] h-[50px] rounded-full"
+              />
+            </button>
+            {/* Profile Dropdown */}
+            <div className="absolute top-12 right-0 bg-[#0f0f0f] p-4 rounded-lg shadow-lg w-36 border border-[rgba(109,109,109,0.2)]
+              opacity-0 invisible group-hover:visible group-hover:opacity-100 transition-opacity duration-200 pointer-events-none group-hover:pointer-events-auto">
+              <p onClick={() => setIsLoginOpen(true)} className="capitalize block py-2 px-4 hover:bg-[rgba(41,41,41,0.4)] hover:text-[#EDB900] cursor-pointer rounded-md hover:border border-[rgba(109,109,109,0.2)]">
+                Login
+              </p>
+              <Link href="/sign-up">
                 <p className="capitalize block py-2 px-4 hover:bg-[rgba(41,41,41,0.4)] hover:text-[#EDB900] cursor-pointer rounded-md hover:border border-[rgba(109,109,109,0.2)]">
-                  {item}
+                  Sign Up
                 </p>
               </Link>
-            ))}
+            </div>
+          </div> 
+        </SignedOut>
+
+
+        {/* Show Custom Login Modal */}
+        {isLoginOpen && <LoginModal onClose={() => setIsLoginOpen(false)} />}
+        
+        <SignedIn>
+          <div className="relative group">
+            <button className="hover:text-[#EDB900] transition-all">
+              <UserProfile /> {/* Show user profile image */}
+            </button>
+
+            {/* Profile Dropdown */}
+            <div className="absolute top-12 right-0 bg-[#0f0f0f] p-4 rounded-lg shadow-lg w-36 border border-[rgba(109,109,109,0.2)]
+              opacity-0 invisible group-hover:visible group-hover:opacity-100 transition-opacity duration-200 pointer-events-none group-hover:pointer-events-auto">
+
+              <Link href="/dashboard">
+                <p className="capitalize block py-2 px-4 hover:bg-[rgba(41,41,41,0.4)] hover:text-[#EDB900] cursor-pointer rounded-md">
+                  Dashboard
+                </p>
+              </Link>
+
+              <Link href="/settings">
+                <p className="capitalize block py-2 px-4 hover:bg-[rgba(41,41,41,0.4)] hover:text-[#EDB900] cursor-pointer rounded-md">
+                  Settings
+                </p>
+              </Link>
+
+              {/* Logout Button */}
+              <button
+                onClick={() => {
+                  signOut();
+                  window.location.href = "/"; // ✅ Redirect user to homepage
+                }}
+                className="capitalize block py-2 px-4 text-left hover:bg-[rgba(41,41,41,0.4)] hover:text-[#EDB900] cursor-pointer rounded-md w-full"
+                >
+                Logout
+              </button>
+            </div>
           </div>
-        </div>
+        </SignedIn>         
       </div>
+      <LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
     </nav>
   );
 };
+
+
 
 export default Navbar;

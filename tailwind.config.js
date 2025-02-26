@@ -7,6 +7,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      colors: {
+        goldenTransparent: "rgba(237, 185, 0, 0.05)", // Define a custom color
+      },
       fontSize: {
         '10xl': '10rem', // Manually set size for 10xl (Adjust if needed)
         '11xl': '11rem', // Another option for even bigger text

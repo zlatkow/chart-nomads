@@ -69,7 +69,13 @@ const Benefits = () => {
             >
               {/* Icon */}
               <div className="mb-4">
-                <Image src={benefit.icon} alt={benefit.title} className="w-16 h-16 rounded-[10px]"/>
+              <Image 
+                src={benefit.icon} 
+                alt={benefit.title} 
+                width={64} // 16 * 4 (Tailwind w-16 equivalent in pixels)
+                height={64} // 16 * 4 (Tailwind h-16 equivalent in pixels)
+                className="rounded-[10px]"
+              />
               </div>
               {/* Title */}
               <h3 className="text-xl mb-2">{benefit.title}</h3>
