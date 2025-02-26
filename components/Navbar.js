@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useUser } from "@clerk/nextjs";
-import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton, useAuth } from "@clerk/nextjs";
+import { SignedIn, SignedOut, useAuth } from "@clerk/nextjs";
 import LoginModal from "../components/Auth/LoginModal"; // ✅ Ensure the path is correct
 import Link from "next/link";
 import { FaFacebookF, FaInstagram, FaXTwitter, FaLinkedinIn, FaYoutube, FaTiktok, FaDiscord } from "react-icons/fa6";

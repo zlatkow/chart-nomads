@@ -1,14 +1,14 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { useSignIn, useSignUp } from "@clerk/nextjs";
+import React, { useState} from "react";
+import { useSignIn} from "@clerk/nextjs";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import Noise from "../components/Noise"; // Your existing component
 import Link from "next/link";
+import Image from "next/image";
 
 
-const Login = ({ isOpen, onClose }) => {
+const Login = () => {
   const { signIn, setActive } = useSignIn();
-  const { signUp } = useSignUp();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -133,18 +133,30 @@ const Login = ({ isOpen, onClose }) => {
           onClick={() => handleOAuthSignIn("google")}
           className="w-full h-[45px] flex items-center justify-center space-x-3 border border-white-500 p-3 rounded-lg text-white transition-all duration-100 ease-in-out hover:border-[#EDB900] hover:-translate-y-1 hover:-translate-x-1"
         >
-          <img src="/icons/google.svg" alt="Google" className="w-6 h-6" />
+          <Image 
+            src="/icons/google.svg" 
+            alt="Google" 
+            width={24} 
+            height={24} 
+            className="w-6 h-6" 
+            />
           <span className="px-9 text-xs">Sign in with Google</span>
         </button>
         <button
           onClick={() => handleOAuthSignIn("facebook")}
           className="w-full h-[45px] flex items-center justify-center space-x-3 border border-white-500 p-3 rounded-lg text-white transition-all duration-100 ease-in-out hover:border-[#EDB900] hover:-translate-y-1 hover:-translate-x-1 mt-3"
         >
-          <img src="/icons/facebook.svg" alt="Facebook" className="w-6 h-6" />
+            <Image 
+            src="/icons/facebook.svg" 
+            alt="Facebook" 
+            width={24} 
+            height={24} 
+            className="w-6 h-6" 
+            />
           <span className="px-7 text-xs">Sign in with Facebook</span>
         </button>
         <p className="text-xs text-center mt-10">
-          Don't have an account? 
+          Don&apos;t have an account? 
           <Link href="/sign-up" className="ml-2 text-[#EDB900] cursor-pointer hover:opacity-70">
             Sign up for free.
           </Link>

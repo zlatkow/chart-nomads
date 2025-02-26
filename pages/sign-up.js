@@ -5,6 +5,7 @@ import { FaCheckCircle, FaTimesCircle, FaEye, FaEyeSlash } from "react-icons/fa"
 import Link from "next/link";
 import Noise from "../components/Noise"; // Your existing component
 import { createClient } from '@supabase/supabase-js';
+import Image from "next/image";
 
 const Signup = () => {
   const { isLoaded, signUp } = useSignUp();  // ✅ Ensure Clerk is loaded
@@ -141,13 +142,25 @@ const handleSubmit = async (e) => {
           <button
             onClick={() => handleOAuthSignIn("google")}
             className="w-full h-[45px] flex items-center justify-center space-x-3 border border-white-500 p-3 rounded-lg text-white transition-all duration-100 ease-in-out hover:border-[#EDB900] hover:-translate-y-1 hover:-translate-x-1">
-            <img src="/icons/google.svg" alt="Google" className="w-6 h-6" />
+            <Image 
+            src="/icons/google.svg" 
+            alt="Google" 
+            width={24} 
+            height={24} 
+            className="w-6 h-6" 
+            />
             <span className="text-xs px-9">Continue with Google</span>
           </button>
           <button
             onClick={() => handleOAuthSignIn("facebook")}
             className="w-full h-[45px] flex items-center justify-center space-x-3 border border-white-500 p-3 rounded-lg text-white transition-all duration-100 ease-in-out hover:border-[#EDB900] hover:-translate-y-1 hover:-translate-x-1 mt-3">
-            <img src="/icons/facebook.svg" alt="Facebook" className="w-6 h-6" />
+            <Image 
+            src="/icons/facebook.svg" 
+            alt="Facebook" 
+            width={24} 
+            height={24} 
+            className="w-6 h-6" 
+            />
             <span className="text-xs px-7">Continue with Facebook</span>
           </button>
 
