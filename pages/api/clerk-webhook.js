@@ -49,11 +49,12 @@ export default async function handler(req, res) {
 
   console.log("📩 Received Webhook Event:", eventType, user);
 
-  if (eventType === "user.created") {
-    const { id, email_addresses, first_name, last_name } = user;
-    const email = email_addresses?.[0]?.email_address || null; // Ensure email is available
+  // Extract user details
+  const { id, email_addresses, first_name, last_name } = user;
+  const email = email_addresses?.[0]?.email_address || null; // Ensure email is available
 
-    // Insert new user into Supabase
+  // ✅ Handle User Creation
+  if (eventType === "user.created") {
     const { data, error } = await supabase
       .from("users")
       .insert([{ id, email, first_name, last_name }]);
@@ -65,6 +66,35 @@ export default async function handler(req, res) {
 
     console.log("✅ User inserted successfully:", data);
     return res.status(200).json({ message: "User created successfully" });
+  }
+
+  // ✅ Handle User Update
+  if (eventType === "user.updated") {
+    const { data, error } = await supabase
+      .from("users")
+      .update({ email, first_name, last_name })
+      .eq("id", id);
+
+    if (error) {
+      console.error("❌ Error updating user in Supabase:", error);
+      return res.status(500).json({ error: "Failed to update user in Supabase" });
+    }
+
+    console.log("✅ User updated successfully:", data);
+    return res.status(200).json({ message: "User updated successfully" });
+  }
+
+  // ✅ Handle User Deletion
+  if (eventType === "user.deleted") {
+    const { error } = await supabase.from("users").delete().eq("id", id);
+
+    if (error) {
+      console.error("❌ Error deleting user from Supabase:", error);
+      return res.status(500).json({ error: "Failed to delete user from Supabase" });
+    }
+
+    console.log("✅ User deleted successfully:", id);
+    return res.status(200).json({ message: "User deleted successfully" });
   }
 
   console.warn("⚠️ Unhandled Webhook Event:", eventType);
