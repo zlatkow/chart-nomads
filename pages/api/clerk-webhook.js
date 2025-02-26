@@ -2,7 +2,7 @@ import { Webhook } from "svix";
 import { createClient } from "@supabase/supabase-js";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY; // MUST be Service Role Key!
 const CLERK_WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;
 
 // Ensure environment variables are available
@@ -18,49 +18,73 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method Not Allowed" });
   }
 
+  const headers = req.headers;
+  const payload = await req.text();
+  const wh = new Webhook(CLERK_WEBHOOK_SECRET);
+
+  let evt;
   try {
-    // Extract headers & body correctly
-    const headers = req.headers;
-    const payload = req.body; // ✅ FIX: Use req.body instead of req.text()
+    evt = wh.verify(payload, headers);
+  } catch (err) {
+    console.error("❌ Webhook signature verification failed:", err);
+    return res.status(400).json({ error: "Webhook signature verification failed." });
+  }
 
-    const wh = new Webhook(CLERK_WEBHOOK_SECRET);
-    const evt = wh.verify(JSON.stringify(payload), headers);
+  const eventType = evt.type;
+  const user = evt.data;
 
-    console.log("📩 Received Webhook Event:", evt);
+  console.log("📩 Received Webhook Event:", eventType, user);
 
-    const eventType = evt.type;
-    const user = evt.data;
+  if (eventType === "user.created") {
+    const { id, email_addresses, first_name, last_name } = user;
+    const email = email_addresses?.[0]?.email_address || null; // Ensure email is available
 
-    if (eventType === "user.created") {
-      const { id, email_addresses, first_name, last_name } = user;
-      const email = email_addresses?.[0]?.email_address || null; // Ensure email is available
+    // Insert new user into Supabase
+    const { data, error } = await supabase.from("users").insert([{ id, email, first_name, last_name }]);
 
-      // Insert new user into Supabase
-      const { data, error } = await supabase
-        .from("users")
-        .insert([{ id, email, first_name, last_name }]);
-
-      if (error) {
-        console.error("❌ Error inserting user into Supabase:", error);
-        return res.status(500).json({ error: "Failed to insert user into Supabase" });
-      }
-
-      console.log("✅ User inserted successfully:", data);
-      return res.status(200).json({ message: "User created successfully" });
+    if (error) {
+      console.error("❌ Error inserting user into Supabase:", error);
+      return res.status(500).json({ error: "Failed to insert user into Supabase" });
     }
 
-    console.warn("⚠️ Unhandled Webhook Event:", eventType);
-    return res.status(400).json({ error: "Unhandled event type" });
-
-  } catch (err) {
-    console.error("❌ Webhook processing error:", err);
-    return res.status(500).json({ error: "Internal Server Error" });
+    console.log("✅ User inserted successfully:", data);
+    return res.status(200).json({ message: "User created successfully" });
   }
-}
 
-// ✅ Required for Next.js API routes to parse JSON body
-export const config = {
-  api: {
-    bodyParser: true, // ✅ Ensures Next.js API route can parse JSON
-  },
-};
+  if (eventType === "user.updated") {
+    const { id, email_addresses, first_name, last_name } = user;
+    const email = email_addresses?.[0]?.email_address || null;
+
+    // Update existing user in Supabase
+    const { data, error } = await supabase
+      .from("users")
+      .update({ email, first_name, last_name })
+      .eq("id", id);
+
+    if (error) {
+      console.error("❌ Error updating user in Supabase:", error);
+      return res.status(500).json({ error: "Failed to update user in Supabase" });
+    }
+
+    console.log("✅ User updated successfully:", data);
+    return res.status(200).json({ message: "User updated successfully" });
+  }
+
+  if (eventType === "user.deleted") {
+    const { id } = user;
+
+    // Delete user from Supabase
+    const { data, error } = await supabase.from("users").delete().eq("id", id);
+
+    if (error) {
+      console.error("❌ Error deleting user from Supabase:", error);
+      return res.status(500).json({ error: "Failed to delete user from Supabase" });
+    }
+
+    console.log("✅ User deleted successfully:", data);
+    return res.status(200).json({ message: "User deleted successfully" });
+  }
+
+  console.warn("⚠️ Unhandled Webhook Event:", eventType);
+  return res.status(400).json({ error: "Unhandled event type" });
+}
