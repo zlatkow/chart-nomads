@@ -40,6 +40,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ transactions: data, total_count, total_pages });
   } catch (error) {
+    console.error("Supabase Fetch Error:", error); 
     return res.status(500).json({ error: "Failed to fetch transactions" });
   }
 }

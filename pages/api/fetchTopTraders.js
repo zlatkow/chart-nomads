@@ -24,6 +24,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ topTraders: data || [] });
   } catch (error) {
+    console.error("Supabase Fetch Error:", error);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 }

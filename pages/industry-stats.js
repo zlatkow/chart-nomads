@@ -13,26 +13,8 @@ import StatsTabs from "../components/industry-stats-page/StatsTabs"
 import StatsTabContent from "../components/industry-stats-page/StatsTabContent"
 
 const StatsPage = () => {
-  const { stats, loading, error } = useFetchStats()
-  const [topPayouts, setTopPayouts] = useState([])
+  const { stats, loading } = useFetchStats()
   const [activeTab, setActiveTab] = useState("stats")
-
-  // ✅ Function to Format "Time Since Last Transaction"
-  const formatTimeSinceTransaction = (timeString) => {
-    if (!timeString) return "N/A"
-
-    // Extract numbers from the string (e.g., "1h 32m ago" -> ["1", "32"])
-    const timeParts = timeString.match(/\d+/g)
-    if (!timeParts) return "N/A"
-
-    if (timeString.includes("h")) {
-      return `Time since last transaction: ${timeParts[0]}h ${timeParts[1] ? timeParts[1] + "min" : ""}`
-    } else if (timeString.includes("m")) {
-      return `Time since last transaction: ${timeParts[0]}min`
-    }
-
-    return "N/A"
-  }
 
   const statsData = {
     last24Hours: {

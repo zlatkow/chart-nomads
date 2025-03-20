@@ -4,6 +4,7 @@ import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import countries from "world-countries";
 import Noise from "../components/Noise";
+import Image from "next/image";
 
 const countryPhoneCodes = {
     "Afghanistan": "af",
@@ -207,7 +208,7 @@ const formattedCountries = countries.map((country) => ({
   value: country.name.common,
   label: (
     <div className="flex items-center">
-      <img
+      <Image
         src={`https://flagcdn.com/w40/${country.cca2.toLowerCase()}.png`}
         alt={country.name.common}
         className="w-5 h-4 mr-2"
@@ -218,7 +219,6 @@ const formattedCountries = countries.map((country) => ({
 }));
 
 const Onboarding = () => {
-  const [selectedCountry, setSelectedCountry] = useState(null);
   const [phone, setPhone] = useState("");
 
   const handleCountryChange = (selectedOption) => {

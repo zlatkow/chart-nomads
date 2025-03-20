@@ -17,12 +17,11 @@ import Community from "../components/Community";
 import Newsletter from "../components/Newsletter";
 import Footer from "../components/Footer";
 import MissingRuleForm from "../components/MissingRuleForm";
+import Image from "next/image";
 
 
 export async function getServerSideProps() {
   try {
-    console.log("📡 Fetching Main Rules...");
-
     const { data: mainRules, error: mainRulesError } = await supabase
       .from("prop_firm_main_rules")
       .select(`
@@ -47,10 +46,6 @@ export async function getServerSideProps() {
       return { props: { propFirmRules: [] } };
     }
 
-    console.log("✅ SUCCESS: Fetched", mainRules.length, "Main Rules records.");
-
-    console.log("📡 Fetching Change Logs...");
-
     const { data: changeLogs, error: changeLogsError } = await supabase
       .from("prop_firm_rules_change_logs")
       .select(`
@@ -68,13 +63,8 @@ export async function getServerSideProps() {
     console.log("📊 RAW Change Logs Response:", changeLogs);
 
     if (!Array.isArray(changeLogs)) {
-      console.warn("⚠️ WARNING: Change Logs fetch returned an invalid format.");
       return { props: { propFirmRules: [] } };
     }
-
-    console.log("✅ SUCCESS: Fetched", changeLogs.length, "Change Logs records.");
-
-    console.log("🛠 Processing Change Logs...");
 
     // ✅ Change Log Map: Store Multiple Logs Per Firm
     const changeLogMap = changeLogs.reduce((acc, log) => {
@@ -88,15 +78,11 @@ export async function getServerSideProps() {
       return acc;
     }, {});
 
-    console.log("🔎 Change Log Lookup Table:", changeLogMap);
-
     // ✅ Merge: Attach All Logs to Each Firm
     const combinedData = mainRules.map((firm) => ({
       ...firm,
       change_logs: changeLogMap[firm.prop_firms.id] || [], // Store logs as an array
     }));
-
-    console.log("✅ FINAL Combined Data:", combinedData);
 
     return { props: { propFirmRules: combinedData } };
 
@@ -111,7 +97,6 @@ const PropFirmRules = ({ propFirmRules }) => {
   const [searchTerm, setSearchTerm] = useState(""); 
   const [userLikedFirms, setUserLikedFirms] = useState(new Set());
   const { user } = useUser();
-  const [loadingLikes, setLoadingLikes] = useState(true);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [likesMap, setLikesMap] = useState({});
   const [activeTab, setActiveTab] = useState("tab1");
@@ -360,7 +345,7 @@ const handleLikeToggle = async (firmId) => {
               <Link href={`/prop-firms/${entry.prop_firms.slug}`} passHref>
                 <div className="flex w-[300px] h-[200px] justify-between px-7">
                   <div className="w-20 h-20 mb-2 flex items-center justify-center rounded-[10px] p-1 mt-[50px]" style={{ backgroundColor: entry.prop_firms.brand_colour }}>
-                    <img src={entry.prop_firms.logo_url || '/default-logo.png'} alt={entry.prop_firms.propfirm_name} className="w-auto max-h-[40px] max-w-[40px] object-cover" />
+                    <Image src={entry.prop_firms.logo_url || '/default-logo.png'} alt={entry.prop_firms.propfirm_name} className="w-auto max-h-[40px] max-w-[40px] object-cover" />
                   </div>
 
                   <div className="block mt-9 justify-center">
