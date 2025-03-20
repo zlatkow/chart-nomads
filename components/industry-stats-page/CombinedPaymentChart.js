@@ -10,6 +10,7 @@ const CombinedPaymentChart = ({ monthlyStats }) => {
   const [chartData, setChartData] = useState([]);
   const [timeRange, setTimeRange] = useState("All Time");
   const [filteredStats, setFilteredStats] = useState(monthlyStats || []);
+  const [loading, setLoading] = useState(true); // ✅ Add loading state
 
   // ✅ Simulate loading for 4 seconds
   useEffect(() => {

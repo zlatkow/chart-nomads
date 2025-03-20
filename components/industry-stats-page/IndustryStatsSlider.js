@@ -9,7 +9,6 @@ const IndustryStatsSlider = ({ statsData }) => {
   const [loading, setLoading] = useState(true) // ✅ Loading state
   const [isHovered, setIsHovered] = useState(false) // ✅ Added hover state
 
-  const timeRanges = ["Last 24 Hours", "Last 7 Days", "Last 30 Days", "Since Start"]
   const slides = statsData
     ? [statsData.last24Hours, statsData.last7Days, statsData.last30Days, statsData.sinceStart]
     : []
@@ -23,7 +22,6 @@ const IndustryStatsSlider = ({ statsData }) => {
   }, [statsData])
 
   const handleNext = () => setCurrentSlide((prev) => (prev + 1) % slides.length)
-  const handlePrev = () => setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length)
 
   useEffect(() => {
     const interval = setInterval(() => {
