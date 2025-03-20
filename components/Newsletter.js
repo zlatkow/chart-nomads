@@ -26,6 +26,7 @@ const Newsletter = () => {
           {/* Input Field & Button */}
           <div className="text-sm mt-6 flex bg-white rounded-lg overflow-hidden w-full max-w-md">
             <input 
+              id="footerNewsletter"
               type="email" 
               placeholder="No spam, just value" 
               className="w-full px-4 py-3 text-black outline-none"

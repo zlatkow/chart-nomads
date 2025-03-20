@@ -1,12 +1,13 @@
 "use client";
 import { useState } from "react";
 import { useUser } from "@clerk/nextjs";
-import { SignedIn, SignedOut, useAuth } from "@clerk/nextjs";
-import LoginModal from "../components/Auth/LoginModal"; // ✅ Ensure the path is correct
+import { SignedIn, SignedOut, useAuth } from "@clerk/nextjs"; // ✅ Ensure the path is correct
 import Link from "next/link";
 import { FaFacebookF, FaInstagram, FaXTwitter, FaLinkedinIn, FaYoutube, FaTiktok, FaDiscord } from "react-icons/fa6";
 import Image from "next/image";
 import { FiChevronDown } from "react-icons/fi";
+import LoginModal from "../components/Auth/LoginModal"; // ✅ Adjust this path if necessary
+
 
 
 const UserProfile = () => {

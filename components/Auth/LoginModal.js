@@ -66,7 +66,7 @@ const LoginModal = ({ isOpen, onClose }) => {
 
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-md flex justify-center items-center z-50"
+      className="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-md flex justify-center items-center z-[200]"
       onClick={onClose}
     >
       <div

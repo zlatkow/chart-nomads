@@ -107,7 +107,7 @@ const handleSubmit = async (e) => {
       }
 
       // Redirect to onboarding
-      // window.location.href = "/onboarding-1";
+      window.location.href = "/onboarding";
     } else if (result.status === "needs_verification") {
       setError("A verification email has been sent to your email.");
     } else {
