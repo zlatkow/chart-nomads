@@ -7,6 +7,7 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Card, CardContent } from "../ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import Image from "next/image";
 
 export default function TransactionsTable() {
   // State variables
@@ -68,6 +69,7 @@ export default function TransactionsTable() {
       setTransactions(allTransactions);
       
     } catch (error) {
+      console.error("Transaction fetch error:", error);
     } finally {
       setLoading(false);
     }
@@ -247,7 +249,12 @@ export default function TransactionsTable() {
                             style={{ backgroundColor: tx.brand_colour || "#555555" }}
                           >
                             {tx.logo_url ? (
-                              <img src={tx.logo_url || "/placeholder.svg"} alt={tx.company} className="w-full h-full object-cover rounded-[10px]" />
+                              <Image   src={tx.logo_url || "/placeholder.svg"} 
+                              alt={tx.company} 
+                              width={40} 
+                              height={40} 
+                              className="object-cover rounded-[10px]"
+                              unoptimized />
                             ) : (
                               <span className="text-xs font-bold text-white">{tx.company[0]}</span>
                             )}

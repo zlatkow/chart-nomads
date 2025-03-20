@@ -103,6 +103,7 @@ const PropFirmRules = ({ propFirmRules }) => {
   const [visibleCount, setVisibleCount] = useState(10); // 🔥 Show 10 entries initially
   const totalResults = activeTab === "tab1" ? propFirmRules.length 
                                           : propFirmRules.reduce((acc, firm) => acc + firm.change_logs.length, 0);
+  const [loadingLikes, setLoadingLikes] = useState(true);
 
 
 
@@ -345,7 +346,7 @@ const handleLikeToggle = async (firmId) => {
               <Link href={`/prop-firms/${entry.prop_firms.slug}`} passHref>
                 <div className="flex w-[300px] h-[200px] justify-between px-7">
                   <div className="w-20 h-20 mb-2 flex items-center justify-center rounded-[10px] p-1 mt-[50px]" style={{ backgroundColor: entry.prop_firms.brand_colour }}>
-                    <Image src={entry.prop_firms.logo_url || '/default-logo.png'} alt={entry.prop_firms.propfirm_name} className="w-auto max-h-[40px] max-w-[40px] object-cover" />
+                    <Image src={entry.prop_firms.logo_url || '/default-logo.png'} alt={entry.prop_firms.propfirm_name} width={40} height={40} className="object-cover" />
                   </div>
 
                   <div className="block mt-9 justify-center">
