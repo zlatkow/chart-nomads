@@ -1,7 +1,5 @@
 /* eslint-disable */
 
-/* eslint-disable */
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -12,6 +10,11 @@ import { Input } from "../ui/input";
 import { Card, CardContent } from "../ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import Image from "next/image";
+
+// Define the AllTransactions component to accept transactions prop
+const AllTransactions = ({ transactions }) => {
+  return transactions;
+};
 
 export default function TransactionsTable() {
   // State variables
