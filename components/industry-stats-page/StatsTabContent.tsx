@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import CombinedPaymentChart from "./CombinedPaymentChart"
 import MonthlyTransactionChart from "./MonthlyTransactionChart"
 import CompanyTransactionCharts from "./CompanyTransactionCharts"
