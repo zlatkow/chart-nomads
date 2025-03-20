@@ -1,6 +1,3 @@
-/* eslint-disable */
-
-
 "use client"
 
 import { useState, useEffect } from "react"
@@ -8,13 +5,25 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { DollarSign } from "lucide-react"
 
-export default function PropFirmPayouts() {
+/**
+ * PropFirmPayouts Component
+ * @param {Object} props
+ * @param {Array} [props.topPayouts=[]] - Initial payouts data
+ */
+export default function PropFirmPayouts({ topPayouts: initialPayouts = [] }) {
   const [selectedFilter, setSelectedFilter] = useState("all")
-  const [payoutData, setPayoutData] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [payoutData, setPayoutData] = useState(initialPayouts)
+  const [loading, setLoading] = useState(!initialPayouts.length)
 
   // ✅ Fetch Data from Backend Whenever Filter Changes
   useEffect(() => {
+    // If we're using the "all" filter and we have initial data, use that
+    if (selectedFilter === "all" && initialPayouts.length > 0) {
+      setPayoutData(initialPayouts)
+      setLoading(false)
+      return
+    }
+
     const fetchPayouts = async () => {
       setLoading(true)
 
@@ -41,17 +50,16 @@ export default function PropFirmPayouts() {
     }
 
     fetchPayouts()
-  }, [selectedFilter]) // ✅ Refetch data when the filter changes
+  }, [selectedFilter, initialPayouts]) // ✅ Refetch data when the filter changes or initialPayouts changes
 
   // Format currency with commas and dollar sign
   const formatCurrency = (amount, decimalPlaces = 2) => {
-    if (!amount && amount !== 0) return "N/A";
-    return `$${Number(amount).toLocaleString(undefined, { 
-      minimumFractionDigits: decimalPlaces, 
-      maximumFractionDigits: decimalPlaces 
-    })}`;
-  };
-  
+    if (!amount && amount !== 0) return "N/A"
+    return `$${Number(amount).toLocaleString(undefined, {
+      minimumFractionDigits: decimalPlaces,
+      maximumFractionDigits: decimalPlaces,
+    })}`
+  }
 
   // Format date to be more readable
   const formatDate = (dateString) => {
@@ -119,7 +127,6 @@ export default function PropFirmPayouts() {
             </SelectContent>
           </Select>
         </div>
-        
 
         <Card className="w-full bg-[#0F0F0F] border-[#0f0f0f] overflow-hidden">
           <CardContent className="p-0">
