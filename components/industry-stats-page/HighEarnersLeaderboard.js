@@ -1,6 +1,5 @@
 /* eslint-disable */
 
-
 "use client"
 
 import { useState, useEffect } from "react"
@@ -11,7 +10,7 @@ import tippy from "tippy.js"
 import "tippy.js/dist/tippy.css"
 import "tippy.js/themes/light.css"
 
-export default function HighEarnersLeaderboard() {
+export default function HighEarnersLeaderboard({ topTraders }) {
   const [data, setData] = useState({ top_by_payouts: [], top_by_amount: [] })
   const [loading, setLoading] = useState({ top_by_payouts: true, top_by_amount: true })
   const [error, setError] = useState(null)
@@ -130,7 +129,8 @@ export default function HighEarnersLeaderboard() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {["top_by_payouts", "top_by_amount"].map((key, categoryIndex) => {
           const title = key === "top_by_payouts" ? "High Earners by Payout Count" : "High Earners by Total Amount"
-          const subtitle = key === "top_by_payouts" ? "Top 50 High Earners by Payout Count" : "Top 50 High Earners by Total Amount"
+          const subtitle =
+            key === "top_by_payouts" ? "Top 50 High Earners by Payout Count" : "Top 50 High Earners by Total Amount"
           const timeRange = key === "top_by_payouts" ? timeRangePayouts : timeRangeAmount
           const setTimeRange = key === "top_by_payouts" ? setTimeRangePayouts : setTimeRangeAmount
 
@@ -147,12 +147,9 @@ export default function HighEarnersLeaderboard() {
                   </div>
                   <p className="text-[#666666]">{subtitle}</p>
                 </div>
-          
+
                 {/* Right Section: Filter Dropdown */}
-                <Select
-                  value={timeRange}
-                  onValueChange={(value) => setTimeRange(value)}
-                >
+                <Select value={timeRange} onValueChange={(value) => setTimeRange(value)}>
                   <SelectTrigger className="w-[170px] bg-[#1A1A1A] border-[#333333] text-white rounded-md px-3 py-1.5 text-sm">
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>

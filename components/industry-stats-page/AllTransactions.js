@@ -1,117 +1,103 @@
 /* eslint-disable */
 
-"use client"
+/* eslint-disable */
 
-import { useState, useEffect } from "react"
-import {
-  ArrowDownIcon,
-  ArrowUpIcon,
-  ArrowUpDown,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  Search,
-  ArrowRightLeft,
-} from "lucide-react"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table"
-import { Button } from "../ui/button"
-import { Input } from "../ui/input"
-import { Card, CardContent } from "../ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
-import Image from "next/image"
+"use client";
 
-/**
- * AllTransactions Component
- * @param {Object} props
- * @param {Array} [props.transactions=[]] - Transactions data
- */
-export default function AllTransactions({ transactions = [] }) {
+import { useState, useEffect } from "react";
+import { ArrowDownIcon, ArrowUpIcon, ArrowUpDown, ChevronLeftIcon, ChevronRightIcon, Search, ArrowRightLeft } from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Card, CardContent } from "../ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import Image from "next/image";
+
+export default function TransactionsTable() {
   // State variables
-  const [allTransactions, setAllTransactions] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [page, setPage] = useState(1)
-  const [limitRows, setLimitRows] = useState(10)
-  const [sortField, setSortField] = useState("transaction_timestamp")
-  const [sortDirection, setSortDirection] = useState("desc")
-  const [filteredTransactions, setFilteredTransactions] = useState([])
-  const [displayTransactions, setDisplayTransactions] = useState([])
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [page, setPage] = useState(1);
+  const [limitRows, setLimitRows] = useState(10);
+  const [sortField, setSortField] = useState("transaction_timestamp");
+  const [sortDirection, setSortDirection] = useState("desc");
+  const [filteredTransactions, setFilteredTransactions] = useState([]);
+  const [displayTransactions, setDisplayTransactions] = useState([]);
 
   // Calculate total pages
-  const totalPages = Math.max(1, Math.ceil(filteredTransactions.length / limitRows))
+  const totalPages = Math.max(1, Math.ceil(filteredTransactions.length / limitRows));
 
   // Format timestamp for display
   const formatTimestamp = (timestamp) => {
-    const diff = Math.floor((new Date() - new Date(timestamp)) / 60000)
-    if (diff < 60) return `${diff}min ago`
-    if (diff < 1440) return `${Math.floor(diff / 60)}h ${diff % 60}min ago`
-    return new Date(timestamp).toLocaleDateString()
-  }
+    const diff = Math.floor((new Date() - new Date(timestamp)) / 60000);
+    if (diff < 60) return `${diff}min ago`;
+    if (diff < 1440) return `${Math.floor(diff / 60)}h ${diff % 60}min ago`;
+    return new Date(timestamp).toLocaleDateString();
+  };
 
   // Fetch all transactions in batches
   const fetchAllTransactions = async () => {
     // Clear existing transactions and start fresh
-    setAllTransactions([])
-    setLoading(true)
-
+    setTransactions([]);
+    setLoading(true);
+    
     try {
-      let allFetched = false
-      let offset = 0
-      let fetchedTransactions = []
-
+      let allFetched = false;
+      let offset = 0;
+      let allTransactions = [];
+      
       // Keep fetching until we get all transactions
       while (!allFetched) {
+        
         const res = await fetch(
-          `/api/fetchTransactions?limitRows=1000&offsetRows=${offset}&timeFilter=last_7_days&searchQuery=${encodeURIComponent(searchQuery)}`,
-        )
-
-        if (!res.ok) throw new Error("Failed to fetch transactions")
-
-        const data = await res.json()
-
+          `/api/fetchTransactions?limitRows=1000&offsetRows=${offset}&timeFilter=last_7_days&searchQuery=${encodeURIComponent(searchQuery)}`
+        );
+        
+        if (!res.ok) throw new Error("Failed to fetch transactions");
+        
+        const data = await res.json();
+        
         // Add this batch to our collection
-        fetchedTransactions = [...fetchedTransactions, ...data.transactions]
-
+        allTransactions = [...allTransactions, ...data.transactions];
+        
         // If we got fewer than the limit, we've reached the end
         if (data.transactions.length < 1000) {
-          allFetched = true
+          allFetched = true;
         } else {
           // Otherwise, increment offset for next batch
-          offset += 1000
+          offset += 1000;
         }
       }
-
-      setAllTransactions(fetchedTransactions)
+      
+      setTransactions(allTransactions);
+      
     } catch (error) {
-      console.error("Transaction fetch error:", error)
+      console.error("Transaction fetch error:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   // Handle sorting
   const handleSort = (field) => {
-    setSortField(field)
-    setSortDirection(sortDirection === "asc" ? "desc" : "asc")
-  }
+    setSortField(field);
+    setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+  };
 
   // Initial data fetch
   useEffect(() => {
-    // If transactions prop is provided, use it
-    if (transactions && transactions.length > 0) {
-      setAllTransactions(transactions)
-      setLoading(false)
-    } else {
-      // Otherwise fetch from API
-      fetchAllTransactions()
-    }
-  }, []) // Empty dependency array means this only runs once on mount
+    fetchAllTransactions();
+  }, []); // Empty dependency array means this only runs once on mount
 
   // Apply search filter and sorting
   useEffect(() => {
     // Filter transactions by search query
-    let filtered = [...allTransactions]
+    let filtered = [...transactions];
     if (searchQuery.trim() !== "") {
-      filtered = filtered.filter((tx) => tx.company.toLowerCase().includes(searchQuery.toLowerCase()))
+      filtered = filtered.filter(tx => 
+        tx.company.toLowerCase().includes(searchQuery.toLowerCase())
+      );
     }
 
     // Sort filtered transactions
@@ -119,92 +105,94 @@ export default function AllTransactions({ transactions = [] }) {
       if (sortField === "transaction_timestamp") {
         return sortDirection === "asc"
           ? new Date(a.transaction_timestamp) - new Date(b.transaction_timestamp)
-          : new Date(b.transaction_timestamp) - new Date(a.transaction_timestamp)
+          : new Date(b.transaction_timestamp) - new Date(a.transaction_timestamp);
       } else if (sortField === "company") {
-        return sortDirection === "asc" ? a.company.localeCompare(b.company) : b.company.localeCompare(a.company)
+        return sortDirection === "asc"
+          ? a.company.localeCompare(b.company)
+          : b.company.localeCompare(a.company);
       } else if (sortField === "payout_amount") {
-        return sortDirection === "asc" ? a.payout_amount - b.payout_amount : b.payout_amount - a.payout_amount
+        return sortDirection === "asc"
+          ? a.payout_amount - b.payout_amount
+          : b.payout_amount - a.payout_amount;
       }
-      return 0
-    })
+      return 0;
+    });
 
-    setFilteredTransactions(filtered)
-    setPage(1) // Reset to first page when filtering changes
-  }, [allTransactions, searchQuery, sortField, sortDirection])
+    setFilteredTransactions(filtered);
+    setPage(1); // Reset to first page when filtering changes
+  }, [transactions, searchQuery, sortField, sortDirection]);
 
   // Update displayed transactions when page or limitRows changes
   useEffect(() => {
-    const startIndex = (page - 1) * limitRows
-    const endIndex = startIndex + limitRows
-    setDisplayTransactions(filteredTransactions.slice(startIndex, endIndex))
-  }, [filteredTransactions, page, limitRows])
+    const startIndex = (page - 1) * limitRows;
+    const endIndex = startIndex + limitRows;
+    setDisplayTransactions(filteredTransactions.slice(startIndex, endIndex));
+  }, [filteredTransactions, page, limitRows]);
 
   // Handle search
   const handleSearch = (e) => {
-    setSearchQuery(e.target.value)
-    setPage(1) // Reset to page 1 when searching
-  }
+    setSearchQuery(e.target.value);
+    setPage(1); // Reset to page 1 when searching
+  };
 
   return (
     <Card className="border-[#666666] bg-[#0f0f0f]">
       <CardContent className="p-0">
         <div className="flex justify-between border-b-[1px] border-b-[#666666] p-6">
-          <div>
-            <div className="flex">
-              <ArrowRightLeft className="h-5 w-5 mr-2 mt-2 text-[#edb900]" />
-              <h2 className="text-3xl font-[balboa] text-white">Recent transactions</h2>
-            </div>
             <div>
-              <p className="text-[#666666]">Browse through most recent payouts in the industry</p>
+              <div className="flex">
+                <ArrowRightLeft className="h-5 w-5 mr-2 mt-2 text-[#edb900]" />
+                <h2 className="text-3xl font-[balboa] text-white">Recent transactions</h2>
+              </div>
+              <div>
+                <p className="text-[#666666]">Browse through most recent payouts in the industry</p>
+              </div>
             </div>
-          </div>
-          <div className="w-[300px]">
+            <div className="w-[300px]">
             <Search className="relative left-2.5 top-6 h-4 w-4 text-muted-foreground" />
-            <Input
-              id="searchTransactions"
-              type="text"
-              placeholder="Search by company.."
-              className="w-full pl-8 bg-[#333333] border-[#333333] focus-visible:ring-[#edb900]"
-              value={searchQuery}
-              onChange={handleSearch}
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => {
-                  setSearchQuery("")
-                  setPage(1)
-                }}
-                className="relative right-[-275px] top-[-27px] h-4 w-4 text-[#edb900] hover:text-[#edb900]/80"
-                aria-label="Clear search"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-4 w-4"
+              <Input
+                id="searchTransactions"
+                type="text"
+                placeholder="Search by company.."
+                className="w-full pl-8 bg-[#333333] border-[#333333] focus-visible:ring-[#edb900]"
+                value={searchQuery}
+                onChange={handleSearch}
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery("");
+                    setPage(1);
+                  }}
+                  className="relative right-[-275px] top-[-27px] h-4 w-4 text-[#edb900] hover:text-[#edb900]/80"
+                  aria-label="Clear search"
                 >
-                  <path d="M18 6L6 18M6 6l12 12" />
-                </svg>
-              </button>
-            )}
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="h-4 w-4"
+                  >
+                    <path d="M18 6L6 18M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
           </div>
         </div>
-
+            
+              
         <div>
           <div className="relative w-full overflow-auto mt-5">
             <Table>
               <TableHeader className="bg-[#0f0f0f]">
                 <TableRow className="border-[#333333] hover:bg-transparent">
                   <TableHead className="text-[#edb900]">
-                    <div
-                      className="p-4 flex cursor-pointer items-center justify-left"
-                      onClick={() => handleSort("transaction_timestamp")}
-                    >
+                    <div className="p-4 flex cursor-pointer items-center justify-left" onClick={() => handleSort("transaction_timestamp")}>
                       Timestamp
                       {sortField === "transaction_timestamp" ? (
                         sortDirection === "asc" ? (
@@ -218,10 +206,7 @@ export default function AllTransactions({ transactions = [] }) {
                     </div>
                   </TableHead>
                   <TableHead className="text-[#edb900]">
-                    <div
-                      className="flex cursor-pointer items-center justify-left"
-                      onClick={() => handleSort("company")}
-                    >
+                    <div className="flex cursor-pointer items-center justify-left" onClick={() => handleSort("company")}>
                       Company
                       {sortField === "company" ? (
                         sortDirection === "asc" ? (
@@ -235,10 +220,7 @@ export default function AllTransactions({ transactions = [] }) {
                     </div>
                   </TableHead>
                   <TableHead className="text-[#edb900]">
-                    <div
-                      className="pr-6 flex cursor-pointer items-center justify-right"
-                      onClick={() => handleSort("payout_amount")}
-                    >
+                    <div className="pr-6 flex cursor-pointer items-center justify-right" onClick={() => handleSort("payout_amount")}>
                       Amount
                       {sortField === "payout_amount" ? (
                         sortDirection === "asc" ? (
@@ -261,14 +243,9 @@ export default function AllTransactions({ transactions = [] }) {
                     </TableCell>
                   </TableRow>
                 ) : displayTransactions.length > 0 ? (
-                  displayTransactions.map((tx) => (
-                    <TableRow
-                      key={tx.id || Math.random()}
-                      className="cursor-pointer border-[#333333] hover:bg-[#121212]"
-                    >
-                      <TableCell className="pl-7 text-white text-left">
-                        {formatTimestamp(tx.transaction_timestamp)}
-                      </TableCell>
+                  displayTransactions.map((tx) => (                
+                    <TableRow key={tx.id || Math.random()} className="cursor-pointer border-[#333333] hover:bg-[#121212]">
+                      <TableCell className="pl-7 text-white text-left">{formatTimestamp(tx.transaction_timestamp)}</TableCell>
                       <TableCell>
                         <div className="flex items-center justify-left gap-3 text-white">
                           <div
@@ -276,14 +253,12 @@ export default function AllTransactions({ transactions = [] }) {
                             style={{ backgroundColor: tx.brand_colour || "#555555" }}
                           >
                             {tx.logo_url ? (
-                              <Image
-                                src={tx.logo_url || "/placeholder.svg"}
-                                alt={tx.company}
-                                width={40}
-                                height={40}
-                                className="object-cover rounded-[10px]"
-                                unoptimized
-                              />
+                              <Image   src={tx.logo_url || "/placeholder.svg"} 
+                              alt={tx.company} 
+                              width={40} 
+                              height={40} 
+                              className="object-cover rounded-[10px]"
+                              unoptimized />
                             ) : (
                               <span className="text-xs font-bold text-white">{tx.company[0]}</span>
                             )}
@@ -317,29 +292,19 @@ export default function AllTransactions({ transactions = [] }) {
               <Select
                 value={limitRows.toString()}
                 onValueChange={(value) => {
-                  setLimitRows(Number(value))
-                  setPage(1) // Reset to first page when changing items per page
+                  setLimitRows(Number(value));
+                  setPage(1); // Reset to first page when changing items per page
                 }}
               >
                 <SelectTrigger className="h-8 w-[70px] bg-[#1A1A1A] border-[#333333] text-white">
                   <SelectValue placeholder={limitRows.toString()} />
                 </SelectTrigger>
                 <SelectContent className="bg-[#1A1A1A] border-[#333333] text-white">
-                  <SelectItem value="5" className="focus:bg-[#555555] focus:text-white">
-                    5
-                  </SelectItem>
-                  <SelectItem value="10" className="focus:bg-[#555555] focus:text-white">
-                    10
-                  </SelectItem>
-                  <SelectItem value="20" className="focus:bg-[#555555] focus:text-white">
-                    20
-                  </SelectItem>
-                  <SelectItem value="50" className="focus:bg-[#555555] focus:text-white">
-                    50
-                  </SelectItem>
-                  <SelectItem value="100" className="focus:bg-[#555555] focus:text-white">
-                    100
-                  </SelectItem>
+                  <SelectItem value="5" className="focus:bg-[#555555] focus:text-white">5</SelectItem>
+                  <SelectItem value="10" className="focus:bg-[#555555] focus:text-white">10</SelectItem>
+                  <SelectItem value="20" className="focus:bg-[#555555] focus:text-white">20</SelectItem>
+                  <SelectItem value="50" className="focus:bg-[#555555] focus:text-white">50</SelectItem>
+                  <SelectItem value="100" className="focus:bg-[#555555] focus:text-white">100</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -357,37 +322,37 @@ export default function AllTransactions({ transactions = [] }) {
             </Button>
             <div className="flex items-center gap-1">
               {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                let pageNumber
-
+                let pageNumber;
+                
                 if (totalPages <= 5) {
                   // If we have 5 or fewer pages, show all page numbers
-                  pageNumber = i + 1
+                  pageNumber = i + 1;
                 } else if (page <= 3) {
                   // If we're near the start, show pages 1-5
-                  pageNumber = i + 1
+                  pageNumber = i + 1;
                 } else if (page >= totalPages - 2) {
                   // If we're near the end, show the last 5 pages
-                  pageNumber = totalPages - 4 + i
+                  pageNumber = totalPages - 4 + i;
                 } else {
                   // Otherwise show 2 pages before and 2 pages after the current page
-                  pageNumber = page - 2 + i
+                  pageNumber = page - 2 + i;
                 }
-
+                
                 return (
                   <Button
                     key={pageNumber}
                     variant={page === pageNumber ? "default" : "outline"}
                     size="icon"
                     className={`h-8 w-8 text-white ${
-                      page === pageNumber
-                        ? "bg-[#edb900] text-black hover:bg-[#edb900]/90"
+                      page === pageNumber 
+                        ? "bg-[#edb900] text-black hover:bg-[#edb900]/90" 
                         : "bg-[#333333] border-[#333333] hover:bg-[#555555]"
                     }`}
                     onClick={() => setPage(pageNumber)}
                   >
                     {pageNumber}
                   </Button>
-                )
+                );
               })}
             </div>
             <Button
@@ -404,6 +369,5 @@ export default function AllTransactions({ transactions = [] }) {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
-
