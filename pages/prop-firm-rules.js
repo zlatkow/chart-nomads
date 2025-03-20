@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import React, { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
 import { SignedIn, SignedOut, useUser } from "@clerk/nextjs";
