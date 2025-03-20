@@ -1,20 +1,25 @@
-"use client"
+"use client";
 
-import { useState, useRef, useEffect } from "react"
-import { ChevronDown, Info } from 'lucide-react'
+import { useState, useRef, useEffect, ReactNode } from "react";
+import { ChevronDown, Info } from "lucide-react";
 
-export default function Accordion({ title, children }) {
-  const [isOpen, setIsOpen] = useState(false)
-  const [height, setHeight] = useState(0)
-  const contentRef = useRef(null)
-  
+interface AccordionProps {
+  title: string;
+  children: ReactNode;
+}
+
+export default function Accordion({ title, children }: AccordionProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [height, setHeight] = useState(0);
+  const contentRef = useRef<HTMLDivElement | null>(null);
+
   useEffect(() => {
-    if (isOpen) {
-      setHeight(contentRef.current.scrollHeight)
+    if (isOpen && contentRef.current) {
+      setHeight(contentRef.current.scrollHeight);
     } else {
-      setHeight(0)
+      setHeight(0);
     }
-  }, [isOpen])
+  }, [isOpen]);
 
   return (
     <div className="w-full max-w-4xl mx-auto">
@@ -27,22 +32,26 @@ export default function Accordion({ title, children }) {
           <Info className="w-4 h-4 text-yellow-500 flex-shrink-0" />
           <span className="font-medium">{title}</span>
         </div>
-        <ChevronDown 
-          className={`w-5 h-5 text-yellow-500 transition-transform duration-300 ease-in-out ${isOpen ? 'rotate-180' : 'rotate-0'}`} 
+        <ChevronDown
+          className={`w-5 h-5 text-yellow-500 transition-transform duration-300 ease-in-out ${
+            isOpen ? "rotate-180" : "rotate-0"
+          }`}
         />
       </button>
-      
-      <div 
+
+      <div
         className="overflow-hidden transition-all duration-300 ease-in-out"
         style={{ height: `${height}px` }}
       >
-        <div 
-          ref={contentRef} 
-          className={`px-5 py-4 bg-[#0f0f0f] text-white text-sm rounded-b-lg ${isOpen ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300`}
+        <div
+          ref={contentRef}
+          className={`px-5 py-4 bg-[#0f0f0f] text-white text-sm rounded-b-lg ${
+            isOpen ? "opacity-100" : "opacity-0"
+          } transition-opacity duration-300`}
         >
           {children}
         </div>
       </div>
     </div>
-  )
+  );
 }
