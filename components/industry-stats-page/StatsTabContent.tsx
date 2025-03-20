@@ -1,54 +1,52 @@
 /* eslint-disable */
 
-import CombinedPaymentChart from "./CombinedPaymentChart";
-import MonthlyTransactionChart from "./MonthlyTransactionChart";
-import CompanyTransactionCharts from "./CompanyTransactionCharts";
-import MonthlyUniqueTradersChart from "./MonthlyUniqueTradersChart";
-import MonthlyUniquePaidTradersChart from "./MonthlyUniquePaidTradersChart";
-import ChurnRateChart from "./ChurnRateChart";
-import HighEarnersChart from "./HighEarnersChart";
-import PropFirmPayouts from "./PropFirmPayouts";
-import AllTransactions from "./AllTransactions";
-import HighEarnersLeaderboard from "./HighEarnersLeaderboard";
+import CombinedPaymentChart from "./CombinedPaymentChart"
+import MonthlyTransactionChart from "./MonthlyTransactionChart"
+import CompanyTransactionCharts from "./CompanyTransactionCharts"
+import MonthlyUniqueTradersChart from "./MonthlyUniqueTradersChart"
+import MonthlyUniquePaidTradersChart from "./MonthlyUniquePaidTradersChart"
+import ChurnRateChart from "./ChurnRateChart"
+import HighEarnersChart from "./HighEarnersChart"
+import PropFirmPayouts from "./PropFirmPayouts"
+import AllTransactions from "./AllTransactions"
+import HighEarnersLeaderboard from "./HighEarnersLeaderboard"
 
-/** ✅ Define a proper type for payoutStats */
+// ✅ Define type based on your screenshot
 interface PayoutStat {
-  amount: number;
-  trader: string;
-  company: string;
+  category: string;
+  count: number;
+  percentage: number;
+  total_unique_traders: number;
+  category_type: string;
 }
 
-/** ✅ Define the main Stats interface */
 interface Stats {
   monthlyTransactionStats?: any;
   companyTransactionStats?: any;
-  payoutStats?: PayoutStat[]; // ✅ Correctly typed payout stats
+  payoutStats?: PayoutStat[]; // ✅ Use the correct type
   churnRate?: any;
   topPayouts?: any[];
   transactions?: any;
   topTraders?: any;
 }
 
-/** ✅ Define Props for the component */
 interface StatsTabContentProps {
   activeTab: string;
-  stats: Stats | null; // ✅ Ensure it's nullable if needed
+  stats: Stats | null;
 }
 
 const StatsTabContent = ({ activeTab, stats }: StatsTabContentProps) => {
-  if (!stats) return null; // ✅ Early return for safety
+  if (!stats) return null;
 
   return (
     <div className="w-full">
-      {/* ✅ Stats Tab */}
+      {/* ✅ Keep all content inside the same JSX block */}
       {activeTab === "stats" && (
         <>
           {stats?.monthlyTransactionStats && (
             <MonthlyUniqueTradersChart uniqueTradersStats={stats.monthlyTransactionStats} />
           )}
-          {stats?.companyTransactionStats && (
-            <CompanyTransactionCharts companyStats={stats.companyTransactionStats} />
-          )}
+          {stats?.companyTransactionStats && <CompanyTransactionCharts companyStats={stats.companyTransactionStats} />}
           {Array.isArray(stats?.payoutStats) && stats.payoutStats.length > 0 && (
             <HighEarnersChart payoutStats={stats.payoutStats} />
           )}
@@ -56,25 +54,17 @@ const StatsTabContent = ({ activeTab, stats }: StatsTabContentProps) => {
         </>
       )}
 
-      {/* ✅ Transactions Tab */}
       {activeTab === "transactions" && (
         <>
-          {stats?.monthlyTransactionStats && (
-            <MonthlyTransactionChart monthlyStats={stats.monthlyTransactionStats} />
-          )}
-          {Array.isArray(stats?.topPayouts) && stats.topPayouts.length > 0 && (
-            <PropFirmPayouts topPayouts={stats.topPayouts} />
-          )}
+          {stats?.monthlyTransactionStats && <MonthlyTransactionChart monthlyStats={stats.monthlyTransactionStats} />}
+          {stats?.topPayouts && stats.topPayouts.length > 0 && <PropFirmPayouts topPayouts={stats.topPayouts} />}
           {stats?.transactions && <AllTransactions transactions={stats.transactions} />}
         </>
       )}
 
-      {/* ✅ High Earners Tab */}
       {activeTab === "high-earners" && (
         <>
-          {Array.isArray(stats?.topTraders) && stats.topTraders.length > 0 && (
-            <HighEarnersLeaderboard topTraders={stats.topTraders} />
-          )}
+          {stats?.topTraders && <HighEarnersLeaderboard topTraders={stats.topTraders} />}
         </>
       )}
     </div>
