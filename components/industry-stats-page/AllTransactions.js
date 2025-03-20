@@ -11,10 +11,9 @@ import { Card, CardContent } from "../ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import Image from "next/image";
 
-// Define the AllTransactions component to accept transactions prop
-const AllTransactions = ({ transactions }) => {
-  return transactions;
-};
+export const AllTransactions = ({ transactions }) => {
+  return transactions
+}
 
 export default function TransactionsTable() {
   // State variables
@@ -27,6 +26,7 @@ export default function TransactionsTable() {
   const [sortDirection, setSortDirection] = useState("desc");
   const [filteredTransactions, setFilteredTransactions] = useState([]);
   const [displayTransactions, setDisplayTransactions] = useState([]);
+  
 
   // Calculate total pages
   const totalPages = Math.max(1, Math.ceil(filteredTransactions.length / limitRows));
