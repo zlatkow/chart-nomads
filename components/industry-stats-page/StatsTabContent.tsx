@@ -16,7 +16,7 @@ interface Stats {
   companyTransactionStats?: any;
   payoutStats?: any[];
   churnRate?: any;
-  topPayouts?: any[];  // ✅ Ensure this exists in the type definition
+  topPayouts?: any[]; // ✅ Ensure this exists in the type definition
   transactions?: any;
   topTraders?: any;
 }
@@ -31,11 +31,12 @@ const StatsTabContent = ({ activeTab, stats }: StatsTabContentProps) => {
 
   return (
     <div className="w-full">
+      {/* ✅ Keep all content inside the same JSX block */}
       {activeTab === "stats" && (
         <>
-          {stats?.monthlyTransactionStats && <CombinedPaymentChart monthlyStats={stats.monthlyTransactionStats} />}
-          {stats?.monthlyTransactionStats && <MonthlyUniquePaidTradersChart uniquePaidTradersStats={stats.monthlyTransactionStats} />}
-          {stats?.monthlyTransactionStats && <MonthlyUniqueTradersChart uniqueTradersStats={stats.monthlyTransactionStats} />}
+          {stats?.monthlyTransactionStats && (
+            <MonthlyUniqueTradersChart uniqueTradersStats={stats.monthlyTransactionStats} />
+          )}
           {stats?.companyTransactionStats && <CompanyTransactionCharts companyStats={stats.companyTransactionStats} />}
           {stats?.payoutStats && stats.payoutStats.length > 0 && <HighEarnersChart payoutStats={stats.payoutStats} />}
           {stats?.churnRate && <ChurnRateChart companyStats={stats.churnRate} />}
@@ -45,7 +46,7 @@ const StatsTabContent = ({ activeTab, stats }: StatsTabContentProps) => {
       {activeTab === "transactions" && (
         <>
           {stats?.monthlyTransactionStats && <MonthlyTransactionChart monthlyStats={stats.monthlyTransactionStats} />}
-          {stats?.topPayouts && stats.topPayouts.length > 0 && <PropFirmPayouts topPayouts={stats.topPayouts} />}  {/* ✅ No more TypeScript error */}
+          {stats?.topPayouts && stats.topPayouts.length > 0 && <PropFirmPayouts topPayouts={stats.topPayouts} />}
           {stats?.transactions && <AllTransactions transactions={stats.transactions} />}
         </>
       )}
@@ -60,5 +61,3 @@ const StatsTabContent = ({ activeTab, stats }: StatsTabContentProps) => {
 };
 
 export default StatsTabContent;
-
-
