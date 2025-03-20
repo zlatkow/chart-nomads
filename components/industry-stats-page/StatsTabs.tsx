@@ -1,4 +1,4 @@
-import { BarChart2, FileText, Star, DollarSign, Award, BookOpen, MessageSquare } from 'lucide-react';
+import { BarChart2, FileText, DollarSign } from 'lucide-react';
 
 interface StatsTabsProps {
   activeTab: string;

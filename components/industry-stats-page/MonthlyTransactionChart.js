@@ -1,16 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { 
-  Area, Bar, ComposedChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, ReferenceLine
-} from "recharts";
-import { ChevronDown, BarChart2 } from 'lucide-react';
+import { Area, Bar, ComposedChart, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
+import { BarChart2 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 const MonthlyTransactionChart = ({ monthlyStats }) => {
   const [chartData, setChartData] = useState([]);
   const [timeRange, setTimeRange] = useState("All Time");
-  const [showTimeRangeDropdown, setShowTimeRangeDropdown] = useState(false);
   const [filteredStats, setFilteredStats] = useState(monthlyStats || []);
 
   // Function to format month correctly

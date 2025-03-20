@@ -21,7 +21,6 @@ const formatMonth = (monthName, year) => {
 const MonthlyUniquePaidTradersChart = ({ uniquePaidTradersStats }) => {
   const [chartData, setChartData] = useState([]);
   const [timeRange, setTimeRange] = useState("All Time");
-  const [showTimeRangeDropdown, setShowTimeRangeDropdown] = useState(false);
   const [filteredStats, setFilteredStats] = useState(uniquePaidTradersStats || []);
 
   // ✅ Filter data based on selected time range

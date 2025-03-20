@@ -2,17 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { 
-  Area, Bar, ComposedChart, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine
-} from "recharts";
+  Area, Bar, ComposedChart, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
 import { DollarSign } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 const CombinedPaymentChart = ({ monthlyStats }) => {
   const [chartData, setChartData] = useState([]);
   const [timeRange, setTimeRange] = useState("All Time");
-  const [showTimeRangeDropdown, setShowTimeRangeDropdown] = useState(false);
   const [filteredStats, setFilteredStats] = useState(monthlyStats || []);
-  const [loading, setLoading] = useState(true); // ✅ Add loading state
 
   // ✅ Simulate loading for 4 seconds
   useEffect(() => {

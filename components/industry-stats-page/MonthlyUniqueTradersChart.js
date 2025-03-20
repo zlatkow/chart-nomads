@@ -8,7 +8,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 const MonthlyUniqueTradersChart = ({ uniqueTradersStats }) => {
   const [chartData, setChartData] = useState([]);
   const [timeRange, setTimeRange] = useState("All Time");
-  const [showTimeRangeDropdown, setShowTimeRangeDropdown] = useState(false);
   const [filteredStats, setFilteredStats] = useState(uniqueTradersStats || []);
 
   // ✅ Function to format month as "MM/YYYY"
