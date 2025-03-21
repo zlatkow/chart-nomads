@@ -83,7 +83,7 @@ const AllPropFirms = ({ blogs }) => {
   useEffect(() => {
     const fetchPropFirms = async () => {
       console.log("🔄 Fetching Prop Firms...");
-      const { data, error } = await supabase.from("prop_firms").select("*");
+      const { data, error } = await supabase.from("prop_firms").select("*").eq("listing_status", "listed")
 
       if (error) console.error("❌ Error fetching prop firms:", error);
       console.log("✅ Prop Firms Fetched:", data);
