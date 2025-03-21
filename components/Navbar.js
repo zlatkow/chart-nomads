@@ -94,7 +94,7 @@ const Navbar = () => {
                 <div className="grid grid-cols-3 gap-4">
                   {menu.links.map((link, idx) => (
                     <Link key={idx} href={`/${link.title.toLowerCase().replace(/ /g, "-")}`}>
-                      <div className="capitalize block py-2 px-2 rounded-md hover:bg-[rgba(41,41,41,0.4)] hover:border border-[rgba(109,109,109,0.2)] hover:text-[#EDB900] cursor-pointer transition-all">
+                      <div className="capitalize border border-transparent block py-2 px-2 rounded-md hover:bg-[rgba(41,41,41,0.4)] hover:border hover:border-[rgba(109,109,109,0.2)] hover:text-[#EDB900] cursor-pointer transition-all">
                         <p className="font-bold text-lg">{link.title}</p>
                         {link.description && <p className="text-[#9c9c9c] text-sm text-gray-400">{link.description}</p>}
                       </div>
@@ -106,25 +106,25 @@ const Navbar = () => {
                     <div className="flex flex-col items-start pl-2"> {/* ✅ Added `pl-2` to shift "LET'S CONNECT!" slightly to the right */}
                     <span className="text-[#EDB900] font-bold mb-2">LET&apos;S CONNECT!</span>
                       <div className="flex space-x-4">
-                        <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
+                        <a href="https://www.facebook.com/chartnomads/" target="_blank" rel="noopener noreferrer">
                           <FaFacebookF className="text-lg text-white hover:text-[#EDB900] transition-colors duration-200 cursor-pointer" />
                         </a>
-                        <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+                        <a href="https://www.instagram.com/chartnomads" target="_blank" rel="noopener noreferrer">
                           <FaInstagram className="text-lg text-white hover:text-[#EDB900] transition-colors duration-200 cursor-pointer" />
                         </a>
-                        <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
+                        <a href="https://x.com/chartnomads" target="_blank" rel="noopener noreferrer">
                           <FaXTwitter className="text-lg text-white hover:text-[#EDB900] transition-colors duration-200 cursor-pointer" />
                         </a>
-                        <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">
+                        <a href="https://www.linkedin.com/company/chartnomads/" target="_blank" rel="noopener noreferrer">
                           <FaLinkedinIn className="text-lg text-white hover:text-[#EDB900] transition-colors duration-200 cursor-pointer" />
                         </a>
-                        <a href="https://youtube.com" target="_blank" rel="noopener noreferrer">
+                        <a href="https://www.youtube.com/@chartnomads" target="_blank" rel="noopener noreferrer">
                           <FaYoutube className="text-lg text-white hover:text-[#EDB900] transition-colors duration-200 cursor-pointer" />
                         </a>
-                        <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer">
+                        <a href="https://www.tiktok.com/@chartnomads" target="_blank" rel="noopener noreferrer">
                           <FaTiktok className="text-lg text-white hover:text-[#EDB900] transition-colors duration-200 cursor-pointer" />
                         </a>
-                        <a href="https://discord.com" target="_blank" rel="noopener noreferrer">
+                        <a href="https://discord.com/invite/BhyJvGqphQ" target="_blank" rel="noopener noreferrer">
                           <FaDiscord className="text-lg text-white hover:text-[#EDB900] transition-colors duration-200 cursor-pointer" />
                         </a>
                       </div>
@@ -150,11 +150,11 @@ const Navbar = () => {
             {/* Profile Dropdown */}
             <div className="absolute top-12 right-0 bg-[#0f0f0f] p-4 rounded-lg shadow-lg w-36 border border-[rgba(109,109,109,0.2)]
               opacity-0 invisible group-hover:visible group-hover:opacity-100 transition-opacity duration-200 pointer-events-none group-hover:pointer-events-auto">
-              <p onClick={() => setIsLoginOpen(true)} className="capitalize block py-2 px-4 hover:bg-[rgba(41,41,41,0.4)] hover:text-[#EDB900] cursor-pointer rounded-md hover:border border-[rgba(109,109,109,0.2)]">
+              <p onClick={() => setIsLoginOpen(true)} className="border border-transparent capitalize block py-2 px-4 hover:bg-[rgba(41,41,41,0.4)] hover:text-[#EDB900] cursor-pointer rounded-md hover:border hover:border-[rgba(109,109,109,0.2)]">
                 Login
               </p>
               <Link href="/sign-up">
-                <p className="capitalize block py-2 px-4 hover:bg-[rgba(41,41,41,0.4)] hover:text-[#EDB900] cursor-pointer rounded-md hover:border border-[rgba(109,109,109,0.2)]">
+                <p className="border border-transparent capitalize block py-2 px-4 hover:bg-[rgba(41,41,41,0.4)] hover:text-[#EDB900] cursor-pointer rounded-md hover:border hover:border-[rgba(109,109,109,0.2)]">
                   Sign Up
                 </p>
               </Link>

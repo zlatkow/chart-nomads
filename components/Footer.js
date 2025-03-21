@@ -18,25 +18,25 @@ const Footer = () => {
 
           {/* Social Media Icons */}
           <div className="flex gap-4 mt-4">
-            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
+            <a href="https://www.facebook.com/chartnomads/" target="_blank" rel="noopener noreferrer">
                 <FaFacebookF className="text-lg text-white hover:text-[#EDB900] transition-colors duration-200 cursor-pointer" />
             </a>
-            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+            <a href="https://www.instagram.com/chartnomads" target="_blank" rel="noopener noreferrer">
                 <FaInstagram className="text-lg text-white hover:text-[#EDB900] transition-colors duration-200 cursor-pointer" />
             </a>
-            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
+            <a href="https://x.com/chartnomads" target="_blank" rel="noopener noreferrer">
                 <FaXTwitter className="text-lg text-white hover:text-[#EDB900] transition-colors duration-200 cursor-pointer" />
             </a>
-            <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">
+            <a href="https://www.linkedin.com/company/chartnomads/" target="_blank" rel="noopener noreferrer">
                 <FaLinkedinIn className="text-lg text-white hover:text-[#EDB900] transition-colors duration-200 cursor-pointer" />
             </a>
-            <a href="https://youtube.com" target="_blank" rel="noopener noreferrer">
+            <a href="https://www.youtube.com/@chartnomads" target="_blank" rel="noopener noreferrer">
                 <FaYoutube className="text-lg text-white hover:text-[#EDB900] transition-colors duration-200 cursor-pointer" />
             </a>
-            <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer">
+            <a href="https://www.tiktok.com/@chartnomads" target="_blank" rel="noopener noreferrer">
                 <FaTiktok className="text-lg text-white hover:text-[#EDB900] transition-colors duration-200 cursor-pointer" />
             </a>
-            <a href="https://discord.com" target="_blank" rel="noopener noreferrer">
+            <a href="https://discord.com/invite/BhyJvGqphQ" target="_blank" rel="noopener noreferrer">
                 <FaDiscord className="text-lg text-white hover:text-[#EDB900] transition-colors duration-200 cursor-pointer" />
             </a>
           </div>

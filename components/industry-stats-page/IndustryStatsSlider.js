@@ -70,7 +70,7 @@ const IndustryStatsSlider = ({ statsData }) => {
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 20, opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="text-3xl font-bold text-white mb-6 flex items-center"
+              className="text-3xl text-white mb-6 flex items-center"
             >
               <span className="text-[#edb900] mr-2">|</span>
               {slideHeadings[currentSlide]}
@@ -162,8 +162,8 @@ const IndustryStatsSlider = ({ statsData }) => {
       {/* Time Since Last Payout */}
       {!loading && (
         <div className="mt-4 text-gray-400 text-lg text-right px-10">
-          <span className="font-bold text-white">Time Since Last Payout: </span>
-          <span className="text-xl font-medium text-[#edb900]">
+          <span className="text-white">Time Since Last Payout: </span>
+          <span className="text-xl text-[#edb900]">
             {slides[currentSlide]?.timeSinceLastTransaction || "No recent transactions"}
           </span>
         </div>
