@@ -19,9 +19,11 @@ import { Card, CardContent } from "../ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
 import Image from "next/image"
 
-export default function TransactionsTable({ transactions: initialTransactions }) {
+// Changed function name from TransactionsTable to AllTransactions
+// Added transactions prop (but not using it to maintain existing logic)
+export default function AllTransactions({ transactions: initialTransactions }) {
   // State variables
-  const [transactions, setTransactions] = useState(initialTransactions || [])
+  const [transactions, setTransactions] = useState([])
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [page, setPage] = useState(1)
@@ -91,10 +93,7 @@ export default function TransactionsTable({ transactions: initialTransactions })
 
   // Initial data fetch
   useEffect(() => {
-    // Only fetch if no initial transactions were provided
-    if (!initialTransactions || initialTransactions.length === 0) {
-      fetchAllTransactions()
-    }
+    fetchAllTransactions()
   }, []) // Empty dependency array means this only runs once on mount
 
   // Apply search filter and sorting

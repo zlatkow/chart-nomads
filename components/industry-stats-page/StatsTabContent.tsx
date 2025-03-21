@@ -11,7 +11,6 @@ import PropFirmPayouts from "./PropFirmPayouts"
 import AllTransactions from "./AllTransactions"
 import HighEarnersLeaderboard from "./HighEarnersLeaderboard"
 
-
 // The rest of your StatsTabContent.tsx file remains unchanged
 
 // ✅ Define type based on your screenshot
