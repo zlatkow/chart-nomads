@@ -8,7 +8,7 @@ import MonthlyUniquePaidTradersChart from "./MonthlyUniquePaidTradersChart"
 import ChurnRateChart from "./ChurnRateChart"
 import HighEarnersChart from "./HighEarnersChart"
 import PropFirmPayouts from "./PropFirmPayouts"
-import { AllTransactions } from "./AllTransactions"
+import AllTransactions from "./AllTransactions"
 import HighEarnersLeaderboard from "./HighEarnersLeaderboard"
 
 
@@ -46,9 +46,9 @@ const StatsTabContent = ({ activeTab, stats }: StatsTabContentProps) => {
       {/* ✅ Keep all content inside the same JSX block */}
       {activeTab === "stats" && (
         <>
-          {stats?.monthlyTransactionStats && (
-            <MonthlyUniqueTradersChart uniqueTradersStats={stats.monthlyTransactionStats} />
-          )}
+           {stats?.monthlyTransactionStats && <CombinedPaymentChart monthlyStats={stats.monthlyTransactionStats} />}
+           {stats?.monthlyTransactionStats && <MonthlyUniquePaidTradersChart uniquePaidTradersStats={stats.monthlyTransactionStats} />}
+           {stats?.monthlyTransactionStats && <MonthlyUniqueTradersChart uniqueTradersStats={stats.monthlyTransactionStats} />}
           {stats?.companyTransactionStats && <CompanyTransactionCharts companyStats={stats.companyTransactionStats} />}
           {Array.isArray(stats?.payoutStats) && stats.payoutStats.length > 0 && (
             <HighEarnersChart payoutStats={stats.payoutStats} />

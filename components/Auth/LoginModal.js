@@ -8,7 +8,6 @@ import Image from "next/image";
 const LoginModal = ({ isOpen, onClose }) => {
   const { signIn, setActive } = useSignIn();
   const { signUp } = useSignUp();
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -29,8 +28,6 @@ const LoginModal = ({ isOpen, onClose }) => {
       console.error("OAuth Error:", err);
     }
   };
-  
-  
 
   const handleAuth = async (e) => {
     e.preventDefault();
