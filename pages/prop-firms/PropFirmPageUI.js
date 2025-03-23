@@ -1,4 +1,3 @@
-/* eslint-disable */
 "use client"
 import { useState, useEffect } from "react"
 import Link from "next/link"
@@ -1748,6 +1747,26 @@ function Star(props) {
       <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
     </svg>
   )
+}
+
+function getRatingBreakdown(firm) {
+  if (!firm) {
+    return {
+      five_star: 65,
+      four_star: 20,
+      three_star: 10,
+      two_star: 3,
+      one_star: 2,
+    }
+  }
+
+  return {
+    five_star: firm?.five_star_percentage || 65,
+    four_star: firm?.four_star_percentage || 20,
+    three_star: firm?.three_star_percentage || 10,
+    two_star: firm?.two_star_percentage || 3,
+    one_star: firm?.one_star_percentage || 2,
+  }
 }
 
 export default PropFirmUI
