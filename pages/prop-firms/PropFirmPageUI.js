@@ -357,28 +357,28 @@ function PropFirmUI({ firm, ratingBreakdown, formatCurrency }) {
                 <div className="px-6 pb-4">
                   <div className="flex items-center justify-between mb-1 text-xs">
                     <span>5-star</span>
-                    <Progress value={ratingBreakdown.five_star} className="h-2 w-40" />
-                    <span>{ratingBreakdown.five_star}%</span>
+                    <Progress value={ratingBreakdown?.five_star || 58} className="h-2 w-40" />
+                    <span>{ratingBreakdown?.five_star || 58}%</span>
                   </div>
                   <div className="flex items-center justify-between mb-1 text-xs">
                     <span>4-star</span>
-                    <Progress value={ratingBreakdown.four_star} className="h-2 w-40" />
-                    <span>{ratingBreakdown.four_star}%</span>
+                    <Progress value={ratingBreakdown?.four_star || 30} className="h-2 w-40" />
+                    <span>{ratingBreakdown?.four_star || 30}%</span>
                   </div>
                   <div className="flex items-center justify-between mb-1 text-xs">
                     <span>3-star</span>
-                    <Progress value={ratingBreakdown.three_star} className="h-2 w-40" />
-                    <span>{ratingBreakdown.three_star}%</span>
+                    <Progress value={ratingBreakdown?.three_star || 7} className="h-2 w-40" />
+                    <span>{ratingBreakdown?.three_star || 7}%</span>
                   </div>
                   <div className="flex items-center justify-between mb-1 text-xs">
                     <span>2-star</span>
-                    <Progress value={ratingBreakdown.two_star} className="h-2 w-40" />
-                    <span>{ratingBreakdown.two_star}%</span>
+                    <Progress value={ratingBreakdown?.two_star || 3} className="h-2 w-40" />
+                    <span>{ratingBreakdown?.two_star || 3}%</span>
                   </div>
                   <div className="flex items-center justify-between mb-1 text-xs">
                     <span>1-star</span>
-                    <Progress value={ratingBreakdown.one_star} className="h-2 w-40" />
-                    <span>{ratingBreakdown.one_star}%</span>
+                    <Progress value={ratingBreakdown?.one_star || 2} className="h-2 w-40" />
+                    <span>{ratingBreakdown?.one_star || 2}%</span>
                   </div>
                 </div>
 
