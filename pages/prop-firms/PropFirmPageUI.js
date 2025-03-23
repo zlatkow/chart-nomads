@@ -312,11 +312,11 @@ function PropFirmUI({
                 {/* Firm Logo and Rating */}
                 <div className="p-6 flex flex-col items-center">
                   <div className="relative mb-4">
-                    {firm.logo_url ? (
+                    {firm && firm.logo_url ? (
                       <div className="w-24 h-24 p-5 bg-white rounded-lg flex items-center justify-center overflow-hidden">
                         <Image
                           src={firm.logo_url || "/placeholder.svg"}
-                          alt={`${firm.propfirm_name} logo`}
+                          alt={`${firm?.propfirm_name || "Company"} logo`}
                           width={96}
                           height={96}
                           className="object-contain"
@@ -345,13 +345,13 @@ function PropFirmUI({
                     >
                       <span
                         className={`absolute top-1 left-1 px-[5px] border text-xs rounded-[10px] font-[balboa] 
-                          ${firm.category === "Gold" ? "text-[#efbf04] border-[#efbf04]" : ""}
-                          ${firm.category === "Platinum" ? "text-[#D9D9D9] border-[#D9D9D9]" : ""}
-                          ${firm.category === "Diamond" ? "text-[#c8bfe7] border-[#c8bfe7]" : ""}
-                          ${firm.category === "Silver" ? "text-[#c4c4c4] border-[#c4c4c4]" : ""}
-                          ${firm.category === "Copper" ? "text-[#c68346] border-[#c68346]" : ""}`}
+                          ${firm?.category === "Gold" ? "text-[#efbf04] border-[#efbf04]" : ""}
+                          ${firm?.category === "Platinum" ? "text-[#D9D9D9] border-[#D9D9D9]" : ""}
+                          ${firm?.category === "Diamond" ? "text-[#c8bfe7] border-[#c8bfe7]" : ""}
+                          ${firm?.category === "Silver" ? "text-[#c4c4c4] border-[#c4c4c4]" : ""}
+                          ${firm?.category === "Copper" ? "text-[#c68346] border-[#c68346]" : ""}`}
                       >
-                        {firm.category}
+                        {firm?.category || "Unrated"}
                       </span>
                     </Tippy>
                   </div>
@@ -362,8 +362,8 @@ function PropFirmUI({
                   </div>
                   <div className="flex items-center mb-2">
                     <FontAwesomeIcon icon={faStar} className="text-lg mr-1 text-[#0f0f0f]" />
-                    <span className="font-bold">{firm.rating?.toFixed(2) || "4.45"}</span>
-                    <span className="text-xs ml-1">• {firm.reviews_count || "4.5k"} reviews</span>
+                    <span className="font-bold">{firm?.rating?.toFixed(2) || "4.45"}</span>
+                    <span className="text-xs ml-1">• {firm?.reviews_count || "4.5k"} reviews</span>
                   </div>
                 </div>
 
@@ -400,33 +400,33 @@ function PropFirmUI({
                 <div className="px-6 py-4 border-t border-[#0f0f0f]/10">
                   <h3 className="font-bold mb-3">Socials</h3>
                   <div className="flex space-x-3">
-                    {firm.social_links?.facebook && (
+                    {firm?.social_links?.facebook && (
                       <Link href={firm.social_links.facebook} className="text-[#0f0f0f] hover:opacity-80">
                         <Facebook size={18} />
                       </Link>
                     )}
-                    {firm.social_links?.twitter && (
+                    {firm?.social_links?.twitter && (
                       <Link href={firm.social_links.twitter} className="text-[#0f0f0f] hover:opacity-80">
                         <Twitter size={18} />
                       </Link>
                     )}
-                    {firm.social_links?.instagram && (
+                    {firm?.social_links?.instagram && (
                       <Link href={firm.social_links.instagram} className="text-[#0f0f0f] hover:opacity-80">
                         <Instagram size={18} />
                       </Link>
                     )}
-                    {firm.social_links?.linkedin && (
+                    {firm?.social_links?.linkedin && (
                       <Link href={firm.social_links.linkedin} className="text-[#0f0f0f] hover:opacity-80">
                         <Linkedin size={18} />
                       </Link>
                     )}
-                    {firm.social_links?.youtube && (
+                    {firm?.social_links?.youtube && (
                       <Link href={firm.social_links.youtube} className="text-[#0f0f0f] hover:opacity-80">
                         <Youtube size={18} />
                       </Link>
                     )}
                     {/* Show default social icons if none provided */}
-                    {!firm.social_links && (
+                    {!firm?.social_links && (
                       <>
                         <Link href="#" className="text-[#0f0f0f] hover:opacity-80">
                           <Facebook size={18} />
