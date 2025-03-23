@@ -1,6 +1,8 @@
 /* eslint-disable */
 "use client"
 import { useState, useEffect } from "react"
+import React from "react"
+
 import Link from "next/link"
 import { supabase } from "../../lib/supabase"
 import Image from "next/image"
@@ -42,6 +44,10 @@ import Community from "../../components/Community"
 import Newsletter from "../../components/Newsletter"
 import Offers from "../../components/Offers"
 import Footer from "../../components/Footer"
+
+// Add this at the top of the file, after the imports
+console.log("React version:", React.version)
+console.log("Available React exports:", Object.keys(React))
 
 function formatRelativeTime(dateString) {
   const now = new Date()
@@ -438,17 +444,17 @@ function PropFirmUI({ firm, ratingBreakdown, formatCurrency }) {
                 <div className="grid grid-cols-2 gap-4 px-6 py-4 border-t border-[#0f0f0f]/10">
                   <div>
                     <h3 className="font-bold mb-2">CEO</h3>
-                    <p className="text-sm">{firm.ceo || "Khaled Ayesh"}</p>
+                    <p className="text-sm">{firm?.ceo || "Khaled Ayesh"}</p>
                   </div>
                   <div>
                     <h3 className="font-bold mb-2">Established</h3>
-                    <p className="text-sm">{firm.established || "11/2022"}</p>
+                    <p className="text-sm">{firm?.established || "11/2022"}</p>
                   </div>
                   <div>
                     <h3 className="font-bold mb-2">Country</h3>
-                    <p className="text-sm">{firm.country || "United Arab Emirates"}</p>
+                    <p className="text-sm">{firm?.country || "United Arab Emirates"}</p>
                   </div>
-                  {firm.website && (
+                  {firm?.website && (
                     <div>
                       <h3 className="font-bold mb-2">Website</h3>
                       <a
@@ -467,20 +473,20 @@ function PropFirmUI({ firm, ratingBreakdown, formatCurrency }) {
                 <div className="grid grid-cols-1 gap-4 px-6 py-4 border-t border-[#0f0f0f]/10">
                   <div>
                     <h3 className="font-bold mb-2">Broker</h3>
-                    <p className="text-sm">{firm.broker || "Liquidity Providers"}</p>
+                    <p className="text-sm">{firm?.broker || "Liquidity Providers"}</p>
                   </div>
                   <div>
                     <h3 className="font-bold mb-2">Platform</h3>
-                    <p className="text-sm">{firm.platform || "TrustPilot"}</p>
+                    <p className="text-sm">{firm?.platform || "TrustPilot"}</p>
                   </div>
-                  {firm.platform_details && (
+                  {firm?.platform_details && (
                     <div>
                       <p className="text-xs">{firm.platform_details}</p>
                     </div>
                   )}
                   <div>
                     <h3 className="font-bold mb-2">Rating</h3>
-                    <p className="text-sm">{firm.rating || "4.4"}</p>
+                    <p className="text-sm">{firm?.rating || "4.4"}</p>
                   </div>
                 </div>
 

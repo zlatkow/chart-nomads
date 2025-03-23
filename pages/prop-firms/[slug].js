@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { createClient } from "@supabase/supabase-js"
 import PropFirmUI from "./PropFirmPageUI"
 
@@ -12,41 +11,54 @@ export async function getServerSideProps({ params }) {
   // Check if params exists
   if (!params || !params.slug) {
     return {
-      notFound: true
+      notFound: true,
     }
   }
-  
+
   const { slug } = params
 
-  // Fetch data from Supabase
-  const { data: firm, error } = await supabase.from("prop_firms").select("*").eq("slug", slug).single()
+  try {
+    // Fetch data from Supabase
+    const { data: firm, error } = await supabase.from("prop_firms").select("*").eq("slug", slug).single()
 
-  // Handle not found case
-  if (error || !firm) {
-    return {
-      notFound: true
+    // Handle not found case
+    if (error || !firm) {
+      console.error("Error fetching firm data:", error)
+      return {
+        notFound: true,
+      }
     }
-  }
 
-  // Static rating breakdown - not from database
-  const ratingBreakdown = {
-    five_star: 58,
-    four_star: 30,
-    three_star: 7,
-    two_star: 3,
-    one_star: 2,
-  }
+    // Static rating breakdown - not from database
+    const ratingBreakdown = {
+      five_star: 58,
+      four_star: 30,
+      three_star: 7,
+      two_star: 3,
+      one_star: 2,
+    }
 
-  return {
-    props: {
-      firm,
-      ratingBreakdown
+    return {
+      props: {
+        firm,
+        ratingBreakdown,
+      },
+    }
+  } catch (err) {
+    console.error("Unexpected error in getServerSideProps:", err)
+    return {
+      notFound: true,
     }
   }
 }
 
 // Client component
 export default function PropFirmPage({ firm, ratingBreakdown }) {
+  // Ensure firm is defined
+  if (!firm) {
+    return <div>Loading...</div>
+  }
+
   // Format currency values
   const formatCurrency = (value) => {
     return new Intl.NumberFormat("en-US", {
@@ -57,11 +69,6 @@ export default function PropFirmPage({ firm, ratingBreakdown }) {
     }).format(value)
   }
 
-  return (
-    <PropFirmUI
-      firm={firm}
-      ratingBreakdown={ratingBreakdown}
-      formatCurrency={formatCurrency}
-    />
-  )
+  return <PropFirmUI firm={firm} ratingBreakdown={ratingBreakdown} formatCurrency={formatCurrency} />
 }
+
