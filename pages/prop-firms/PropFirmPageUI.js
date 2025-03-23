@@ -100,7 +100,7 @@ function PropFirmUI({
   setPropFirms,
 }) {
   const [liked, setLiked] = useState(false)
-  const [likeCount, setLikeCount] = useState(firm.likes_count || 91)
+  const [likeCount, setLikeCount] = useState(firm && firm.likes_count ? firm.likes_count : 91)
   const [isLoginOpen, setIsLoginOpen] = useState(false)
   const { user } = useUser()
   const [userLikedFirms, setUserLikedFirms] = useState(new Set())
@@ -325,7 +325,9 @@ function PropFirmUI({
                     ) : (
                       <div className="w-24 h-24 bg-white rounded-lg flex items-center justify-center">
                         <span className="text-[#0f0f0f] font-bold text-4xl">
-                          {firm.propfirm_name?.substring(0, 2).toUpperCase() || "FP"}
+                          {firm && firm.propfirm_name
+                            ? firm.propfirm_name?.substring(0, 2).toUpperCase() || "FP"
+                            : "FP"}
                         </span>
                       </div>
                     )}
@@ -354,7 +356,9 @@ function PropFirmUI({
                     </Tippy>
                   </div>
                   <div className="flex items-center mb-1">
-                    <span className="text-xl font-bold">{firm.propfirm_name}</span>
+                    <span className="text-xl font-bold">
+                      {firm && firm.propfirm_name ? firm.propfirm_name : "Company Name"}
+                    </span>
                   </div>
                   <div className="flex items-center mb-2">
                     <FontAwesomeIcon icon={faStar} className="text-lg mr-1 text-[#0f0f0f]" />
