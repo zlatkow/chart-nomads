@@ -113,6 +113,7 @@ const PropFirmRules = ({ propFirmRules }) => {
     setActiveTab(tab);
     setVisibleCount(10); // 🔥 Reset visible count when switching tabs
   };
+
                                           
 const searchLower = searchTerm.toLowerCase();
 

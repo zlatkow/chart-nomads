@@ -151,10 +151,9 @@ export default function AllTransactions({ transactions: initialTransactions }) {
           <div className="w-[300px]">
             <Search className="relative left-2.5 top-6 h-4 w-4 text-muted-foreground" />
             <Input
-              id="searchTransactions"
               type="text"
               placeholder="Search by company.."
-              className="w-full pl-8 bg-[#333333] border-[#333333] focus-visible:ring-[#edb900]"
+              className="searchDark w-full pl-8 bg-[#333333] border-[#333333] focus-visible:ring-[#edb900]"
               value={searchQuery}
               onChange={handleSearch}
             />

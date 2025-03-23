@@ -56,7 +56,7 @@ const Navbar = () => {
               links: [
                 { title: "All Prop Firms", description: "All prop firms listed on our website." },
                 { title: "Compare", description: "Compare between all the prop firms." },
-                { title: "Discounts", description: "Exclusive promos and discounts." },
+                { title: "Offers And Discounts", description: "Exclusive promos and discounts." },
                 { title: "Prop Firm Rules", description: "Stay up to date with companies' rules." },
                 { title: "Unlisted Prop Firms", description: "Browse unlisted prop firms." },
                 { title: "Banned Countries", description: "Stay up to date with banned countries list." },

@@ -199,21 +199,23 @@ input[type="checkbox"]:checked::after {
 
 /* Custom Tooltip Style */
 .tippy-box[data-theme~="custom"] {
-  background-color: #0f0f0f !important;
+  background-color: #404040 !important;
   color: white !important;
   font-size: 13px !important;
   border-radius: 6px;
   /* padding: 3px 5px; */
-  box-shadow: 0px 4px 3px rgba(201, 201, 201, 0.03);
+  box-shadow: 0px 1px 1px rgba(201, 201, 201, 0.03);
   max-width: fit-content !important;
+  z-index: 50 !important;
 }
 
 /* Tooltip Arrow */
 .tippy-box[data-theme~="custom"] .tippy-arrow::before {
   border-style: solid;
   border-width: 8px;
-  border-color: #0f0f0f transparent transparent transparent !important;
+  border-color: #404040 transparent transparent transparent !important;
   position: absolute;
+  z-index: 50 !important;
 }
 
 
@@ -274,19 +276,19 @@ rules-section {
   padding-left: 35px !important;
 }
 
-#searchTransactions {
+.searchDark {
   background-color: #1A1A1A !important;
-  border: 1px solid #333333;
+  border: 1px solid #333333 !important;
   padding-left: 35px !important;
-  height: 35px;
-  color: white;
-  outline: none; /* Removes default blue outline */
-  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  height: 35px !important;
+  color: white !important;
+  outline: none !important; /* Removes default blue outline */
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out !important;
 }
 
-#searchTransactions:focus {
-  border-color: #edb900; /* Gold border on focus */
-  background-color: #222222; /* Slightly different background */
+.searchDark:focus {
+  border-color: #edb900 !important; /* Gold border on focus */
+  background-color: #222222 !important; /* Slightly different background */
 }
 
 
@@ -366,8 +368,6 @@ strong {
   }
 }
 
-
-
 @layer base {
   * {
     @apply border-border;
@@ -377,16 +377,21 @@ strong {
   }
 }
 
+@keyframes tilt-shake {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-5deg);
+  }
+  75% {
+    transform: rotate(5deg);
+  }
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
+.tilt-animation {
+  animation: tilt-shake 0.3s ease-in-out infinite;
+  display: inline-block;
+  transform-origin: center;
+}

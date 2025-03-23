@@ -13,8 +13,8 @@ const StatsTabs = ({ activeTab, onTabChange }: StatsTabsProps) => {
           onClick={() => onTabChange("stats")}
           className={`flex items-center px-6 py-3 text-sm font-medium ${
             activeTab === "stats"
-              ? "bg-[#FFB800] text-black"
-              : "bg-transparent text-gray-400 hover:text-gray-300"
+              ? "bg-[#edb900] text-black"
+              : "bg-transparent text-gray-400 hover:text-[#826600]"
           }`}
         >
           <BarChart2 className="w-4 h-4 mr-2" />
@@ -24,8 +24,8 @@ const StatsTabs = ({ activeTab, onTabChange }: StatsTabsProps) => {
           onClick={() => onTabChange("transactions")}
           className={`flex items-center px-6 py-3 text-sm font-medium ${
             activeTab === "transactions"
-              ? "bg-[#FFB800] text-black"
-              : "bg-transparent text-gray-400 hover:text-gray-300"
+              ? "bg-[#edb900] text-black"
+              : "bg-transparent text-gray-400 hover:text-[#826600]"
           }`}
         >
           <FileText className="w-4 h-4 mr-2" />
@@ -35,8 +35,8 @@ const StatsTabs = ({ activeTab, onTabChange }: StatsTabsProps) => {
           onClick={() => onTabChange("high-earners")}
           className={`flex items-center px-6 py-3 text-sm font-medium ${
             activeTab === "high-earners"
-              ? "bg-[#FFB800] text-black"
-              : "bg-transparent text-gray-400 hover:text-gray-300"
+              ? "bg-[#edb900] text-black"
+              : "bg-transparent text-gray-400 hover:text-[#826600]"
           }`}
         >
           <DollarSign className="w-4 h-4 mr-2" />

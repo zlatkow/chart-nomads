@@ -73,11 +73,6 @@ const AllPropFirms = ({ blogs }) => {
   
     fetchLikedFirms();
   }, [user]); // ✅ Runs when user logs in or reloads
-  
-  
-  
-  
-  
 
   // ✅ Fetch Prop Firms Data
   useEffect(() => {
