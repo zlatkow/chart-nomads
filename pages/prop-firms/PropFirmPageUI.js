@@ -28,7 +28,6 @@ import {
 } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faStar } from "@fortawesome/free-solid-svg-icons"
 import { faHeart as solidHeart } from "@fortawesome/free-solid-svg-icons"
@@ -90,15 +89,7 @@ function formatRelativeTime(dateString) {
 }
 
 // Client component for interactive elements
-function PropFirmUI({
-  firm,
-  ratingBreakdown,
-  payoutStats,
-  monthlyPayouts,
-  cumulativePayouts,
-  formatCurrency,
-  setPropFirms,
-}) {
+function PropFirmUI({ firm, ratingBreakdown, formatCurrency }) {
   const [liked, setLiked] = useState(false)
   const [likeCount, setLikeCount] = useState(firm && firm.likes_count ? firm.likes_count : 91)
   const [isLoginOpen, setIsLoginOpen] = useState(false)
@@ -207,6 +198,8 @@ function PropFirmUI({
   }
 
   const handleLikeToggle = async (firmId) => {
+    if (!user) return
+
     setUserLikedFirms((prevLikes) => {
       const updatedLikes = new Set(prevLikes)
       const numericFirmId = Number(firmId) // ✅ Convert firmId to number to match state
@@ -218,15 +211,8 @@ function PropFirmUI({
       return updatedLikes
     })
 
-    // ✅ Ensure UI updates correctly by modifying propFirms state
-    setPropFirms((prev) =>
-      prev.map((firm) =>
-        firm.id === firmId ? { ...firm, likes: userLikedFirms.has(firmId) ? firm.likes - 1 : firm.likes + 1 } : firm,
-      ),
-    )
-
-    const isCurrentlyLiked = userLikedFirms.has(firmId) // ❌ This is outdated!
-    const newLikeStatus = !isCurrentlyLiked // ✅ Correct way to invert the state
+    const isCurrentlyLiked = userLikedFirms.has(Number(firmId))
+    const newLikeStatus = !isCurrentlyLiked
 
     if (newLikeStatus) {
       // 🟢 Like: Insert into `user_likes`
@@ -367,32 +353,32 @@ function PropFirmUI({
                   </div>
                 </div>
 
-                {/* Rating Breakdown */}
+                {/* Rating Breakdown - Static data */}
                 <div className="px-6 pb-4">
                   <div className="flex items-center justify-between mb-1 text-xs">
                     <span>5-star</span>
                     <Progress value={ratingBreakdown.five_star} className="h-2 w-40" />
-                    <span>{ratingBreakdown.five_star.toFixed(2)}%</span>
+                    <span>{ratingBreakdown.five_star}%</span>
                   </div>
                   <div className="flex items-center justify-between mb-1 text-xs">
                     <span>4-star</span>
                     <Progress value={ratingBreakdown.four_star} className="h-2 w-40" />
-                    <span>{ratingBreakdown.four_star.toFixed(2)}%</span>
+                    <span>{ratingBreakdown.four_star}%</span>
                   </div>
                   <div className="flex items-center justify-between mb-1 text-xs">
                     <span>3-star</span>
                     <Progress value={ratingBreakdown.three_star} className="h-2 w-40" />
-                    <span>{ratingBreakdown.three_star.toFixed(2)}%</span>
+                    <span>{ratingBreakdown.three_star}%</span>
                   </div>
                   <div className="flex items-center justify-between mb-1 text-xs">
                     <span>2-star</span>
                     <Progress value={ratingBreakdown.two_star} className="h-2 w-40" />
-                    <span>{ratingBreakdown.two_star.toFixed(2)}%</span>
+                    <span>{ratingBreakdown.two_star}%</span>
                   </div>
                   <div className="flex items-center justify-between mb-1 text-xs">
                     <span>1-star</span>
                     <Progress value={ratingBreakdown.one_star} className="h-2 w-40" />
-                    <span>{ratingBreakdown.one_star.toFixed(2)}%</span>
+                    <span>{ratingBreakdown.one_star}%</span>
                   </div>
                 </div>
 
@@ -640,97 +626,9 @@ function PropFirmUI({
                 </TabsContent>
 
                 <TabsContent value="stats" className="mt-0">
-                  <div className="space-y-8">
-                    <h2 className="text-3xl font-bold text-[#edb900]">Payout Stats</h2>
-
-                    {/* Stats Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <Card className="bg-[#0f0f0f] border-gray-700">
-                        <CardHeader className="pb-2">
-                          <CardTitle className="text-sm font-medium text-gray-400">Last 24 hours</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="text-2xl font-bold text-[#edb900]">
-                            {formatCurrency(payoutStats.last_24_hours)}
-                          </div>
-                        </CardContent>
-                      </Card>
-
-                      <Card className="bg-[#0f0f0f] border-gray-700">
-                        <CardHeader className="pb-2">
-                          <CardTitle className="text-sm font-medium text-gray-400">Last 7 days</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="text-2xl font-bold text-[#edb900]">
-                            {formatCurrency(payoutStats.last_7_days)}
-                          </div>
-                        </CardContent>
-                      </Card>
-
-                      <Card className="bg-[#0f0f0f] border-gray-700">
-                        <CardHeader className="pb-2">
-                          <CardTitle className="text-sm font-medium text-gray-400">Last 30 days</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="text-2xl font-bold text-[#edb900]">
-                            {formatCurrency(payoutStats.last_30_days)}
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-
-                    {/* Total Stats */}
-                    <Card className="bg-[#0f0f0f] border-gray-700">
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-400">Since start</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="text-3xl font-bold text-[#edb900]">
-                          {formatCurrency(payoutStats.since_start)}
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    {/* Charts */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                      <Card className="bg-[#0f0f0f] border-gray-700">
-                        <CardHeader>
-                          <CardTitle className="text-sm font-medium">
-                            Paid Amount on monthly basis (in millions $)
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent className="h-80">
-                          <div className="w-full h-full flex items-end justify-between space-x-2">
-                            {monthlyPayouts.map((height, index) => (
-                              <div
-                                key={index}
-                                className="bg-[#edb900] rounded-t w-full"
-                                style={{ height: `${height}%` }}
-                              ></div>
-                            ))}
-                          </div>
-                        </CardContent>
-                      </Card>
-
-                      <Card className="bg-[#0f0f0f] border-gray-700">
-                        <CardHeader>
-                          <CardTitle className="text-sm font-medium">Cumulative Paid Amount (in millions $)</CardTitle>
-                        </CardHeader>
-                        <CardContent className="h-80 relative">
-                          <svg className="w-full h-full" viewBox="0 0 400 300">
-                            <path
-                              d={`M 0,${cumulativePayouts[0]} ${cumulativePayouts.map((y, index) => `${index * 25},${y}`).join(" ")}`}
-                              fill="none"
-                              stroke="#edb900"
-                              strokeWidth="3"
-                            />
-                            {cumulativePayouts.map((y, index) => (
-                              <circle key={index} cx={index * 25} cy={y} r="4" fill="#edb900" />
-                            ))}
-                          </svg>
-                        </CardContent>
-                      </Card>
-                    </div>
+                  <div className="bg-[#0f0f0f] rounded-lg p-6">
+                    <h2 className="text-xl font-bold mb-4">Payout Stats</h2>
+                    <p className="text-gray-400">No data available at the moment.</p>
                   </div>
                 </TabsContent>
 
@@ -1748,26 +1646,6 @@ function Star(props) {
       <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
     </svg>
   )
-}
-
-function getRatingBreakdown(firm) {
-  if (!firm) {
-    return {
-      five_star: 65,
-      four_star: 20,
-      three_star: 10,
-      two_star: 3,
-      one_star: 2,
-    }
-  }
-
-  return {
-    five_star: firm?.five_star_percentage || 65,
-    four_star: firm?.four_star_percentage || 20,
-    three_star: firm?.three_star_percentage || 10,
-    two_star: firm?.two_star_percentage || 3,
-    one_star: firm?.one_star_percentage || 2,
-  }
 }
 
 export default PropFirmUI
