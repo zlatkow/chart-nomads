@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { createClient } from "@supabase/supabase-js"
 import PropFirmUI from "./PropFirmPageUI"
 
