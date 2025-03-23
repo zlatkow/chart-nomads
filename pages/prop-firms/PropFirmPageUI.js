@@ -96,6 +96,8 @@ function formatRelativeTime(dateString) {
 
 // Client component for interactive elements
 function PropFirmUI({ firm, ratingBreakdown, formatCurrency }) {
+  console.log("PropFirmUI received firm:", firm)
+  console.log("PropFirmUI received ratingBreakdown:", ratingBreakdown)
   const [liked, setLiked] = useState(false)
   const [likeCount, setLikeCount] = useState(firm && firm.likes_count ? firm.likes_count : 91)
   const [isLoginOpen, setIsLoginOpen] = useState(false)
@@ -495,7 +497,7 @@ function PropFirmUI({ firm, ratingBreakdown, formatCurrency }) {
                   <div>
                     <h3 className="font-bold mb-3">Instruments</h3>
                     <ul className="text-xs space-y-1">
-                      {firm.instruments ? (
+                      {firm?.instruments && Array.isArray(firm.instruments) ? (
                         firm.instruments.map((instrument, index) => (
                           <li key={index} className="flex items-center">
                             <span className="mr-2">•</span>
@@ -527,7 +529,7 @@ function PropFirmUI({ firm, ratingBreakdown, formatCurrency }) {
                   <div>
                     <h3 className="font-bold mb-3">Leverage</h3>
                     <ul className="text-xs space-y-1">
-                      {firm.leverage ? (
+                      {firm?.leverage && typeof firm.leverage === "object" ? (
                         Object.entries(firm.leverage).map(([key, value], index) => (
                           <li key={index} className="flex items-center">
                             <span className="mr-2">•</span>

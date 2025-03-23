@@ -9,26 +9,39 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 // Server-side data fetching for Pages Router
 export async function getServerSideProps({ params }) {
+  console.log("getServerSideProps called with params:", params)
+
   // Check if params exists
   if (!params || !params.slug) {
+    console.log("No slug parameter found")
     return {
       notFound: true,
     }
   }
 
   const { slug } = params
+  console.log("Fetching data for slug:", slug)
 
   try {
     // Fetch data from Supabase
     const { data: firm, error } = await supabase.from("prop_firms").select("*").eq("slug", slug).single()
 
     // Handle not found case
-    if (error || !firm) {
+    if (error) {
       console.error("Error fetching firm data:", error)
       return {
         notFound: true,
       }
     }
+
+    if (!firm) {
+      console.log("No firm found for slug:", slug)
+      return {
+        notFound: true,
+      }
+    }
+
+    console.log("Firm data fetched successfully:", firm)
 
     // Static rating breakdown - not from database
     const ratingBreakdown = {
@@ -39,9 +52,20 @@ export async function getServerSideProps({ params }) {
       one_star: 2,
     }
 
+    // Ensure firm has all required properties with defaults
+    const sanitizedFirm = {
+      ...firm,
+      instruments: firm.instruments || [],
+      leverage: firm.leverage || {},
+      social_links: firm.social_links || {},
+      rating: firm.rating || 4.5,
+      reviews_count: firm.reviews_count || "4.5k",
+      likes_count: firm.likes_count || 91,
+    }
+
     return {
       props: {
-        firm,
+        firm: sanitizedFirm,
         ratingBreakdown,
       },
     }
