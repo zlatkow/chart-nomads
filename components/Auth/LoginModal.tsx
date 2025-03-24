@@ -39,10 +39,10 @@ const LoginModal = ({ isOpen, onClose }) => {
   const handleOAuthSignIn = async (provider) => {
     try {
       await signIn.authenticateWithRedirect({
-        strategy: `oauth_${provider}`,
+        strategy: provider === "google" ? "oauth_google" : provider === "facebook" ? "oauth_facebook" : "oauth_google",
         redirectUrl: "/dashboard", // Replace with your correct redirect
         redirectUrlComplete: "/dashboard", // Where users land after successful login
-        preferPopup: true, // ✅ Forces the authentication to open in a popup
+        // Remove preferPopup as it's not a valid property
       })
     } catch (err) {
       setError("Failed to sign in with " + provider)
