@@ -373,9 +373,9 @@ export default function OffersComponent({
       })
 
       // Convert the map to an array of groups
-      const groups = Object.values(groupMap).map((group) => {
+      const groups = Object.values(groupMap).map((group: any[]) => {
         // Sort by expiry date (if available) - show soonest expiring first
-        return group.sort((a, b) => {
+        return group.sort((a: any, b: any) => {
           if (!a.expiry_date) return 1
           if (!b.expiry_date) return -1
           return new Date(a.expiry_date).getTime() - new Date(b.expiry_date).getTime()
@@ -387,20 +387,7 @@ export default function OffersComponent({
       const singleDiscountGroups = groups.filter((group) => group.length === 1)
 
       // Combine them with multi-discount groups first
-      // Replace this:
-      // setGroupedDiscounts([...multiDiscountGroups, ...singleDiscountGroups])
-
-      // With this more explicit approach:
-      const combinedGroups = []
-      // Add multi-discount groups first
-      if (multiDiscountGroups && multiDiscountGroups.length > 0) {
-        multiDiscountGroups.forEach((group) => combinedGroups.push(group))
-      }
-      // Then add single-discount groups
-      if (singleDiscountGroups && singleDiscountGroups.length > 0) {
-        singleDiscountGroups.forEach((group) => combinedGroups.push(group))
-      }
-      setGroupedDiscounts(combinedGroups)
+      setGroupedDiscounts((multiDiscountGroups || []).concat(singleDiscountGroups || []))
     } else {
       setGroupedDiscounts([])
     }
