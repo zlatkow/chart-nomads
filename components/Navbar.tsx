@@ -1,22 +1,20 @@
 "use client";
-import { useState } from "react";
+import { useContext } from "react";
 import { useUser } from "@clerk/nextjs";
-import { SignedIn, SignedOut, useAuth } from "@clerk/nextjs"; // ✅ Ensure the path is correct
+import { SignedIn, SignedOut, useAuth } from "@clerk/nextjs";
 import Link from "next/link";
 import { FaFacebookF, FaInstagram, FaXTwitter, FaLinkedinIn, FaYoutube, FaTiktok, FaDiscord } from "react-icons/fa6";
 import Image from "next/image";
 import { FiChevronDown } from "react-icons/fi";
-import LoginModal from "../components/Auth/LoginModal"; // ✅ Adjust this path if necessary
-
-
+import { ModalContext } from "../pages/_app";
 
 const UserProfile = () => {
-  const { user } = useUser(); // Get user info
+  const { user } = useUser();
 
   return (
     <button className="hover:text-[#EDB900] transition-all">
       <Image
-        src={user?.imageUrl || "/profile_default.png"} // Default image fallback
+        src={user?.imageUrl || "/profile_default.png"}
         alt="User"
         width={50}
         height={50}
@@ -26,10 +24,13 @@ const UserProfile = () => {
   );
 };
 
-
 const Navbar = () => {
-  const [isLoginOpen, setIsLoginOpen] = useState(false); // ✅ Fix: Add state
-  const { signOut } = useAuth(); // ✅ Get signOut function
+  // Remove local state
+  // const [isLoginOpen, setIsLoginOpen] = useState(false);
+  
+  // Use the global ModalContext instead
+  const { setShowLoginModal } = useContext(ModalContext);
+  const { signOut } = useAuth();
 
   return (
     <nav className="text-white py-4 border-b border-[rgba(109,109,109,0.2)] bg-[#0f0f0f] z-[100] fixed top-0 left-0 w-full px-10">
@@ -78,16 +79,15 @@ const Navbar = () => {
             ]},
           ].map((menu, index) => (
             <div key={index} className="relative group">
-              {/* ✅ Dropdown Trigger */}
+              {/* Dropdown Trigger */}
               <button className="h-[50px] capitalize flex items-center hover:text-[#EDB900] transition-all group-hover:text-[#EDB900]">
                 {menu.name}
                 <span className="text-[#6d6d6d] ml-1 transition-transform duration-200 group-hover:rotate-180">
                   <FiChevronDown />
                 </span>
-
               </button>
               
-              {/* ✅ Dropdown Menu */}
+              {/* Dropdown Menu */}
               <div className="rounded-[10px] absolute top-[50px] left-[-525px] top-full left-0 bg-[#0f0f0f] text-white p-6 rounded-lg shadow-lg w-[800px] border border-[rgba(109,109,109,0.2)]
                   opacity-0 invisible group-hover:visible group-hover:opacity-100 transition-opacity duration-200 pointer-events-none group-hover:pointer-events-auto">
                 <h3 className="ml-4 text-yellow-400 font-bold mb-4">{menu.name.toUpperCase()}</h3>
@@ -103,7 +103,7 @@ const Navbar = () => {
                 </div>
                 <hr className="border-t border-[rgba(109,109,109,0.2)] my-4 mx-4" />
                   <div className="w-full flex flex-col items-end pr-6"> 
-                    <div className="flex flex-col items-start pl-2"> {/* ✅ Added `pl-2` to shift "LET'S CONNECT!" slightly to the right */}
+                    <div className="flex flex-col items-start pl-2">
                     <span className="text-[#EDB900] font-bold mb-2">LET&apos;S CONNECT!</span>
                       <div className="flex space-x-4">
                         <a href="https://www.facebook.com/chartnomads/" target="_blank" rel="noopener noreferrer">
@@ -138,7 +138,8 @@ const Navbar = () => {
         {/* Right Side - User Profile */}
         <SignedOut>
           <div className="relative group">
-            <button onClick={() => setIsLoginOpen(true)} className="hover:text-[#EDB900] transition-all bg-[#EDB900] rounded-full hover:opacity-70 transition">
+            {/* Update to use the global context */}
+            <button onClick={() => setShowLoginModal(true)} className="hover:text-[#EDB900] transition-all bg-[#EDB900] rounded-full hover:opacity-70 transition">
               <Image
                 src="/profile_default.png"
                 alt="User"
@@ -150,7 +151,8 @@ const Navbar = () => {
             {/* Profile Dropdown */}
             <div className="absolute top-12 right-0 bg-[#0f0f0f] p-4 rounded-lg shadow-lg w-36 border border-[rgba(109,109,109,0.2)]
               opacity-0 invisible group-hover:visible group-hover:opacity-100 transition-opacity duration-200 pointer-events-none group-hover:pointer-events-auto">
-              <p onClick={() => setIsLoginOpen(true)} className="border border-transparent capitalize block py-2 px-4 hover:bg-[rgba(41,41,41,0.4)] hover:text-[#EDB900] cursor-pointer rounded-md hover:border hover:border-[rgba(109,109,109,0.2)]">
+              {/* Update to use the global context */}
+              <p onClick={() => setShowLoginModal(true)} className="border border-transparent capitalize block py-2 px-4 hover:bg-[rgba(41,41,41,0.4)] hover:text-[#EDB900] cursor-pointer rounded-md hover:border hover:border-[rgba(109,109,109,0.2)]">
                 Login
               </p>
               <Link href="/sign-up">
@@ -162,9 +164,8 @@ const Navbar = () => {
           </div> 
         </SignedOut>
 
-
-        {/* Show Custom Login Modal */}
-        {isLoginOpen && <LoginModal onClose={() => setIsLoginOpen(false)} />}
+        {/* Remove this local modal instance */}
+        {/* {isLoginOpen && <LoginModal onClose={() => setIsLoginOpen(false)} />} */}
         
         <SignedIn>
           <div className="relative group">
@@ -192,7 +193,7 @@ const Navbar = () => {
               <button
                 onClick={() => {
                   signOut();
-                  window.location.href = "/"; // ✅ Redirect user to homepage
+                  window.location.href = "/";
                 }}
                 className="capitalize block py-2 px-4 text-left hover:bg-[rgba(41,41,41,0.4)] hover:text-[#EDB900] cursor-pointer rounded-md w-full"
                 >
@@ -202,11 +203,10 @@ const Navbar = () => {
           </div>
         </SignedIn>         
       </div>
-      <LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
+      {/* Remove this local modal instance */}
+      {/* <LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} /> */}
     </nav>
   );
 };
-
-
 
 export default Navbar;

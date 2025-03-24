@@ -1,8 +1,6 @@
-/* eslint-disable */
 "use client"
-import { useState, useEffect } from "react"
-import React from "react"
-
+import type { SupabaseClient } from "@supabase/supabase-js"
+import { useState, useEffect, useContext } from "react"
 import Link from "next/link"
 import { supabase } from "../../lib/supabase"
 import Image from "next/image"
@@ -20,18 +18,12 @@ import {
   ExternalLink,
   Newspaper,
   ListTree,
-  Check,
-  Edit,
-  Trash,
-  X,
-  Loader,
-  ChevronUpIcon,
-  ChevronDownIcon,
+  Star,
 } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faStar } from "@fortawesome/free-solid-svg-icons"
+import { faStar as solidStar } from "@fortawesome/free-solid-svg-icons"
 import { faHeart as solidHeart } from "@fortawesome/free-solid-svg-icons"
 import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons"
 import Tippy from "@tippyjs/react"
@@ -44,63 +36,66 @@ import Community from "../../components/Community"
 import Newsletter from "../../components/Newsletter"
 import Offers from "../../components/Offers"
 import Footer from "../../components/Footer"
+import CommentSection from "../../components/comment-section"
 
-// Add this at the top of the file, after the imports
-console.log("React version:", React.version)
-console.log("Available React exports:", Object.keys(React))
+// Import the NoiseProvider
+import { useNoise } from "../../components/providers/noise-provider"
+import { ModalContext } from "../../pages/_app"
 
-function formatRelativeTime(dateString) {
-  const now = new Date()
-  const date = new Date(dateString)
-  const diffInSeconds = Math.floor((now - date) / 1000)
-
-  // Less than a minute
-  if (diffInSeconds < 60) {
-    return "Just now"
+// Define types for the firm and rating data
+interface Firm {
+  id: number
+  propfirm_name: string
+  logo_url?: string
+  category?: string
+  rating?: number
+  reviews_count?: number
+  likes_count?: number
+  social_links?: {
+    facebook?: string
+    twitter?: string
+    instagram?: string
+    linkedin?: string
+    youtube?: string
   }
-
-  // Less than an hour
-  if (diffInSeconds < 3600) {
-    const minutes = Math.floor(diffInSeconds / 60)
-    return `${minutes} ${minutes === 1 ? "minute" : "minutes"} ago`
-  }
-
-  // Less than a day
-  if (diffInSeconds < 86400) {
-    const hours = Math.floor(diffInSeconds / 3600)
-    const minutes = Math.floor((diffInSeconds % 3600) / 60)
-    return `${hours} ${hours === 1 ? "hour" : "hours"}${
-      minutes > 0 ? ` and ${minutes} ${minutes === 1 ? "minute" : "minutes"}` : ""
-    } ago`
-  }
-
-  // Less than a week
-  if (diffInSeconds < 604800) {
-    const days = Math.floor(diffInSeconds / 86400)
-    return `${days} ${days === 1 ? "day" : "days"} ago`
-  }
-
-  // Less than a month (30 days)
-  if (diffInSeconds < 2592000) {
-    const weeks = Math.floor(diffInSeconds / 604800)
-    return `${weeks} ${weeks === 1 ? "week" : "weeks"} ago`
-  }
-
-  // More than a month, show the date
-  return date.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  })
+  ceo?: string
+  established?: string
+  country?: string
+  website?: string
+  broker?: string
+  platform?: string
+  platform_details?: string
+  instruments?: string[]
+  leverage?: Record<string, string>
 }
 
-// Client component for interactive elements
-function PropFirmUI({ firm, ratingBreakdown, formatCurrency }) {
+interface RatingBreakdown {
+  five_star: number
+  four_star: number
+  three_star: number
+  two_star: number
+  one_star: number
+}
+
+interface PropFirmUIProps {
+  firm: Firm | null
+  ratingBreakdown: RatingBreakdown | null
+  formatCurrency: (amount: number, currency?: string) => string
+}
+
+interface OffersProps {
+  firmId: number | null
+  supabase: SupabaseClient
+  hideCompanyCard: boolean
+  onLoginModalOpen: () => void
+  showTabs: boolean
+}
+
+function PropFirmUI({ firm, ratingBreakdown, formatCurrency }: PropFirmUIProps) {
   console.log("PropFirmUI received firm:", firm)
   console.log("PropFirmUI received ratingBreakdown:", ratingBreakdown)
   const [liked, setLiked] = useState(false)
   const [likeCount, setLikeCount] = useState(firm && firm.likes_count ? firm.likes_count : 91)
-  const [isLoginOpen, setIsLoginOpen] = useState(false)
   const { user } = useUser()
   const [userLikedFirms, setUserLikedFirms] = useState(new Set())
   const [loadingLikes, setLoadingLikes] = useState(true)
@@ -109,7 +104,21 @@ function PropFirmUI({ firm, ratingBreakdown, formatCurrency }) {
   const [rulesActiveTab, setRulesActiveTab] = useState("main-rules")
   const [rulesLoading, setRulesLoading] = useState(true)
   const [bannedCountries, setBannedCountries] = useState(null)
-  const [comments, setComments] = useState([])
+
+  // Get the noise context
+  const { isNoiseVisible } = useNoise()
+
+  // Get the modal context - make sure this is working
+  const modalContext = useContext(ModalContext)
+
+  // Check if the context is available
+  if (!modalContext) {
+    console.error("ModalContext is not available in PropFirmUI")
+  }
+
+  const { setShowLoginModal } = modalContext || {
+    setShowLoginModal: () => console.error("setShowLoginModal not available"),
+  }
 
   // Memoize the firmId to prevent it from changing on every render
   const firmId = firm?.id || null
@@ -205,12 +214,12 @@ function PropFirmUI({ firm, ratingBreakdown, formatCurrency }) {
     setLiked(!liked)
   }
 
-  const handleLikeToggle = async (firmId) => {
-    if (!user) return
+  const handleLikeToggle = async (firmId: number | null) => {
+    if (!user || !firmId) return
 
     setUserLikedFirms((prevLikes) => {
       const updatedLikes = new Set(prevLikes)
-      const numericFirmId = Number(firmId) // ✅ Convert firmId to number to match state
+      const numericFirmId = Number(firmId)
       if (updatedLikes.has(numericFirmId)) {
         updatedLikes.delete(numericFirmId)
       } else {
@@ -255,15 +264,20 @@ function PropFirmUI({ firm, ratingBreakdown, formatCurrency }) {
 
   const isLiked = !loadingLikes && userLikedFirms.has(Number(firmId))
 
-  // Function to handle login modal opening (needed for Offers component)
+  // Function to handle login modal opening
   const handleLoginModalOpen = () => {
-    setIsLoginOpen(true)
+    console.log("Opening login modal from PropFirmUI")
+    if (setShowLoginModal) {
+      setShowLoginModal(true)
+    } else {
+      console.error("setShowLoginModal is not available")
+    }
   }
 
   return (
     <div className="min-h-screen bg-[#0f0f0f] text-white">
       <Navbar />
-      <Noise />
+      <Noise isVisible={isNoiseVisible} />
       <div className="w-full border-b border-[#edb900]">
         <div className="relative container mx-auto px-4 pt-[200px] mb-[200px] z-50">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -275,7 +289,8 @@ function PropFirmUI({ firm, ratingBreakdown, formatCurrency }) {
                   <SignedOut>
                     <button
                       onClick={() => {
-                        setIsLoginOpen(true)
+                        console.log("Opening login modal from heart button")
+                        handleLoginModalOpen()
                       }}
                       className="relative top-1 right-50 hover:animate-[heartbeat_1.5s_infinite_ease-in-out] z-60"
                       style={{ color: "rgba(237, 185, 0, 0.3)" }}
@@ -355,7 +370,7 @@ function PropFirmUI({ firm, ratingBreakdown, formatCurrency }) {
                     </span>
                   </div>
                   <div className="flex items-center mb-2">
-                    <FontAwesomeIcon icon={faStar} className="text-lg mr-1 text-[#0f0f0f]" />
+                    <FontAwesomeIcon icon={solidStar} className="text-lg mr-1 text-[#0f0f0f]" />
                     <span className="font-bold">{firm?.rating?.toFixed(2) || "4.45"}</span>
                     <span className="text-xs ml-1">• {firm?.reviews_count || "4.5k"} reviews</span>
                   </div>
@@ -530,7 +545,7 @@ function PropFirmUI({ firm, ratingBreakdown, formatCurrency }) {
                     <h3 className="font-bold mb-3">Leverage</h3>
                     <ul className="text-xs space-y-1">
                       {firm?.leverage && typeof firm.leverage === "object" ? (
-                        Object.entries(firm.leverage).map(([key, value], index) => (
+                        Object.entries<string>(firm.leverage as Record<string, string>).map(([key, value], index) => (
                           <li key={index} className="flex items-center">
                             <span className="mr-2">•</span>
                             <span>
@@ -819,8 +834,8 @@ function PropFirmUI({ firm, ratingBreakdown, formatCurrency }) {
 
                 <TabsContent value="discussion">
                   <div className="bg-[#0f0f0f] rounded-lg p-6">
-                    <h2 className="text-3xl font-bold text-[#edb900] mb-6">Community Discussion</h2>
-                    <DiscussionSection firmId={firmId} />
+                    <h2 className="text-xl font-bold mb-4">Discussion</h2>
+                    <CommentSection type="propfirm" itemId={firmId || 0} onLoginModalOpen={handleLoginModalOpen} />
                   </div>
                 </TabsContent>
               </Tabs>
@@ -828,831 +843,13 @@ function PropFirmUI({ firm, ratingBreakdown, formatCurrency }) {
           </div>
         </div>
       </div>
+
       <Testimonials />
       <Community />
       <Newsletter />
       <Footer />
+      {/* Remove the local LoginModal instance */}
     </div>
-  )
-}
-
-function DiscussionSection({ firmId }) {
-  const [comments, setComments] = useState([])
-  const [commentText, setCommentText] = useState("")
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
-  const { user } = useUser()
-  const [isLoginOpen, setIsLoginOpen] = useState(false)
-  const [replyingTo, setReplyingTo] = useState(null)
-  const [replyText, setReplyText] = useState("")
-  const [expandedReplies, setExpandedReplies] = useState({})
-
-  // Add this function inside the DiscussionSection component
-  const handleCommentDelete = (commentId) => {
-    // Update the comments state by filtering out the deleted comment
-    setComments(comments.filter((comment) => comment.id !== commentId))
-  }
-
-  const toggleReplies = (commentId) => {
-    setExpandedReplies((prev) => ({
-      ...prev,
-      [commentId]: !prev[commentId],
-    }))
-  }
-
-  // Calculate vote counts and user's vote for a comment
-  const getVoteInfo = (comment) => {
-    // Ensure votes is always an array, even if it's null or undefined
-    const votes = Array.isArray(comment.votes) ? comment.votes : []
-    const upvotes = votes.filter((v) => v.vote_type === "upvote").length
-    const downvotes = votes.filter((v) => v.vote_type === "downvote").length
-    const userVote = user ? votes.find((v) => v.user_id === user.id)?.vote_type : null
-
-    return {
-      score: upvotes - downvotes,
-      userVote,
-    }
-  }
-
-  // Fetch comments for this prop firm
-  useEffect(() => {
-    async function fetchComments() {
-      if (!firmId) return
-
-      setIsLoading(true)
-      try {
-        // Fetch parent comments first
-        const { data: parentComments, error: parentError } = await supabase
-          .from("propfirm_comments")
-          .select("*, votes:propfirm_comment_votes(*)")
-          .eq("commented_on", firmId)
-          .is("parent_comment_id", null)
-          .order("created_at", { ascending: false })
-
-        if (parentError) {
-          console.error("Error fetching parent comments:", parentError)
-          return
-        }
-
-        // Fetch replies for each parent comment
-        const commentsWithReplies = await Promise.all(
-          (parentComments || []).map(async (comment) => {
-            const { data: replies, error: repliesError } = await supabase
-              .from("propfirm_comments")
-              .select("*, votes:propfirm_comment_votes(*)")
-              .eq("parent_comment_id", comment.id)
-              .order("created_at", { ascending: true })
-
-            if (repliesError) {
-              console.error(`Error fetching replies for comment ${comment.id}:`, repliesError)
-              return { ...comment, replies: [] }
-            }
-
-            return { ...comment, replies: replies || [] }
-          }),
-        )
-
-        setComments(commentsWithReplies || [])
-      } catch (error) {
-        console.error("Error in fetchComments:", error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    fetchComments()
-  }, [firmId])
-
-  const handleSubmitComment = async (e) => {
-    e.preventDefault()
-
-    if (!commentText.trim() || !user) return
-
-    setIsSubmitting(true)
-
-    try {
-      // Store user's name and profile image URL directly in the comment
-      const { data, error } = await supabase
-        .from("propfirm_comments")
-        .insert([
-          {
-            commented_on: firmId,
-            author: user.id,
-            comment: commentText.trim(),
-            user_name: user.fullName || user.username || "User",
-            user_image: user.imageUrl || "/placeholder-user.jpg",
-          },
-        ])
-        .select()
-
-      if (error) {
-        console.error("Error posting comment:", error)
-        return
-      }
-
-      // Clear the comment text
-      setCommentText("")
-
-      // Refresh comments
-      const { data: refreshedComments, error: refreshError } = await supabase
-        .from("propfirm_comments")
-        .select("*, votes:propfirm_comment_votes(*)")
-        .eq("commented_on", firmId)
-        .is("parent_comment_id", null)
-        .order("created_at", { ascending: false })
-
-      if (refreshError) {
-        console.error("Error refreshing comments:", refreshError)
-        return
-      }
-
-      // Fetch replies for each parent comment
-      const commentsWithReplies = await Promise.all(
-        (refreshedComments || []).map(async (comment) => {
-          const { data: replies, error: repliesError } = await supabase
-            .from("propfirm_comments")
-            .select("*, votes:propfirm_comment_votes(*)")
-            .eq("parent_comment_id", comment.id)
-            .order("created_at", { ascending: true })
-
-          if (repliesError) {
-            console.error(`Error fetching replies for comment ${comment.id}:`, repliesError)
-            return { ...comment, replies: [] }
-          }
-
-          return { ...comment, replies: replies || [] }
-        }),
-      )
-
-      setComments(commentsWithReplies || [])
-    } catch (error) {
-      console.error("Error in handleSubmitComment:", error)
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
-  const handleSubmitReply = async (e) => {
-    e.preventDefault()
-
-    if (!replyText.trim() || !user || !replyingTo) return
-
-    try {
-      // Store user's name and profile image URL directly in the comment
-      const { data, error } = await supabase
-        .from("propfirm_comments")
-        .insert([
-          {
-            commented_on: firmId,
-            author: user.id,
-            comment: replyText.trim(),
-            user_name: user.fullName || user.username || "User",
-            user_image: user.imageUrl || "/placeholder-user.jpg",
-            parent_comment_id: replyingTo,
-          },
-        ])
-        .select()
-
-      if (error) {
-        console.error("Error posting reply:", error)
-        return
-      }
-
-      // Clear the reply text and close the reply form
-      setReplyText("")
-      setReplyingTo(null)
-
-      // Find the parent comment and add the new reply
-      const updatedComments = comments.map((comment) => {
-        if (comment.id === replyingTo) {
-          // Make sure replies array exists
-          const replies = comment.replies || []
-          return {
-            ...comment,
-            replies: [...replies, data[0]],
-          }
-        }
-        return comment
-      })
-
-      setComments(updatedComments)
-
-      // Ensure the replies for this comment are expanded
-      setExpandedReplies((prev) => ({
-        ...prev,
-        [replyingTo]: true,
-      }))
-    } catch (error) {
-      console.error("Error in handleSubmitReply:", error)
-    }
-  }
-
-  // Add the handleVote function here
-  const handleVote = async (commentId, voteType) => {
-    if (!user) {
-      console.warn("User not logged in.")
-      return
-    }
-
-    try {
-      // Check if the user has already voted on this comment
-      const { data: existingVote, error: existingVoteError } = await supabase
-        .from("propfirm_comment_votes")
-        .select("*")
-        .eq("comment_id", commentId)
-        .eq("user_id", user.id)
-        .single()
-
-      if (existingVoteError && existingVoteError.code !== "PGRST116") {
-        console.error("Error checking existing vote:", existingVoteError)
-        return
-      }
-
-      if (existingVote) {
-        // User has already voted, update the vote
-        const { error: updateError } = await supabase
-          .from("propfirm_comment_votes")
-          .update({ vote_type: voteType })
-          .eq("id", existingVote.id)
-
-        if (updateError) {
-          console.error("Error updating vote:", updateError)
-          return
-        }
-
-        // Optimistically update the comment in the UI
-        setComments((prevComments) =>
-          prevComments.map((comment) => {
-            if (comment.id === commentId) {
-              const currentVotes = Array.isArray(comment.votes) ? comment.votes : []
-              return {
-                ...comment,
-                votes: currentVotes.map((vote) => {
-                  if (vote.user_id === user.id) {
-                    return { ...vote, vote_type: voteType }
-                  }
-                  return vote
-                }),
-              }
-            }
-            return comment
-          }),
-        )
-      } else {
-        // User has not voted, create a new vote
-        const { error: insertError } = await supabase
-          .from("propfirm_comment_votes")
-          .insert([{ comment_id: commentId, user_id: user.id, vote_type: voteType }])
-
-        if (insertError) {
-          console.error("Error inserting vote:", insertError)
-          return
-        }
-
-        // Optimistically update the comment in the UI
-        setComments((prevComments) =>
-          prevComments.map((comment) => {
-            if (comment.id === commentId) {
-              const currentVotes = Array.isArray(comment.votes) ? comment.votes : []
-              return {
-                ...comment,
-                votes: [...currentVotes, { comment_id: commentId, user_id: user.id, vote_type: voteType }],
-              }
-            }
-            return comment
-          }),
-        )
-      }
-    } catch (error) {
-      console.error("Error in handleVote:", error)
-    }
-  }
-
-  // Count total comments including replies
-  const totalComments = comments.reduce((total, comment) => {
-    return total + 1 + (comment.replies?.length || 0)
-  }, 0)
-
-  return (
-    <div className="space-y-6">
-      <h3 className="text-xl text-[#edb900]">
-        {totalComments} {totalComments === 1 ? "comment" : "comments"}
-      </h3>
-
-      {/* Comment form for logged-in users */}
-      <SignedIn>
-        <form onSubmit={handleSubmitComment} className="mb-8">
-          <div className="flex items-start gap-3">
-            <div className="shrink-0">
-              <img
-                src={user?.imageUrl || "/placeholder-user.jpg"}
-                alt="Your profile"
-                className="w-10 h-10 rounded-full"
-              />
-            </div>
-            <div className="flex-1">
-              <textarea
-                value={commentText}
-                onChange={(e) => setCommentText(e.target.value)}
-                placeholder="Create a new comment."
-                className="w-full min-h-[100px] p-3 bg-[#0f0f0f] border border-[rgba(237,185,0,0.3)] rounded-lg text-white focus:outline-none focus:border-[#edb900]"
-                required
-              />
-              <div className="mt-2 flex justify-end">
-                <button
-                  type="submit"
-                  disabled={isSubmitting || !commentText.trim()}
-                  className="px-6 py-2 bg-[#edb900] text-[#0f0f0f] font-medium rounded-md hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isSubmitting ? "Posting..." : "Post Comment"}
-                </button>
-              </div>
-            </div>
-          </div>
-        </form>
-      </SignedIn>
-
-      {/* Login prompt for non-logged-in users */}
-      <SignedOut>
-        <div className="border border-[rgba(237,185,0,0.3)] rounded-lg p-6 mb-8">
-          <h3 className="text-2xl font-bold text-[#edb900] text-center mb-2">Want to join the discussion?</h3>
-          <p className="text-center text-white mb-6">Login or sign-up to leave a comment.</p>
-          <div className="flex justify-center gap-4">
-            <button
-              onClick={() => setIsLoginOpen(true)}
-              className="px-8 py-3 bg-[#edb900] text-[#0f0f0f] font-medium rounded-md hover:brightness-110"
-            >
-              Login
-            </button>
-            <button
-              onClick={() => setIsLoginOpen(true)}
-              className="px-8 py-3 bg-[#edb900] text-[#0f0f0f] font-medium rounded-md hover:brightness-110"
-            >
-              Sign-up
-            </button>
-          </div>
-        </div>
-      </SignedOut>
-
-      {/* Reply form */}
-      {replyingTo && (
-        <div className="mb-6 ml-12 border-l-2 border-[rgba(237,185,0,0.3)] pl-4">
-          <form onSubmit={handleSubmitReply}>
-            <div className="flex items-start gap-3">
-              <div className="shrink-0">
-                <img
-                  src={user?.imageUrl || "/placeholder-user.jpg"}
-                  alt="Your profile"
-                  className="w-8 h-8 rounded-full"
-                />
-              </div>
-              <div className="flex-1">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm text-gray-400">Replying to comment</span>
-                  <button
-                    type="button"
-                    onClick={() => setReplyingTo(null)}
-                    className="text-gray-400 hover:text-[#edb900]"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                </div>
-                <textarea
-                  value={replyText}
-                  onChange={(e) => setReplyText(e.target.value)}
-                  placeholder="Write your reply..."
-                  className="w-full min-h-[80px] p-3 bg-[#0f0f0f] border border-[rgba(237,185,0,0.3)] rounded-lg text-white focus:outline-none focus:border-[#edb900]"
-                  required
-                />
-                <div className="mt-2 flex justify-end">
-                  <button
-                    type="submit"
-                    disabled={!replyText.trim()}
-                    className="px-4 py-1.5 bg-[#edb900] text-[#0f0f0f] text-sm font-medium rounded-md hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Post Reply
-                  </button>
-                </div>
-              </div>
-            </div>
-          </form>
-        </div>
-      )}
-
-      {/* Comments list */}
-      {isLoading ? (
-        <div className="flex justify-center py-10">
-          <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-[#edb900]"></div>
-        </div>
-      ) : comments.length > 0 ? (
-        <div className="space-y-6">
-          {comments.map((comment) => (
-            <CommentItem
-              key={comment.id}
-              comment={comment}
-              onDelete={handleCommentDelete}
-              onReply={() => setReplyingTo(comment.id)}
-              onVote={handleVote}
-              getVoteInfo={getVoteInfo}
-              isReplyOpen={replyingTo === comment.id}
-              replies={comment.replies || []}
-              showReplies={expandedReplies[comment.id]}
-              toggleReplies={() => toggleReplies(comment.id)}
-            />
-          ))}
-        </div>
-      ) : (
-        <div className="bg-[#edb900] text-[#0f0f0f] rounded-lg p-6 text-center">Be the first to leave a comment.</div>
-      )}
-    </div>
-  )
-}
-
-function CommentItem({
-  comment,
-  onDelete,
-  onReply,
-  onVote,
-  getVoteInfo,
-  isReplyOpen,
-  replies = [],
-  showReplies,
-  toggleReplies,
-}) {
-  const { user } = useUser()
-  const [isEditing, setIsEditing] = useState(false)
-  const [editedComment, setEditedComment] = useState(comment.comment)
-  const [isDeleting, setIsDeleting] = useState(false)
-
-  const isAuthor = user && user.id === comment.author
-  const formattedTime = formatRelativeTime(comment.created_at)
-  const { score, userVote } = getVoteInfo(comment)
-  const hasReplies = replies.length > 0
-
-  const handleSaveEdit = async () => {
-    if (!editedComment.trim()) return
-
-    try {
-      const { error } = await supabase
-        .from("propfirm_comments")
-        .update({ comment: editedComment.trim() })
-        .eq("id", comment.id)
-
-      if (error) {
-        console.error("Error updating comment:", error)
-        return
-      }
-
-      // Update the comment locally
-      comment.comment = editedComment.trim()
-      setIsEditing(false)
-    } catch (error) {
-      console.error("Error in handleSaveEdit:", error)
-    }
-  }
-
-  const handleDelete = async () => {
-    setIsDeleting(true)
-
-    try {
-      const { error } = await supabase.from("propfirm_comments").delete().eq("id", comment.id)
-
-      if (error) {
-        console.error("Error deleting comment:", error)
-        return
-      }
-
-      // Call the onDelete callback to update the parent component's state
-      onDelete(comment.id)
-    } catch (error) {
-      console.error("Error in handleDelete:", error)
-    } finally {
-      setIsDeleting(false)
-    }
-  }
-
-  return (
-    <div className="border-b border-[rgba(237,185,0,0.1)] pb-6">
-      <div className="flex gap-3">
-        {/* Vote buttons */}
-        <div className="flex flex-col items-center">
-          <button
-            onClick={() => onVote(comment.id, "upvote")}
-            className={`p-1 rounded-full transition-colors ${
-              userVote === "upvote"
-                ? "text-[#edb900] bg-[rgba(237,185,0,0.1)]"
-                : "text-gray-400 hover:text-[#edb900] hover:bg-[rgba(237,185,0,0.05)]"
-            }`}
-          >
-            <ChevronUpIcon className="h-4 w-4" />
-          </button>
-          <span
-            className={`text-xs font-medium ${
-              score > 0 ? "text-[#edb900]" : score < 0 ? "text-red-500" : "text-gray-400"
-            }`}
-          >
-            {score}
-          </span>
-          <button
-            onClick={() => onVote(comment.id, "downvote")}
-            className={`p-1 rounded-full transition-colors ${
-              userVote === "downvote"
-                ? "text-red-500 bg-[rgba(239,68,68,0.1)]"
-                : "text-gray-400 hover:text-red-500 hover:bg-[rgba(239,68,68,0.05)]"
-            }`}
-          >
-            <ChevronDownIcon className="h-4 w-4" />
-          </button>
-        </div>
-
-        <div className="flex-1">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-3">
-              <img
-                src={
-                  comment.user_image || (user && user.id === comment.author ? user.imageUrl : "/placeholder-user.jpg")
-                }
-                alt={comment.user_name || "User"}
-                className="w-10 h-10 rounded-full"
-              />
-              <div>
-                <div className="font-medium text-white">
-                  {comment.user_name ||
-                    (user && user.id === comment.author ? user.fullName || user.username : "Anonymous User")}
-                </div>
-                <div className="text-xs text-gray-400">{formattedTime}</div>
-              </div>
-            </div>
-
-            <div className="flex gap-2">
-              {isAuthor && !isEditing && (
-                <>
-                  <button
-                    onClick={() => setIsEditing(true)}
-                    className="text-gray-400 hover:text-[#edb900] transition-colors"
-                  >
-                    <Edit className="h-4 w-4" />
-                  </button>
-                  <button
-                    onClick={handleDelete}
-                    disabled={isDeleting}
-                    className="text-gray-400 hover:text-red-500 transition-colors"
-                  >
-                    {isDeleting ? <Loader className="h-4 w-4 animate-spin" /> : <Trash className="h-4 w-4" />}
-                  </button>
-                </>
-              )}
-              {isEditing && (
-                <>
-                  <button onClick={handleSaveEdit} className="text-gray-400 hover:text-green-500 transition-colors">
-                    <Check className="h-4 w-4" />
-                  </button>
-                  <button
-                    onClick={() => {
-                      setIsEditing(false)
-                      setEditedComment(comment.comment)
-                    }}
-                    className="text-gray-400 hover:text-red-500 transition-colors"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-
-          <div className="pl-[52px]">
-            {isEditing ? (
-              <textarea
-                value={editedComment}
-                onChange={(e) => setEditedComment(e.target.value)}
-                className="w-full min-h-[100px] p-3 bg-[#0f0f0f] border border-[rgba(237,185,0,0.3)] rounded-lg text-white focus:outline-none focus:border-[#edb900]"
-              />
-            ) : (
-              <p className="text-white whitespace-pre-wrap">{comment.comment}</p>
-            )}
-
-            {/* Comment actions */}
-            {!isEditing && (
-              <div className="mt-3 flex items-center gap-4">
-                <button
-                  onClick={onReply}
-                  className={`text-xs flex items-center gap-1 ${
-                    isReplyOpen ? "text-[#edb900]" : "text-gray-400 hover:text-[#edb900]"
-                  } transition-colors`}
-                >
-                  <MessageSquare className="h-3.5 w-3.5" />
-                  Reply
-                </button>
-
-                {hasReplies && (
-                  <button
-                    onClick={toggleReplies}
-                    className="text-xs flex items-center gap-1 text-gray-400 hover:text-[#edb900] transition-colors"
-                  >
-                    {showReplies ? (
-                      <>
-                        <ChevronUpIcon className="h-3.5 w-3.5" />
-                        Hide replies ({replies.length})
-                      </>
-                    ) : (
-                      <>
-                        <ChevronDownIcon className="h-3.5 w-3.5" />
-                        Show replies ({replies.length})
-                      </>
-                    )}
-                  </button>
-                )}
-              </div>
-            )}
-
-            {/* Replies */}
-            {hasReplies && showReplies && (
-              <div className="mt-4 space-y-4 border-l-2 border-[rgba(237,185,0,0.15)] pl-4">
-                {replies.map((reply) => (
-                  <ReplyItem key={reply.id} reply={reply} onVote={onVote} getVoteInfo={getVoteInfo} />
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function ReplyItem({ reply, onVote, getVoteInfo }) {
-  const { user } = useUser()
-  const [isEditing, setIsEditing] = useState(false)
-  const [editedReply, setEditedReply] = useState(reply.comment)
-  const [isDeleting, setIsDeleting] = useState(false)
-
-  const isAuthor = user && user.id === reply.author
-  const formattedTime = formatRelativeTime(reply.created_at)
-  const { score, userVote } = getVoteInfo(reply)
-
-  const handleSaveEdit = async () => {
-    if (!editedReply.trim()) return
-
-    try {
-      const { error } = await supabase
-        .from("propfirm_comments")
-        .update({ comment: editedReply.trim() })
-        .eq("id", reply.id)
-
-      if (error) {
-        console.error("Error updating reply:", error)
-        return
-      }
-
-      // Update the reply locally
-      reply.comment = editedReply.trim()
-      setIsEditing(false)
-    } catch (error) {
-      console.error("Error in handleSaveEdit:", error)
-    }
-  }
-
-  const handleDelete = async () => {
-    setIsDeleting(true)
-
-    try {
-      const { error } = await supabase.from("propfirm_comments").delete().eq("id", reply.id)
-
-      if (error) {
-        console.error("Error deleting reply:", error)
-        return
-      }
-
-      // Remove the reply from the DOM
-      const replyElement = document.getElementById(`reply-${reply.id}`)
-      if (replyElement) {
-        replyElement.remove()
-      }
-    } catch (error) {
-      console.error("Error in handleDelete:", error)
-    } finally {
-      setIsDeleting(false)
-    }
-  }
-
-  return (
-    <div id={`reply-${reply.id}`} className="flex gap-2">
-      {/* Vote buttons */}
-      <div className="flex flex-col items-center">
-        <button
-          onClick={() => onVote(reply.id, "upvote")}
-          className={`p-1 rounded-full transition-colors ${
-            userVote === "upvote"
-              ? "text-[#edb900] bg-[rgba(237,185,0,0.1)]"
-              : "text-gray-400 hover:text-[#edb900] hover:bg-[rgba(237,185,0,0.05)]"
-          }`}
-        >
-          <ChevronUpIcon className="h-3 w-3" />
-        </button>
-        <span
-          className={`text-xs font-medium ${
-            score > 0 ? "text-[#edb900]" : score < 0 ? "text-red-500" : "text-gray-400"
-          }`}
-        >
-          {score}
-        </span>
-        <button
-          onClick={() => onVote(reply.id, "downvote")}
-          className={`p-1 rounded-full transition-colors ${
-            userVote === "downvote"
-              ? "text-red-500 bg-[rgba(239,68,68,0.1)]"
-              : "text-gray-400 hover:text-red-500 hover:bg-[rgba(239,68,68,0.05)]"
-          }`}
-        >
-          <ChevronDownIcon className="h-3 w-3" />
-        </button>
-      </div>
-
-      <div className="flex-1">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-2">
-            <img
-              src={reply.user_image || (user && user.id === reply.author ? user.imageUrl : "/placeholder-user.jpg")}
-              alt={reply.user_name || "User"}
-              className="w-6 h-6 rounded-full"
-            />
-            <div>
-              <div className="font-medium text-white text-sm">
-                {reply.user_name ||
-                  (user && user.id === reply.author ? user.fullName || user.username : "Anonymous User")}
-              </div>
-              <div className="text-xs text-gray-400">{formattedTime}</div>
-            </div>
-          </div>
-
-          <div className="flex gap-2">
-            {isAuthor && !isEditing && (
-              <>
-                <button
-                  onClick={() => setIsEditing(true)}
-                  className="text-gray-400 hover:text-[#edb900] transition-colors"
-                >
-                  <Edit className="h-3 w-3" />
-                </button>
-                <button
-                  onClick={handleDelete}
-                  disabled={isDeleting}
-                  className="text-gray-400 hover:text-red-500 transition-colors"
-                >
-                  {isDeleting ? <Loader className="h-3 w-3 animate-spin" /> : <Trash className="h-3 w-3" />}
-                </button>
-              </>
-            )}
-            {isEditing && (
-              <>
-                <button onClick={handleSaveEdit} className="text-gray-400 hover:text-green-500 transition-colors">
-                  <Check className="h-3 w-3" />
-                </button>
-                <button
-                  onClick={() => {
-                    setIsEditing(false)
-                    setEditedReply(reply.comment)
-                  }}
-                  className="text-gray-400 hover:text-red-500 transition-colors"
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-
-        {isEditing ? (
-          <textarea
-            value={editedReply}
-            onChange={(e) => setEditedReply(e.target.value)}
-            className="w-full min-h-[80px] p-3 bg-[#0f0f0f] border border-[rgba(237,185,0,0.3)] rounded-lg text-white text-sm focus:outline-none focus:border-[#edb900]"
-          />
-        ) : (
-          <p className="text-white text-sm whitespace-pre-wrap mt-2">{reply.comment}</p>
-        )}
-      </div>
-    </div>
-  )
-}
-
-function Star(props) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-    </svg>
   )
 }
 

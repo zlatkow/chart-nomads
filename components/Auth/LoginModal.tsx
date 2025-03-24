@@ -1,19 +1,40 @@
-"use client";
-import React, { useState} from "react";
-import { useSignIn, useSignUp } from "@clerk/nextjs";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
-import Link from "next/link";
-import Image from "next/image";
+"use client"
+import { useState, useEffect } from "react"
+import { useSignIn, useSignUp } from "@clerk/nextjs"
+import { FaEye, FaEyeSlash } from "react-icons/fa"
+import Link from "next/link"
+import Image from "next/image"
+import { useNoise } from "@/components/providers/noise-provider"
 
 const LoginModal = ({ isOpen, onClose }) => {
-  const { signIn, setActive } = useSignIn();
-  const { signUp } = useSignUp();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [isSignUp] = useState(false);
+  const { signIn, setActive } = useSignIn()
+  const { signUp } = useSignUp()
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
+  const [error, setError] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [isSignUp] = useState(false)
+  const { hideNoise, showNoise } = useNoise()
+
+  // Hide noise when modal opens, show it when modal closes
+  useEffect(() => {
+    if (isOpen) {
+      hideNoise()
+      // Disable scrolling on body
+      document.body.style.overflow = "hidden"
+    } else {
+      showNoise()
+      // Re-enable scrolling on body
+      document.body.style.overflow = "auto"
+    }
+
+    // Cleanup function to ensure noise is shown and scrolling is re-enabled when component unmounts
+    return () => {
+      showNoise()
+      document.body.style.overflow = "auto"
+    }
+  }, [isOpen, hideNoise, showNoise])
 
   const handleOAuthSignIn = async (provider) => {
     try {
@@ -22,55 +43,57 @@ const LoginModal = ({ isOpen, onClose }) => {
         redirectUrl: "/dashboard", // Replace with your correct redirect
         redirectUrlComplete: "/dashboard", // Where users land after successful login
         preferPopup: true, // ✅ Forces the authentication to open in a popup
-      });
+      })
     } catch (err) {
-      setError("Failed to sign in with " + provider);
-      console.error("OAuth Error:", err);
+      setError("Failed to sign in with " + provider)
+      console.error("OAuth Error:", err)
     }
-  };
+  }
 
   const handleAuth = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
 
     try {
       if (isSignUp) {
-        const result = await signUp.create({ emailAddress: email, password });
+        const result = await signUp.create({ emailAddress: email, password })
         if (result.status === "complete") {
-          setActive({ session: result.createdSessionId });
-          window.location.href = "/dashboard";
+          setActive({ session: result.createdSessionId })
+          window.location.href = "/dashboard"
         } else {
-          setError("Sign-up failed, please try again.");
+          setError("Sign-up failed, please try again.")
         }
       } else {
-        const result = await signIn.create({ identifier: email, password });
+        const result = await signIn.create({ identifier: email, password })
         if (result.status === "complete") {
-          setActive({ session: result.createdSessionId });
-          window.location.href = "/dashboard";
+          setActive({ session: result.createdSessionId })
+          window.location.href = "/dashboard"
         } else {
-          setError("Invalid credentials.");
+          setError("Invalid credentials.")
         }
       }
     } catch (err) {
-      setError(err.errors?.[0]?.message || "Something went wrong.");
+      setError(err.errors?.[0]?.message || "Something went wrong.")
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
-  if (!isOpen) return null;
+  if (!isOpen) return null
 
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-md flex justify-center items-center z-[200]"
+      className="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-md flex justify-center items-center z-[9999]"
       onClick={onClose}
     >
       <div
         className="bg-[#0f0f0f] text-white p-12 rounded-lg shadow-lg w-full max-w-lg border border-goldenTransparent relative"
         onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside the modal
       >
-        <button onClick={onClose} className="absolute top-5 right-5 text-white text-2xl">✕</button>
+        <button onClick={onClose} className="absolute top-5 right-5 text-white text-2xl">
+          ✕
+        </button>
         <div className="mb-6 text-center">
           <Image
             src="/logo.webp"
@@ -84,7 +107,9 @@ const LoginModal = ({ isOpen, onClose }) => {
         </div>
         {error && <p className="text-red-500 text-sm text-center mb-4">{error}</p>}
         <form onSubmit={handleAuth}>
-          <label id="emailLabel" className="block text-md font-balboa mb-3 mt-3">Email</label>
+          <label id="emailLabel" className="block text-md font-balboa mb-3 mt-3">
+            Email
+          </label>
           <input
             type="email"
             placeholder="Enter your email"
@@ -95,7 +120,9 @@ const LoginModal = ({ isOpen, onClose }) => {
             focus:shadow-[rgb(155, 132, 1)_0px_1px_2px_0px]"
             required
           />
-          <label id="passwordLabel" className="block text-md font-balboa mb-3 mt-3">Password</label>
+          <label id="passwordLabel" className="block text-md font-balboa mb-3 mt-3">
+            Password
+          </label>
           <div className="relative mt-0">
             <input
               type={showPassword ? "text" : "password"}
@@ -128,44 +155,35 @@ const LoginModal = ({ isOpen, onClose }) => {
         </form>
         <div className="flex items-center justify-center my-6">
           <hr className="w-[45%] border-500 transition-all duration-300 ease-in-out hover:border-[#EDB900]" />
-          <span id="loginModalSeparator"className="mx-3 text-400 text-3xl font-medium px-3">OR</span>
+          <span id="loginModalSeparator" className="mx-3 text-400 text-3xl font-medium px-3">
+            OR
+          </span>
           <hr className="w-[45%] border-500 transition-all duration-300 ease-in-out hover:border-[#EDB900]" />
         </div>
         <button
           onClick={() => handleOAuthSignIn("google")}
           className="w-full h-[45px] flex items-center justify-center space-x-3 border border-white-500 p-3 rounded-lg text-white transition-all duration-100 ease-in-out hover:border-[#EDB900] hover:-translate-y-1 hover:-translate-x-1"
         >
-          <Image 
-            src="/icons/google.svg" 
-            alt="Google" 
-            width={24} 
-            height={24} 
-            className="w-6 h-6" 
-            />
+          <Image src="/icons/google.svg" alt="Google" width={24} height={24} className="w-6 h-6" />
           <span className="px-9">Sign in with Google</span>
         </button>
         <button
           onClick={() => handleOAuthSignIn("facebook")}
           className="w-full h-[45px] flex items-center justify-center space-x-3 border border-white-500 p-3 rounded-lg text-white transition-all duration-100 ease-in-out hover:border-[#EDB900] hover:-translate-y-1 hover:-translate-x-1 mt-3"
         >
-          <Image 
-            src="/icons/facebook.svg" 
-            alt="Facebook" 
-            width={24} 
-            height={24} 
-            className="w-6 h-6" 
-            />
+          <Image src="/icons/facebook.svg" alt="Facebook" width={24} height={24} className="w-6 h-6" />
           <span className="px-7">Sign in with Facebook</span>
         </button>
         <p className="text-xs text-center mt-10">
-          Don&apos;t have an account? 
+          Don&apos;t have an account?
           <Link href="/sign-up" className="ml-2 text-[#EDB900] cursor-pointer hover:opacity-70">
             Sign up for free.
           </Link>
         </p>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default LoginModal;
+export default LoginModal
+

@@ -1,13 +1,13 @@
 "use client"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useContext } from "react"
 import { createClient } from "@supabase/supabase-js"
 import Navbar from "../components/Navbar"
 import Noise from "../components/Noise"
 import Community from "../components/Community"
 import Newsletter from "../components/Newsletter"
 import Footer from "../components/Footer"
-import LoginModal from "../components/Auth/LoginModal"
-import OffersComponent from "../components/Offers"
+import Offers from "../components/Offers"
+import { ModalContext } from "./_app"
 
 // Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -16,7 +16,9 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 export default function DiscountsPage() {
   const [isAnimating, setIsAnimating] = useState(false)
-  const [isLoginOpen, setIsLoginOpen] = useState(false)
+
+  // Use the ModalContext instead of local state
+  const { setShowLoginModal } = useContext(ModalContext)
 
   // Animation effect for the hero section
   useEffect(() => {
@@ -82,14 +84,15 @@ export default function DiscountsPage() {
     deleteOldExpiredDiscounts()
   }, [])
 
+  // Function to handle opening the login modal
+  const handleLoginModalOpen = () => {
+    setShowLoginModal(true)
+  }
+
   return (
     <div className="min-h-screen bg-[#0f0f0f] text-white">
       <Navbar />
       <Noise />
-
-      {/* Login Modal */}
-      {isLoginOpen && <LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />}
-
       {/* Main Content */}
       <main className="relative container mx-auto px-4 pt-[250px] z-10 mb-[150px]">
         {/* Hero Section */}
@@ -110,9 +113,9 @@ export default function DiscountsPage() {
         </div>
 
         {/* Offers Component with tabs and search enabled */}
-        <OffersComponent
+        <Offers
           supabase={supabase}
-          onLoginModalOpen={() => setIsLoginOpen(true)}
+          onLoginModalOpen={handleLoginModalOpen}
           showTabs={true}
           showSearch={true}
         />
