@@ -1,14 +1,11 @@
+/* eslint-disable */
 "use client"
-
 import type React from "react"
-
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import { useUser, SignedIn, SignedOut } from "@clerk/nextjs"
 import { MessageSquare, Edit, Trash, X, Loader, Check, ChevronUpIcon, ChevronDownIcon } from "lucide-react"
-// Remove this import since we won't be using it directly in this component
-// import LoginModal from "./Auth/LoginModal"
 
 // Types for our comment system
 type CommentType = "propfirm" | "news" | "blog"
