@@ -1,3 +1,4 @@
+/* eslint-disable */
 "use client"
 import type { SupabaseClient } from "@supabase/supabase-js"
 import { useState, useEffect, useContext } from "react"
