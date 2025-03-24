@@ -26,68 +26,64 @@ import { ModalContext } from "./_app"
 
 export async function getServerSideProps() {
   try {
+    // Fetch main rules with prop firm details
     const { data: mainRules, error: mainRulesError } = await supabase.from("prop_firm_main_rules").select(`
+      id,
+      last_updated,
+      main_rules,
+      prop_firm,
+      prop_firms (
         id,
-        last_updated,
-        main_rules,
-        prop_firms (
-          id,
-          propfirm_name,
-          category,
-          rating,
-          logo_url,
-          slug,
-          brand_colour,
-          reviews_count,
-          likes
-        )
-      `)
+        propfirm_name,
+        category,
+        rating,
+        logo_url,
+        slug,
+        brand_colour,
+        reviews_count,
+        likes
+      )
+    `)
 
     if (mainRulesError) {
       console.error("❌ ERROR Fetching Main Rules:", mainRulesError)
       return { props: { propFirmRules: [] } }
     }
 
+    // Fetch change logs
     const { data: changeLogs, error: changeLogsError } = await supabase.from("prop_firm_rules_change_logs").select(`
+      id,
+      last_updated,
+      change_log,
+      prop_firm,
+      prop_firms (
         id,
-        last_updated,
-        change_log,
-        prop_firm
-      `)
+        propfirm_name,
+        category,
+        rating,
+        logo_url,
+        slug,
+        brand_colour,
+        reviews_count,
+        likes
+      )
+    `)
 
     if (changeLogsError) {
       console.error("❌ ERROR Fetching Change Logs:", changeLogsError)
       return { props: { propFirmRules: [] } }
     }
 
-    console.log("📊 RAW Change Logs Response:", changeLogs)
-
-    if (!Array.isArray(changeLogs)) {
-      return { props: { propFirmRules: [] } }
+    // Process the data to include change logs with each firm
+    const processedData = {
+      mainRules: mainRules || [],
+      changeLogs: changeLogs || [],
     }
 
-    // ✅ Change Log Map: Store Multiple Logs Per Firm
-    const changeLogMap = changeLogs.reduce((acc, log) => {
-      if (!acc[log.prop_firm]) {
-        acc[log.prop_firm] = []
-      }
-      acc[log.prop_firm].push({
-        change_log: log.change_log,
-        last_updated: log.last_updated,
-      })
-      return acc
-    }, {})
-
-    // ✅ Merge: Attach All Logs to Each Firm
-    const combinedData = mainRules.map((firm) => ({
-      ...firm,
-      change_logs: changeLogMap[firm.prop_firms.id] || [], // Store logs as an array
-    }))
-
-    return { props: { propFirmRules: combinedData } }
+    return { props: { propFirmRules: processedData } }
   } catch (error) {
     console.error("🔥 UNEXPECTED ERROR in getServerSideProps:", error)
-    return { props: { propFirmRules: [] } }
+    return { props: { propFirmRules: { mainRules: [], changeLogs: [] } } }
   }
 }
 
@@ -95,63 +91,89 @@ const PropFirmRules = ({ propFirmRules }) => {
   const [searchTerm, setSearchTerm] = useState("")
   const [userLikedFirms, setUserLikedFirms] = useState(new Set())
   const { user } = useUser()
-  // Remove the local login modal state
-  // const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [likesMap, setLikesMap] = useState({})
   const [activeTab, setActiveTab] = useState("tab1")
-  const [visibleCount, setVisibleCount] = useState(10) // 🔥 Show 10 entries initially
-  const totalResults =
-    activeTab === "tab1" ? propFirmRules.length : propFirmRules.reduce((acc, firm) => acc + firm.change_logs.length, 0)
+  const [visibleCount, setVisibleCount] = useState(10)
   const [loadingLikes, setLoadingLikes] = useState(true)
 
   // Use the ModalContext
   const { setShowLoginModal } = useContext(ModalContext)
 
+  // Extract the main rules and change logs from props
+  const { mainRules = [], changeLogs = [] } = propFirmRules || {}
+
   const handleTabClick = (tab) => {
     setActiveTab(tab)
-    setVisibleCount(10) // 🔥 Reset visible count when switching tabs
+    setVisibleCount(10)
   }
 
   const searchLower = searchTerm.toLowerCase()
 
-  const filteredFirms =
+  // Filter and prepare data based on active tab
+  const filteredData =
     activeTab === "tab1"
-      ? propFirmRules
-          .filter(
-            (firm) =>
-              firm.prop_firms.propfirm_name.toLowerCase().includes(searchLower) ||
-              firm.prop_firms.category.toLowerCase().includes(searchLower) ||
-              firm.main_rules.toLowerCase().includes(searchLower),
-          )
-          .sort((a, b) => new Date(b.last_updated) - new Date(a.last_updated)) // 🔥 Sort by newest first
-          .slice(0, visibleCount) // 🔥 Limit to visible count
-      : propFirmRules
-          .flatMap((firm) =>
-            firm.change_logs.map((log) => ({
-              prop_firms: firm.prop_firms, // ✅ Firm info
-              change_log: log.change_log, // ✅ Individual log entry
-              change_log_last_updated: log.last_updated, // ✅ Date per log
-              id: log.id, // ✅ Ensure unique key
-            })),
-          )
-          .filter(
-            (entry) =>
-              entry.prop_firms.propfirm_name.toLowerCase().includes(searchLower) ||
-              entry.prop_firms.category.toLowerCase().includes(searchLower) ||
-              entry.change_log.toLowerCase().includes(searchLower),
-          )
-          .sort((a, b) => new Date(b.change_log_last_updated) - new Date(a.change_log_last_updated)) // 🔥 Sort by newest first
-          .slice(0, visibleCount) // 🔥 Limit to visible count
+      ? (mainRules || [])
+          .filter((item) => {
+            if (!item || !item.prop_firms) return false
 
+            // Safely access and convert strings to lowercase with fallbacks
+            const name = item.prop_firms.propfirm_name ? item.prop_firms.propfirm_name.toLowerCase() : ""
+            const category = item.prop_firms.category ? item.prop_firms.category.toLowerCase() : ""
+            const rules = item.main_rules ? item.main_rules.toLowerCase() : ""
+
+            return name.includes(searchLower) || category.includes(searchLower) || rules.includes(searchLower)
+          })
+          .sort((a, b) => {
+            // Simple date comparison with null safety
+            const dateA = a && a.last_updated ? new Date(a.last_updated) : new Date(0)
+            const dateB = b && b.last_updated ? new Date(b.last_updated) : new Date(0)
+            return dateB.getTime() - dateA.getTime()
+          })
+          .slice(0, visibleCount)
+      : (changeLogs || [])
+          .filter((item) => {
+            if (!item || !item.prop_firms) return false
+
+            // Safely access and convert strings to lowercase with fallbacks
+            const name = item.prop_firms.propfirm_name ? item.prop_firms.propfirm_name.toLowerCase() : ""
+            const category = item.prop_firms.category ? item.prop_firms.category.toLowerCase() : ""
+            const log = item.change_log ? item.change_log.toLowerCase() : ""
+
+            return name.includes(searchLower) || category.includes(searchLower) || log.includes(searchLower)
+          })
+          .sort((a, b) => {
+            // Simple date comparison with null safety
+            const dateA = a && a.last_updated ? new Date(a.last_updated) : new Date(0)
+            const dateB = b && b.last_updated ? new Date(b.last_updated) : new Date(0)
+            return dateB.getTime() - dateA.getTime()
+          })
+          .slice(0, visibleCount)
+
+  // Update the totalResults calculation to be safer
+  const totalResults = activeTab === "tab1" ? (mainRules || []).length : (changeLogs || []).length
+
+  // Initialize likes map
   useEffect(() => {
     const initialLikes = {}
-    propFirmRules.forEach((firm) => {
-      initialLikes[firm.prop_firms.id] = firm.prop_firms.likes // Store likes in an object
-    })
-    setLikesMap(initialLikes)
-  }, [propFirmRules])
 
-  // ✅ Fetch liked firms from the user
+    // Process main rules
+    mainRules.forEach((item) => {
+      if (item && item.prop_firms && item.prop_firms.id) {
+        initialLikes[item.prop_firms.id] = item.prop_firms.likes || 0
+      }
+    })
+
+    // Process change logs
+    changeLogs.forEach((item) => {
+      if (item && item.prop_firms && item.prop_firms.id) {
+        initialLikes[item.prop_firms.id] = item.prop_firms.likes || 0
+      }
+    })
+
+    setLikesMap(initialLikes)
+  }, [mainRules, changeLogs])
+
+  // Fetch liked firms
   useEffect(() => {
     if (!user) {
       setLoadingLikes(false)
@@ -169,27 +191,22 @@ const PropFirmRules = ({ propFirmRules }) => {
 
       const likedFirmIds = new Set(data.map((entry) => Number(entry.firm_id)))
       setUserLikedFirms(likedFirmIds)
-
-      // Log the liked companies on page load
-      console.log("Liked firms on page load:", likedFirmIds)
-
       setLoadingLikes(false)
     }
 
     fetchLikedFirms()
   }, [user])
 
+  // Handle like toggle
   const handleLikeToggle = async (firmId) => {
     if (!user) {
-      console.warn("User must be logged in to like.")
-      // Use the context to open the login modal
       setShowLoginModal(true)
       return
     }
 
     const numericFirmId = Number(firmId)
-    console.log(`\n🔄 Like toggle triggered for Firm ID: ${numericFirmId}`)
 
+    // Update local state
     setUserLikedFirms((prevLikes) => {
       const updatedLikes = new Set(prevLikes)
       if (updatedLikes.has(numericFirmId)) {
@@ -200,12 +217,11 @@ const PropFirmRules = ({ propFirmRules }) => {
       return updatedLikes
     })
 
-    // ✅ Update `likesMap` instead of relying on `propFirms`
+    // Update likes count in UI
     setLikesMap((prevLikes) => {
       const newLikes = { ...prevLikes }
       const isLiked = userLikedFirms.has(numericFirmId)
-      newLikes[numericFirmId] = isLiked ? newLikes[numericFirmId] - 1 : newLikes[numericFirmId] + 1
-      console.log(`🔢 Updated local likes count for Firm ID ${numericFirmId}:`, newLikes[numericFirmId])
+      newLikes[numericFirmId] = isLiked ? (newLikes[numericFirmId] || 0) - 1 : (newLikes[numericFirmId] || 0) + 1
       return newLikes
     })
 
@@ -213,11 +229,9 @@ const PropFirmRules = ({ propFirmRules }) => {
       if (!userLikedFirms.has(numericFirmId)) {
         await supabase.from("user_likes").insert([{ user_id: user.id, firm_id: numericFirmId }])
         await supabase.rpc("increment_likes", { firm_id: numericFirmId })
-        console.log(`✅ Firm ID ${numericFirmId} successfully liked and database updated.`)
       } else {
         await supabase.from("user_likes").delete().eq("user_id", user.id).eq("firm_id", numericFirmId)
         await supabase.rpc("decrement_likes", { firm_id: numericFirmId })
-        console.log(`✅ Firm ID ${numericFirmId} successfully unliked and database updated.`)
       }
     } catch (err) {
       console.error("❌ Unexpected error updating likes:", err)
@@ -297,8 +311,8 @@ const PropFirmRules = ({ propFirmRules }) => {
           </div>
 
           {/* ✅ Displaying Content Based on Active Tab */}
-          {filteredFirms.length > 0 ? (
-            filteredFirms.map((entry, index) => (
+          {filteredData.length > 0 ? (
+            filteredData.map((entry, index) => (
               <div
                 key={index}
                 className="relative flex mb-20 bg-[#0f0f0f] border-[rgba(237,185,0,0.1)] border-[1px] p-5 rounded-[10px] z-50"
@@ -318,13 +332,13 @@ const PropFirmRules = ({ propFirmRules }) => {
                   >
                     <span
                       className={`absolute top-3 left-3 px-[5px] border text-xs rounded-[10px] font-[balboa]
-                      ${entry.prop_firms.category === "Gold" ? "text-[#efbf04] border-[#efbf04]" : ""}
-                      ${entry.prop_firms.category === "Platinum" ? "text-[#D9D9D9] border-[#D9D9D9]" : ""}
-                      ${entry.prop_firms.category === "Diamond" ? "text-[#c8bfe7] border-[#c8bfe7]" : ""}
-                      ${entry.prop_firms.category === "Silver" ? "text-[#c4c4c4] border-[#c4c4c4]" : ""}
-                      ${entry.prop_firms.category === "Copper" ? "text-[#c68346] border-[#c68346]" : ""}`}
+                      ${entry.prop_firms?.category === "Gold" ? "text-[#efbf04] border-[#efbf04]" : ""}
+                      ${entry.prop_firms?.category === "Platinum" ? "text-[#D9D9D9] border-[#D9D9D9]" : ""}
+                      ${entry.prop_firms?.category === "Diamond" ? "text-[#c8bfe7] border-[#c8bfe7]" : ""}
+                      ${entry.prop_firms?.category === "Silver" ? "text-[#c4c4c4] border-[#c4c4c4]" : ""}
+                      ${entry.prop_firms?.category === "Copper" ? "text-[#c68346] border-[#c68346]" : ""}`}
                     >
-                      {entry.prop_firms.category}
+                      {entry.prop_firms?.category || "Unknown"}
                     </span>
                   </Tippy>
 
@@ -340,17 +354,17 @@ const PropFirmRules = ({ propFirmRules }) => {
 
                   <SignedIn>
                     <button
-                      onClick={() => handleLikeToggle(entry.prop_firms.id)}
+                      onClick={() => handleLikeToggle(entry.prop_firms?.id)}
                       className={`absolute top-3 right-3 transition-all duration-200 ${
-                        userLikedFirms.has(entry.prop_firms.id)
+                        userLikedFirms.has(Number(entry.prop_firms?.id))
                           ? "text-[#EDB900] scale-105 hover:animate-[heartbeat_1.5s_infinite_ease-in-out]"
                           : "text-[rgba(237,185,0,0.3)] hover:text-[#EDB900] hover:animate-[heartbeat_1.5s_infinite_ease-in-out]"
                       }`}
                     >
                       <FontAwesomeIcon
-                        icon={userLikedFirms.has(Number(entry.prop_firms.id)) ? solidHeart : regularHeart}
+                        icon={userLikedFirms.has(Number(entry.prop_firms?.id)) ? solidHeart : regularHeart}
                         className={`transition-all duration-200 text-[25px] ${
-                          userLikedFirms.has(Number(entry.prop_firms.id))
+                          userLikedFirms.has(Number(entry.prop_firms?.id))
                             ? "text-[#EDB900] scale-105"
                             : "text-[rgba(237,185,0,0.3)] hover:text-[#EDB900]"
                         }`}
@@ -358,15 +372,15 @@ const PropFirmRules = ({ propFirmRules }) => {
                     </button>
                   </SignedIn>
 
-                  <Link href={`/prop-firms/${entry.prop_firms.slug}`} passHref>
+                  <Link href={`/prop-firms/${entry.prop_firms?.slug || ""}`} passHref>
                     <div className="flex w-[300px] h-[200px] justify-between px-7">
                       <div
                         className="w-20 h-20 mb-2 flex items-center justify-center rounded-[10px] p-1 mt-[50px]"
-                        style={{ backgroundColor: entry.prop_firms.brand_colour }}
+                        style={{ backgroundColor: entry.prop_firms?.brand_colour || "#000" }}
                       >
                         <Image
-                          src={entry.prop_firms.logo_url || "/default-logo.png"}
-                          alt={entry.prop_firms.propfirm_name}
+                          src={entry.prop_firms?.logo_url || "/default-logo.png"}
+                          alt={entry.prop_firms?.propfirm_name || "Company"}
                           width={40}
                           height={40}
                           className="object-cover"
@@ -374,40 +388,42 @@ const PropFirmRules = ({ propFirmRules }) => {
                       </div>
 
                       <div className="block mt-9 justify-center">
-                        <h3 className="text-2xl text-center">{entry.prop_firms.propfirm_name}</h3>
+                        <h3 className="text-2xl text-center">{entry.prop_firms?.propfirm_name || "Unknown Company"}</h3>
                         <p className="text-center text-2xl text-[#EDB900]">
                           <FontAwesomeIcon icon={faStar} className="text-lg" />
-                          <span className="text-white"> {entry.prop_firms.rating}</span>
+                          <span className="text-white"> {entry.prop_firms?.rating || "N/A"}</span>
                         </p>
                         <p className="text-center text-xs text-black bg-yellow-500 px-2 py-[5px] rounded-[8px] mt-2 mb-10 min-w-[80px] w-fit mx-auto">
-                          {entry.prop_firms.reviews_count} reviews
+                          {entry.prop_firms?.reviews_count || 0} reviews
                         </p>
                         <p className="absolute top-4 right-[45px] text-center text-xs">
-                          {likesMap[entry.prop_firms.id] || 0} Likes
+                          {likesMap[entry.prop_firms?.id] || 0} Likes
                         </p>
                       </div>
                     </div>
                   </Link>
                 </div>
 
-                {/* ✅ Change Log Content (Now Separate per Log) */}
+                {/* ✅ Content Section */}
                 <div className="rules-section rules-container ml-[20px] mt-6 p-3 border-l-[1px] border-[rgba(237,185,0,0.1)] px-[100px]">
                   <div className="flex text-xs justify-end flex-grow mt-[-35px] mb-10 mr-[-100px]">
                     <FontAwesomeIcon icon={faCalendar} className="text-md text-white-500 mr-2 max-w-[20px] mt-[1px]" />
                     <p className="font-[balboa]">
                       Updated on:{" "}
-                      {new Date(
-                        activeTab === "tab1" ? entry.last_updated : entry.change_log_last_updated,
-                      ).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+                      {new Date(entry.last_updated || new Date()).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
                     </p>
                   </div>
 
                   {activeTab === "tab1" ? (
-                    <div dangerouslySetInnerHTML={{ __html: entry.main_rules }} />
+                    <div dangerouslySetInnerHTML={{ __html: entry.main_rules || "No rules available" }} />
                   ) : (
                     <div
                       className="w-full min-w-[975px] flex-grow"
-                      dangerouslySetInnerHTML={{ __html: entry.change_log }}
+                      dangerouslySetInnerHTML={{ __html: entry.change_log || "No change log available" }}
                     />
                   )}
                 </div>
@@ -421,7 +437,7 @@ const PropFirmRules = ({ propFirmRules }) => {
         {visibleCount < totalResults && (
           <div className="text-center mt-5">
             <button
-              onClick={() => setVisibleCount((prev) => prev + 10)} // 🔥 Load 10 more entries
+              onClick={() => setVisibleCount((prev) => prev + 10)}
               className="px-4 py-2 bg-[#EDB900] text-black rounded-[10px] hover:opacity-80 transition"
             >
               Load More

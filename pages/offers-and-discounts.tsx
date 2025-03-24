@@ -6,7 +6,7 @@ import Noise from "../components/Noise"
 import Community from "../components/Community"
 import Newsletter from "../components/Newsletter"
 import Footer from "../components/Footer"
-import Offers from "../components/Offers"
+import OffersComponent from "../components/Offers"
 import { ModalContext } from "./_app"
 
 // Initialize Supabase client
@@ -59,9 +59,9 @@ export default function DiscountsPage() {
 
           const expiryDate = new Date(discount.expiry_date)
           expiryDate.setHours(0, 0, 0, 0) // Set to beginning of day
-          const timeDifference = currentDate - expiryDate
 
-          return timeDifference > tenDaysInMs
+          // Use getTime() for reliable numeric comparison
+          return currentDate.getTime() - expiryDate.getTime() > tenDaysInMs
         })
 
         // Delete the old expired discounts
@@ -113,7 +113,7 @@ export default function DiscountsPage() {
         </div>
 
         {/* Offers Component with tabs and search enabled */}
-        <Offers
+        <OffersComponent
           supabase={supabase}
           onLoginModalOpen={handleLoginModalOpen}
           showTabs={true}

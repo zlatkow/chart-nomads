@@ -1,4 +1,3 @@
-
 /* eslint-disable */
 "use client"
 import { useState, useEffect, useContext } from "react"
@@ -76,25 +75,36 @@ const BannedCountries = ({ bannedFirms }) => {
 
   const filteredFirms = bannedFirms
     .filter((firm) => {
-      const companyName = firm?.prop_firms?.propfirm_name || ""
-      const companyCategory = firm?.prop_firms?.category || ""
-      const bannedRules = firm?.banned_countries_list || ""
+      if (!firm || !firm.prop_firms) return false
+
+      // Safely access and convert strings to lowercase with fallbacks
+      const companyName = firm.prop_firms.propfirm_name ? firm.prop_firms.propfirm_name.toLowerCase() : ""
+      const companyCategory = firm.prop_firms.category ? firm.prop_firms.category.toLowerCase() : ""
+      const bannedRules = firm.banned_countries_list ? firm.banned_countries_list.toLowerCase() : ""
 
       return (
-        companyName.toLowerCase().includes(searchLower) ||
-        companyCategory.toLowerCase().includes(searchLower) ||
-        bannedRules.toLowerCase().includes(searchLower)
+        companyName.includes(searchLower) || companyCategory.includes(searchLower) || bannedRules.includes(searchLower)
       )
     })
-    .sort((a, b) => new Date(b.last_updated) - new Date(a.last_updated)) // 🔥 Sort by newest first
+    .sort((a, b) => {
+      // Safe date comparison with null safety
+      const dateA = a && a.last_updated ? new Date(a.last_updated) : new Date(0)
+      const dateB = b && b.last_updated ? new Date(b.last_updated) : new Date(0)
+      return dateB.getTime() - dateA.getTime()
+    })
 
   const visibleFirms = filteredFirms.length > 0 ? filteredFirms.slice(0, visibleCount) : []
 
   useEffect(() => {
     const initialLikes = {}
+
+    // Safely process each firm
     bannedFirms.forEach((firm) => {
-      initialLikes[firm.prop_firms.id] = firm.prop_firms.likes
+      if (firm && firm.prop_firms && firm.prop_firms.id) {
+        initialLikes[firm.prop_firms.id] = firm.prop_firms.likes || 0
+      }
     })
+
     setLikesMap(initialLikes)
   }, [bannedFirms])
 
