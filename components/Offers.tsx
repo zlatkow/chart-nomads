@@ -12,7 +12,7 @@ import { faStar } from "@fortawesome/free-solid-svg-icons"
 import { faTags } from "@fortawesome/free-solid-svg-icons"
 import { faChevronDown, faChevronUp } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Info, ShoppingCart, Copy, Check, Calendar, Infinity, Search } from "lucide-react"
+import { Info, ShoppingCart, Copy, Check, Calendar, Infinity, Search } from 'lucide-react'
 import { SignedIn, SignedOut, useUser } from "@clerk/nextjs"
 import { Input } from "@/components/ui/input"
 
@@ -100,6 +100,7 @@ const shimmerAnimation = `
 }
 `
 
+// Update the component's props definition at the top of the file to properly type the supabase client
 export default function OffersComponent({
   firmId,
   discounts: externalDiscounts,
@@ -112,6 +113,18 @@ export default function OffersComponent({
   hideCompanyCard = false,
   showTabs = false, // New prop to control whether to show tabs
   showSearch = false, // New prop to control whether to show search
+}: {
+  firmId?: number | null;
+  discounts?: any[];
+  isLoading?: boolean;
+  activeTab?: string;
+  supabase: any;
+  onLoginModalOpen?: () => void;
+  showOptionalBonus?: boolean;
+  customClass?: string;
+  hideCompanyCard?: boolean;
+  showTabs?: boolean;
+  showSearch?: boolean;
 }) {
   // State for tabs, search, and filtering
   const [activeTab, setActiveTab] = useState(initialActiveTab)
@@ -1100,4 +1113,3 @@ function isLastDay(dateString) {
 
   return diffDays === 0 // Return true if it's the last day
 }
-
