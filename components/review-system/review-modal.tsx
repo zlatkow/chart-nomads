@@ -43,11 +43,13 @@ const adjustNavbarZIndex = (lower: boolean) => {
       } else {
         // Restore the original z-index
         const originalZIndex = htmlEl.getAttribute("data-original-zindex")
-        if (originalZIndex !== null) {
+        if (originalZIndex !== null && originalZIndex !== "") {
           htmlEl.style.zIndex = originalZIndex
         } else {
           htmlEl.style.zIndex = "100" // Default fallback
         }
+        // Clear the data attribute to ensure clean state for next time
+        htmlEl.removeAttribute("data-original-zindex")
       }
     })
   })
@@ -333,8 +335,11 @@ export default function ReviewModal({ isOpen, onClose, companyName = "CHART NOMA
     document.body.style.top = ""
     window.scrollTo(0, Number.parseInt(scrollY || "0") * -1)
 
-    // Restore navbar z-index
-    adjustNavbarZIndex(false)
+    // Explicitly restore navbar z-index with a slight delay to ensure it happens after state updates
+    setTimeout(() => {
+      adjustNavbarZIndex(false)
+      console.log("Navbar z-index explicitly restored")
+    }, 50)
 
     // Show noise
     setIsNoiseVisible(true)
