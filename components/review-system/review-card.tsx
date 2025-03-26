@@ -1,6 +1,8 @@
 /* eslint-disable */
 "use client"
 
+"use client"
+
 import { useState, useEffect, useRef } from "react"
 import { createPortal } from "react-dom"
 import Image from "next/image"
@@ -143,7 +145,59 @@ const samplePreviousReviews = [
   },
 ]
 
-// Add this function at the top of the file, outside the component
+// Completely revised navbar handling function that also manages background color
+const adjustNavbar = (lower: boolean) => {
+  if (typeof document === "undefined") return
+
+  // Target all possible navbar elements
+  const navbarSelectors = [
+    "nav",
+    "header",
+    ".navbar",
+    '[class*="navbar"]',
+    '[id*="navbar"]',
+    '[class*="header"]',
+    '[id*="header"]',
+  ]
+
+  navbarSelectors.forEach((selector) => {
+    const elements = document.querySelectorAll(selector)
+    elements.forEach((el) => {
+      const htmlEl = el as HTMLElement
+      if (lower) {
+        // Store the original z-index and background if we haven't already
+        if (!htmlEl.getAttribute("data-original-zindex")) {
+          htmlEl.setAttribute("data-original-zindex", htmlEl.style.zIndex || "")
+          htmlEl.setAttribute("data-original-bg", htmlEl.style.backgroundColor || "")
+
+          // Force the background to be solid black during the transition
+          htmlEl.style.backgroundColor = "#0f0f0f"
+          htmlEl.style.zIndex = "10"
+        }
+      } else {
+        // Restore the original z-index and background
+        const originalZIndex = htmlEl.getAttribute("data-original-zindex")
+        const originalBg = htmlEl.getAttribute("data-original-bg")
+
+        if (originalZIndex !== null) {
+          htmlEl.style.zIndex = originalZIndex
+        } else {
+          htmlEl.style.zIndex = "100" // Default fallback
+        }
+
+        if (originalBg !== null && originalBg !== "") {
+          htmlEl.style.backgroundColor = originalBg
+        }
+
+        // Remove the data attributes to ensure clean state for next time
+        htmlEl.removeAttribute("data-original-zindex")
+        htmlEl.removeAttribute("data-original-bg")
+      }
+    })
+  })
+}
+
+// New function to only adjust navbar z-index
 const adjustNavbarZIndex = (lower: boolean) => {
   if (typeof document === "undefined") return
 
@@ -163,22 +217,10 @@ const adjustNavbarZIndex = (lower: boolean) => {
     elements.forEach((el) => {
       const htmlEl = el as HTMLElement
       if (lower) {
-        // Store the original z-index if we haven't already
-        if (!htmlEl.getAttribute("data-original-zindex")) {
-          htmlEl.setAttribute("data-original-zindex", htmlEl.style.zIndex || "")
-        }
-        // Set to a low z-index
         htmlEl.style.zIndex = "10"
       } else {
-        // Restore the original z-index
         const originalZIndex = htmlEl.getAttribute("data-original-zindex")
-        if (originalZIndex !== null) {
-          htmlEl.style.zIndex = originalZIndex
-        } else {
-          htmlEl.style.zIndex = "100" // Default fallback
-        }
-        // Remove the data attribute to ensure clean state for next time
-        htmlEl.removeAttribute("data-original-zindex")
+        htmlEl.style.zIndex = originalZIndex || "100" // Default fallback
       }
     })
   })
@@ -297,7 +339,7 @@ export default function ReviewCard({
     document.body.style.overflow = "hidden"
     document.body.style.position = "fixed"
     document.body.style.width = "100%"
-    adjustNavbarZIndex(true)
+    adjustNavbar(true)
     hideNoise()
     console.log("Gallery opened - hiding noise")
   }
@@ -308,8 +350,8 @@ export default function ReviewCard({
     document.body.style.position = ""
     document.body.style.width = ""
 
-    // First restore the navbar z-index
-    adjustNavbarZIndex(false)
+    // First restore the navbar
+    adjustNavbar(false)
 
     // Then show the noise
     setTimeout(() => {
@@ -329,11 +371,11 @@ export default function ReviewCard({
     document.body.style.position = "fixed"
     document.body.style.width = "100%"
     document.body.style.top = `-${window.scrollY}px`
-    adjustNavbarZIndex(true)
+    adjustNavbar(true)
     console.log("Sidebar opened - hiding noise")
   }
 
-  // Completely revised closeProfileSidebar function with a simpler approach
+  // Completely revised closeProfileSidebar function with adjusted timing
   const closeProfileSidebar = () => {
     // Set closing state to prevent noise from showing prematurely
     setIsClosing(true)
@@ -342,10 +384,11 @@ export default function ReviewCard({
     setSidebarVisible(false)
     setBackdropVisible(false)
 
-    // Keep the navbar z-index low until the animation is complete
-    // We'll restore it at the exact same time as we hide the sidebar component
+    // Restore navbar z-index IMMEDIATELY - this is the key change
+    adjustNavbarZIndex(false)
+    console.log("Navbar z-index restored immediately")
 
-    // After animation completes (300ms), clean up everything at once
+    // After animation completes (300ms), clean up everything else
     setTimeout(() => {
       // Restore scrolling
       const scrollY = document.body.style.top
@@ -355,11 +398,10 @@ export default function ReviewCard({
       document.body.style.top = ""
       window.scrollTo(0, Number.parseInt(scrollY || "0") * -1)
 
-      // Hide the sidebar component AND restore navbar z-index in the same frame
+      // Hide the sidebar component
       setShowProfileSidebar(false)
-      adjustNavbarZIndex(false)
 
-      // Wait a bit longer before showing noise to ensure everything is settled
+      // Wait a bit longer before showing noise
       setTimeout(() => {
         setIsClosing(false)
         showNoise()
