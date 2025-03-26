@@ -1,4 +1,3 @@
-/* eslint-disable */
 "use client"
 
 import type React from "react"
@@ -111,8 +110,32 @@ export default function ReviewModal({ isOpen, onClose, companyName = "CHART NOMA
   useEffect(() => {
     if (isOpen) {
       setIsNoiseVisible(false)
+
+      // Save current scroll position and disable scrolling
+      const scrollY = window.scrollY
+      document.body.style.overflow = "hidden"
+      document.body.style.position = "fixed"
+      document.body.style.width = "100%"
+      document.body.style.top = `-${scrollY}px`
+
+      // Lower navbar z-index
+      adjustNavbarZIndex(true)
+      console.log("Modal opened - hiding noise and lowering navbar z-index")
     } else {
+      // Restore noise visibility
       setIsNoiseVisible(true)
+
+      // Restore scrolling
+      const scrollY = document.body.style.top
+      document.body.style.overflow = ""
+      document.body.style.position = ""
+      document.body.style.width = ""
+      document.body.style.top = ""
+      window.scrollTo(0, Number.parseInt(scrollY || "0") * -1)
+
+      // Restore navbar z-index
+      adjustNavbarZIndex(false)
+      console.log("Modal closed - showing noise and restoring navbar z-index")
     }
   }, [isOpen, setIsNoiseVisible])
 
@@ -288,50 +311,14 @@ export default function ReviewModal({ isOpen, onClose, companyName = "CHART NOMA
     return Object.keys(currentStepErrors).length === 0
   }
 
-  // Update the handleClose function to properly restore scrolling
+  // Update the handleClose function to properly restore scrolling and z-index
   const handleClose = () => {
     setStep(1)
     setShowSuccess(false)
-    const scrollY = document.body.style.top
-    document.body.style.overflow = ""
-    document.body.style.position = ""
-    document.body.style.width = ""
-    document.body.style.top = ""
-    window.scrollTo(0, Number.parseInt(scrollY || "0") * -1)
-    adjustNavbarZIndex(false)
-    setIsNoiseVisible(true)
-    console.log("Modal manually closed - showing noise")
+
+    // Call onClose to update parent component state
     onClose()
   }
-
-  // Update the useEffect to properly save scroll position
-  useEffect(() => {
-    if (isOpen) {
-      const scrollY = window.scrollY
-      document.body.style.overflow = "hidden"
-      document.body.style.position = "fixed"
-      document.body.style.width = "100%"
-      document.body.style.top = `-${scrollY}px`
-      adjustNavbarZIndex(true)
-      setIsNoiseVisible(false)
-      console.log("Modal opened - hiding noise")
-    }
-
-    // Cleanup function to re-enable scrolling when component unmounts or when modal closes
-    return () => {
-      if (isOpen) {
-        const scrollY = document.body.style.top
-        document.body.style.overflow = ""
-        document.body.style.position = ""
-        document.body.style.width = ""
-        document.body.style.top = ""
-        window.scrollTo(0, Number.parseInt(scrollY || "0") * -1)
-        adjustNavbarZIndex(false)
-        setIsNoiseVisible(true)
-        console.log("Modal closed via cleanup - showing noise")
-      }
-    }
-  }, [isOpen, setIsNoiseVisible])
 
   function StarRating({ category, currentRating, handleRatingChange, size = "sm" }) {
     const [hoverRating, setHoverRating] = useState(0)
@@ -366,12 +353,6 @@ export default function ReviewModal({ isOpen, onClose, companyName = "CHART NOMA
 
     return <div className="flex items-center gap-1">{stars}</div>
   }
-
-  // This function is now replaced by the StarRating component
-  // Delete or comment out this function:
-  // const handleStarRating = (category, value) => {
-  //   handleRatingChange(category, value)
-  // }
 
   if (!isOpen) return null
 
@@ -679,6 +660,8 @@ export default function ReviewModal({ isOpen, onClose, companyName = "CHART NOMA
                     {getErrorMessage("proofFile")}
                     <p className="text-xs text-gray-500">
                       *Accepted file formats: .jpg, .jpeg, .png, .pdf
+                      <br />
+                      *Uploads should be up to 10MB in size. .png, .pdf
                       <br />
                       *Uploads should be up to 10MB in size.
                     </p>
