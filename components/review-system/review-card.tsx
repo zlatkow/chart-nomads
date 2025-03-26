@@ -1,6 +1,8 @@
 /* eslint-disable */
 "use client"
 
+"use client"
+
 import { useState, useEffect, useRef } from "react"
 import { createPortal } from "react-dom"
 import Image from "next/image"
@@ -251,11 +253,13 @@ export default function ReviewCard({
   // Force noise to be hidden when sidebar or gallery is open
   useEffect(() => {
     if (showProfileSidebar || showFullscreenGallery || isClosing) {
-      setIsNoiseVisible(false)
+      // Force noise to be hidden in these states
+      hideNoise()
     } else {
-      setIsNoiseVisible(true)
+      // Only show noise when everything is fully closed
+      showNoise()
     }
-  }, [showProfileSidebar, showFullscreenGallery, setIsNoiseVisible, isClosing])
+  }, [showProfileSidebar, showFullscreenGallery, isClosing, hideNoise, showNoise])
 
   // Handle animation states
   useEffect(() => {
@@ -336,6 +340,14 @@ export default function ReviewCard({
     // Set closing state to prevent noise from showing prematurely
     setIsClosing(true)
 
+    // Create a temporary overlay to cover the screen during transition
+    const overlay = document.createElement("div")
+    overlay.style.position = "fixed"
+    overlay.style.inset = "0"
+    overlay.style.backgroundColor = "#0f0f0f" // Same as your background color
+    overlay.style.zIndex = "9998" // Just below the sidebar but above everything else
+    document.body.appendChild(overlay)
+
     // First hide both the sidebar and backdrop with animation
     setSidebarVisible(false)
     setBackdropVisible(false)
@@ -353,15 +365,19 @@ export default function ReviewCard({
       // Hide the sidebar component
       setShowProfileSidebar(false)
 
-      // CRITICAL: First restore the navbar z-index
+      // Restore navbar z-index
       adjustNavbarZIndex(false)
 
-      // THEN after a delay, reset closing state and show noise
+      // Wait a bit longer to ensure everything is restored
       setTimeout(() => {
+        // Remove the temporary overlay
+        document.body.removeChild(overlay)
+
+        // Reset closing state and show noise
         setIsClosing(false)
-        setIsNoiseVisible(true)
+        showNoise()
         console.log("Sidebar closed - showing noise")
-      }, 300) // Increased delay to ensure proper timing
+      }, 100)
     }, 300) // Match this with the transition duration
   }
 
