@@ -361,7 +361,7 @@ export default function ReviewCard({
         setIsClosing(false)
         setIsNoiseVisible(true)
         console.log("Sidebar closed - showing noise")
-      }, 200) // Increased delay to ensure proper timing
+      }, 300) // Increased delay to ensure proper timing
     }, 300) // Match this with the transition duration
   }
 
