@@ -337,6 +337,9 @@ export default function ReviewCard({
       document.body.style.top = ""
       window.scrollTo(0, Number.parseInt(scrollY || "0") * -1)
       setShowProfileSidebar(false)
+
+      // Only restore navbar z-index after the animation is fully complete
+      // This prevents the navbar from becoming visible during the animation
       adjustNavbarZIndex(false)
 
       // Add a small delay before showing the noise again to ensure smooth transition

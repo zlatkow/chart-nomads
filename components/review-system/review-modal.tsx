@@ -65,7 +65,7 @@ interface ReviewModalProps {
 // In the ReviewModal component, add the useNoise hook
 export default function ReviewModal({ isOpen, onClose, companyName = "CHART NOMADS", companyLogo }: ReviewModalProps) {
   // Add the useNoise hook to control noise visibility
-  const { setIsNoiseVisible } = useNoise()
+  const { setIsNoiseVisible, hideNoise, showNoise } = useNoise()
 
   const [step, setStep] = useState(1)
   // Update the formData state to include the new fields for different report types
@@ -112,6 +112,10 @@ export default function ReviewModal({ isOpen, onClose, companyName = "CHART NOMA
   // Force noise to be hidden when modal is open
   useEffect(() => {
     if (isOpen) {
+      // Immediately hide noise using the direct method
+      hideNoise()
+      console.log("Modal opened - hiding noise")
+
       // Save current scroll position and disable scrolling
       const scrollY = window.scrollY
       document.body.style.overflow = "hidden"
@@ -121,10 +125,7 @@ export default function ReviewModal({ isOpen, onClose, companyName = "CHART NOMA
 
       // Lower navbar z-index
       adjustNavbarZIndex(true)
-      console.log("Modal opened - hiding noise and lowering navbar z-index")
-
-      // Hide noise
-      setIsNoiseVisible(false)
+      console.log("Modal opened - lowering navbar z-index")
     }
 
     return () => {
@@ -143,11 +144,11 @@ export default function ReviewModal({ isOpen, onClose, companyName = "CHART NOMA
         adjustNavbarZIndex(false)
 
         // Show noise
-        setIsNoiseVisible(true)
+        showNoise()
         console.log("Modal closed via cleanup - showing noise and restoring scroll")
       }
     }
-  }, [isOpen, setIsNoiseVisible])
+  }, [isOpen, hideNoise, showNoise])
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -341,9 +342,11 @@ export default function ReviewModal({ isOpen, onClose, companyName = "CHART NOMA
       console.log("Navbar z-index explicitly restored")
     }, 50)
 
-    // Show noise
-    setIsNoiseVisible(true)
-    console.log("Modal manually closed - showing noise and restoring scroll")
+    // Show noise with a slight delay to ensure it happens after modal is fully closed
+    setTimeout(() => {
+      showNoise()
+      console.log("Noise explicitly shown")
+    }, 100)
 
     // Call onClose to update parent component state
     onClose()
@@ -689,8 +692,6 @@ export default function ReviewModal({ isOpen, onClose, companyName = "CHART NOMA
                     {getErrorMessage("proofFile")}
                     <p className="text-xs text-gray-500">
                       *Accepted file formats: .jpg, .jpeg, .png, .pdf
-                      <br />
-                      *Uploads should be up to 10MB in size. .png, .pdf
                       <br />
                       *Uploads should be up to 10MB in size.
                     </p>
