@@ -775,7 +775,7 @@ export default function ReviewCard({
             {/* Sidebar with animation */}
             <div
               ref={sidebarRef}
-              className="fixed top-0 bottom-0 right-0 w-full max-w-[40rem] bg-[#0f0f0f] text-white shadow-2xl transition-transform duration-250 ease-out"
+              className="fixed top-0 bottom-0 right-0 w-full max-w-[40rem] bg-[#0f0f0f] text-white shadow-2xl transition-transform duration-500 ease-out"
               style={{
                 transform: sidebarVisible ? "translateX(0)" : "translateX(100%)",
                 boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
