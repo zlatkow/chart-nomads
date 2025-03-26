@@ -31,20 +31,21 @@ const adjustNavbarZIndex = (lower: boolean) => {
   navbarSelectors.forEach((selector) => {
     const elements = document.querySelectorAll(selector)
     elements.forEach((el) => {
+      const htmlEl = el as HTMLElement
       if (lower) {
         // Store the original z-index if we haven't already
-        if (!el.getAttribute("data-original-zindex")) {
-          el.setAttribute("data-original-zindex", el.style.zIndex || "")
+        if (!htmlEl.getAttribute("data-original-zindex")) {
+          htmlEl.setAttribute("data-original-zindex", htmlEl.style.zIndex || "")
         }
         // Set to a low z-index
-        el.style.zIndex = "10"
+        htmlEl.style.zIndex = "10"
       } else {
         // Restore the original z-index
-        const originalZIndex = el.getAttribute("data-original-zindex")
+        const originalZIndex = htmlEl.getAttribute("data-original-zindex")
         if (originalZIndex !== null) {
-          el.style.zIndex = originalZIndex
+          htmlEl.style.zIndex = originalZIndex
         } else {
-          el.style.zIndex = "100" // Default fallback
+          htmlEl.style.zIndex = "100" // Default fallback
         }
       }
     })
@@ -366,9 +367,10 @@ export default function ReviewModal({ isOpen, onClose, companyName = "CHART NOMA
   }
 
   // This function is now replaced by the StarRating component
-  const handleStarRating = (category, value) => {
-    handleRatingChange(category, value)
-  }
+  // Delete or comment out this function:
+  // const handleStarRating = (category, value) => {
+  //   handleRatingChange(category, value)
+  // }
 
   if (!isOpen) return null
 
