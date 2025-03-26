@@ -1,4 +1,3 @@
-/* eslint-disable */
 "use client"
 
 import type React from "react"
@@ -32,21 +31,20 @@ const adjustNavbarZIndex = (lower: boolean) => {
   navbarSelectors.forEach((selector) => {
     const elements = document.querySelectorAll(selector)
     elements.forEach((el) => {
-      const htmlEl = el as HTMLElement
       if (lower) {
         // Store the original z-index if we haven't already
-        if (!htmlEl.getAttribute("data-original-zindex")) {
-          htmlEl.setAttribute("data-original-zindex", htmlEl.style.zIndex || "")
+        if (!el.getAttribute("data-original-zindex")) {
+          el.setAttribute("data-original-zindex", el.style.zIndex || "")
         }
         // Set to a low z-index
-        htmlEl.style.zIndex = "10"
+        el.style.zIndex = "10"
       } else {
         // Restore the original z-index
-        const originalZIndex = htmlEl.getAttribute("data-original-zindex")
+        const originalZIndex = el.getAttribute("data-original-zindex")
         if (originalZIndex !== null) {
-          htmlEl.style.zIndex = originalZIndex
+          el.style.zIndex = originalZIndex
         } else {
-          htmlEl.style.zIndex = "100" // Default fallback
+          el.style.zIndex = "100" // Default fallback
         }
       }
     })
