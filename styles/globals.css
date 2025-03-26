@@ -26,6 +26,10 @@
   font-display: swap;
 }
 
+#reviewBreakdownContainer {
+  width: 60%;
+}
+
 body {
   background-color: #0f0f0f !important;
   @apply text-white;
@@ -111,6 +115,49 @@ select {
   color: black;
   font-size: 0.75rem; /* text-xs */
   outline: none;
+}
+#breach-reason {
+  border-color: #333333;
+  background-color: #1A1A1A;
+  height: 35px;
+  color: white;
+}
+
+#breach-reason:focus {
+  outline: none; /* removes the blue glow */
+  box-shadow: none; /* removes any shadow */
+  border: 1px solid #edb900; /* yellow-400 or any color you prefer */
+}
+#breach-reason:focus {
+  outline: none; /* removes the blue glow */
+  box-shadow: none; /* removes any shadow */
+  border: 1px solid #edb900; /* yellow-400 or any color you prefer */
+}
+
+#payout-denial-reason:focus {
+  outline: none; /* removes the blue glow */
+  box-shadow: none; /* removes any shadow */
+  border: 1px solid #edb900; /* yellow-400 or any color you prefer */
+}
+
+#denied-amount:focus {
+  outline: none; /* removes the blue glow */
+  box-shadow: none; /* removes any shadow */
+  border: 1px solid #edb900; /* yellow-400 or any color you prefer */
+}
+
+#payout-denial-reason {
+  border-color: #333333;
+  background-color: #1A1A1A;
+  height: 35px;
+  color: white;
+}
+
+#denied-amount  {
+  border-color: #333333;
+  background-color: #1A1A1A;
+  height: 35px;
+  color: white;
 }
 
 /* Focus effect */
