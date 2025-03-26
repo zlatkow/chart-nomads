@@ -1,8 +1,6 @@
 /* eslint-disable */
 "use client"
 
-"use client"
-
 import { useState, useEffect, useRef } from "react"
 import { createPortal } from "react-dom"
 import Image from "next/image"
@@ -344,7 +342,7 @@ export default function ReviewCard({
     const overlay = document.createElement("div")
     overlay.style.position = "fixed"
     overlay.style.inset = "0"
-    overlay.style.backgroundColor = "#0f0f0f" // Same as your background color
+    overlay.style.backgroundColor = "#0f0f0f" // Match exact background color
     overlay.style.zIndex = "9998" // Just below the sidebar but above everything else
     document.body.appendChild(overlay)
 
@@ -368,16 +366,13 @@ export default function ReviewCard({
       // Restore navbar z-index
       adjustNavbarZIndex(false)
 
-      // Wait a bit longer to ensure everything is restored
-      setTimeout(() => {
-        // Remove the temporary overlay
+      // Remove the overlay and show noise in the same frame to avoid flashing
+      requestAnimationFrame(() => {
         document.body.removeChild(overlay)
-
-        // Reset closing state and show noise
         setIsClosing(false)
         showNoise()
         console.log("Sidebar closed - showing noise")
-      }, 100)
+      })
     }, 300) // Match this with the transition duration
   }
 
