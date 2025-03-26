@@ -250,9 +250,9 @@ export default function ReviewCard({
 
   // Force noise to be hidden when sidebar or gallery is open
   useEffect(() => {
-    if (showProfileSidebar || showFullscreenGallery) {
+    if (showProfileSidebar || showFullscreenGallery || isClosing) {
       setIsNoiseVisible(false)
-    } else if (!isClosing) {
+    } else {
       setIsNoiseVisible(true)
     }
   }, [showProfileSidebar, showFullscreenGallery, setIsNoiseVisible, isClosing])
@@ -305,9 +305,15 @@ export default function ReviewCard({
     document.body.style.overflow = ""
     document.body.style.position = ""
     document.body.style.width = ""
+
+    // First restore the navbar z-index
     adjustNavbarZIndex(false)
-    setIsNoiseVisible(true)
-    console.log("Gallery closed - showing noise")
+
+    // Then show the noise
+    setTimeout(() => {
+      setIsNoiseVisible(true)
+      console.log("Gallery closed - showing noise")
+    }, 50)
   }
 
   // Update the openProfileSidebar function to properly disable scrolling and hide noise
@@ -325,7 +331,7 @@ export default function ReviewCard({
     console.log("Sidebar opened - hiding noise")
   }
 
-  // Update the closeProfileSidebar function to restore scrolling and show noise
+  // Completely revised closeProfileSidebar function to fix the timing issue
   const closeProfileSidebar = () => {
     // Set closing state to prevent noise from showing prematurely
     setIsClosing(true)
@@ -336,23 +342,26 @@ export default function ReviewCard({
 
     // After animation completes, clean up
     setTimeout(() => {
+      // Restore scrolling
       const scrollY = document.body.style.top
       document.body.style.overflow = ""
       document.body.style.position = ""
       document.body.style.width = ""
       document.body.style.top = ""
       window.scrollTo(0, Number.parseInt(scrollY || "0") * -1)
+
+      // Hide the sidebar component
       setShowProfileSidebar(false)
 
-      // Restore navbar z-index after the animation is fully complete
+      // CRITICAL: First restore the navbar z-index
       adjustNavbarZIndex(false)
 
-      // Reset closing state and show noise after everything is done
+      // THEN after a delay, reset closing state and show noise
       setTimeout(() => {
         setIsClosing(false)
         setIsNoiseVisible(true)
         console.log("Sidebar closed - showing noise")
-      }, 50)
+      }, 150) // Increased delay to ensure proper timing
     }, 300) // Match this with the transition duration
   }
 
