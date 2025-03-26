@@ -342,7 +342,10 @@ export default function ReviewCard({
     setSidebarVisible(false)
     setBackdropVisible(false)
 
-    // After animation completes, clean up
+    // Keep the navbar z-index low until the animation is complete
+    // We'll restore it at the exact same time as we hide the sidebar component
+
+    // After animation completes (300ms), clean up everything at once
     setTimeout(() => {
       // Restore scrolling
       const scrollY = document.body.style.top
@@ -352,19 +355,16 @@ export default function ReviewCard({
       document.body.style.top = ""
       window.scrollTo(0, Number.parseInt(scrollY || "0") * -1)
 
-      // Hide the sidebar component
+      // Hide the sidebar component AND restore navbar z-index in the same frame
       setShowProfileSidebar(false)
-
-      // Restore navbar z-index
       adjustNavbarZIndex(false)
 
-      // Wait a bit longer to ensure everything is restored
+      // Wait a bit longer before showing noise to ensure everything is settled
       setTimeout(() => {
-        // Reset closing state and show noise
         setIsClosing(false)
         showNoise()
         console.log("Sidebar closed - showing noise")
-      }, 100)
+      }, 50)
     }, 300) // Match this with the transition duration
   }
 
@@ -775,7 +775,7 @@ export default function ReviewCard({
             {/* Sidebar with animation */}
             <div
               ref={sidebarRef}
-              className="fixed top-0 bottom-0 right-0 w-full max-w-[40rem] bg-[#0f0f0f] text-white shadow-2xl transition-transform duration-500 ease-out"
+              className="fixed top-0 bottom-0 right-0 w-full max-w-[40rem] bg-[#0f0f0f] text-white shadow-2xl transition-transform duration-250 ease-out"
               style={{
                 transform: sidebarVisible ? "translateX(0)" : "translateX(100%)",
                 boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
