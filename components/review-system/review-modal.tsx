@@ -110,8 +110,6 @@ export default function ReviewModal({ isOpen, onClose, companyName = "CHART NOMA
   // Force noise to be hidden when modal is open
   useEffect(() => {
     if (isOpen) {
-      setIsNoiseVisible(false)
-
       // Save current scroll position and disable scrolling
       const scrollY = window.scrollY
       document.body.style.overflow = "hidden"
@@ -122,21 +120,30 @@ export default function ReviewModal({ isOpen, onClose, companyName = "CHART NOMA
       // Lower navbar z-index
       adjustNavbarZIndex(true)
       console.log("Modal opened - hiding noise and lowering navbar z-index")
-    } else {
-      // Restore noise visibility
-      setIsNoiseVisible(true)
 
-      // Restore scrolling
-      const scrollY = document.body.style.top
-      document.body.style.overflow = ""
-      document.body.style.position = ""
-      document.body.style.width = ""
-      document.body.style.top = ""
-      window.scrollTo(0, Number.parseInt(scrollY || "0") * -1)
+      // Hide noise
+      setIsNoiseVisible(false)
+    }
 
-      // Restore navbar z-index
-      adjustNavbarZIndex(false)
-      console.log("Modal closed - showing noise and restoring navbar z-index")
+    return () => {
+      // This cleanup function will run when the component unmounts or when isOpen changes
+      if (isOpen) {
+        // Only run cleanup if modal was open
+        // Restore scrolling
+        const scrollY = document.body.style.top
+        document.body.style.overflow = ""
+        document.body.style.position = ""
+        document.body.style.width = ""
+        document.body.style.top = ""
+        window.scrollTo(0, Number.parseInt(scrollY || "0") * -1)
+
+        // Restore navbar z-index
+        adjustNavbarZIndex(false)
+
+        // Show noise
+        setIsNoiseVisible(true)
+        console.log("Modal closed via cleanup - showing noise and restoring scroll")
+      }
     }
   }, [isOpen, setIsNoiseVisible])
 
@@ -314,8 +321,24 @@ export default function ReviewModal({ isOpen, onClose, companyName = "CHART NOMA
 
   // Update the handleClose function to properly restore scrolling and z-index
   const handleClose = () => {
+    // Reset form state
     setStep(1)
     setShowSuccess(false)
+
+    // Restore scrolling
+    const scrollY = document.body.style.top
+    document.body.style.overflow = ""
+    document.body.style.position = ""
+    document.body.style.width = ""
+    document.body.style.top = ""
+    window.scrollTo(0, Number.parseInt(scrollY || "0") * -1)
+
+    // Restore navbar z-index
+    adjustNavbarZIndex(false)
+
+    // Show noise
+    setIsNoiseVisible(true)
+    console.log("Modal manually closed - showing noise and restoring scroll")
 
     // Call onClose to update parent component state
     onClose()
