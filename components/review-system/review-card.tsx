@@ -234,7 +234,7 @@ export default function ReviewCard({
   socialLinks = {},
 }: ReviewProps) {
   // Add the useNoise hook to control noise visibility
-  const { hideNoise, showNoise, setIsNoiseVisible } = useNoise()
+  const { hideNoise, showNoise } = useNoise()
 
   const [isUpvoted, setIsUpvoted] = useState(hasUserUpvoted)
   const [upvoteCount, setUpvoteCount] = useState(upvotes)
@@ -298,7 +298,7 @@ export default function ReviewCard({
     document.body.style.position = "fixed"
     document.body.style.width = "100%"
     adjustNavbarZIndex(true)
-    setIsNoiseVisible(false)
+    hideNoise()
     console.log("Gallery opened - hiding noise")
   }
 
@@ -313,7 +313,7 @@ export default function ReviewCard({
 
     // Then show the noise
     setTimeout(() => {
-      setIsNoiseVisible(true)
+      showNoise()
       console.log("Gallery closed - showing noise")
     }, 50)
   }
@@ -321,7 +321,7 @@ export default function ReviewCard({
   // Update the openProfileSidebar function to properly disable scrolling and hide noise
   const openProfileSidebar = () => {
     // First hide the noise completely before showing the sidebar
-    setIsNoiseVisible(false)
+    hideNoise()
 
     // Then set up the sidebar
     setShowProfileSidebar(true)
@@ -333,18 +333,10 @@ export default function ReviewCard({
     console.log("Sidebar opened - hiding noise")
   }
 
-  // Completely revised closeProfileSidebar function to fix the timing issue
+  // Completely revised closeProfileSidebar function with a simpler approach
   const closeProfileSidebar = () => {
     // Set closing state to prevent noise from showing prematurely
     setIsClosing(true)
-
-    // Create a temporary overlay to cover the screen during transition
-    const overlay = document.createElement("div")
-    overlay.style.position = "fixed"
-    overlay.style.inset = "0"
-    overlay.style.backgroundColor = "#0f0f0f" // Match exact background color
-    overlay.style.zIndex = "9998" // Just below the sidebar but above everything else
-    document.body.appendChild(overlay)
 
     // First hide both the sidebar and backdrop with animation
     setSidebarVisible(false)
@@ -366,13 +358,13 @@ export default function ReviewCard({
       // Restore navbar z-index
       adjustNavbarZIndex(false)
 
-      // Remove the overlay and show noise in the same frame to avoid flashing
-      requestAnimationFrame(() => {
-        document.body.removeChild(overlay)
+      // Wait a bit longer to ensure everything is restored
+      setTimeout(() => {
+        // Reset closing state and show noise
         setIsClosing(false)
         showNoise()
         console.log("Sidebar closed - showing noise")
-      })
+      }, 100)
     }, 300) // Match this with the transition duration
   }
 
