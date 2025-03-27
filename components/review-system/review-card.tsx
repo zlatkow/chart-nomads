@@ -20,8 +20,7 @@ import {
   ArrowRight,
   Instagram,
   Twitter,
-  Facebook,
-  Linkedin,
+  Youtube,
   Globe,
   ChevronRight,
   Info,
@@ -30,6 +29,8 @@ import {
 import { cn } from "@/lib/utils"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { FaTiktok } from "react-icons/fa"
+import { RiTwitterXFill } from "react-icons/ri"
 
 // Add the useNoise import at the top of the file
 import { useNoise } from "../../components/providers/noise-provider"
@@ -63,9 +64,8 @@ interface ProofImage {
 interface SocialLinks {
   instagram?: string
   twitter?: string
-  facebook?: string
-  linkedin?: string
-  website?: string
+  youtube?: string
+  tiktok?: string
 }
 
 interface ReviewProps {
@@ -494,39 +494,30 @@ export default function ReviewCard({
                   rel="noopener noreferrer"
                   className="text-gray-400 hover:text-[#edb900]"
                 >
-                  <Twitter className="h-4 w-4" />
+                  <RiTwitterXFill className="h-4 w-4" />
                 </a>
               )}
-              {socialLinks.facebook && (
+              {socialLinks.youtube && (
                 <a
-                  href={socialLinks.facebook}
+                  href={socialLinks.youtube}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-gray-400 hover:text-[#edb900]"
                 >
-                  <Facebook className="h-4 w-4" />
+                  <Youtube className="h-4 w-4" />
                 </a>
               )}
-              {socialLinks.linkedin && (
+              {socialLinks.tiktok && (
                 <a
-                  href={socialLinks.linkedin}
+                  href={socialLinks.tiktok}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-gray-400 hover:text-[#edb900]"
                 >
-                  <Linkedin className="h-4 w-4" />
+                  <FaTiktok className="h-4 w-4" />
                 </a>
               )}
-              {socialLinks.website && (
-                <a
-                  href={socialLinks.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-gray-400 hover:text-[#edb900]"
-                >
-                  <Globe className="h-4 w-4" />
-                </a>
-              )}
+
             </div>
             <Button
               variant="ghost"
@@ -866,56 +857,46 @@ export default function ReviewCard({
 
                   {/* Social Icons */}
                   <div className="flex items-center justify-center gap-2 mt-2 w-full">
-                    {socialLinks.instagram && (
-                      <a
-                        href={socialLinks.instagram}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-gray-400 hover:text-[#edb900]"
-                      >
-                        <Instagram className="h-4 w-4" />
-                      </a>
-                    )}
-                    {socialLinks.twitter && (
-                      <a
-                        href={socialLinks.twitter}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-gray-400 hover:text-[#edb900]"
-                      >
-                        <Twitter className="h-4 w-4" />
-                      </a>
-                    )}
-                    {socialLinks.facebook && (
-                      <a
-                        href={socialLinks.facebook}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-gray-400 hover:text-[#edb900]"
-                      >
-                        <Facebook className="h-4 w-4" />
-                      </a>
-                    )}
-                    {socialLinks.linkedin && (
-                      <a
-                        href={socialLinks.linkedin}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-gray-400 hover:text-[#edb900]"
-                      >
-                        <Linkedin className="h-4 w-4" />
-                      </a>
-                    )}
-                    {socialLinks.website && (
-                      <a
-                        href={socialLinks.website}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-gray-400 hover:text-[#edb900]"
-                      >
-                        <Globe className="h-4 w-4" />
-                      </a>
-                    )}
+                  {socialLinks.instagram && (
+                <a
+                  href={socialLinks.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-400 hover:text-[#edb900]"
+                >
+                  <Instagram className="h-4 w-4" />
+                </a>
+              )}
+              {socialLinks.twitter && (
+                <a
+                  href={socialLinks.twitter}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-400 hover:text-[#edb900]"
+                >
+                  <RiTwitterXFill className="h-4 w-4" />
+                </a>
+              )}
+              {socialLinks.youtube && (
+                <a
+                  href={socialLinks.youtube}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-400 hover:text-[#edb900]"
+                >
+                  <Youtube className="h-4 w-4" />
+                </a>
+              )}
+              {socialLinks.tiktok && (
+                <a
+                  href={socialLinks.tiktok}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-400 hover:text-[#edb900]"
+                >
+                  <FaTiktok className="h-4 w-4" />
+                </a>
+              )}
                   </div>
                 </div>
 
