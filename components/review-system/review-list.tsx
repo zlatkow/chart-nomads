@@ -117,20 +117,25 @@ export default function ReviewList({
   useEffect(() => {
     // If we're still loading the propfirmId, don't fetch reviews yet
     if (externalLoading) {
+      console.log("External loading is true, waiting...")
       return
     }
 
     // If propfirmId is undefined or null, don't fetch reviews
     if (propfirmId === undefined || propfirmId === null) {
+      console.log("propfirmId is null or undefined:", propfirmId)
+      setIsLoading(false) // Important: Set loading to false even when there's no propfirmId
       return
     }
 
+    console.log("Fetching reviews for propfirmId:", propfirmId)
     setIsLoading(true)
 
     const fetchReviews = async () => {
       try {
+        console.log("Starting to fetch reviews for prop_firm:", propfirmId)
+
         // 1. Fetch reviews for the specific propfirm
-        // CHANGE: Using prop_firm instead of propfirm in the query
         const { data: reviewsData, error: reviewsError } = await supabase
           .from("propfirm_reviews")
           .select("*")
@@ -143,6 +148,8 @@ export default function ReviewList({
           return
         }
 
+        console.log(`Found ${reviewsData.length} reviews for prop_firm ${propfirmId}`)
+
         // Process each review to get user data
         const processedReviews = await Promise.all(
           reviewsData.map(async (review) => {
@@ -154,21 +161,25 @@ export default function ReviewList({
             let authorCountryCode = "us"
 
             if (review.reviewer && review.reviewer.startsWith("user_")) {
-              // Extract the user ID from the reviewer string (remove "user_" prefix)
-              const userId = review.reviewer.substring(5)
+              console.log("Processing reviewer:", review.reviewer)
 
               try {
-                // Query the users table with the extracted ID
+                // Query the users table with the FULL reviewer ID
                 const { data: user, error: userError } = await supabase
                   .from("users")
                   .select(
                     "id, first_name, last_name, country, instagram_handle, x_handle, youtube_handle, tiktok_handle",
                   )
-                  .eq("id", userId)
+                  .eq("id", review.reviewer)
                   .single()
+
+                if (userError) {
+                  console.error("Error fetching user data:", userError)
+                }
 
                 if (!userError && user) {
                   userData = user
+                  console.log("Found user data:", user.first_name, user.last_name)
 
                   // Create author name from first and last name
                   if (userData.first_name || userData.last_name) {
@@ -197,11 +208,15 @@ export default function ReviewList({
                 } else {
                   // Fallback to formatted user ID if user data fetch fails
                   authorName = review.reviewer.replace("user_", "User ")
+                  console.log("No user data found, using fallback name:", authorName)
                 }
               } catch (err) {
+                console.error("Exception when fetching user data:", err)
                 // Fallback to formatted user ID if user data fetch fails
                 authorName = review.reviewer.replace("user_", "User ")
               }
+            } else {
+              console.log("Reviewer ID not in expected format:", review.reviewer)
             }
 
             // 3. Map the review data to the format expected by ReviewCard
@@ -267,6 +282,7 @@ export default function ReviewList({
         console.error("Error in fetchReviews:", error)
         setReviews([])
       } finally {
+        console.log("Finished fetching reviews, setting isLoading to false")
         setIsLoading(false)
       }
     }
