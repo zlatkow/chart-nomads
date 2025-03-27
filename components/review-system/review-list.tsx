@@ -74,82 +74,6 @@ const countRatingsByStars = (reviews: any[]) => {
   return counts
 }
 
-// Map database review to component format
-const mapReviewFromDatabase = (dbReview: any) => {
-  console.log("Processing review:", dbReview.id, "Reviewer:", dbReview.reviewer, "PropFirm:", dbReview.propfirm)
-
-  // Format the reviewer ID to be more readable
-  let authorName = "Anonymous"
-  if (dbReview.reviewer) {
-    // Format the reviewer ID to be more readable
-    authorName = dbReview.reviewer.replace("user_", "User ")
-  }
-
-  // Create empty social links object - we don't have this data
-  const socialLinks: Record<string, string> = {}
-
-  console.log("Final author name:", authorName)
-
-  const mappedReview = {
-    id: dbReview.id,
-    authorId: dbReview.reviewer || "",
-    authorName: authorName,
-    authorAvatar: "/placeholder.svg?height=100&width=100", // Default avatar
-    authorLocation: "", // No location data available
-    authorCountryCode: "us", // Default country code
-    date: new Date(dbReview.created_at || new Date()).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    }),
-    rating: dbReview.overall_rating || 0,
-    content: dbReview.detailed_review || "",
-    accountSize: dbReview.account_size || "",
-    accountType: dbReview.account_type || "",
-    tradingDuration: dbReview.trading_period || "",
-    detailedRatings: [
-      { category: "Trading Conditions", value: dbReview.trading_conditions_rating || 0 },
-      { category: "Dashboard/UX", value: dbReview.dashboard_ux_rating || 0 },
-      { category: "Customer Support", value: dbReview.customer_support_rating || 0 },
-      { category: "Education & Community", value: dbReview.education_community_rating || 0 },
-      { category: "Inner processes", value: dbReview.inner_processes_rating || 0 },
-    ].filter((rating) => rating.value > 0),
-    likedAspect: dbReview.most_liked_aspect || "",
-    dislikedAspect: dbReview.most_disliked_aspect || "",
-    upvotes: 0,
-    hasUserUpvoted: false,
-    // Simplified - no report or company response for now
-    report: dbReview.reported_issues
-      ? {
-          reason: "Payout Denial",
-          description: dbReview.reported_issues || "No details provided",
-          deniedAmount: "N/A",
-        }
-      : null,
-    companyResponse: null, // Not implemented yet
-    certificates: 0,
-    firmCount: 0,
-    payoutStatus: dbReview.received_payout ? "Yes" : "No",
-    fundedStatus: dbReview.funded_status === "Yes" || dbReview.funded_status === "true" || false,
-    proofImages: dbReview.proofs
-      ? typeof dbReview.proofs === "string"
-        ? JSON.parse(dbReview.proofs)
-        : dbReview.proofs
-      : [],
-    tradingStats: {
-      winRate: 0,
-      avgWin: 0,
-      avgLoss: 0,
-      totalTrades: 0,
-      profitFactor: 0,
-    },
-    socialLinks: socialLinks,
-  }
-
-  console.log("Mapped review:", mappedReview.id, "Author name:", mappedReview.authorName)
-  return mappedReview
-}
-
 interface ReviewListProps {
   onOpenReviewModal: () => void
   companyName?: string
@@ -177,15 +101,6 @@ export default function ReviewList({
   const dropdownRef = useRef<HTMLDivElement>(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  // Store the propfirmId in a ref to ensure it's accessible in the fetch function
-  const propfirmIdRef = useRef<number | null | undefined>(propfirmId)
-
-  // Update the ref when propfirmId changes
-  useEffect(() => {
-    propfirmIdRef.current = propfirmId
-    console.log("propfirmId updated in ref:", propfirmIdRef.current)
-  }, [propfirmId])
-
   const averageRating = calculateAverageRating(reviews)
   const ratingCounts = countRatingsByStars(reviews)
   const totalReviews = reviews.length
@@ -194,47 +109,145 @@ export default function ReviewList({
   useEffect(() => {
     // If we're still loading the propfirmId, don't fetch reviews yet
     if (externalLoading) {
-      console.log("External loading is true, skipping fetch")
       return
     }
 
-    // Use the current propfirmId from the ref
-    const currentPropfirmId = propfirmIdRef.current
-    console.log("Fetching reviews for propfirmId:", currentPropfirmId)
+    // If propfirmId is undefined or null, don't fetch reviews
+    if (propfirmId === undefined || propfirmId === null) {
+      return
+    }
+
     setIsLoading(true)
 
     const fetchReviews = async () => {
       try {
-        // Fetch all reviews for the specific company if we have an ID
-        let query = supabase.from("propfirm_reviews").select("*")
+        // 1. Fetch reviews for the specific propfirm
+        const { data: reviewsData, error: reviewsError } = await supabase
+          .from("propfirm_reviews")
+          .select("*")
+          .eq("propfirm", propfirmId)
 
-        if (currentPropfirmId !== null && currentPropfirmId !== undefined) {
-          console.log("Filtering reviews by propfirm:", currentPropfirmId)
-          query = query.eq("propfirm", currentPropfirmId)
-        } else {
-          console.warn("No propfirmId available for filtering reviews")
-        }
-
-        // Execute the query
-        const { data, error } = await query
-
-        if (error) {
-          console.error("Error fetching reviews:", error)
+        if (reviewsError) {
+          console.error("Error fetching reviews:", reviewsError)
           setReviews([])
-        } else {
-          console.log("Fetched reviews:", data.length, "for propfirm:", currentPropfirmId)
-
-          // Map the database reviews to the component format
-          const mappedReviews = data.map(mapReviewFromDatabase)
-          console.log("Mapped reviews:", mappedReviews.length)
-
-          // Log each review's author name to verify
-          mappedReviews.forEach((review) => {
-            console.log(`Review ${review.id} - Author: ${review.authorName}, PropFirm: ${currentPropfirmId}`)
-          })
-
-          setReviews(mappedReviews)
+          setIsLoading(false)
+          return
         }
+
+        // Process each review to get user data
+        const processedReviews = await Promise.all(
+          reviewsData.map(async (review) => {
+            // 2. For each review, fetch the user data using the reviewer ID
+            let userData = null
+            let authorName = "Anonymous"
+            let socialLinks = {}
+            let authorLocation = ""
+            let authorCountryCode = "us"
+
+            if (review.reviewer && review.reviewer.startsWith("user_")) {
+              // Extract the user ID from the reviewer string (remove "user_" prefix)
+              const userId = review.reviewer.substring(5)
+
+              try {
+                // Query the users table with the extracted ID
+                const { data: user, error: userError } = await supabase
+                  .from("users")
+                  .select(
+                    "id, first_name, last_name, country, instagram_handle, x_handle, youtube_handle, tiktok_handle",
+                  )
+                  .eq("id", userId)
+                  .single()
+
+                if (!userError && user) {
+                  userData = user
+
+                  // Create author name from first and last name
+                  if (userData.first_name || userData.last_name) {
+                    authorName = `${userData.first_name || ""} ${userData.last_name || ""}`.trim()
+                  } else {
+                    authorName = review.reviewer.replace("user_", "User ")
+                  }
+
+                  // Set location data if available
+                  authorLocation = userData.country || ""
+                  authorCountryCode = (userData.country || "us").toLowerCase()
+
+                  // Create social links object with only the handles that exist
+                  socialLinks = {}
+                  if (userData.instagram_handle)
+                    socialLinks.instagram = `https://instagram.com/${userData.instagram_handle}`
+                  if (userData.x_handle) socialLinks.twitter = `https://x.com/${userData.x_handle}`
+                  if (userData.youtube_handle) socialLinks.youtube = `https://youtube.com/@${userData.youtube_handle}`
+                  if (userData.tiktok_handle) socialLinks.tiktok = `https://tiktok.com/@${userData.tiktok_handle}`
+                } else {
+                  // Fallback to formatted user ID if user data fetch fails
+                  authorName = review.reviewer.replace("user_", "User ")
+                }
+              } catch (err) {
+                // Fallback to formatted user ID if user data fetch fails
+                authorName = review.reviewer.replace("user_", "User ")
+              }
+            }
+
+            // 3. Map the review data to the format expected by ReviewCard
+            return {
+              id: review.id,
+              authorId: review.reviewer || "",
+              authorName: authorName,
+              authorAvatar: "/placeholder.svg?height=100&width=100", // Default avatar
+              authorLocation: authorLocation,
+              authorCountryCode: authorCountryCode,
+              date: new Date(review.created_at || new Date()).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              }),
+              rating: review.overall_rating || 0,
+              content: review.detailed_review || "",
+              accountSize: review.account_size || "",
+              accountType: review.account_type || "",
+              tradingDuration: review.trading_period || "",
+              detailedRatings: [
+                { category: "Trading Conditions", value: review.trading_conditions_rating || 0 },
+                { category: "Dashboard/UX", value: review.dashboard_ux_rating || 0 },
+                { category: "Customer Support", value: review.customer_support_rating || 0 },
+                { category: "Education & Community", value: review.education_community_rating || 0 },
+                { category: "Inner processes", value: review.inner_processes_rating || 0 },
+              ].filter((rating) => rating.value > 0),
+              likedAspect: review.most_liked_aspect || "",
+              dislikedAspect: review.most_disliked_aspect || "",
+              upvotes: 0,
+              hasUserUpvoted: false,
+              report: review.reported_issues
+                ? {
+                    reason: "Payout Denial",
+                    description: review.reported_issues || "No details provided",
+                    deniedAmount: "N/A",
+                  }
+                : null,
+              companyResponse: null,
+              certificates: 0,
+              firmCount: 0,
+              payoutStatus: review.received_payout ? "Yes" : "No",
+              fundedStatus: review.funded_status === "Yes" || review.funded_status === "true" || false,
+              proofImages: review.proofs
+                ? typeof review.proofs === "string"
+                  ? JSON.parse(review.proofs)
+                  : review.proofs
+                : [],
+              tradingStats: {
+                winRate: 0,
+                avgWin: 0,
+                avgLoss: 0,
+                totalTrades: 0,
+                profitFactor: 0,
+              },
+              socialLinks: socialLinks,
+            }
+          }),
+        )
+
+        setReviews(processedReviews)
       } catch (error) {
         console.error("Error in fetchReviews:", error)
         setReviews([])
@@ -505,10 +518,9 @@ export default function ReviewList({
         </div>
       ) : reviews.length > 0 ? (
         <div className="space-y-6">
-          {reviews.map((review) => {
-            console.log("Rendering review:", review.id, "Author:", review.authorName)
-            return <ReviewCard key={review.id} {...review} />
-          })}
+          {reviews.map((review) => (
+            <ReviewCard key={review.id} {...review} />
+          ))}
         </div>
       ) : (
         <div className="text-center py-10">
