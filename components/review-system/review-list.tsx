@@ -54,17 +54,6 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
 const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
-// Replace the existing calculateAverageRating and countRatingsByStars functions with these variables
-const [averageRating, setAverageRating] = useState<number>(0)
-const [totalReviews, setTotalReviews] = useState<number>(0)
-const [ratingPercentages, setRatingPercentages] = useState<Record<number, number>>({
-  5: 0,
-  4: 0,
-  3: 0,
-  2: 0,
-  1: 0,
-})
-
 interface ReviewListProps {
   onOpenReviewModal: () => void
   companyName?: string
@@ -100,6 +89,17 @@ export default function ReviewList({
   const dropdownRef = useRef<HTMLDivElement>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [propfirmId, setPropfirmId] = useState<number | null>(externalPropfirmId || null)
+
+  // Add these state variables inside the component
+  const [averageRating, setAverageRating] = useState<number>(0)
+  const [totalReviews, setTotalReviews] = useState<number>(0)
+  const [ratingPercentages, setRatingPercentages] = useState<Record<number, number>>({
+    5: 0,
+    4: 0,
+    3: 0,
+    2: 0,
+    1: 0,
+  })
 
   // Remove the existing averageRating and ratingCounts variables since we're using state variables now
   // const averageRating = calculateAverageRating(reviews);
