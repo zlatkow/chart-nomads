@@ -54,26 +54,16 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
 const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
-// Calculate average rating
-const calculateAverageRating = (reviews: any[]) => {
-  if (reviews.length === 0) return 0
-  const sum = reviews.reduce((acc, review) => acc + (review.overall_rating || 0), 0)
-  return sum / reviews.length
-}
-
-// Count ratings by star
-const countRatingsByStars = (reviews: any[]) => {
-  const counts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
-
-  reviews.forEach((review) => {
-    const roundedRating = Math.round(review.overall_rating || 0)
-    if (roundedRating >= 1 && roundedRating <= 5) {
-      counts[roundedRating as keyof typeof counts]++
-    }
-  })
-
-  return counts
-}
+// Replace the existing calculateAverageRating and countRatingsByStars functions with these variables
+const [averageRating, setAverageRating] = useState<number>(0)
+const [totalReviews, setTotalReviews] = useState<number>(0)
+const [ratingPercentages, setRatingPercentages] = useState<Record<number, number>>({
+  5: 0,
+  4: 0,
+  3: 0,
+  2: 0,
+  1: 0,
+})
 
 interface ReviewListProps {
   onOpenReviewModal: () => void
@@ -111,11 +101,12 @@ export default function ReviewList({
   const [isLoading, setIsLoading] = useState(true)
   const [propfirmId, setPropfirmId] = useState<number | null>(externalPropfirmId || null)
 
-  const averageRating = calculateAverageRating(reviews)
-  const ratingCounts = countRatingsByStars(reviews)
-  const totalReviews = reviews.length
+  // Remove the existing averageRating and ratingCounts variables since we're using state variables now
+  // const averageRating = calculateAverageRating(reviews);
+  // const ratingCounts = countRatingsByStars(reviews);
+  // const totalReviews = reviews.length;
 
-  // Fetch propfirm ID if we have a slug but no ID
+  // Replace the existing useEffect that fetches propfirmId with this updated version that also fetches rating data
   useEffect(() => {
     // If we already have a propfirmId or no companySlug, skip this
     if (propfirmId !== null || !companySlug) {
@@ -126,8 +117,14 @@ export default function ReviewList({
       try {
         console.log("Fetching propfirm ID for slug:", companySlug)
 
-        // Query the prop_firms table to get the ID for the given slug
-        const { data, error } = await supabase.from("prop_firms").select("id").eq("slug", companySlug).single()
+        // Query the prop_firms table to get the ID and rating data for the given slug
+        const { data, error } = await supabase
+          .from("prop_firms")
+          .select(
+            "id, rating, reviews_count, 1_star_reviews, 2_star_reviews, 3_star_reviews, 4_star_reviews, 5_star_reviews",
+          )
+          .eq("slug", companySlug)
+          .single()
 
         if (error) {
           console.error("Error fetching propfirm ID:", error)
@@ -137,6 +134,28 @@ export default function ReviewList({
         if (data) {
           console.log("Found propfirm ID:", data.id, "for slug:", companySlug)
           setPropfirmId(data.id)
+
+          // Set the rating data from the database
+          setAverageRating(data.rating || 0)
+          setTotalReviews(data.reviews_count || 0)
+
+          // Set the rating percentages from the database
+          setRatingPercentages({
+            5: data["5_star_reviews"] || 0,
+            4: data["4_star_reviews"] || 0,
+            3: data["3_star_reviews"] || 0,
+            2: data["2_star_reviews"] || 0,
+            1: data["1_star_reviews"] || 0,
+          })
+
+          // Set the bar widths directly from the percentages
+          setBarWidths({
+            5: data["5_star_reviews"] || 0,
+            4: data["4_star_reviews"] || 0,
+            3: data["3_star_reviews"] || 0,
+            2: data["2_star_reviews"] || 0,
+            1: data["1_star_reviews"] || 0,
+          })
         } else {
           console.error("Could not find propfirm ID for slug:", companySlug)
         }
@@ -147,6 +166,61 @@ export default function ReviewList({
 
     fetchPropfirmId()
   }, [companySlug, propfirmId])
+
+  // Add this effect to fetch rating data when propfirmId changes or is provided externally
+  useEffect(() => {
+    if (propfirmId === null) {
+      return
+    }
+
+    const fetchRatingData = async () => {
+      try {
+        // Query the prop_firms table to get the rating data for the given ID
+        const { data, error } = await supabase
+          .from("prop_firms")
+          .select(
+            "rating, reviews_count, 1_star_reviews, 2_star_reviews, 3_star_reviews, 4_star_reviews, 5_star_reviews",
+          )
+          .eq("id", propfirmId)
+          .single()
+
+        if (error) {
+          console.error("Error fetching rating data:", error)
+          return
+        }
+
+        if (data) {
+          console.log("Found rating data for propfirm ID:", propfirmId)
+
+          // Set the rating data from the database
+          setAverageRating(data.rating || 0)
+          setTotalReviews(data.reviews_count || 0)
+
+          // Set the rating percentages from the database
+          setRatingPercentages({
+            5: data["5_star_reviews"] || 0,
+            4: data["4_star_reviews"] || 0,
+            3: data["3_star_reviews"] || 0,
+            2: data["2_star_reviews"] || 0,
+            1: data["1_star_reviews"] || 0,
+          })
+
+          // Set the bar widths directly from the percentages
+          setBarWidths({
+            5: data["5_star_reviews"] || 0,
+            4: data["4_star_reviews"] || 0,
+            3: data["3_star_reviews"] || 0,
+            2: data["2_star_reviews"] || 0,
+            1: data["1_star_reviews"] || 0,
+          })
+        }
+      } catch (error) {
+        console.error("Exception when fetching rating data:", error)
+      }
+    }
+
+    fetchRatingData()
+  }, [propfirmId])
 
   // Update propfirmId if externalPropfirmId changes
   useEffect(() => {
@@ -401,28 +475,16 @@ export default function ReviewList({
     fetchReviews()
   }, [propfirmId, externalLoading])
 
-  // Calculate percentages
-  const calculatePercentages = () => {
-    const percentages: Record<number, number> = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
+  // Remove or comment out the existing calculatePercentages function since we're using data directly from the database
 
-    Object.keys(ratingCounts).forEach((star) => {
-      const starNum = Number.parseInt(star) as keyof typeof ratingCounts
-      percentages[starNum] = totalReviews > 0 ? (ratingCounts[starNum] / totalReviews) * 100 : 0
-    })
-
-    return percentages
-  }
-
-  // Run animation on initial mount
+  // Update the useEffect that handles animation to use ratingPercentages instead of calculating them
   useEffect(() => {
-    const percentages = calculatePercentages()
-
     // Start with zero width
     setBarWidths({ 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 })
 
     // Animate to actual percentages after a short delay
     const timer = setTimeout(() => {
-      setBarWidths(percentages)
+      setBarWidths(ratingPercentages)
 
       // Disable animation after it completes
       const disableTimer = setTimeout(() => {
@@ -433,14 +495,14 @@ export default function ReviewList({
     }, 100)
 
     return () => clearTimeout(timer)
-  }, [reviews]) // Update when reviews change
+  }, [ratingPercentages]) // Update when ratingPercentages change
 
-  // Update bar widths when reviews change (without animation)
+  // Update the useEffect that updates bar widths without animation
   useEffect(() => {
     if (!animateOnce) {
-      setBarWidths(calculatePercentages())
+      setBarWidths(ratingPercentages)
     }
-  }, [reviews, animateOnce])
+  }, [ratingPercentages, animateOnce])
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -547,8 +609,7 @@ export default function ReviewList({
 
             <div className="space-y-2">
               {[5, 4, 3, 2, 1].map((star) => {
-                const count = ratingCounts[star as keyof typeof ratingCounts]
-                const percentage = totalReviews > 0 ? (count / totalReviews) * 100 : 0
+                const percentage = ratingPercentages[star as keyof typeof ratingPercentages]
 
                 return (
                   <div key={star} className="flex items-center gap-2">
