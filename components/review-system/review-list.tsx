@@ -83,7 +83,7 @@ const mapReviewFromDatabase = (dbReview: any) => {
     authorAvatar: "/placeholder.svg?height=100&width=100", // Default avatar
     authorLocation: "",
     authorCountryCode: "us",
-    date: new Date(dbReview.updated_on || new Date()).toLocaleDateString("en-US", {
+    date: new Date(dbReview.created_at || new Date()).toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",
