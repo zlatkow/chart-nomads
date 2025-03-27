@@ -590,7 +590,7 @@ export default function ReviewCard({
             </div>
 
             <div className="grid grid-cols-2 gap-2 mt-2">
-              // 2. Update the StatusIndicator usage for fundedStatus
+              {/* // 2. Update the StatusIndicator usage for fundedStatus */}
               <div className="bg-[#1a1a1a] rounded-md p-2">
                 <p className="text-xs text-gray-400 mb-1 text-center">Funded Status</p>
                 <div className="flex justify-center">
