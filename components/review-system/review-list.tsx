@@ -8,7 +8,7 @@ import ReviewCard from "./review-card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import { Star } from "lucide-react"
-import { SignedIn, SignedOut } from "@clerk/nextjs"
+import { SignedIn, SignedOut, useUser } from "@clerk/nextjs"
 import { useRouter } from "next/navigation"
 import { createClient } from "@supabase/supabase-js"
 
@@ -89,6 +89,7 @@ interface SocialLinks {
   twitter?: string
   youtube?: string
   tiktok?: string
+  website?: string
 }
 
 export default function ReviewList({
@@ -109,6 +110,7 @@ export default function ReviewList({
   const dropdownRef = useRef<HTMLDivElement>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [propfirmId, setPropfirmId] = useState<number | null>(externalPropfirmId || null)
+  const { user } = useUser()
 
   const averageRating = calculateAverageRating(reviews)
   const ratingCounts = countRatingsByStars(reviews)
@@ -200,6 +202,7 @@ export default function ReviewList({
             const socialLinks: SocialLinks = {}
             let authorLocation = ""
             let authorCountryCode = "us"
+            let authorAvatar = "/placeholder.svg?height=100&width=100" // Default avatar
 
             if (review.reviewer && review.reviewer.startsWith("user_")) {
               console.log("Processing reviewer:", review.reviewer)
@@ -209,7 +212,7 @@ export default function ReviewList({
                 const { data: user, error: userError } = await supabase
                   .from("users")
                   .select(
-                    "id, first_name, last_name, country, instagram_handle, x_handle, youtube_handle, tiktok_handle",
+                    "id, first_name, last_name, country, instagram_handle, x_handle, youtube_handle, tiktok_handle, clerk_id",
                   )
                   .eq("id", review.reviewer)
                   .single()
@@ -220,7 +223,7 @@ export default function ReviewList({
 
                 if (!userError && user) {
                   userData = user
-                  console.log("Found user data:", user.first_name, user.last_name)
+                  console.log("Found user data:", user)
 
                   // Create author name from first and last name
                   if (userData.first_name || userData.last_name) {
@@ -241,10 +244,18 @@ export default function ReviewList({
                     socialLinks.twitter = `https://x.com/${userData.x_handle}`
                   }
                   if (userData.youtube_handle) {
+                    console.log("Found YouTube handle:", userData.youtube_handle)
                     socialLinks.youtube = `https://youtube.com/@${userData.youtube_handle}`
                   }
                   if (userData.tiktok_handle) {
+                    console.log("Found TikTok handle:", userData.tiktok_handle)
                     socialLinks.tiktok = `https://tiktok.com/@${userData.tiktok_handle}`
+                  }
+
+                  // If user has a Clerk ID, use Clerk for the avatar
+                  if (userData.clerk_id) {
+                    authorAvatar = `https://img.clerk.com/eyJ0eXBlIjoiZGVmYXVsdCIsImlpZCI6Imluc18yWGZQVnRwRnJXZVRVRnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVnRXVn
+${userData.clerk_id}`
                   }
                 } else {
                   // Fallback to formatted user ID if user data fetch fails
@@ -265,7 +276,7 @@ export default function ReviewList({
               id: review.id,
               authorId: review.reviewer || "",
               authorName: authorName,
-              authorAvatar: "/placeholder.svg?height=100&width=100", // Default avatar
+              authorAvatar: authorAvatar,
               authorLocation: authorLocation,
               authorCountryCode: authorCountryCode,
               date: new Date(review.created_at || new Date()).toLocaleDateString("en-US", {
