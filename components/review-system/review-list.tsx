@@ -74,52 +74,22 @@ const countRatingsByStars = (reviews: any[]) => {
   return counts
 }
 
-// Update the mapReviewFromDatabase function to include fetching user data
+// Update the mapReviewFromDatabase function to handle missing author_id
 const mapReviewFromDatabase = async (dbReview: any) => {
-  console.log("Processing review:", dbReview.id, "Author ID:", dbReview.author_id)
+  console.log("Processing review:", dbReview.id, "Author ID:", dbReview.author_id, "Reviewer:", dbReview.reviewer)
 
-  // Fetch user data if we have an author_id
-  let userData = null
-  if (dbReview.author_id) {
-    console.log("Fetching user data for author_id:", dbReview.author_id)
-
-    try {
-      const { data: user, error } = await supabase
-        .from("users")
-        .select("first_name, last_name, country, instagram_handle, x_handle, youtube_handle, tiktok_handle")
-        .eq("id", dbReview.author_id)
-        .single()
-
-      if (error) {
-        console.error("Error fetching user data:", error)
-      } else {
-        console.log("User data fetched successfully:", user)
-        userData = user
-      }
-    } catch (err) {
-      console.error("Exception when fetching user data:", err)
-    }
-  } else {
-    console.log("No author_id available for review:", dbReview.id)
+  // Extract username from reviewer field if it exists
+  let username = ""
+  if (dbReview.reviewer && typeof dbReview.reviewer === "string" && dbReview.reviewer.startsWith("user_")) {
+    // Just use the user ID as the username for now
+    username = dbReview.reviewer
   }
 
   // Format social links with base URLs
   const socialLinks: Record<string, string> = {}
 
-  if (userData) {
-    if (userData.x_handle) socialLinks.x = `https://x.com/${userData.x_handle}`
-    if (userData.instagram_handle) socialLinks.instagram = `https://instagram.com/${userData.instagram_handle}`
-    if (userData.youtube_handle) socialLinks.youtube = `https://youtube.com/@${userData.youtube_handle}`
-    if (userData.tiktok_handle) socialLinks.tiktok = `https://tiktok.com/@${userData.tiktok_handle}`
-
-    console.log("Social links created:", socialLinks)
-  }
-
-  // Create author name from first and last name if available
-  const authorName =
-    userData && (userData.first_name || userData.last_name)
-      ? `${userData.first_name || ""} ${userData.last_name || ""}`.trim()
-      : dbReview.reviewer || "Anonymous"
+  // Create a more user-friendly display name from the username
+  const authorName = username ? username.replace("user_", "User ") : "Anonymous"
 
   console.log("Final author name:", authorName)
 
@@ -128,8 +98,8 @@ const mapReviewFromDatabase = async (dbReview: any) => {
     authorId: dbReview.author_id || "",
     authorName: authorName,
     authorAvatar: "/placeholder.svg?height=100&width=100", // Default avatar
-    authorLocation: userData?.country || "",
-    authorCountryCode: userData?.country?.toLowerCase() || "us",
+    authorLocation: "", // No location data available
+    authorCountryCode: "us", // Default country code
     date: new Date(dbReview.created_at || new Date()).toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
@@ -210,6 +180,15 @@ export default function ReviewList({
   const dropdownRef = useRef<HTMLDivElement>(null)
   const [isLoading, setIsLoading] = useState(true)
 
+  // Store the propfirmId in a ref to ensure it's accessible in the fetch function
+  const propfirmIdRef = useRef<number | null | undefined>(propfirmId)
+
+  // Update the ref when propfirmId changes
+  useEffect(() => {
+    propfirmIdRef.current = propfirmId
+    console.log("propfirmId updated in ref:", propfirmIdRef.current)
+  }, [propfirmId])
+
   const averageRating = calculateAverageRating(reviews)
   const ratingCounts = countRatingsByStars(reviews)
   const totalReviews = reviews.length
@@ -222,7 +201,9 @@ export default function ReviewList({
       return
     }
 
-    console.log("Fetching reviews for propfirmId:", propfirmId)
+    // Use the current propfirmId from the ref
+    const currentPropfirmId = propfirmIdRef.current
+    console.log("Fetching reviews for propfirmId:", currentPropfirmId)
     setIsLoading(true)
 
     const fetchReviews = async () => {
@@ -230,8 +211,11 @@ export default function ReviewList({
         // Fetch all reviews for the specific company if we have an ID
         let query = supabase.from("propfirm_reviews").select("*")
 
-        if (propfirmId !== null && propfirmId !== undefined) {
-          query = query.eq("propfirm", propfirmId)
+        if (currentPropfirmId !== null && currentPropfirmId !== undefined) {
+          console.log("Filtering reviews by propfirm:", currentPropfirmId)
+          query = query.eq("propfirm", currentPropfirmId)
+        } else {
+          console.warn("No propfirmId available for filtering reviews")
         }
 
         // Execute the query
@@ -241,7 +225,7 @@ export default function ReviewList({
           console.error("Error fetching reviews:", error)
           setReviews([])
         } else {
-          console.log("Fetched reviews:", data.length)
+          console.log("Fetched reviews:", data.length, "for propfirm:", currentPropfirmId)
 
           // Map the database reviews to the component format
           // Use Promise.all to wait for all async operations to complete
@@ -250,10 +234,7 @@ export default function ReviewList({
 
           // Log each review's author name to verify
           mappedReviews.forEach((review) => {
-            console.log(
-              `Review ${review.id} - Author: ${review.authorName}, Location: ${review.authorLocation}, Social links:`,
-              review.socialLinks,
-            )
+            console.log(`Review ${review.id} - Author: ${review.authorName}, PropFirm: ${currentPropfirmId}`)
           })
 
           setReviews(mappedReviews)
