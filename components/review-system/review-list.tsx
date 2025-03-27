@@ -74,18 +74,33 @@ const countRatingsByStars = (reviews: any[]) => {
   return counts
 }
 
-// Map database review to component format using the exact column names
+// Update the mapReviewFromDatabase function to include fetching user data
 const mapReviewFromDatabase = async (dbReview: any) => {
+  console.log("Processing review:", dbReview.id, "Author ID:", dbReview.author_id)
+
   // Fetch user data if we have an author_id
   let userData = null
   if (dbReview.author_id) {
-    const { data: user } = await supabase
-      .from("users")
-      .select("first_name, last_name, country, instagram_handle, x_handle, youtube_handle, tiktok_handle")
-      .eq("id", dbReview.author_id)
-      .single()
+    console.log("Fetching user data for author_id:", dbReview.author_id)
 
-    userData = user
+    try {
+      const { data: user, error } = await supabase
+        .from("users")
+        .select("first_name, last_name, country, instagram_handle, x_handle, youtube_handle, tiktok_handle")
+        .eq("id", dbReview.author_id)
+        .single()
+
+      if (error) {
+        console.error("Error fetching user data:", error)
+      } else {
+        console.log("User data fetched successfully:", user)
+        userData = user
+      }
+    } catch (err) {
+      console.error("Exception when fetching user data:", err)
+    }
+  } else {
+    console.log("No author_id available for review:", dbReview.id)
   }
 
   // Format social links with base URLs
@@ -96,6 +111,8 @@ const mapReviewFromDatabase = async (dbReview: any) => {
     if (userData.instagram_handle) socialLinks.instagram = `https://instagram.com/${userData.instagram_handle}`
     if (userData.youtube_handle) socialLinks.youtube = `https://youtube.com/@${userData.youtube_handle}`
     if (userData.tiktok_handle) socialLinks.tiktok = `https://tiktok.com/@${userData.tiktok_handle}`
+
+    console.log("Social links created:", socialLinks)
   }
 
   // Create author name from first and last name if available
@@ -104,7 +121,9 @@ const mapReviewFromDatabase = async (dbReview: any) => {
       ? `${userData.first_name || ""} ${userData.last_name || ""}`.trim()
       : dbReview.reviewer || "Anonymous"
 
-  return {
+  console.log("Final author name:", authorName)
+
+  const mappedReview = {
     id: dbReview.id,
     authorId: dbReview.author_id || "",
     authorName: authorName,
@@ -159,6 +178,9 @@ const mapReviewFromDatabase = async (dbReview: any) => {
     },
     socialLinks: socialLinks,
   }
+
+  console.log("Mapped review:", mappedReview.id, "Author name:", mappedReview.authorName)
+  return mappedReview
 }
 
 interface ReviewListProps {
@@ -192,45 +214,58 @@ export default function ReviewList({
   const ratingCounts = countRatingsByStars(reviews)
   const totalReviews = reviews.length
 
-  // Define fetchReviews inside the component so it has access to all the necessary variables
-  const fetchReviews = async () => {
+  // Fetch reviews from Supabase
+  useEffect(() => {
     // If we're still loading the propfirmId, don't fetch reviews yet
     if (externalLoading) {
+      console.log("External loading is true, skipping fetch")
       return
     }
 
+    console.log("Fetching reviews for propfirmId:", propfirmId)
     setIsLoading(true)
 
-    try {
-      // Fetch all reviews for the specific company if we have an ID
-      let query = supabase.from("propfirm_reviews").select("*")
+    const fetchReviews = async () => {
+      try {
+        // Fetch all reviews for the specific company if we have an ID
+        let query = supabase.from("propfirm_reviews").select("*")
 
-      if (propfirmId !== null && propfirmId !== undefined) {
-        query = query.eq("propfirm", propfirmId)
-      }
+        if (propfirmId !== null && propfirmId !== undefined) {
+          query = query.eq("propfirm", propfirmId)
+        }
 
-      // Execute the query
-      const { data, error } = await query
+        // Execute the query
+        const { data, error } = await query
 
-      if (error) {
-        console.error("Error fetching reviews:", error)
+        if (error) {
+          console.error("Error fetching reviews:", error)
+          setReviews([])
+        } else {
+          console.log("Fetched reviews:", data.length)
+
+          // Map the database reviews to the component format
+          // Use Promise.all to wait for all async operations to complete
+          const mappedReviews = await Promise.all(data.map(mapReviewFromDatabase))
+          console.log("Mapped reviews:", mappedReviews.length)
+
+          // Log each review's author name to verify
+          mappedReviews.forEach((review) => {
+            console.log(
+              `Review ${review.id} - Author: ${review.authorName}, Location: ${review.authorLocation}, Social links:`,
+              review.socialLinks,
+            )
+          })
+
+          setReviews(mappedReviews)
+        }
+      } catch (error) {
+        console.error("Error in fetchReviews:", error)
         setReviews([])
-      } else {
-        // Map the database reviews to the component format
-        // Use Promise.all to wait for all async operations to complete
-        const mappedReviews = await Promise.all(data.map(mapReviewFromDatabase))
-        setReviews(mappedReviews)
+      } finally {
+        setIsLoading(false)
       }
-    } catch (error) {
-      console.error("Error in fetchReviews:", error)
-      setReviews([])
-    } finally {
-      setIsLoading(false)
     }
-  }
 
-  // Fetch reviews from Supabase
-  useEffect(() => {
     fetchReviews()
   }, [propfirmId, externalLoading])
 
@@ -493,9 +528,10 @@ export default function ReviewList({
         </div>
       ) : reviews.length > 0 ? (
         <div className="space-y-6">
-          {reviews.map((review) => (
-            <ReviewCard key={review.id} {...review} />
-          ))}
+          {reviews.map((review) => {
+            console.log("Rendering review:", review.id, "Author:", review.authorName)
+            return <ReviewCard key={review.id} {...review} />
+          })}
         </div>
       ) : (
         <div className="text-center py-10">
