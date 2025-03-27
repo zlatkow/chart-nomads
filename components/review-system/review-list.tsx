@@ -139,6 +139,7 @@ interface ReviewListProps {
   companySlug?: string
   propfirmId?: number | null
   companyLogo?: string
+  isLoading?: boolean
 }
 
 export default function ReviewList({
@@ -147,6 +148,7 @@ export default function ReviewList({
   companySlug,
   propfirmId,
   companyLogo,
+  isLoading: externalLoading = false,
 }: ReviewListProps) {
   const [reviews, setReviews] = useState<any[]>([])
   const [sortBy, setSortBy] = useState("newest")
@@ -165,6 +167,11 @@ export default function ReviewList({
   // Fetch reviews from Supabase
   useEffect(() => {
     async function fetchReviews() {
+      // If we're still loading the propfirmId, don't fetch reviews yet
+      if (externalLoading) {
+        return
+      }
+
       setIsLoading(true)
 
       try {
@@ -195,8 +202,9 @@ export default function ReviewList({
     }
 
     fetchReviews()
-  }, [propfirmId])
+  }, [propfirmId, externalLoading])
 
+  // Rest of the component remains the same...
   // Calculate percentages
   const calculatePercentages = () => {
     const percentages: Record<number, number> = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
@@ -303,13 +311,16 @@ export default function ReviewList({
     router.push("/sign-up")
   }
 
+  // Determine if we're in a loading state (either external or internal)
+  const showLoading = isLoading || externalLoading
+
   return (
     <div className="w-full max-w-5xl mx-auto">
       {/* Community Reviews Header */}
       <div id="reviewBreakdownContainer" className="mb-[75px]">
         <h2 className="text-2xl font-bold text-[#edb900] mb-4">Community Reviews</h2>
 
-        {isLoading ? (
+        {showLoading ? (
           // Skeleton loading for review breakdown
           <div className="animate-pulse">
             <div className="flex items-center gap-2 mb-4">
@@ -419,7 +430,7 @@ export default function ReviewList({
       </div>
 
       {/* Reviews Display */}
-      {isLoading ? (
+      {showLoading ? (
         // Skeleton loading UI
         <div className="space-y-6">
           {Array(3)
