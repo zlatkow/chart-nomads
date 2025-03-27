@@ -241,10 +241,18 @@ export default function ReviewList({
                     socialLinks.twitter = `https://x.com/${userData.x_handle}`
                   }
                   if (userData.youtube_handle) {
-                    socialLinks.youtube = `https://youtube.com/@${userData.youtube_handle}`
+                    // YouTube handles can be in different formats
+                    socialLinks.youtube = userData.youtube_handle.includes("youtube.com")
+                      ? userData.youtube_handle
+                      : `https://youtube.com/@${userData.youtube_handle.replace("@", "")}`
+                    console.log("Added YouTube link:", socialLinks.youtube)
                   }
                   if (userData.tiktok_handle) {
-                    socialLinks.tiktok = `https://tiktok.com/@${userData.tiktok_handle}`
+                    // TikTok handles can be in different formats
+                    socialLinks.tiktok = userData.tiktok_handle.includes("tiktok.com")
+                      ? userData.tiktok_handle
+                      : `https://tiktok.com/@${userData.tiktok_handle.replace("@", "")}`
+                    console.log("Added TikTok link:", socialLinks.tiktok)
                   }
                 } else {
                   // Fallback to formatted user ID if user data fetch fails
@@ -259,6 +267,8 @@ export default function ReviewList({
             } else {
               console.log("Reviewer ID not in expected format:", review.reviewer)
             }
+
+            console.log("Social links for review:", review.id, socialLinks)
 
             // 3. Map the review data to the format expected by ReviewCard
             return {
