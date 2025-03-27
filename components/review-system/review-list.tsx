@@ -75,14 +75,42 @@ const countRatingsByStars = (reviews: any[]) => {
 }
 
 // Map database review to component format using the exact column names
-const mapReviewFromDatabase = (dbReview: any) => {
+const mapReviewFromDatabase = async (dbReview: any) => {
+  // Fetch user data if we have an author_id
+  let userData = null
+  if (dbReview.author_id) {
+    const { data: user } = await supabase
+      .from("users")
+      .select("first_name, last_name, country, instagram_handle, x_handle, youtube_handle, tiktok_handle")
+      .eq("id", dbReview.author_id)
+      .single()
+
+    userData = user
+  }
+
+  // Format social links with base URLs
+  const socialLinks: Record<string, string> = {}
+
+  if (userData) {
+    if (userData.x_handle) socialLinks.x = `https://x.com/${userData.x_handle}`
+    if (userData.instagram_handle) socialLinks.instagram = `https://instagram.com/${userData.instagram_handle}`
+    if (userData.youtube_handle) socialLinks.youtube = `https://youtube.com/@${userData.youtube_handle}`
+    if (userData.tiktok_handle) socialLinks.tiktok = `https://tiktok.com/@${userData.tiktok_handle}`
+  }
+
+  // Create author name from first and last name if available
+  const authorName =
+    userData && (userData.first_name || userData.last_name)
+      ? `${userData.first_name || ""} ${userData.last_name || ""}`.trim()
+      : dbReview.reviewer || "Anonymous"
+
   return {
     id: dbReview.id,
     authorId: dbReview.author_id || "",
-    authorName: dbReview.reviewer || "Anonymous",
+    authorName: authorName,
     authorAvatar: "/placeholder.svg?height=100&width=100", // Default avatar
-    authorLocation: "",
-    authorCountryCode: "us",
+    authorLocation: userData?.country || "",
+    authorCountryCode: userData?.country?.toLowerCase() || "us",
     date: new Date(dbReview.created_at || new Date()).toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
@@ -129,7 +157,7 @@ const mapReviewFromDatabase = (dbReview: any) => {
       totalTrades: 0,
       profitFactor: 0,
     },
-    socialLinks: {},
+    socialLinks: socialLinks,
   }
 }
 
@@ -164,47 +192,48 @@ export default function ReviewList({
   const ratingCounts = countRatingsByStars(reviews)
   const totalReviews = reviews.length
 
-  // Fetch reviews from Supabase
-  useEffect(() => {
-    async function fetchReviews() {
-      // If we're still loading the propfirmId, don't fetch reviews yet
-      if (externalLoading) {
-        return
-      }
-
-      setIsLoading(true)
-
-      try {
-        // Fetch all reviews for the specific company if we have an ID
-        let query = supabase.from("propfirm_reviews").select("*")
-
-        if (propfirmId !== null && propfirmId !== undefined) {
-          query = query.eq("propfirm", propfirmId)
-        }
-
-        // Execute the query
-        const { data, error } = await query
-
-        if (error) {
-          console.error("Error fetching reviews:", error)
-          setReviews([])
-        } else {
-          // Map the database reviews to the component format
-          const mappedReviews = data.map(mapReviewFromDatabase)
-          setReviews(mappedReviews)
-        }
-      } catch (error) {
-        console.error("Error in fetchReviews:", error)
-        setReviews([])
-      } finally {
-        setIsLoading(false)
-      }
+  // Define fetchReviews inside the component so it has access to all the necessary variables
+  const fetchReviews = async () => {
+    // If we're still loading the propfirmId, don't fetch reviews yet
+    if (externalLoading) {
+      return
     }
 
+    setIsLoading(true)
+
+    try {
+      // Fetch all reviews for the specific company if we have an ID
+      let query = supabase.from("propfirm_reviews").select("*")
+
+      if (propfirmId !== null && propfirmId !== undefined) {
+        query = query.eq("propfirm", propfirmId)
+      }
+
+      // Execute the query
+      const { data, error } = await query
+
+      if (error) {
+        console.error("Error fetching reviews:", error)
+        setReviews([])
+      } else {
+        // Map the database reviews to the component format
+        // Use Promise.all to wait for all async operations to complete
+        const mappedReviews = await Promise.all(data.map(mapReviewFromDatabase))
+        setReviews(mappedReviews)
+      }
+    } catch (error) {
+      console.error("Error in fetchReviews:", error)
+      setReviews([])
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Fetch reviews from Supabase
+  useEffect(() => {
     fetchReviews()
   }, [propfirmId, externalLoading])
 
-  // Rest of the component remains the same...
   // Calculate percentages
   const calculatePercentages = () => {
     const percentages: Record<number, number> = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
