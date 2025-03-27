@@ -274,6 +274,8 @@ export default function ReviewCard({
   tradingStats = {},
   socialLinks = {},
 }: ReviewProps) {
+  // Add this state variable near the top of your component, with the other state variables
+  const [profileImage, setProfileImage] = useState<string | null>(authorAvatar || null)
   // Add the useNoise hook to control noise visibility
   const { hideNoise, showNoise } = useNoise()
 
@@ -288,6 +290,48 @@ export default function ReviewCard({
 
   // Reference to the sidebar element for animation
   const sidebarRef = useRef<HTMLDivElement>(null)
+
+  // Add this useEffect to fetch the profile image if needed
+  useEffect(() => {
+    // If we already have an avatar and it's not the placeholder, don't fetch again
+    if (authorAvatar && !authorAvatar.includes("placeholder.svg")) {
+      return
+    }
+
+    // Only try to fetch if authorId is a Clerk user ID
+    if (authorId && authorId.startsWith("user_")) {
+      // Create a flag to handle component unmounting
+      let isMounted = true
+
+      const fetchProfileImage = async () => {
+        try {
+          const response = await fetch(`/api/user-profile?userId=${authorId}`)
+
+          if (!response.ok) {
+            throw new Error(`Failed to fetch profile: ${response.status}`)
+          }
+
+          const data = await response.json()
+
+          // Only update state if component is still mounted
+          if (isMounted && data.profileImageUrl) {
+            // Update the avatar image with the one from Clerk
+            setProfileImage(data.profileImageUrl)
+            console.log("Updated profile image for:", authorId)
+          }
+        } catch (error) {
+          console.error("Error fetching Clerk profile image:", error)
+        }
+      }
+
+      fetchProfileImage()
+
+      // Cleanup function to prevent state updates on unmounted component
+      return () => {
+        isMounted = false
+      }
+    }
+  }, [authorId, authorAvatar])
 
   // Force noise to be hidden when sidebar or gallery is open
   useEffect(() => {
@@ -450,8 +494,12 @@ export default function ReviewCard({
               aria-label="View reviewer profile"
             >
               <div className="flex justify-center w-full">
+                {/* Update the Avatar component to use the profileImage state instead of authorAvatar */}
                 <Avatar className="h-16 w-16 border-2 border-[#edb900] group-hover:border-white transition-colors">
-                  <AvatarImage src={authorAvatar} alt={authorName} />
+                  <AvatarImage
+                    src={profileImage || authorAvatar || "/placeholder.svg?height=100&width=100"}
+                    alt={authorName}
+                  />
                   <AvatarFallback className="bg-[#edb900] text-[#0f0f0f] font-bold">
                     {authorName.charAt(0).toUpperCase()}
                   </AvatarFallback>
@@ -834,8 +882,12 @@ export default function ReviewCard({
 
                 <div className="flex flex-col items-center text-center mb-6">
                   <div className="flex justify-center w-full">
+                    {/* Update the Avatar in the sidebar to also use profileImage */}
                     <Avatar className="h-24 w-24 border-2 border-[#edb900] mb-3">
-                      <AvatarImage src={authorAvatar} alt={authorName} />
+                      <AvatarImage
+                        src={profileImage || authorAvatar || "/placeholder.svg?height=100&width=100"}
+                        alt={authorName}
+                      />
                       <AvatarFallback className="bg-[#edb900] text-[#0f0f0f] text-2xl font-bold">
                         {authorName.charAt(0).toUpperCase()}
                       </AvatarFallback>

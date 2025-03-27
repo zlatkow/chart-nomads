@@ -201,6 +201,7 @@ export default function ReviewList({
             const socialLinks: SocialLinks = {}
             let authorLocation = ""
             let authorCountryCode = "us"
+            let profileImageUrl = "/placeholder.svg?height=100&width=100" // Default avatar
 
             if (review.reviewer && review.reviewer.startsWith("user_")) {
               console.log("Processing reviewer:", review.reviewer)
@@ -255,15 +256,73 @@ export default function ReviewList({
                       : `https://tiktok.com/@${userData.tiktok_handle.replace("@", "")}`
                     console.log("Added TikTok link:", socialLinks.tiktok)
                   }
+
+                  // NEW CODE: Try to fetch the Clerk profile image
+                  try {
+                    const clerkProfileResponse = await fetch(`/api/user-profile?userId=${review.reviewer}`)
+                    if (clerkProfileResponse.ok) {
+                      const clerkProfileData = await clerkProfileResponse.json()
+                      if (clerkProfileData.profileImageUrl) {
+                        profileImageUrl = clerkProfileData.profileImageUrl
+                        console.log("Found Clerk profile image for user:", review.reviewer)
+                      }
+                    }
+                  } catch (error) {
+                    console.error("Error fetching Clerk profile:", error)
+                  }
                 } else {
                   // Fallback to formatted user ID if user data fetch fails
                   authorName = review.reviewer.replace("user_", "User ")
                   console.log("No user data found, using fallback name:", authorName)
+
+                  // Even if we don't have user data from Supabase, try to get Clerk profile
+                  try {
+                    const clerkProfileResponse = await fetch(`/api/user-profile?userId=${review.reviewer}`)
+                    if (clerkProfileResponse.ok) {
+                      const clerkProfileData = await clerkProfileResponse.json()
+                      if (clerkProfileData.profileImageUrl) {
+                        profileImageUrl = clerkProfileData.profileImageUrl
+                        console.log("Found Clerk profile image for user:", review.reviewer)
+                      }
+
+                      // If we have first/last name from Clerk but not from Supabase
+                      if (clerkProfileData.firstName || clerkProfileData.lastName) {
+                        authorName = `${clerkProfileData.firstName || ""} ${clerkProfileData.lastName || ""}`.trim()
+                        if (!authorName) {
+                          authorName = review.reviewer.replace("user_", "User ")
+                        }
+                      }
+                    }
+                  } catch (error) {
+                    console.error("Error fetching Clerk profile:", error)
+                  }
                 }
               } catch (err) {
                 console.error("Exception when fetching user data:", err)
                 // Fallback to formatted user ID if user data fetch fails
                 authorName = review.reviewer.replace("user_", "User ")
+
+                // Try to get Clerk profile even if Supabase fetch failed
+                try {
+                  const clerkProfileResponse = await fetch(`/api/user-profile?userId=${review.reviewer}`)
+                  if (clerkProfileResponse.ok) {
+                    const clerkProfileData = await clerkProfileResponse.json()
+                    if (clerkProfileData.profileImageUrl) {
+                      profileImageUrl = clerkProfileData.profileImageUrl
+                      console.log("Found Clerk profile image for user:", review.reviewer)
+                    }
+
+                    // If we have first/last name from Clerk
+                    if (clerkProfileData.firstName || clerkProfileData.lastName) {
+                      authorName = `${clerkProfileData.firstName || ""} ${clerkProfileData.lastName || ""}`.trim()
+                      if (!authorName) {
+                        authorName = review.reviewer.replace("user_", "User ")
+                      }
+                    }
+                  }
+                } catch (error) {
+                  console.error("Error fetching Clerk profile:", error)
+                }
               }
             } else {
               console.log("Reviewer ID not in expected format:", review.reviewer)
@@ -276,7 +335,7 @@ export default function ReviewList({
               id: review.id,
               authorId: review.reviewer || "",
               authorName: authorName,
-              authorAvatar: "/placeholder.svg?height=100&width=100", // Default avatar
+              authorAvatar: profileImageUrl, // Use the Clerk profile image
               authorLocation: authorLocation,
               authorCountryCode: authorCountryCode,
               date: new Date(review.created_at || new Date()).toLocaleDateString("en-US", {
