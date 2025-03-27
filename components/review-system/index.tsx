@@ -1,9 +1,8 @@
 "use client"
 
-import { useContext, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
+import { useParams } from "next/navigation"
 import ReviewList from "./review-list"
-import { ModalContext } from "../../pages/_app"
-import { useRouter } from "next/router"
 import { createClient } from "@supabase/supabase-js"
 
 // Initialize Supabase client
@@ -11,115 +10,109 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
 const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
-interface ReviewSystemProps {
-  companyName?: string
-  companySlug?: string
-  propfirmId?: number
-  companyLogo?: string
+// Map of propfirm slugs to their IDs in the database
+// This should be populated from your database or API
+const PROPFIRM_MAP: Record<string, number> = {
+  brightfunded: 1, // Example mapping - replace with actual IDs
+  "blue-guardian": 2,
+  "chart-nomads": 3,
+  // Add more mappings as needed
 }
 
-export default function ReviewSystem({
-  companyName = "CHART NOMADS",
-  companySlug,
-  propfirmId,
-  companyLogo,
-}: ReviewSystemProps) {
-  // Get the openReviewModal function from context
-  const modalContext = useContext(ModalContext)
-  const router = useRouter()
-  const [resolvedPropfirmId, setResolvedPropfirmId] = useState<number | null>(propfirmId || null)
-  const [isLoading, setIsLoading] = useState(false)
+export default function PropFirmPage() {
+  const params = useParams()
+  const [propfirmData, setPropfirmData] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
 
-  // Dynamically fetch propfirm ID based on slug
+  // Get the slug from the URL
+  const slug = typeof params.slug === "string" ? params.slug : Array.isArray(params.slug) ? params.slug[0] : ""
+
+  // Fetch propfirm data
   useEffect(() => {
-    async function fetchPropfirmId() {
-      // If propfirmId is already provided, use it
-      if (propfirmId !== undefined) {
-        setResolvedPropfirmId(propfirmId)
-        return
-      }
-
-      setIsLoading(true)
+    async function fetchPropfirmData() {
+      setLoading(true)
 
       try {
-        // Determine which slug to use
-        const slugToUse =
-          companySlug ||
-          (typeof router.query.slug === "string" ? router.query.slug : "") ||
-          router.asPath.split("/").pop() ||
-          ""
+        // First, try to get the propfirm ID from our mapping
+        const propfirmId = PROPFIRM_MAP[slug]
 
-        if (!slugToUse) {
-          console.error("No slug available to fetch propfirm ID")
-          setResolvedPropfirmId(null)
-          return
-        }
+        if (propfirmId) {
+          // If we have an ID, fetch the propfirm data
+          const { data, error } = await supabase.from("propfirms").select("*").eq("id", propfirmId).single()
 
-        // First try to find by exact slug match
-        let { data, error } = await supabase.from("propfirms").select("id").eq("slug", slugToUse).single()
+          if (data && !error) {
+            setPropfirmData(data)
+          } else {
+            // If we don't have data, create a fallback object
+            setPropfirmData({
+              id: propfirmId,
+              name: slug
+                .split("-")
+                .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(" "),
+              logo: "/placeholder.svg?height=100&width=100",
+            })
+          }
+        } else {
+          // If we don't have an ID mapping, try to find the propfirm by slug
+          const { data, error } = await supabase.from("propfirms").select("*").eq("slug", slug).single()
 
-        // If no exact match, try to find by normalized slug
-        if (!data && error) {
-          const normalizedSlug = slugToUse.toLowerCase().replace(/[^a-z0-9]+/g, "-")
-          ;({ data, error } = await supabase.from("propfirms").select("id").eq("slug", normalizedSlug).single())
-
-          // If still no match, try a more flexible search
-          if (!data && error) {
-            ;({ data, error } = await supabase
-              .from("propfirms")
-              .select("id")
-              .ilike("name", `%${slugToUse.replace(/-/g, " ")}%`)
-              .single())
+          if (data && !error) {
+            setPropfirmData(data)
+            // Update our mapping for future use
+            PROPFIRM_MAP[slug] = data.id
+          } else {
+            // If we still don't have data, create a fallback object
+            setPropfirmData({
+              id: null,
+              name: slug
+                .split("-")
+                .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(" "),
+              logo: "/placeholder.svg?height=100&width=100",
+            })
           }
         }
-
-        if (data) {
-          setResolvedPropfirmId(data.id)
-        } else {
-          console.error("Could not find propfirm ID for slug:", slugToUse)
-          setResolvedPropfirmId(null)
-        }
       } catch (error) {
-        console.error("Error fetching propfirm ID:", error)
-        setResolvedPropfirmId(null)
+        console.error("Error fetching propfirm data:", error)
+        // Create a fallback object
+        setPropfirmData({
+          id: null,
+          name: slug
+            .split("-")
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(" "),
+          logo: "/placeholder.svg?height=100&width=100",
+        })
       } finally {
-        setIsLoading(false)
+        setLoading(false)
       }
     }
 
-    fetchPropfirmId()
-  }, [companySlug, propfirmId, router.asPath, router.query.slug])
-
-  // Handle case where modalContext is not available
-  if (!modalContext) {
-    console.error("ModalContext is not available in ReviewSystem")
-    return null
-  }
-
-  const { openReviewModal } = modalContext
+    if (slug) {
+      fetchPropfirmData()
+    }
+  }, [slug])
 
   const handleOpenReviewModal = () => {
-    console.log("Opening review modal for:", companyName)
+    // Implement your modal opening logic here
+  }
 
-    // Only pass the properties that the modal accepts
-    openReviewModal({
-      companyName,
-      companyLogo,
-    })
-
-    // We don't pass propfirmId because the modal doesn't accept it
-    // The propfirmId will be used by ReviewList to fetch reviews
+  if (loading) {
+    return <div>Loading...</div>
   }
 
   return (
-    <div className="w-full">
+    <div>
+      {/* Other prop firm page content */}
+
+      {/* Reviews section */}
       <ReviewList
-        companyName={companyName}
-        companyLogo={companyLogo}
-        companySlug={companySlug}
-        propfirmId={resolvedPropfirmId}
         onOpenReviewModal={handleOpenReviewModal}
-        isLoading={isLoading}
+        companyName={propfirmData?.name || ""}
+        companySlug={slug}
+        propfirmId={propfirmData?.id || null}
+        companyLogo={propfirmData?.logo || ""}
       />
     </div>
   )
