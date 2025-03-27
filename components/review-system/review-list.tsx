@@ -309,8 +309,8 @@ export default function ReviewList({
               companyResponse: null,
               certificates: 0,
               firmCount: 0,
-              payoutStatus: review.received_payout ? "Yes" : "No",
-              fundedStatus: review.funded_status === "Yes" || review.funded_status === "true" || false,
+              payoutStatus: review.received_payout === "Yes" ? "Yes" : "No",
+              fundedStatus: review.funded_status === "Yes" ? "Yes" : "No",
               proofImages: review.proofs
                 ? typeof review.proofs === "string"
                   ? JSON.parse(review.proofs)

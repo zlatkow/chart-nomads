@@ -19,9 +19,7 @@ import {
   ArrowLeft,
   ArrowRight,
   Instagram,
-  Twitter,
   Youtube,
-  Globe,
   ChevronRight,
   Info,
   Check,
@@ -68,6 +66,7 @@ interface SocialLinks {
   tiktok?: string
 }
 
+// 1. Update the interface to change fundedStatus from boolean to string
 interface ReviewProps {
   id: string
   authorId: string
@@ -91,7 +90,7 @@ interface ReviewProps {
   certificates?: number
   firmCount?: number
   payoutStatus?: string
-  fundedStatus?: boolean
+  fundedStatus?: string // Changed from boolean to string
   proofImages?: ProofImage[]
   tradingStats?: {
     winRate?: number
@@ -270,7 +269,7 @@ export default function ReviewCard({
   certificates = 0,
   firmCount = 0,
   payoutStatus = "No",
-  fundedStatus = false,
+  fundedStatus = "No",
   proofImages = [],
   tradingStats = {},
   socialLinks = {},
@@ -517,7 +516,6 @@ export default function ReviewCard({
                   <FaTiktok className="h-4 w-4" />
                 </a>
               )}
-
             </div>
             <Button
               variant="ghost"
@@ -592,10 +590,14 @@ export default function ReviewCard({
             </div>
 
             <div className="grid grid-cols-2 gap-2 mt-2">
+              // 2. Update the StatusIndicator usage for fundedStatus
               <div className="bg-[#1a1a1a] rounded-md p-2">
                 <p className="text-xs text-gray-400 mb-1 text-center">Funded Status</p>
                 <div className="flex justify-center">
-                  <StatusIndicator isPositive={fundedStatus} label={fundedStatus ? "Funded" : "Not Funded"} />
+                  <StatusIndicator
+                    isPositive={fundedStatus === "Yes"}
+                    label={fundedStatus === "Yes" ? "Funded" : "Not Funded"}
+                  />
                 </div>
               </div>
               <div className="bg-[#1a1a1a] rounded-md p-2">
@@ -857,46 +859,46 @@ export default function ReviewCard({
 
                   {/* Social Icons */}
                   <div className="flex items-center justify-center gap-2 mt-2 w-full">
-                  {socialLinks.instagram && (
-                <a
-                  href={socialLinks.instagram}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-gray-400 hover:text-[#edb900]"
-                >
-                  <Instagram className="h-4 w-4" />
-                </a>
-              )}
-              {socialLinks.twitter && (
-                <a
-                  href={socialLinks.twitter}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-gray-400 hover:text-[#edb900]"
-                >
-                  <RiTwitterXFill className="h-4 w-4" />
-                </a>
-              )}
-              {socialLinks.youtube && (
-                <a
-                  href={socialLinks.youtube}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-gray-400 hover:text-[#edb900]"
-                >
-                  <Youtube className="h-4 w-4" />
-                </a>
-              )}
-              {socialLinks.tiktok && (
-                <a
-                  href={socialLinks.tiktok}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-gray-400 hover:text-[#edb900]"
-                >
-                  <FaTiktok className="h-4 w-4" />
-                </a>
-              )}
+                    {socialLinks.instagram && (
+                      <a
+                        href={socialLinks.instagram}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-gray-400 hover:text-[#edb900]"
+                      >
+                        <Instagram className="h-4 w-4" />
+                      </a>
+                    )}
+                    {socialLinks.twitter && (
+                      <a
+                        href={socialLinks.twitter}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-gray-400 hover:text-[#edb900]"
+                      >
+                        <RiTwitterXFill className="h-4 w-4" />
+                      </a>
+                    )}
+                    {socialLinks.youtube && (
+                      <a
+                        href={socialLinks.youtube}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-gray-400 hover:text-[#edb900]"
+                      >
+                        <Youtube className="h-4 w-4" />
+                      </a>
+                    )}
+                    {socialLinks.tiktok && (
+                      <a
+                        href={socialLinks.tiktok}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-gray-400 hover:text-[#edb900]"
+                      >
+                        <FaTiktok className="h-4 w-4" />
+                      </a>
+                    )}
                   </div>
                 </div>
 
