@@ -59,7 +59,6 @@ export default function ReviewSystem({
         let { data, error } = await supabase.from("propfirms").select("id").eq("slug", slugToUse).single()
 
         // If no exact match, try to find by normalized slug
-        // (This assumes you might have a normalized_slug column or similar)
         if (!data && error) {
           const normalizedSlug = slugToUse.toLowerCase().replace(/[^a-z0-9]+/g, "-")
           ;({ data, error } = await supabase.from("propfirms").select("id").eq("slug", normalizedSlug).single())
@@ -102,11 +101,14 @@ export default function ReviewSystem({
   const handleOpenReviewModal = () => {
     console.log("Opening review modal for:", companyName)
 
-    // Use object parameter structure instead of separate parameters
+    // Only pass the properties that the modal accepts
     openReviewModal({
       companyName,
-      companyLogo
+      companyLogo,
     })
+
+    // We don't pass propfirmId because the modal doesn't accept it
+    // The propfirmId will be used by ReviewList to fetch reviews
   }
 
   return (
