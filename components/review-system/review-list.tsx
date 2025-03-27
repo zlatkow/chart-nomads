@@ -95,7 +95,7 @@ export default function ReviewList({
   onOpenReviewModal,
   companyName = "CHART NOMADS",
   companySlug,
-  propfirmId,
+  propfirmId: externalPropfirmId,
   companyLogo,
   isLoading: externalLoading = false,
 }: ReviewListProps) {
@@ -108,21 +108,62 @@ export default function ReviewList({
   const router = useRouter()
   const dropdownRef = useRef<HTMLDivElement>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [propfirmId, setPropfirmId] = useState<number | null>(externalPropfirmId || null)
 
   const averageRating = calculateAverageRating(reviews)
   const ratingCounts = countRatingsByStars(reviews)
   const totalReviews = reviews.length
 
+  // Fetch propfirm ID if we have a slug but no ID
+  useEffect(() => {
+    // If we already have a propfirmId or no companySlug, skip this
+    if (propfirmId !== null || !companySlug) {
+      return
+    }
+
+    const fetchPropfirmId = async () => {
+      try {
+        console.log("Fetching propfirm ID for slug:", companySlug)
+
+        // Query the prop_firms table to get the ID for the given slug
+        const { data, error } = await supabase.from("prop_firms").select("id").eq("slug", companySlug).single()
+
+        if (error) {
+          console.error("Error fetching propfirm ID:", error)
+          return
+        }
+
+        if (data) {
+          console.log("Found propfirm ID:", data.id, "for slug:", companySlug)
+          setPropfirmId(data.id)
+        } else {
+          console.error("Could not find propfirm ID for slug:", companySlug)
+        }
+      } catch (error) {
+        console.error("Exception when fetching propfirm ID:", error)
+      }
+    }
+
+    fetchPropfirmId()
+  }, [companySlug, propfirmId])
+
+  // Update propfirmId if externalPropfirmId changes
+  useEffect(() => {
+    if (externalPropfirmId !== undefined && externalPropfirmId !== null) {
+      setPropfirmId(externalPropfirmId)
+    }
+  }, [externalPropfirmId])
+
   // Fetch reviews from Supabase
   useEffect(() => {
-    // If we're still loading the propfirmId, don't fetch reviews yet
+    // If we're still loading externally, don't fetch reviews yet
     if (externalLoading) {
       console.log("External loading is true, waiting...")
       return
     }
 
     // If propfirmId is undefined or null, don't fetch reviews
-    if (propfirmId === undefined || propfirmId === null) {
+    if (propfirmId === null) {
       console.log("propfirmId is null or undefined:", propfirmId)
       setIsLoading(false) // Important: Set loading to false even when there's no propfirmId
       return

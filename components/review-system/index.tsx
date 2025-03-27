@@ -56,17 +56,17 @@ export default function ReviewSystem({
         }
 
         // First try to find by exact slug match
-        let { data, error } = await supabase.from("propfirms").select("id").eq("slug", slugToUse).single()
+        let { data, error } = await supabase.from("prop_firms").select("id").eq("slug", slugToUse).single()
 
         // If no exact match, try to find by normalized slug
         if (!data && error) {
           const normalizedSlug = slugToUse.toLowerCase().replace(/[^a-z0-9]+/g, "-")
-          ;({ data, error } = await supabase.from("propfirms").select("id").eq("slug", normalizedSlug).single())
+          ;({ data, error } = await supabase.from("prop_firms").select("id").eq("slug", normalizedSlug).single())
 
           // If still no match, try a more flexible search
           if (!data && error) {
             ;({ data, error } = await supabase
-              .from("propfirms")
+              .from("prop_firms")
               .select("id")
               .ilike("name", `%${slugToUse.replace(/-/g, " ")}%`)
               .single())
