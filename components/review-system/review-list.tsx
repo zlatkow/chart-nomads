@@ -11,6 +11,7 @@ import { Star } from "lucide-react"
 import { SignedIn, SignedOut } from "@clerk/nextjs"
 import { useRouter } from "next/navigation"
 import { createClient } from "@supabase/supabase-js"
+import { getCountryCode } from "@/lib/utils/country-codes"
 
 // Add shimmer animation CSS
 const shimmerAnimation = `
@@ -209,7 +210,7 @@ export default function ReviewList({
                 const { data: user, error: userError } = await supabase
                   .from("users")
                   .select(
-                    "id, first_name, last_name, country, instagram_handle, x_handle, youtube_handle, tiktok_handle",
+                    "id, first_name, last_name, country, instagram_handle, x_handle, youtube_handle, tiktok_handle, country_code",
                   )
                   .eq("id", review.reviewer)
                   .single()
@@ -231,7 +232,7 @@ export default function ReviewList({
 
                   // Set location data if available
                   authorLocation = userData.country || ""
-                  authorCountryCode = (userData.country || "us").toLowerCase()
+                  authorCountryCode = userData.country_code || getCountryCode(userData.country)
 
                   // Add social links only if the handles exist
                   if (userData.instagram_handle) {
