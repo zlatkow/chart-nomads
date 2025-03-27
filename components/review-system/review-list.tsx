@@ -130,10 +130,11 @@ export default function ReviewList({
     const fetchReviews = async () => {
       try {
         // 1. Fetch reviews for the specific propfirm
+        // CHANGE: Using prop_firm instead of propfirm in the query
         const { data: reviewsData, error: reviewsError } = await supabase
           .from("propfirm_reviews")
           .select("*")
-          .eq("propfirm", propfirmId)
+          .eq("prop_firm", propfirmId)
 
         if (reviewsError) {
           console.error("Error fetching reviews:", reviewsError)
