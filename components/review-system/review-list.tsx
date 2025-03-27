@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Star } from "lucide-react"
 import { SignedIn, SignedOut } from "@clerk/nextjs"
 import { useRouter } from "next/navigation"
+import { createClient } from "@supabase/supabase-js"
 
 // Add shimmer animation CSS
 const shimmerAnimation = `
@@ -48,156 +49,24 @@ const shimmerAnimation = `
 }
 `
 
-// Sample data for demonstration
-const sampleReviews = [
-  {
-    id: "1",
-    authorId: "alex123",
-    authorName: "Alex Johnson",
-    authorAvatar: "/placeholder.svg?height=100&width=100",
-    authorLocation: "New York",
-    authorCountryCode: "us",
-    date: "March 15, 2025",
-    rating: 4.5,
-    content:
-      "I have had the opportunity to try out several prop firms, and I can confidently say that this is one of the best in the industry. Everything from the customer support, to the fast distribution of credentials, down to the trader friendly rules is worth commending. What's more, is the maximum and daily drawdown of every of their accounts is 10% and 5% which is a significant improvement to other firms' 8% and 4%.",
-    accountSize: "$10k",
-    accountType: "2 Step",
-    tradingDuration: "less than 1 month",
-    detailedRatings: [
-      { category: "Trading Conditions", value: 5 },
-      { category: "Dashboard/UX", value: 5 },
-      { category: "Customer Support", value: 5 },
-      { category: "Education & Community", value: 4 },
-      { category: "Inner processes", value: 4 },
-    ],
-    likedAspect:
-      "Aside the great customer support and platform, the maximum and daily drawdown of every of their accounts is 10% and 5% which is a significant improvement to other firms' 8% and 4%",
-    dislikedAspect:
-      "Nothing significant to mention, but the education section could be expanded with more advanced strategies.",
-    upvotes: 12,
-    hasUserUpvoted: false,
-    report: null,
-    companyResponse: {
-      responderName: "Sarah Miller",
-      position: "Customer Support Manager",
-      date: "March 16, 2025",
-      content:
-        "Thank you for your positive feedback, Alex! We're thrilled to hear that you're enjoying your experience with us. We work hard to provide the best possible conditions for our traders, and it's great to know that our efforts are appreciated. If you have any questions or need assistance in the future, please don't hesitate to reach out to our support team.",
-    },
-    certificates: 2,
-    firmCount: 3,
-    payoutStatus: "Yes",
-    fundedStatus: true,
-    proofImages: [
-      {
-        id: "proof1",
-        thumbnail: "/placeholder.svg?height=100&width=100",
-        fullImage: "/placeholder.svg?height=800&width=600",
-        caption: "Account Statement",
-      },
-      {
-        id: "proof2",
-        thumbnail: "/placeholder.svg?height=100&width=100",
-        fullImage: "/placeholder.svg?height=800&width=600",
-        caption: "Trading Dashboard",
-      },
-      {
-        id: "proof3",
-        thumbnail: "/placeholder.svg?height=100&width=100",
-        fullImage: "/placeholder.svg?height=800&width=600",
-        caption: "Payout Confirmation",
-      },
-    ],
-    tradingStats: {
-      winRate: 68,
-      avgWin: 2.3,
-      avgLoss: 1.1,
-      totalTrades: 124,
-      profitFactor: 2.1,
-    },
-    socialLinks: {
-      instagram: "https://instagram.com/alexjohnson",
-      twitter: "https://twitter.com/alexjohnson",
-      linkedin: "https://linkedin.com/in/alexjohnson",
-    },
-  },
-  {
-    id: "2",
-    authorId: "zaid456",
-    authorName: "Zaid",
-    authorAvatar: "/placeholder.svg?height=100&width=100",
-    authorLocation: "Jordan",
-    authorCountryCode: "jo",
-    date: "February 23, 2025",
-    rating: 1.0,
-    content:
-      "I regret to say that my experience has been highly disappointing. After successfully passing their evaluation process and managing a $400,000 funded account, my account was abruptly terminated under false accusations. They claimed that I engaged in 'latency arbitrage,' which is completely untrue. I have never used automated trading, arbitrage strategies, or any exploitative methods. My trading approach involves holding positions for several hours to days, adhering to standard market conditions and risk management.",
-    accountSize: "$400k",
-    accountType: "2 Steps",
-    tradingDuration: "3 months",
-    detailedRatings: [
-      { category: "User Friendliness", value: 1 },
-      { category: "Payout Process", value: 1 },
-      { category: "Customer Care", value: 1 },
-      { category: "Trading Conditions", value: 1 },
-    ],
-    likedAspect: "The initial evaluation process was straightforward and the platform was easy to use.",
-    dislikedAspect: "Fraudulent denials and poor communication when issues arise.",
-    upvotes: 2,
-    hasUserUpvoted: false,
-    report: {
-      reason: "Payout Denial",
-      description:
-        "I still haven't understood the reason, they quoted many things but only unclear answers come from them. Honestly it just feels like they had to breach to avoid keep paying out. I received two payouts from them, also never risked more than they allowed (2%) as they were saying on discord and never received any warning about risk or anything like that",
-      deniedAmount: "N/A",
-    },
-    companyResponse: null,
-    certificates: 1,
-    firmCount: 0,
-    payoutStatus: "No",
-    fundedStatus: false,
-    proofImages: [
-      {
-        id: "proof4",
-        thumbnail: "/placeholder.svg?height=100&width=100",
-        fullImage: "/placeholder.svg?height=800&width=600",
-        caption: "Account Termination Email",
-      },
-      {
-        id: "proof5",
-        thumbnail: "/placeholder.svg?height=100&width=100",
-        fullImage: "/placeholder.svg?height=800&width=600",
-        caption: "Trading History",
-      },
-    ],
-    tradingStats: {
-      winRate: 62,
-      avgWin: 1.8,
-      avgLoss: 1.5,
-      totalTrades: 87,
-      profitFactor: 1.2,
-    },
-    socialLinks: {
-      twitter: "https://twitter.com/zaid",
-      facebook: "https://facebook.com/zaid",
-    },
-  },
-]
+// Initialize Supabase client
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
+const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 // Calculate average rating
-const calculateAverageRating = (reviews: typeof sampleReviews) => {
+const calculateAverageRating = (reviews: any[]) => {
   if (reviews.length === 0) return 0
-  const sum = reviews.reduce((acc, review) => acc + review.rating, 0)
+  const sum = reviews.reduce((acc, review) => acc + (review.overall_rating || 0), 0)
   return sum / reviews.length
 }
 
 // Count ratings by star
-const countRatingsByStars = (reviews: typeof sampleReviews) => {
+const countRatingsByStars = (reviews: any[]) => {
   const counts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
 
   reviews.forEach((review) => {
-    const roundedRating = Math.round(review.rating)
+    const roundedRating = Math.round(review.overall_rating || 0)
     if (roundedRating >= 1 && roundedRating <= 5) {
       counts[roundedRating as keyof typeof counts]++
     }
@@ -206,14 +75,87 @@ const countRatingsByStars = (reviews: typeof sampleReviews) => {
   return counts
 }
 
+// Map database review to component format
+const mapReviewFromDatabase = (dbReview: any) => {
+  return {
+    id: dbReview.id,
+    authorId: dbReview.author_id,
+    authorName: dbReview.reviewer || "Anonymous",
+    authorAvatar: dbReview.author_avatar || "/placeholder.svg?height=100&width=100",
+    authorLocation: dbReview.author_location || "",
+    authorCountryCode: dbReview.author_country_code || "us",
+    date: new Date(dbReview.updated_on || dbReview.created_at).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }),
+    rating: dbReview.overall_rating || 0,
+    content: dbReview.content || "",
+    accountSize: dbReview.account_size || "",
+    accountType: dbReview.account_type || "",
+    tradingDuration: dbReview.trading_period || "",
+    detailedRatings: [
+      { category: "Trading Conditions", value: dbReview.trading_cond || 0 },
+      { category: "Dashboard/UX", value: dbReview.dashboard_ux || 0 },
+      { category: "Customer Support", value: dbReview.customer_exp || 0 },
+      { category: "Education & Community", value: dbReview.education_com || 0 },
+      { category: "Inner processes", value: dbReview.inner_process || 0 },
+    ].filter((rating) => rating.value > 0),
+    likedAspect: dbReview.most_liked_as || "",
+    dislikedAspect: dbReview.most_disliked || "",
+    upvotes: dbReview.upvotes || 0,
+    hasUserUpvoted: false,
+    report: dbReview.reported_issue
+      ? {
+          reason: "Payout Denial",
+          description: dbReview.reported_issue,
+          deniedAmount: "N/A",
+        }
+      : null,
+    companyResponse: dbReview.company_response
+      ? {
+          responderName: dbReview.responder_name || "Company Representative",
+          position: dbReview.responder_position || "Support Team",
+          date: new Date(dbReview.response_date || Date.now()).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          }),
+          content: dbReview.company_response,
+        }
+      : null,
+    certificates: dbReview.certificates || 0,
+    firmCount: dbReview.firm_count || 0,
+    payoutStatus: dbReview.received_pays ? "Yes" : "No",
+    fundedStatus: dbReview.funded_status || false,
+    proofImages: dbReview.proofs ? JSON.parse(dbReview.proofs) : [],
+    tradingStats: dbReview.trading_stats
+      ? JSON.parse(dbReview.trading_stats)
+      : {
+          winRate: 0,
+          avgWin: 0,
+          avgLoss: 0,
+          totalTrades: 0,
+          profitFactor: 0,
+        },
+    socialLinks: dbReview.social_links ? JSON.parse(dbReview.social_links) : {},
+  }
+}
+
 interface ReviewListProps {
   onOpenReviewModal: () => void
   companyName?: string
+  companySlug?: string
   companyLogo?: string
 }
 
-export default function ReviewList({ onOpenReviewModal, companyName = "CHART NOMADS", companyLogo }: ReviewListProps) {
-  const [reviews, setReviews] = useState(sampleReviews)
+export default function ReviewList({
+  onOpenReviewModal,
+  companyName = "CHART NOMADS",
+  companySlug,
+  companyLogo,
+}: ReviewListProps) {
+  const [reviews, setReviews] = useState<any[]>([])
   const [sortBy, setSortBy] = useState("newest")
   const [showReviewModal, setShowReviewModal] = useState(false)
   const [animateOnce, setAnimateOnce] = useState(true)
@@ -221,11 +163,50 @@ export default function ReviewList({ onOpenReviewModal, companyName = "CHART NOM
   const [showAuthMessage, setShowAuthMessage] = useState(false)
   const router = useRouter()
   const dropdownRef = useRef<HTMLDivElement>(null)
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
   const averageRating = calculateAverageRating(reviews)
   const ratingCounts = countRatingsByStars(reviews)
   const totalReviews = reviews.length
+
+  // Fetch reviews from Supabase
+  useEffect(() => {
+    async function fetchReviews() {
+      setIsLoading(true)
+
+      try {
+        // Fetch all reviews for the specific company
+        let query = supabase.from("propfirm_reviews").select("*")
+
+        // If companySlug is provided, filter by it
+        if (companySlug) {
+          query = query.eq("propfirm", companySlug)
+        } else if (companyName && companyName !== "CHART NOMADS") {
+          // Try to match by company name if slug is not provided
+          query = query.ilike("propfirm", `%${companyName}%`)
+        }
+
+        // Execute the query
+        const { data, error } = await query
+
+        if (error) {
+          console.error("Error fetching reviews:", error)
+          setReviews([])
+        } else {
+          // Map the database reviews to the component format
+          const mappedReviews = data.map(mapReviewFromDatabase)
+          setReviews(mappedReviews)
+        }
+      } catch (error) {
+        console.error("Error in fetchReviews:", error)
+        setReviews([])
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchReviews()
+  }, [companyName, companySlug])
 
   // Calculate percentages
   const calculatePercentages = () => {
@@ -259,7 +240,7 @@ export default function ReviewList({ onOpenReviewModal, companyName = "CHART NOM
     }, 100)
 
     return () => clearTimeout(timer)
-  }, []) // Empty dependency array ensures this only runs once on mount
+  }, [reviews]) // Update when reviews change
 
   // Update bar widths when reviews change (without animation)
   useEffect(() => {
@@ -295,19 +276,8 @@ export default function ReviewList({ onOpenReviewModal, companyName = "CHART NOM
     }
   }, [])
 
-  // Simulate loading for demonstration purposes
-  useEffect(() => {
-    setIsLoading(true)
-    const timer = setTimeout(() => {
-      setIsLoading(false)
-    }, 2000)
-
-    return () => clearTimeout(timer)
-  }, [])
-
   const handleSort = (value: string) => {
     setSortBy(value)
-    // In a real app, you would sort the reviews based on the selected value
     const sortedReviews = [...reviews]
 
     if (value === "newest") {
@@ -492,11 +462,16 @@ export default function ReviewList({ onOpenReviewModal, companyName = "CHART NOM
               </div>
             ))}
         </div>
-      ) : (
+      ) : reviews.length > 0 ? (
         <div className="space-y-6">
           {reviews.map((review) => (
             <ReviewCard key={review.id} {...review} />
           ))}
+        </div>
+      ) : (
+        <div className="text-center py-10">
+          <p className="text-gray-400">No reviews found for {companyName}.</p>
+          <p className="text-gray-500 mt-2">Be the first to leave a review!</p>
         </div>
       )}
 
