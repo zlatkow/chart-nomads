@@ -5,7 +5,6 @@ import type React from "react"
 
 import { useState, useEffect, useRef } from "react"
 import ReviewCard from "./review-card"
-import ReviewModal from "./review-modal"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import { Star } from "lucide-react"
@@ -75,70 +74,62 @@ const countRatingsByStars = (reviews: any[]) => {
   return counts
 }
 
-// Map database review to component format
+// Map database review to component format using the exact column names
 const mapReviewFromDatabase = (dbReview: any) => {
   return {
     id: dbReview.id,
-    authorId: dbReview.author_id,
+    authorId: dbReview.author_id || "",
     authorName: dbReview.reviewer || "Anonymous",
-    authorAvatar: dbReview.author_avatar || "/placeholder.svg?height=100&width=100",
-    authorLocation: dbReview.author_location || "",
-    authorCountryCode: dbReview.author_country_code || "us",
-    date: new Date(dbReview.updated_on || dbReview.created_at).toLocaleDateString("en-US", {
+    authorAvatar: "/placeholder.svg?height=100&width=100", // Default avatar
+    authorLocation: "",
+    authorCountryCode: "us",
+    date: new Date(dbReview.updated_on || new Date()).toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",
     }),
     rating: dbReview.overall_rating || 0,
-    content: dbReview.content || "",
+    content: dbReview.detailed_review || "",
     accountSize: dbReview.account_size || "",
     accountType: dbReview.account_type || "",
     tradingDuration: dbReview.trading_period || "",
     detailedRatings: [
-      { category: "Trading Conditions", value: dbReview.trading_cond || 0 },
-      { category: "Dashboard/UX", value: dbReview.dashboard_ux || 0 },
-      { category: "Customer Support", value: dbReview.customer_exp || 0 },
-      { category: "Education & Community", value: dbReview.education_com || 0 },
-      { category: "Inner processes", value: dbReview.inner_process || 0 },
+      { category: "Trading Conditions", value: dbReview.trading_conditions_rating || 0 },
+      { category: "Dashboard/UX", value: dbReview.dashboard_ux_rating || 0 },
+      { category: "Customer Support", value: dbReview.customer_support_rating || 0 },
+      { category: "Education & Community", value: dbReview.education_community_rating || 0 },
+      { category: "Inner processes", value: dbReview.inner_processes_rating || 0 },
     ].filter((rating) => rating.value > 0),
-    likedAspect: dbReview.most_liked_as || "",
-    dislikedAspect: dbReview.most_disliked || "",
-    upvotes: dbReview.upvotes || 0,
+    likedAspect: dbReview.most_liked_aspect || "",
+    dislikedAspect: dbReview.most_disliked_aspect || "",
+    upvotes: 0,
     hasUserUpvoted: false,
-    report: dbReview.reported_issue
+    // Simplified - no report or company response for now
+    report: dbReview.reported_issues
       ? {
           reason: "Payout Denial",
-          description: dbReview.reported_issue,
+          description: dbReview.reported_issues || "No details provided",
           deniedAmount: "N/A",
         }
       : null,
-    companyResponse: dbReview.company_response
-      ? {
-          responderName: dbReview.responder_name || "Company Representative",
-          position: dbReview.responder_position || "Support Team",
-          date: new Date(dbReview.response_date || Date.now()).toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          }),
-          content: dbReview.company_response,
-        }
-      : null,
-    certificates: dbReview.certificates || 0,
-    firmCount: dbReview.firm_count || 0,
-    payoutStatus: dbReview.received_pays ? "Yes" : "No",
-    fundedStatus: dbReview.funded_status || false,
-    proofImages: dbReview.proofs ? JSON.parse(dbReview.proofs) : [],
-    tradingStats: dbReview.trading_stats
-      ? JSON.parse(dbReview.trading_stats)
-      : {
-          winRate: 0,
-          avgWin: 0,
-          avgLoss: 0,
-          totalTrades: 0,
-          profitFactor: 0,
-        },
-    socialLinks: dbReview.social_links ? JSON.parse(dbReview.social_links) : {},
+    companyResponse: null, // Not implemented yet
+    certificates: 0,
+    firmCount: 0,
+    payoutStatus: dbReview.received_payout ? "Yes" : "No",
+    fundedStatus: dbReview.funded_status === "Yes" || dbReview.funded_status === "true" || false,
+    proofImages: dbReview.proofs
+      ? typeof dbReview.proofs === "string"
+        ? JSON.parse(dbReview.proofs)
+        : dbReview.proofs
+      : [],
+    tradingStats: {
+      winRate: 0,
+      avgWin: 0,
+      avgLoss: 0,
+      totalTrades: 0,
+      profitFactor: 0,
+    },
+    socialLinks: {},
   }
 }
 
@@ -146,6 +137,7 @@ interface ReviewListProps {
   onOpenReviewModal: () => void
   companyName?: string
   companySlug?: string
+  propfirmId?: number | null
   companyLogo?: string
 }
 
@@ -153,6 +145,7 @@ export default function ReviewList({
   onOpenReviewModal,
   companyName = "CHART NOMADS",
   companySlug,
+  propfirmId,
   companyLogo,
 }: ReviewListProps) {
   const [reviews, setReviews] = useState<any[]>([])
@@ -175,15 +168,11 @@ export default function ReviewList({
       setIsLoading(true)
 
       try {
-        // Fetch all reviews for the specific company
+        // Fetch all reviews for the specific company if we have an ID
         let query = supabase.from("propfirm_reviews").select("*")
 
-        // If companySlug is provided, filter by it
-        if (companySlug) {
-          query = query.eq("propfirm", companySlug)
-        } else if (companyName && companyName !== "CHART NOMADS") {
-          // Try to match by company name if slug is not provided
-          query = query.ilike("propfirm", `%${companyName}%`)
+        if (propfirmId !== null && propfirmId !== undefined) {
+          query = query.eq("propfirm", propfirmId)
         }
 
         // Execute the query
@@ -206,7 +195,7 @@ export default function ReviewList({
     }
 
     fetchReviews()
-  }, [companyName, companySlug])
+  }, [propfirmId])
 
   // Calculate percentages
   const calculatePercentages = () => {
@@ -474,16 +463,6 @@ export default function ReviewList({
           <p className="text-gray-500 mt-2">Be the first to leave a review!</p>
         </div>
       )}
-
-      {/* Review Modal - Only rendered for signed-in users */}
-      <SignedIn>
-        <ReviewModal
-          isOpen={showReviewModal}
-          onClose={() => setShowReviewModal(false)}
-          companyName={companyName}
-          companyLogo={companyLogo}
-        />
-      </SignedIn>
     </div>
   )
 }
