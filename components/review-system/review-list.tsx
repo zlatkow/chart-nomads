@@ -83,6 +83,14 @@ interface ReviewListProps {
   isLoading?: boolean
 }
 
+// Define the social links interface
+interface SocialLinks {
+  instagram?: string
+  twitter?: string
+  youtube?: string
+  tiktok?: string
+}
+
 export default function ReviewList({
   onOpenReviewModal,
   companyName = "CHART NOMADS",
@@ -140,7 +148,7 @@ export default function ReviewList({
             // 2. For each review, fetch the user data using the reviewer ID
             let userData = null
             let authorName = "Anonymous"
-            let socialLinks = {}
+            const socialLinks: SocialLinks = {}
             let authorLocation = ""
             let authorCountryCode = "us"
 
@@ -172,13 +180,19 @@ export default function ReviewList({
                   authorLocation = userData.country || ""
                   authorCountryCode = (userData.country || "us").toLowerCase()
 
-                  // Create social links object with only the handles that exist
-                  socialLinks = {}
-                  if (userData.instagram_handle)
+                  // Add social links only if the handles exist
+                  if (userData.instagram_handle) {
                     socialLinks.instagram = `https://instagram.com/${userData.instagram_handle}`
-                  if (userData.x_handle) socialLinks.twitter = `https://x.com/${userData.x_handle}`
-                  if (userData.youtube_handle) socialLinks.youtube = `https://youtube.com/@${userData.youtube_handle}`
-                  if (userData.tiktok_handle) socialLinks.tiktok = `https://tiktok.com/@${userData.tiktok_handle}`
+                  }
+                  if (userData.x_handle) {
+                    socialLinks.twitter = `https://x.com/${userData.x_handle}`
+                  }
+                  if (userData.youtube_handle) {
+                    socialLinks.youtube = `https://youtube.com/@${userData.youtube_handle}`
+                  }
+                  if (userData.tiktok_handle) {
+                    socialLinks.tiktok = `https://tiktok.com/@${userData.tiktok_handle}`
+                  }
                 } else {
                   // Fallback to formatted user ID if user data fetch fails
                   authorName = review.reviewer.replace("user_", "User ")
