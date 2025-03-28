@@ -37,7 +37,7 @@ export default function UpvoteButton({
     const checkUserUpvote = async () => {
       try {
         const { data, error } = await supabase
-          .from("review_upvotes")
+          .from("propfirm_review_votes")
           .select("id")
           .eq("review_id", reviewId)
           .eq("user_id", user.id)
@@ -96,7 +96,7 @@ export default function UpvoteButton({
       if (isUpvoted) {
         // Remove upvote
         const { error } = await supabase
-          .from("review_upvotes")
+          .from("propfirm_review_votes")
           .delete()
           .eq("review_id", reviewId)
           .eq("user_id", user.id)
@@ -110,7 +110,7 @@ export default function UpvoteButton({
         setUpvoteCount((prev) => Math.max(0, prev - 1))
       } else {
         // Add upvote
-        const { error } = await supabase.from("review_upvotes").insert({
+        const { error } = await supabase.from("propfirm_review_votes").insert({
           review_id: reviewId,
           user_id: user.id,
         })
