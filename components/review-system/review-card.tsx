@@ -1,8 +1,6 @@
 /* eslint-disable */
 "use client"
 
-"use client"
-
 import { useState, useEffect, useRef } from "react"
 import { createPortal } from "react-dom"
 import Image from "next/image"
@@ -29,7 +27,9 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { FaTiktok } from "react-icons/fa"
 import { RiTwitterXFill } from "react-icons/ri"
-import { useSupabaseClient } from "@supabase/auth-helpers-react"
+
+// Add this import instead
+import { createClient } from "@supabase/supabase-js"
 
 // Add the useNoise import at the top of the file
 import { useNoise } from "../../components/providers/noise-provider"
@@ -567,7 +567,19 @@ export default function ReviewCard({
   }, [showFullscreenGallery])
 
   // Add this useEffect to fetch reviewer profile data and previous reviews
-  const { supabase } = useSupabaseClient()
+  // Replace the line that imports supabase directly
+  // import { supabase } from "@/supabaseClient"
+
+  // With this line that uses the hook you already have
+  // import { useSupabaseClient } from '@supabase/auth-helpers-react'
+
+  // And update the useEffect that fetches reviewer profile data
+  // Replace the useSupabaseClient hook with a direct client initialization
+  // const supabaseClient = useSupabaseClient();
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
+  const supabaseClient = createClient(supabaseUrl, supabaseAnonKey)
+
   useEffect(() => {
     // Only fetch if we have a valid authorId and the sidebar is being opened
     if (!authorId || !showProfileSidebar) return
@@ -576,7 +588,7 @@ export default function ReviewCard({
       setIsLoadingProfile(true)
       try {
         // 1. Fetch user profile data
-        const { data: userData, error: userError } = await supabase
+        const { data: userData, error: userError } = await supabaseClient
           .from("users")
           .select("member_since, total_reviews, funded_accounts_count, payouts_count")
           .eq("id", authorId)
@@ -585,9 +597,9 @@ export default function ReviewCard({
         if (userError) {
           console.error("Error fetching user profile data:", userError)
         } else if (userData) {
-          // Format the member_since date
+          // Format the member_since date to only show month and year
           const memberSince = userData.member_since
-            ? new Date(userData.member_since).toLocaleDateString("en-US", { month: "short", year: "numeric" })
+            ? new Date(userData.member_since).toLocaleDateString("en-US", { month: "long", year: "numeric" })
             : "Unknown"
 
           setReviewerStats({
@@ -600,40 +612,29 @@ export default function ReviewCard({
         }
 
         // 2. Fetch user's previous reviews
-        const { data: reviewsData, error: reviewsError } = await supabase
+        const { data: reviewsData, error: reviewsError } = await supabaseClient
           .from("propfirm_reviews")
           .select(`
-            id,
-            overall_rating,
-            detailed_review,
-            created_at,
-            account_size,
-            funded_status,
-            received_payout,
-            prop_firm(id, name, slug)
-          `)
+          id,
+          overall_rating,
+          detailed_review,
+          created_at,
+          account_size,
+          funded_status,
+          received_payout,
+          prop_firm(propfirm_name)
+        `)
           .eq("reviewer", authorId)
           .order("created_at", { ascending: false })
-          .limit(10)
+          .limit(3)
 
         if (reviewsError) {
           console.error("Error fetching user reviews:", reviewsError)
         } else if (reviewsData && reviewsData.length > 0) {
-          // Calculate average rating
-          const totalRating = reviewsData.reduce((sum, review) => sum + (review.overall_rating || 0), 0)
-          const avgRating = reviewsData.length > 0 ? totalRating / reviewsData.length : 0
-
-          // Update reviewer stats with calculated average rating
-          setReviewerStats((prev) => ({
-            ...prev,
-            averageRating: avgRating,
-          }))
-
-          // Process reviews
+          // Process reviews with minimal data
           const processedReviews = reviewsData.map((review) => ({
             id: review.id,
-            companyName: review.prop_firm?.name || "Unknown Company",
-            companySlug: review.prop_firm?.slug || "",
+            companyName: review.prop_firm?.propfirm_name || "Unknown Company",
             date: new Date(review.created_at).toLocaleDateString("en-US", {
               year: "numeric",
               month: "short",
@@ -658,7 +659,7 @@ export default function ReviewCard({
     }
 
     fetchReviewerProfile()
-  }, [authorId, showProfileSidebar, supabase])
+  }, [authorId, showProfileSidebar])
 
   return (
     <>

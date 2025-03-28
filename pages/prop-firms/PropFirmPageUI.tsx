@@ -1,1255 +1,859 @@
 /* eslint-disable */
 "use client"
-
-"use client"
-
-import { useState, useEffect, useRef } from "react"
-import { createPortal } from "react-dom"
+import type { SupabaseClient } from "@supabase/supabase-js"
+import { useState, useEffect, useContext } from "react"
+import Link from "next/link"
+import { supabase } from "../../lib/supabase"
 import Image from "next/image"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import {
-  ThumbsUp,
-  Flag,
-  Calendar,
-  MessageSquare,
-  AlertCircle,
-  X,
-  ArrowLeft,
-  ArrowRight,
+  Facebook,
+  Twitter,
   Instagram,
+  Linkedin,
   Youtube,
-  ChevronRight,
-  Info,
-  Check,
+  BarChart2,
+  DollarSign,
+  Award,
+  FileText,
+  MessageSquare,
+  ExternalLink,
+  Newspaper,
+  ListTree,
+  Star,
 } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { FaTiktok } from "react-icons/fa"
-import { RiTwitterXFill } from "react-icons/ri"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Progress } from "@/components/ui/progress"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faStar as solidStar } from "@fortawesome/free-solid-svg-icons"
+import { faHeart as solidHeart } from "@fortawesome/free-solid-svg-icons"
+import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons"
+import Tippy from "@tippyjs/react"
+import "tippy.js/dist/tippy.css" // Default tooltip styles
+import { SignedIn, SignedOut, useUser } from "@clerk/nextjs"
+import Navbar from "../../components/Navbar"
+import Noise from "../../components/Noise"
+import Testimonials from "../../components/Testimonials"
+import Community from "../../components/Community"
+import Newsletter from "../../components/Newsletter"
+import Offers from "../../components/Offers"
+import Footer from "../../components/Footer"
+import CommentSection from "../../components/comment-section"
+import ReviewSystem from "../../components/review-system"
 
-// Add this import instead
-import { createClient } from "@supabase/supabase-js"
-
-// Add the useNoise import at the top of the file
+// Import the NoiseProvider
 import { useNoise } from "../../components/providers/noise-provider"
+import { ModalContext } from "../../pages/_app"
 
-// Define types for our review data
-interface ReviewRating {
-  category: string
-  value: number
-}
-
-interface ReviewReport {
-  reason: string
-  description: string
-  deniedAmount?: string
-}
-
-interface CompanyResponse {
-  responderName: string
-  position: string
-  date: string
-  content: string
-}
-
-// Updated ProofImage interface to match the actual data structure
-interface ProofImage {
-  id?: string
-  url: string
-  label: string
-}
-
-interface SocialLinks {
-  instagram?: string
-  twitter?: string
-  youtube?: string
-  tiktok?: string
-}
-
-// 1. Update the interface to change fundedStatus from boolean to string
-interface ReviewProps {
-  id: string
-  authorId: string
-  authorName: string
-  authorAvatar?: string
-  authorLocation?: string
-  authorCountryCode?: string
-  date: string
-  rating: number
-  content: string
-  accountSize: string
-  accountType: string
-  tradingDuration: string
-  detailedRatings: ReviewRating[]
-  likedAspect?: string
-  dislikedAspect?: string
-  upvotes: number
-  hasUserUpvoted?: boolean
-  report?: ReviewReport
-  companyResponse?: CompanyResponse
-  certificates?: number
-  firmCount?: number
-  payoutStatus?: string
-  fundedStatus?: string // Changed from boolean to string
-  proofImages?: ProofImage[] | Record<string, string> | any
-  tradingStats?: {
-    winRate?: number
-    avgWin?: number
-    avgLoss?: number
-    totalTrades?: number
-    profitFactor?: number
+// Define types for the firm and rating data
+interface Firm {
+    id: number
+    propfirm_name: string
+    logo_url?: string
+    category?: string
+    rating?: number
+    reviews_count?: number
+    likes_count?: number
+    social_links?: {
+      facebook?: string
+      twitter?: string
+      instagram?: string
+      linkedin?: string
+      youtube?: string
+    }
+    ceo?: string
+    established?: string
+    country?: string
+    website?: string
+    broker?: string
+    platform?: string
+    platform_details?: string
+    instruments?: string[]
+    leverage?: Record<string, string>
   }
-  socialLinks?: SocialLinks
-}
-
-// Replace the static sample data with state variables
-// Remove these static sample data objects:
-
-// Add these state variables inside the ReviewCard component, after the existing state variables:
-
-// Sample data for the reviewer profile sidebar
-// Remove these static sample data objects:
-// const sampleReviewerStats = {
-//   totalReviews: 8,
-//   averageRating: 3.7,
-//   fundedAccounts: 3,
-//   receivedPayouts: 2,
-//   joinedDate: "Jan 2024",
-// }
-
-// const samplePreviousReviews = [
-//   {
-//     id: "prev1",
-//     companyName: "Alpha Trading",
-//     date: "Feb 15, 2025",
-//     rating: 4.5,
-//     content: "Great experience with Alpha Trading. The platform is intuitive and the support team is responsive.",
-//     accountSize: "$25k",
-//     fundedStatus: true,
-//     payoutStatus: "Yes",
-//   },
-//   {
-//     id: "prev2",
-//     companyName: "Beta Funds",
-//     date: "Jan 10, 2025",
-//     rating: 3.0,
-//     content: "Average experience. The platform works well but the rules are quite strict compared to other firms.",
-//     accountSize: "$50k",
-//     fundedStatus: true,
-//     payoutStatus: "Yes",
-//   },
-//   {
-//     id: "prev3",
-//     companyName: "Gamma Capital",
-//     date: "Dec 5, 2024",
-//     rating: 2.0,
-//     content: "Disappointing experience. The platform had technical issues and support was slow to respond.",
-//     accountSize: "$100k",
-//     fundedStatus: false,
-//     payoutStatus: "No",
-//   },
-// ]
-
-// Completely revised navbar handling function that also manages background color
-const adjustNavbar = (lower: boolean) => {
-  if (typeof document === "undefined") return
-
-  // Target all possible navbar elements
-  const navbarSelectors = [
-    "nav",
-    "header",
-    ".navbar",
-    '[class*="navbar"]',
-    '[id*="navbar"]',
-    '[class*="header"]',
-    '[id*="header"]',
-  ]
-
-  navbarSelectors.forEach((selector) => {
-    const elements = document.querySelectorAll(selector)
-    elements.forEach((el) => {
-      const htmlEl = el as HTMLElement
-      if (lower) {
-        // Store the original z-index and background if we haven't already
-        if (!htmlEl.getAttribute("data-original-zindex")) {
-          htmlEl.setAttribute("data-original-zindex", htmlEl.style.zIndex || "")
-          htmlEl.setAttribute("data-original-bg", htmlEl.style.backgroundColor || "")
-
-          // Force the background to be solid black during the transition
-          htmlEl.style.backgroundColor = "#0f0f0f"
-          htmlEl.style.zIndex = "10"
+  
+  interface RatingBreakdown {
+    five_star: number
+    four_star: number
+    three_star: number
+    two_star: number
+    one_star: number
+  }
+  
+  interface PropFirmUIProps {
+    firm: Firm | null
+    ratingBreakdown: RatingBreakdown | null
+    formatCurrency: (amount: number, currency?: string) => string
+  }
+  
+  interface OffersProps {
+    firmId: number | null
+    supabase: SupabaseClient
+    hideCompanyCard: boolean
+    onLoginModalOpen: () => void
+    showTabs: boolean
+  }
+  
+  function PropFirmUI({ firm, ratingBreakdown, formatCurrency }: PropFirmUIProps) {
+    console.log("PropFirmUI received firm:", firm)
+    console.log("PropFirmUI received ratingBreakdown:", ratingBreakdown)
+    const [liked, setLiked] = useState(false)
+    const [likeCount, setLikeCount] = useState(firm && firm.likes_count ? firm.likes_count : 91)
+    const { user } = useUser()
+    const [userLikedFirms, setUserLikedFirms] = useState(new Set())
+    const [loadingLikes, setLoadingLikes] = useState(true)
+    const [mainRules, setMainRules] = useState(null)
+    const [changeLogs, setChangeLogs] = useState([])
+    const [rulesActiveTab, setRulesActiveTab] = useState("main-rules")
+    const [rulesLoading, setRulesLoading] = useState(true)
+    const [bannedCountries, setBannedCountries] = useState(null)
+  
+    // Get the noise context
+    const { isNoiseVisible } = useNoise()
+  
+    // Get the modal context
+    const modalContext = useContext(ModalContext)
+  
+    // Check if the context is available
+    if (!modalContext) {
+      console.error("ModalContext is not available in PropFirmUI")
+    }
+  
+    const { setShowLoginModal } = modalContext || {
+      setShowLoginModal: () => console.error("setShowLoginModal not available"),
+    }
+  
+    // Memoize the firmId to prevent it from changing on every render
+    const firmId = firm?.id || null
+  
+    useEffect(() => {
+      if (!user) {
+        console.warn("🚨 No user found! Skipping fetch for liked companies.")
+        setLoadingLikes(false)
+        return
+      }
+  
+      console.log("🟡 Fetching liked companies for user:", user.id)
+  
+      const fetchLikedFirms = async () => {
+        const { data, error } = await supabase.from("user_likes").select("firm_id").eq("user_id", user.id)
+  
+        if (error) {
+          console.error("❌ Error fetching liked firms:", error)
+          setLoadingLikes(false)
+          return
         }
-      } else {
-        // Restore the original z-index and background
-        const originalZIndex = htmlEl.getAttribute("data-original-zindex")
-        const originalBg = htmlEl.getAttribute("data-original-bg")
-
-        if (originalZIndex !== null) {
-          htmlEl.style.zIndex = originalZIndex
-        } else {
-          htmlEl.style.zIndex = "100" // Default fallback
-        }
-
-        if (originalBg !== null && originalBg !== "") {
-          htmlEl.style.backgroundColor = originalBg
-        }
-
-        // Remove the data attributes to ensure clean state for next time
-        htmlEl.removeAttribute("data-original-zindex")
-        htmlEl.removeAttribute("data-original-bg")
+  
+        console.log("✅ Fetched liked firms:", data)
+  
+        // ✅ Ensure firm IDs are stored as numbers to match the state type
+        const likedFirmIds = new Set(data.map((entry) => Number(entry.firm_id)))
+  
+        setUserLikedFirms(likedFirmIds)
+        setLoadingLikes(false) // ✅ Mark loading as false
       }
-    })
-  })
-}
-
-// New function to only adjust navbar z-index
-const adjustNavbarZIndex = (lower: boolean) => {
-  if (typeof document === "undefined") return
-
-  // Target all possible navbar elements
-  const navbarSelectors = [
-    "nav",
-    "header",
-    ".navbar",
-    '[class*="navbar"]',
-    '[id*="navbar"]',
-    '[class*="header"]',
-    '[id*="header"]',
-  ]
-
-  navbarSelectors.forEach((selector) => {
-    const elements = document.querySelectorAll(selector)
-    elements.forEach((el) => {
-      const htmlEl = el as HTMLElement
-      if (lower) {
-        htmlEl.style.zIndex = "10"
-      } else {
-        const originalZIndex = htmlEl.getAttribute("data-original-zindex")
-        htmlEl.style.zIndex = originalZIndex || "100" // Default fallback
-      }
-    })
-  })
-}
-
-// Add this function to check if we're in the browser
-const isBrowser = () => typeof window !== "undefined"
-
-// Status indicator component for funded and payout status
-const StatusIndicator = ({ isPositive, label }: { isPositive: boolean; label: string }) => {
-  return (
-    <div className="flex items-center gap-2">
-      <div
-        className={cn(
-          "flex items-center justify-center rounded-full w-6 h-6",
-          isPositive ? "bg-green-500/20" : "bg-red-500/20",
-        )}
-      >
-        {isPositive ? <Check className="h-4 w-4 text-green-500" /> : <X className="h-4 w-4 text-red-500" />}
-      </div>
-      <span className={cn("font-medium", isPositive ? "text-green-500" : "text-red-500")}>{label}</span>
-    </div>
-  )
-}
-
-// Function to process proof images from different formats
-const processProofImages = (proofImages: any): ProofImage[] => {
-  if (!proofImages) return []
-
-  // If it's already an array of ProofImage objects, return it
-  if (Array.isArray(proofImages) && proofImages.length > 0 && typeof proofImages[0] === "object") {
-    return proofImages
-  }
-
-  // If it's a string (JSON), try to parse it
-  if (typeof proofImages === "string") {
-    try {
-      const parsed = JSON.parse(proofImages)
-      return processProofImages(parsed)
-    } catch (e) {
-      console.error("Failed to parse proof images string:", e)
-      return []
-    }
-  }
-
-  // If it's an object with URLs as values (like {proof_of_funding: "url1", proof_of_purchase: "url2"})
-  if (typeof proofImages === "object" && proofImages !== null && !Array.isArray(proofImages)) {
-    return Object.entries(proofImages).map(([key, value], index) => ({
-      id: `proof-${index}`,
-      url: value as string,
-      label: key
-        .replace(/_/g, " ")
-        .replace(/of/g, "of ")
-        .split(" ")
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(" "),
-    }))
-  }
-
-  return []
-}
-
-// In the ReviewCard component, add the useNoise hook
-export default function ReviewCard({
-  id,
-  authorId = "user123",
-  authorName,
-  authorAvatar,
-  authorLocation,
-  authorCountryCode = "us",
-  date,
-  rating,
-  content,
-  accountSize,
-  accountType,
-  tradingDuration,
-  detailedRatings,
-  likedAspect = "Not specified",
-  dislikedAspect = "Not specified",
-  upvotes,
-  hasUserUpvoted = false,
-  report,
-  companyResponse,
-  certificates = 0,
-  firmCount = 0,
-  payoutStatus = "No",
-  fundedStatus = "No",
-  proofImages = [],
-  tradingStats = {},
-  socialLinks = {},
-}: ReviewProps) {
-  // Process proof images
-  const [processedProofImages, setProcessedProofImages] = useState<ProofImage[]>([])
-
-  // Add this state variable near the top of your component, with the other state variables
-  const [profileImage, setProfileImage] = useState<string | null>(authorAvatar || null)
-  // Add the useNoise hook to control noise visibility
-  const { hideNoise, showNoise } = useNoise()
-
-  const [isUpvoted, setIsUpvoted] = useState(hasUserUpvoted)
-  const [upvoteCount, setUpvoteCount] = useState(upvotes)
-  const [currentImageIndex, setCurrentImageIndex] = useState(0)
-  const [showFullscreenGallery, setShowFullscreenGallery] = useState(false)
-  const [showProfileSidebar, setShowProfileSidebar] = useState(false)
-  const [sidebarVisible, setSidebarVisible] = useState(false)
-  const [backdropVisible, setBackdropVisible] = useState(false)
-  const [isClosing, setIsClosing] = useState(false)
-
-  // Add these state variables inside the ReviewCard component, after the existing state variables:
-  const [reviewerStats, setReviewerStats] = useState({
-    totalReviews: 0,
-    averageRating: 0,
-    fundedAccounts: 0,
-    receivedPayouts: 0,
-    joinedDate: "",
-  })
-  const [previousReviews, setPreviousReviews] = useState<any[]>([])
-  const [isLoadingProfile, setIsLoadingProfile] = useState(false)
-
-  // Reference to the sidebar element for animation
-  const sidebarRef = useRef<HTMLDivElement>(null)
-
-  // Process proof images when the component mounts or proofImages changes
-  useEffect(() => {
-    setProcessedProofImages(processProofImages(proofImages))
-  }, [proofImages])
-
-  // Add this useEffect to fetch the profile image if needed
-  useEffect(() => {
-    // If we already have an avatar and it's not the placeholder, don't fetch again
-    if (authorAvatar && !authorAvatar.includes("placeholder.svg")) {
-      return
-    }
-
-    // Only try to fetch if authorId is a Clerk user ID
-    if (authorId && authorId.startsWith("user_")) {
-      // Create a flag to handle component unmounting
-      let isMounted = true
-
-      const fetchProfileImage = async () => {
-        try {
-          const response = await fetch(`/api/user-profile?userId=${authorId}`)
-
-          if (!response.ok) {
-            throw new Error(`Failed to fetch profile: ${response.status}`)
-          }
-
-          const data = await response.json()
-
-          // Only update state if component is still mounted
-          if (isMounted && data.profileImageUrl) {
-            // Update the avatar image with the one from Clerk
-            setProfileImage(data.profileImageUrl)
-            console.log("Updated profile image for:", authorId)
-          }
-        } catch (error) {
-          console.error("Error fetching Clerk profile image:", error)
-        }
-      }
-
-      fetchProfileImage()
-
-      // Cleanup function to prevent state updates on unmounted component
-      return () => {
-        isMounted = false
-      }
-    }
-  }, [authorId, authorAvatar])
-
-  // Force noise to be hidden when sidebar or gallery is open
-  useEffect(() => {
-    if (showProfileSidebar || showFullscreenGallery || isClosing) {
-      // Force noise to be hidden in these states
-      hideNoise()
-    } else {
-      // Only show noise when everything is fully closed
-      showNoise()
-    }
-  }, [showProfileSidebar, showFullscreenGallery, isClosing, hideNoise, showNoise])
-
-  // Handle animation states
-  useEffect(() => {
-    if (showProfileSidebar) {
-      // First show the backdrop
-      setBackdropVisible(true)
-      // Then after a small delay, slide in the sidebar
-      setTimeout(() => {
-        setSidebarVisible(true)
-      }, 50)
-    }
-    // We'll handle the closing animation in the closeProfileSidebar function
-  }, [showProfileSidebar])
-
-  const handleUpvote = () => {
-    if (isUpvoted) {
-      setUpvoteCount((prev) => prev - 1)
-      setIsUpvoted(false)
-    } else {
-      setUpvoteCount((prev) => prev + 1)
-      setIsUpvoted(true)
-    }
-  }
-
-  const nextImage = () => {
-    setCurrentImageIndex((prev) => (prev === processedProofImages.length - 1 ? 0 : prev + 1))
-  }
-
-  const prevImage = () => {
-    setCurrentImageIndex((prev) => (prev === 0 ? processedProofImages.length - 1 : prev - 1))
-  }
-
-  // Update the gallery and sidebar functions to ensure they properly hide/show noise
-  const openGallery = (index: number) => {
-    setCurrentImageIndex(index)
-    setShowFullscreenGallery(true)
-    document.body.style.overflow = "hidden"
-    document.body.style.position = "fixed"
-    document.body.style.width = "100%"
-    adjustNavbar(true)
-    hideNoise()
-    console.log("Gallery opened - hiding noise")
-  }
-
-  const closeGallery = () => {
-    setShowFullscreenGallery(false)
-    document.body.style.overflow = ""
-    document.body.style.position = ""
-    document.body.style.width = ""
-
-    // First restore the navbar
-    adjustNavbar(false)
-
-    // Then show the noise
-    setTimeout(() => {
-      showNoise()
-      console.log("Gallery closed - showing noise")
-    }, 50)
-  }
-
-  // Update the openProfileSidebar function to properly disable scrolling and hide noise
-  const openProfileSidebar = () => {
-    // First hide the noise completely before showing the sidebar
-    hideNoise()
-
-    // Then set up the sidebar
-    setShowProfileSidebar(true)
-    document.body.style.overflow = "hidden"
-    document.body.style.position = "fixed"
-    document.body.style.width = "100%"
-    document.body.style.top = `-${window.scrollY}px`
-    adjustNavbar(true)
-    console.log("Sidebar opened - hiding noise")
-  }
-
-  // Completely revised closeProfileSidebar function with adjusted timing
-  const closeProfileSidebar = () => {
-    // Set closing state to prevent noise from showing prematurely
-    setIsClosing(true)
-
-    // First hide both the sidebar and backdrop with animation
-    setSidebarVisible(false)
-    setBackdropVisible(false)
-
-    // Restore navbar z-index IMMEDIATELY - this is the key change
-    adjustNavbarZIndex(false)
-    console.log("Navbar z-index restored immediately")
-
-    // After animation completes (300ms), clean up everything else
-    setTimeout(() => {
-      // Restore scrolling
-      const scrollY = document.body.style.top
-      document.body.style.overflow = ""
-      document.body.style.position = ""
-      document.body.style.width = ""
-      document.body.style.top = ""
-      window.scrollTo(0, Number.parseInt(scrollY || "0") * -1)
-
-      // Hide the sidebar component
-      setShowProfileSidebar(false)
-
-      // Wait a bit longer before showing noise
-      setTimeout(() => {
-        setIsClosing(false)
-        showNoise()
-        console.log("Sidebar closed - showing noise")
-      }, 50)
-    }, 300) // Match this with the transition duration
-  }
-
-  // Generate stars based on rating
-  const renderStars = (rating: number) => {
-    const stars = []
-    const fullStars = Math.floor(rating)
-    const hasHalfStar = rating % 1 >= 0.5
-
-    for (let i = 0; i < 5; i++) {
-      if (i < fullStars) {
-        stars.push(
-          <span key={i} className="text-[#edb900]">
-            ★
-          </span>,
-        )
-      } else if (i === fullStars && hasHalfStar) {
-        stars.push(
-          <span key={i} className="text-[#edb900]">
-            ★
-          </span>,
-        )
-      } else {
-        stars.push(
-          <span key={i} className="text-gray-400">
-            ★
-          </span>,
-        )
-      }
-    }
-    return stars
-  }
-
-  // First, add a new useEffect for keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (!showFullscreenGallery) return
-
-      if (e.key === "ArrowRight") {
-        nextImage()
-      } else if (e.key === "ArrowLeft") {
-        prevImage()
-      } else if (e.key === "Escape") {
-        closeGallery()
-      }
-    }
-
-    window.addEventListener("keydown", handleKeyDown)
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown)
-    }
-  }, [showFullscreenGallery])
-
-  // Add this useEffect to fetch reviewer profile data and previous reviews
-  // Replace the line that imports supabase directly
-  // import { supabase } from "@/supabaseClient"
-
-  // With this line that uses the hook you already have
-  // import { useSupabaseClient } from '@supabase/auth-helpers-react'
-
-  // And update the useEffect that fetches reviewer profile data
-  // Replace the useSupabaseClient hook with a direct client initialization
-  // const supabaseClient = useSupabaseClient();
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
-  const supabaseClient = createClient(supabaseUrl, supabaseAnonKey)
-
-  useEffect(() => {
-    // Only fetch if we have a valid authorId and the sidebar is being opened
-    if (!authorId || !showProfileSidebar) return
-
-    const fetchReviewerProfile = async () => {
-      setIsLoadingProfile(true)
-      try {
-        // 1. Fetch user profile data
-        const { data: userData, error: userError } = await supabaseClient
-          .from("users")
-          .select("member_since, total_reviews, funded_accounts_count, payouts_count")
-          .eq("id", authorId)
+  
+      fetchLikedFirms()
+    }, [user]) // ✅ Runs when user logs in or reloads
+  
+    // Fetch company-specific rules and change logs
+    useEffect(() => {
+      const fetchRules = async () => {
+        if (!firmId) return
+  
+        setRulesLoading(true)
+  
+        // Fetch main rules for this specific prop firm
+        const { data: mainRulesData, error: mainRulesError } = await supabase
+          .from("prop_firm_main_rules")
+          .select("id, last_updated, main_rules")
+          .eq("prop_firm", firmId)
           .single()
-
-        if (userError) {
-          console.error("Error fetching user profile data:", userError)
-        } else if (userData) {
-          // Format the member_since date to only show month and year
-          const memberSince = userData.member_since
-            ? new Date(userData.member_since).toLocaleDateString("en-US", { month: "long", year: "numeric" })
-            : "Unknown"
-
-          setReviewerStats({
-            totalReviews: userData.total_reviews || 0,
-            averageRating: 0, // We'll calculate this from reviews
-            fundedAccounts: userData.funded_accounts_count || 0,
-            receivedPayouts: userData.payouts_count || 0,
-            joinedDate: memberSince,
-          })
+  
+        if (mainRulesError && mainRulesError.code !== "PGRST116") {
+          console.error("Error fetching main rules:", mainRulesError)
+        } else if (mainRulesData) {
+          setMainRules(mainRulesData)
         }
-
-        // 2. Fetch user's previous reviews
-        const { data: reviewsData, error: reviewsError } = await supabaseClient
-          .from("propfirm_reviews")
-          .select(`
-          id,
-          overall_rating,
-          detailed_review,
-          created_at,
-          account_size,
-          funded_status,
-          received_payout,
-          prop_firm(propfirm_name)
-        `)
-          .eq("reviewer", authorId)
-          .order("created_at", { ascending: false })
-          .limit(3)
-
-        if (reviewsError) {
-          console.error("Error fetching user reviews:", reviewsError)
-        } else if (reviewsData && reviewsData.length > 0) {
-          // Process reviews with minimal data
-          const processedReviews = reviewsData.map((review) => ({
-            id: review.id,
-            companyName: review.prop_firm?.propfirm_name || "Unknown Company",
-            date: new Date(review.created_at).toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-            }),
-            rating: review.overall_rating || 0,
-            content: review.detailed_review || "",
-            accountSize: review.account_size || "",
-            fundedStatus: review.funded_status === "Yes",
-            payoutStatus: review.received_payout || "No",
-          }))
-
-          setPreviousReviews(processedReviews)
+  
+        // Fetch change logs for this specific prop firm
+        const { data: changeLogsData, error: changeLogsError } = await supabase
+          .from("prop_firm_rules_change_logs")
+          .select("id, last_updated, change_log")
+          .eq("prop_firm", firmId)
+          .order("last_updated", { ascending: false })
+  
+        if (changeLogsError) {
+          console.error("Error fetching change logs:", changeLogsError)
         } else {
-          setPreviousReviews([])
+          setChangeLogs(changeLogsData || [])
         }
-      } catch (error) {
-        console.error("Error fetching reviewer profile:", error)
-      } finally {
-        setIsLoadingProfile(false)
+  
+        // Fetch banned countries for this specific prop firm
+        const { data: bannedCountriesData, error: bannedCountriesError } = await supabase
+          .from("banned_countries")
+          .select("id, last_updated, banned_countries_list")
+          .eq("prop_firm", firmId)
+          .single()
+  
+        if (bannedCountriesError && bannedCountriesError.code !== "PGRST116") {
+          console.error("Error fetching banned countries:", bannedCountriesError)
+        } else if (bannedCountriesData) {
+          setBannedCountries(bannedCountriesData)
+        }
+  
+        setRulesLoading(false)
+      }
+  
+      fetchRules()
+    }, [firmId])
+  
+    const handleLike = () => {
+      if (liked) {
+        setLikeCount(likeCount - 1)
+      } else {
+        setLikeCount(likeCount + 1)
+      }
+      setLiked(!liked)
+    }
+  
+    const handleLikeToggle = async (firmId: number | null) => {
+      if (!user || !firmId) return
+  
+      setUserLikedFirms((prevLikes) => {
+        const updatedLikes = new Set(prevLikes)
+        const numericFirmId = Number(firmId)
+        if (updatedLikes.has(numericFirmId)) {
+          updatedLikes.delete(numericFirmId)
+        } else {
+          updatedLikes.add(numericFirmId)
+        }
+        return updatedLikes
+      })
+  
+      const isCurrentlyLiked = userLikedFirms.has(Number(firmId))
+      const newLikeStatus = !isCurrentlyLiked
+  
+      if (newLikeStatus) {
+        // 🟢 Like: Insert into `user_likes`
+        const { error } = await supabase.from("user_likes").insert([{ user_id: user.id, firm_id: firmId }])
+        if (error) {
+          console.error("Error liking firm:", error)
+          return
+        }
+  
+        // 🟢 Increment likes in DB
+        const { error: incrementError } = await supabase.rpc("increment_likes", { firm_id: firmId })
+        if (incrementError) {
+          console.error("Error incrementing likes:", incrementError)
+          return
+        }
+      } else {
+        // 🔴 Unlike: Remove from `user_likes`
+        const { error } = await supabase.from("user_likes").delete().eq("user_id", user.id).eq("firm_id", firmId)
+        if (error) {
+          console.error("Error unliking firm:", error)
+          return
+        }
+  
+        // 🔴 Decrement likes in DB
+        const { error: decrementError } = await supabase.rpc("decrement_likes", { firm_id: firmId })
+        if (decrementError) {
+          console.error("Error decrementing likes:", decrementError)
+          return
+        }
       }
     }
-
-    fetchReviewerProfile()
-  }, [authorId, showProfileSidebar])
-
-  return (
-    <>
-      <Card className="w-full border-[rgba(237,185,0,0.2)] shadow-md bg-[#0f0f0f] text-white overflow-hidden">
-        <CardHeader className="pb-2 flex flex-row items-start gap-4">
-          <div className="flex flex-col items-center text-center w-[120px]">
-            <button
-              className="group cursor-pointer focus:outline-none flex flex-col items-center w-full"
-              onClick={openProfileSidebar}
-              aria-label="View reviewer profile"
-            >
-              <div className="flex justify-center w-full">
-                {/* Update the Avatar component to use the profileImage state instead of authorAvatar */}
-                <Avatar className="h-16 w-16 border-2 border-[#edb900] group-hover:border-white transition-colors">
-                  <AvatarImage
-                    src={profileImage || authorAvatar || "/placeholder.svg?height=100&width=100"}
-                    alt={authorName}
-                  />
-                  <AvatarFallback className="bg-[#edb900] text-[#0f0f0f] font-bold">
-                    {authorName.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-              </div>
-              <div className="mt-2 w-full">
-                <p className="group-hover:text-[#edb900] transition-colors">{authorName}</p>
-                {authorLocation && (
-                  <p className="text-xs text-gray-400 flex items-center justify-center gap-1 mt-1">
-                    <span className="inline-block w-4 h-3 overflow-hidden">
-                      <img
-                        src={`https://flagcdn.com/w20/${authorCountryCode.toLowerCase()}.png`}
-                        alt={authorLocation}
-                        className="w-full h-auto object-cover"
-                      />
-                    </span>
-                    {authorLocation}
-                  </p>
-                )}
-              </div>
-            </button>
-
-            {/* Social Icons */}
-            <div className="flex items-center justify-center gap-2 mt-2 w-full">
-              {socialLinks.instagram && (
-                <a
-                  href={socialLinks.instagram}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-gray-400 hover:text-[#edb900]"
-                >
-                  <Instagram className="h-4 w-4" />
-                </a>
-              )}
-              {socialLinks.twitter && (
-                <a
-                  href={socialLinks.twitter}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-gray-400 hover:text-[#edb900]"
-                >
-                  <RiTwitterXFill className="h-4 w-4" />
-                </a>
-              )}
-              {socialLinks.youtube && (
-                <a
-                  href={socialLinks.youtube}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-gray-400 hover:text-[#edb900]"
-                >
-                  <Youtube className="h-4 w-4" />
-                </a>
-              )}
-              {socialLinks.tiktok && (
-                <a
-                  href={socialLinks.tiktok}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-gray-400 hover:text-[#edb900]"
-                >
-                  <FaTiktok className="h-4 w-4" />
-                </a>
-              )}
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              className={cn(
-                "text-gray-400 hover:text-black hover:bg-[#edb900] mt-8",
-                isUpvoted && "text-black hover:bg-[#edb900]",
-              )}
-              onClick={handleUpvote}
-            >
-              <ThumbsUp className={cn("h-4 w-4 mr-1", isUpvoted && "fill-[#edb900]")} />
-              Upvote {upvoteCount > 0 && `(${upvoteCount})`}
-            </Button>
-          </div>
-
-          <div className="flex-1">
-            <div className="flex justify-between items-start">
-              <div className="flex items-center gap-2">
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div className="flex flex-col items-start gap-1 cursor-help bg-gradient-to-b from-[rgba(237,185,0,0.1)] rounded-md p-1">
-                        <div className="flex items-center justify-between w-full px-1 ">
-                          <span className="text-xs text-gray-400">Overall Rating</span>
-                          <Info className="h-3.5 w-3.5 text-gray-400 hover:text-[#edb900] transition-colors" />
-                        </div>
-                        <div className=" rounded-full px-3 flex items-center gap-2 transition-colors">
-                          <div className="font-bold text-[#edb900] text-lg">{rating.toFixed(1)}</div>
-                          <div className="text-xl">{renderStars(rating)}</div>
-                        </div>
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom" className="bg-[#0f0f0f] border border-[#edb900] p-3 w-64">
-                      <h4 className="text-[#edb900] mb-2">Detailed Ratings</h4>
-                      <div className="space-y-2">
-                        {detailedRatings.map((item, index) => (
-                          <div key={index} className="flex items-center justify-between gap-2">
-                            <span className="text-xs text-white">{item.category}</span>
-                            <div className="flex items-center gap-1 text-[#edb900] text-xs">
-                              {renderStars(item.value)}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-              <div className="flex items-center text-sm text-gray-400">
-                <Button variant="ghost" size="sm" className="text-gray-400 hover:bg-[#edb900] hover:text-black">
-                  <Flag className="h-4 w-4 mr-1" />
-                  Report
-                </Button>
-                <div className="text-gray-500 mx-1">|</div>
-                <Calendar className="h-4 w-4 ml-3 mr-1" />
-                {date}
-              </div>
-            </div>
-            <div className="grid grid-cols-3 gap-2 mt-4">
-              <div className="bg-[#1a1a1a] rounded-md p-2 text-center">
-                <p className="text-xs text-gray-400">Account Size</p>
-                <p className="text-lg text-white">{accountSize}</p>
-              </div>
-              <div className="bg-[#1a1a1a] rounded-md p-2 text-center">
-                <p className="text-xs text-gray-400">Account Type</p>
-                <p className="text-lg text-white">{accountType}</p>
-              </div>
-              <div className="bg-[#1a1a1a] rounded-md p-2 text-center">
-                <p className="text-xs text-gray-400">Trading Duration</p>
-                <p className="text-lg text-white">{tradingDuration}</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2 mt-2">
-              {/* // 2. Update the StatusIndicator usage for fundedStatus */}
-              <div className="bg-[#1a1a1a] rounded-md p-2">
-                <p className="text-xs text-gray-400 mb-1 text-center">Funded Status</p>
-                <div className="flex justify-center">
-                  <StatusIndicator
-                    isPositive={fundedStatus === "Yes"}
-                    label={fundedStatus === "Yes" ? "Funded" : "Not Funded"}
-                  />
-                </div>
-              </div>
-              <div className="bg-[#1a1a1a] rounded-md p-2">
-                <p className="text-xs text-gray-400 mb-1 text-center">Payout Status</p>
-                <div className="flex justify-center">
-                  <StatusIndicator
-                    isPositive={payoutStatus === "Yes"}
-                    label={payoutStatus === "Yes" ? "Received" : "No Payout"}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </CardHeader>
-
-        <CardContent className="pt-4">
-          <p className="text-gray-200 leading-relaxed mb-4">{content}</p>
-
-          {/* Most Liked and Disliked Aspects - Always show both in two columns */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-            <div className="bg-[#1a1a1a] p-3 rounded-md">
-              <h4 className="text-md font-[balboa] border-b border-[#edb900] pb-1 mb-2 inline-block">
-                Most Liked Aspect
-              </h4>
-              <p className="text-sm text-gray-300">{likedAspect}</p>
-            </div>
-            <div className="bg-[#1a1a1a] p-3 rounded-md">
-              <h4 className="text-md font-[balboa] border-b border-[#edb900] pb-1 mb-2 inline-block">
-                Most Disliked Aspect
-              </h4>
-              <p className="text-sm text-gray-300">{dislikedAspect}</p>
-            </div>
-          </div>
-
-          {/* Proof Images Gallery - Moved below most liked/disliked aspects */}
-          {processedProofImages.length > 0 && (
-            <div className="mt-4">
-              <h4 className="text-md font-[balboa] mb-2 border-b border-[#edb900] pb-1 inline-block">
-                Proof & Certificates
-              </h4>
-              <div className="flex flex-wrap gap-2 mt-2">
-                {processedProofImages.map((image, index) => (
-                  <button
-                    key={image.id || `proof-${index}`}
-                    className="relative h-16 w-16 rounded-md overflow-hidden border border-[rgba(237,185,0,0.2)] hover:border-[#edb900] transition-colors"
-                    onClick={() => openGallery(index)}
-                  >
-                    <Image
-                      src={image.url || "/placeholder.svg?height=100&width=100"}
-                      alt={image.label || `Proof ${index + 1}`}
-                      fill
-                      className="object-cover"
-                    />
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Report section as accordion */}
-          {report && (
-            <Accordion type="single" collapsible className="mt-6">
-              <AccordionItem value="report" className="border border-red-500 bg-red-900/20 rounded-md overflow-hidden">
-                <AccordionTrigger className="py-3 px-4 hover:bg-red-900/30 hover:no-underline">
-                  <div className="flex items-center gap-2 text-red-400">
-                    <AlertCircle className="h-5 w-5" />
-                    <h4>Report: {report.reason}</h4>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent className="px-4 pb-4 pt-0">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                      <p className="text-xs text-red-400 mb-1">Denied Amount</p>
-                      <p className="text-sm text-white">{report.deniedAmount || "N/A"}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-red-400 mb-1">Reason</p>
-                      <p className="text-sm text-white">{report.reason}</p>
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-xs text-red-400 mb-1">Summary</p>
-                    <p className="text-sm text-gray-300">{report.description}</p>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          )}
-
-          {/* Company Response as Accordion */}
-          {companyResponse && (
-            <Accordion
-              type="single"
-              collapsible
-              className="mt-6 border border-[rgba(237,185,0,0.2)] rounded-md overflow-hidden"
-            >
-              <AccordionItem value="company-response" className="border-b-0">
-                <AccordionTrigger className="py-3 px-4 hover:bg-[rgba(237,185,0,0.03)] hover:no-underline">
-                  <div className="flex items-center gap-2 text-[#edb900]">
-                    <MessageSquare className="h-5 w-5" />
-                    <span>Company Response</span>
-                    <span className="text-xs text-gray-400 ml-2">{companyResponse.date}</span>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent className="px-4 pb-4 mt-4 pt-0">
-                  <p className="text-sm text-gray-300 mb-2">{companyResponse.content}</p>
-                  <p className="text-xs text-[#edb900]">
-                    {companyResponse.responderName}, {companyResponse.position}
-                  </p>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Fullscreen Gallery */}
-      {showFullscreenGallery &&
-        isBrowser() &&
-        createPortal(
-          <div
-            style={{
-              position: "fixed",
-              inset: 0,
-              zIndex: 99999,
-              backgroundColor: "rgba(0, 0, 0, 0.9)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              pointerEvents: "auto",
-            }}
-            onClick={closeGallery} // Close when clicking anywhere in the backdrop
-          >
-            <div className="relative w-full h-full flex items-center justify-center">
-              {/* Container with max width/height to make images smaller */}
-              <div
-                className="relative max-w-3xl max-h-[80vh] w-full h-full flex items-center justify-center"
-                onClick={(e) => e.stopPropagation()} // Prevent closing when clicking on the image container
-              >
-                <Image
-                  src={processedProofImages[currentImageIndex].url || "/placeholder.svg"}
-                  alt={processedProofImages[currentImageIndex].label || `Proof ${currentImageIndex + 1}`}
-                  fill
-                  className="object-contain"
-                  sizes="(max-width: 768px) 100vw, 800px"
-                />
-              </div>
-
-              <div
-                className="absolute inset-0 flex items-center justify-between p-4"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="rounded-full bg-black/50 border-0 text-white hover:bg-black/70"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    prevImage()
-                  }}
-                >
-                  <ArrowLeft className="h-5 w-5" />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="rounded-full bg-black/50 border-0 text-white hover:bg-black/70"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    nextImage()
-                  }}
-                >
-                  <ArrowRight className="h-5 w-5" />
-                </Button>
-              </div>
-
-              <div
-                className="absolute bottom-0 left-0 right-0 bg-black/70 p-4 text-center"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <p className="text-white text-sm">
-                  {processedProofImages[currentImageIndex].label || `Proof ${currentImageIndex + 1}`}
-                </p>
-                <p className="text-gray-400 text-xs mt-1">
-                  {currentImageIndex + 1} of {processedProofImages.length}
-                </p>
-              </div>
-
-              <button
-                className="absolute right-4 top-4 rounded-full bg-black/50 p-2 text-white hover:bg-black/70"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  closeGallery()
-                }}
-              >
-                <X className="h-6 w-6" />
-              </button>
-            </div>
-          </div>,
-          document.body,
-        )}
-
-      {/* Backdrop and Sidebar Container */}
-      {(showProfileSidebar || backdropVisible) &&
-        isBrowser() &&
-        createPortal(
-          <div
-            style={{
-              position: "fixed",
-              inset: 0,
-              zIndex: 99999,
-              overflow: "hidden",
-              pointerEvents: "auto",
-            }}
-          >
-            {/* Backdrop with animation */}
-            <div
-              className="fixed inset-0 bg-black/80 backdrop-blur-md transition-opacity duration-200 ease-in-out"
-              style={{
-                opacity: backdropVisible ? 1 : 0,
-                pointerEvents: backdropVisible ? "auto" : "none",
-              }}
-              onClick={closeProfileSidebar}
-              aria-hidden="true"
-            />
-
-            {/* Sidebar with animation */}
-            <div
-              ref={sidebarRef}
-              className="fixed top-0 bottom-0 right-0 w-full max-w-[40rem] bg-[#0f0f0f] text-white shadow-2xl transition-transform duration-500 ease-out"
-              style={{
-                transform: sidebarVisible ? "translateX(0)" : "translateX(100%)",
-                boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
-                overflowY: "auto",
-                zIndex: 100000,
-              }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="p-10 h-full flex flex-col">
-                <div className="flex justify-between items-center mb-[75px]">
-                  <h2 className="text-xl">Reviewer Profile</h2>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={closeProfileSidebar}
-                    className="text-gray-400 hover:text-white hover:text-black hover:bg-[#edb900]"
-                  >
-                    <X className="h-5 w-5" />
-                  </Button>
-                </div>
-
-                <div className="flex flex-col items-center text-center mb-6">
-                  <div className="flex justify-center w-full">
-                    {/* Update the Avatar in the sidebar to also use profileImage */}
-                    <Avatar className="h-24 w-24 border-2 border-[#edb900] mb-3">
-                      <AvatarImage
-                        src={profileImage || authorAvatar || "/placeholder.svg?height=100&width=100"}
-                        alt={authorName}
-                      />
-                      <AvatarFallback className="bg-[#edb900] text-[#0f0f0f] text-2xl font-bold">
-                        {authorName.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                  </div>
-
-                  <h3 className="text-xl">{authorName}</h3>
-
-                  {authorLocation && (
-                    <p className="text-sm text-gray-400 flex items-center justify-center gap-1 mt-1">
-                      <span className="inline-block w-4 h-3 overflow-hidden">
-                        <img
-                          src={`https://flagcdn.com/w20/${authorCountryCode.toLowerCase()}.png`}
-                          alt={authorLocation}
-                          className="w-full h-auto object-cover"
+  
+    const isLiked = !loadingLikes && userLikedFirms.has(Number(firmId))
+  
+    // Function to handle login modal opening
+    const handleLoginModalOpen = () => {
+      console.log("Opening login modal from PropFirmUI")
+      if (setShowLoginModal) {
+        setShowLoginModal(true)
+      } else {
+        console.error("setShowLoginModal is not available")
+      }
+    }
+  
+    return (
+      <div className="min-h-screen bg-[#0f0f0f] text-white">
+        <Navbar />
+        <Noise isVisible={isNoiseVisible} />
+        <div className="w-full border-b border-[#edb900]">
+          <div className="relative container mx-auto px-4 pt-[200px] mb-[200px] z-50">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              {/* Sidebar */}
+              <div className="lg:col-span-3">
+                <div className="bg-[#edb900] text-[#0f0f0f] rounded-lg overflow-hidden">
+                  <div className="flex justify-end w-full pr-3 pt-3">
+                    <div className="text-xs pt-2 pr-2">{likeCount} likes</div>
+                    <SignedOut>
+                      <button
+                        onClick={() => {
+                          console.log("Opening login modal from heart button")
+                          handleLoginModalOpen()
+                        }}
+                        className="relative top-1 right-50 hover:animate-[heartbeat_1.5s_infinite_ease-in-out] z-60"
+                        style={{ color: "rgba(237, 185, 0, 0.3)" }}
+                      >
+                        <FontAwesomeIcon icon={regularHeart} style={{ fontSize: "25px" }} />
+                      </button>
+                    </SignedOut>
+  
+                    <SignedIn>
+                      <button
+                        onClick={() => handleLikeToggle(firmId)}
+                        className={`relative transition-all duration-200 ${
+                          userLikedFirms.has(firmId)
+                            ? "text-[#0f0f0f] scale-105 hover:animate-[heartbeat_1.5s_infinite_ease-in-out]"
+                            : "text-[#0f0f0f] hover:text-[#0f0f0f] hover:animate-[heartbeat_1.5s_infinite_ease-in-out]"
+                        }`}
+                      >
+                        <FontAwesomeIcon
+                          icon={isLiked ? solidHeart : regularHeart}
+                          className={`transition-all duration-200 text-[25px] ${
+                            isLiked ? "text-[#0f0f0f] scale-105" : "text-[#0f0f0f] hover:text-[#0f0f0f]"
+                          }`}
                         />
-                      </span>
-                      {authorLocation}
-                    </p>
-                  )}
-
-                  {/* Social Icons */}
-                  <div className="flex items-center justify-center gap-2 mt-2 w-full">
-                    {socialLinks.instagram && (
-                      <a
-                        href={socialLinks.instagram}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-gray-400 hover:text-[#edb900]"
-                      >
-                        <Instagram className="h-4 w-4" />
-                      </a>
-                    )}
-                    {socialLinks.twitter && (
-                      <a
-                        href={socialLinks.twitter}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-gray-400 hover:text-[#edb900]"
-                      >
-                        <RiTwitterXFill className="h-4 w-4" />
-                      </a>
-                    )}
-                    {socialLinks.youtube && (
-                      <a
-                        href={socialLinks.youtube}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-gray-400 hover:text-[#edb900]"
-                      >
-                        <Youtube className="h-4 w-4" />
-                      </a>
-                    )}
-                    {socialLinks.tiktok && (
-                      <a
-                        href={socialLinks.tiktok}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-gray-400 hover:text-[#edb900]"
-                      >
-                        <FaTiktok className="h-4 w-4" />
-                      </a>
-                    )}
+                      </button>
+                    </SignedIn>
                   </div>
-                </div>
-
-                {/* Update the JSX in the sidebar to use the dynamic data */}
-                {/* Replace the reviewer stats section with: */}
-                <div className="grid grid-cols-2 gap-3 mb-6">
-                  <div className="bg-[#1a1a1a] p-3 rounded-md text-center">
-                    <p className="text-xs text-gray-400">Total Reviews</p>
-                    <p className="font-semibold text-[#edb900] text-lg">{reviewerStats.totalReviews}</p>
-                  </div>
-                  <div className="bg-[#1a1a1a] p-3 rounded-md text-center">
-                    <p className="text-xs text-gray-400">Member Since</p>
-                    <p className="font-semibold text-[#edb900]">{reviewerStats.joinedDate}</p>
-                  </div>
-                  <div className="bg-[#1a1a1a] p-3 rounded-md text-center">
-                    <p className="text-xs text-gray-400">Funded Accounts</p>
-                    <div className="flex items-center justify-center mt-1">
-                      <StatusIndicator
-                        isPositive={reviewerStats.fundedAccounts > 0}
-                        label={reviewerStats.fundedAccounts.toString()}
-                      />
-                    </div>
-                  </div>
-                  <div className="bg-[#1a1a1a] p-3 rounded-md text-center">
-                    <p className="text-xs text-gray-400">Received Payouts</p>
-                    <div className="flex items-center justify-center mt-1">
-                      <StatusIndicator
-                        isPositive={reviewerStats.receivedPayouts > 0}
-                        label={reviewerStats.receivedPayouts.toString()}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Replace the previous reviews section with: */}
-                <h4 className="text-lg font-semibold mb-3">Previous Reviews</h4>
-
-                <div className="space-y-4 flex-1 overflow-y-auto">
-                  {isLoadingProfile ? (
-                    // Loading state
-                    Array(3)
-                      .fill(0)
-                      .map((_, index) => (
-                        <div key={`skeleton-${index}`} className="bg-[#1a1a1a] rounded-md p-3 animate-pulse">
-                          <div className="h-5 bg-[rgba(237,185,0,0.1)] rounded w-1/3 mb-2"></div>
-                          <div className="h-4 bg-[rgba(255,255,255,0.05)] rounded w-full mb-2"></div>
-                          <div className="h-4 bg-[rgba(255,255,255,0.05)] rounded w-3/4 mb-4"></div>
-                          <div className="h-8 bg-[rgba(255,255,255,0.05)] rounded w-full"></div>
+  
+                  {/* Firm Logo and Rating */}
+                  <div className="p-6 flex flex-col items-center">
+                    <div className="relative mb-4">
+                      {firm && firm.logo_url ? (
+                        <div className="w-24 h-24 p-5 bg-white rounded-lg flex items-center justify-center overflow-hidden">
+                          <Image
+                            src={firm.logo_url || "/placeholder.svg"}
+                            alt={`${firm?.propfirm_name || "Company"} logo`}
+                            width={96}
+                            height={96}
+                            className="object-contain"
+                          />
                         </div>
-                      ))
-                  ) : previousReviews.length > 0 ? (
-                    previousReviews.map((review) => (
-                      <div key={review.id} className="bg-[#1a1a1a] rounded-md p-3">
-                        <div className="flex justify-between items-start mb-2">
-                          <h5 className="font-semibold">{review.companyName}</h5>
-                          <div className="flex items-center">{renderStars(review.rating)}</div>
+                      ) : (
+                        <div className="w-24 h-24 bg-white rounded-lg flex items-center justify-center">
+                          <span className="text-[#0f0f0f] font-bold text-4xl">
+                            {firm && firm.propfirm_name
+                              ? firm.propfirm_name?.substring(0, 2).toUpperCase() || "FP"
+                              : "FP"}
+                          </span>
                         </div>
-
-                        <p className="text-sm text-gray-300 line-clamp-2 mb-2">{review.content}</p>
-
-                        <div className="flex justify-between items-center text-xs">
-                          <div className="flex items-center gap-2">
-                            <div className="flex items-center">
-                              <div
-                                className={cn(
-                                  "flex items-center justify-center rounded-full w-4 h-4",
-                                  review.fundedStatus ? "bg-green-500/20" : "bg-red-500/20",
-                                )}
-                              >
-                                {review.fundedStatus ? (
-                                  <Check className="h-2.5 w-2.5 text-green-500" />
-                                ) : (
-                                  <X className="h-2.5 w-2.5 text-red-500" />
-                                )}
-                              </div>
-                              <span className="ml-1 text-gray-400">{review.accountSize}</span>
-                            </div>
-                          </div>
-                          <span className="text-gray-400">{review.date}</span>
-                        </div>
-
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="w-full mt-2 text-[#edb900] hover:bg-gray-700"
-                          onClick={() => window.open(`/review/${review.id}`, "_blank")}
+                      )}
+  
+                      <Tippy
+                        content={
+                          <span className="font-[balboa]">
+                            We use AI to categorize all the companies. You can learn more on our Evaluation process page.
+                          </span>
+                        }
+                        placement="top"
+                        delay={[100, 0]}
+                        className="z-50"
+                        theme="custom" // Apply the custom theme
+                      >
+                        <span
+                          className={`absolute top-1 left-1 px-[5px] border text-xs rounded-[10px] font-[balboa] 
+                            ${firm?.category === "Gold" ? "text-[#efbf04] border-[#efbf04]" : ""}
+                            ${firm?.category === "Platinum" ? "text-[#D9D9D9] border-[#D9D9D9]" : ""}
+                            ${firm?.category === "Diamond" ? "text-[#c8bfe7] border-[#c8bfe7]" : ""}
+                            ${firm?.category === "Silver" ? "text-[#c4c4c4] border-[#c4c4c4]" : ""}
+                            ${firm?.category === "Copper" ? "text-[#c68346] border-[#c68346]" : ""}`}
                         >
-                          View Full Review
-                          <ChevronRight className="ml-1 h-4 w-4" />
-                        </Button>
+                          {firm?.category || "Unrated"}
+                        </span>
+                      </Tippy>
+                    </div>
+                    <div className="flex items-center mb-1">
+                      <span className="text-xl font-bold">
+                        {firm && firm.propfirm_name ? firm.propfirm_name : "Company Name"}
+                      </span>
+                    </div>
+                    <div className="flex items-center mb-2">
+                      <FontAwesomeIcon icon={solidStar} className="text-lg mr-1 text-[#0f0f0f]" />
+                      <span className="font-bold">{firm?.rating?.toFixed(2) || "4.45"}</span>
+                      <span className="text-xs ml-1">• {firm?.reviews_count || "4.5k"} reviews</span>
+                    </div>
+                  </div>
+  
+                  {/* Rating Breakdown - Static data */}
+                  <div className="px-6 pb-4">
+                    <div className="flex items-center justify-between mb-1 text-xs">
+                      <span>5-star</span>
+                      <Progress value={ratingBreakdown?.five_star || 58} className="h-2 w-40" />
+                      <span>{ratingBreakdown?.five_star || 58}%</span>
+                    </div>
+                    <div className="flex items-center justify-between mb-1 text-xs">
+                      <span>4-star</span>
+                      <Progress value={ratingBreakdown?.four_star || 30} className="h-2 w-40" />
+                      <span>{ratingBreakdown?.four_star || 30}%</span>
+                    </div>
+                    <div className="flex items-center justify-between mb-1 text-xs">
+                      <span>3-star</span>
+                      <Progress value={ratingBreakdown?.three_star || 7} className="h-2 w-40" />
+                      <span>{ratingBreakdown?.three_star || 7}%</span>
+                    </div>
+                    <div className="flex items-center justify-between mb-1 text-xs">
+                      <span>2-star</span>
+                      <Progress value={ratingBreakdown?.two_star || 3} className="h-2 w-40" />
+                      <span>{ratingBreakdown?.two_star || 3}%</span>
+                    </div>
+                    <div className="flex items-center justify-between mb-1 text-xs">
+                      <span>1-star</span>
+                      <Progress value={ratingBreakdown?.one_star || 2} className="h-2 w-40" />
+                      <span>{ratingBreakdown?.one_star || 2}%</span>
+                    </div>
+                  </div>
+  
+                  {/* Social Links */}
+                  <div className="px-6 py-4 border-t border-[#0f0f0f]/10">
+                    <h3 className="font-bold mb-3">Socials</h3>
+                    <div className="flex space-x-3">
+                      {firm?.social_links?.facebook && (
+                        <Link href={firm.social_links.facebook} className="text-[#0f0f0f] hover:opacity-80">
+                          <Facebook size={18} />
+                        </Link>
+                      )}
+                      {firm?.social_links?.twitter && (
+                        <Link href={firm.social_links.twitter} className="text-[#0f0f0f] hover:opacity-80">
+                          <Twitter size={18} />
+                        </Link>
+                      )}
+                      {firm?.social_links?.instagram && (
+                        <Link href={firm.social_links.instagram} className="text-[#0f0f0f] hover:opacity-80">
+                          <Instagram size={18} />
+                        </Link>
+                      )}
+                      {firm?.social_links?.linkedin && (
+                        <Link href={firm.social_links.linkedin} className="text-[#0f0f0f] hover:opacity-80">
+                          <Linkedin size={18} />
+                        </Link>
+                      )}
+                      {firm?.social_links?.youtube && (
+                        <Link href={firm.social_links.youtube} className="text-[#0f0f0f] hover:opacity-80">
+                          <Youtube size={18} />
+                        </Link>
+                      )}
+                      {/* Show default social icons if none provided */}
+                      {!firm?.social_links && (
+                        <>
+                          <Link href="#" className="text-[#0f0f0f] hover:opacity-80">
+                            <Facebook size={18} />
+                          </Link>
+                          <Link href="#" className="text-[#0f0f0f] hover:opacity-80">
+                            <Twitter size={18} />
+                          </Link>
+                          <Link href="#" className="text-[#0f0f0f] hover:opacity-80">
+                            <Instagram size={18} />
+                          </Link>
+                          <Link href="#" className="text-[#0f0f0f] hover:opacity-80">
+                            <Linkedin size={18} />
+                          </Link>
+                          <Link href="#" className="text-[#0f0f0f] hover:opacity-80">
+                            <Youtube size={18} />
+                          </Link>
+                        </>
+                      )}
+                    </div>
+                  </div>
+  
+                  {/* Company Info */}
+                  <div className="grid grid-cols-2 gap-4 px-6 py-4 border-t border-[#0f0f0f]/10">
+                    <div>
+                      <h3 className="font-bold mb-2">CEO</h3>
+                      <p className="text-sm">{firm?.ceo || "Khaled Ayesh"}</p>
+                    </div>
+                    <div>
+                      <h3 className="font-bold mb-2">Established</h3>
+                      <p className="text-sm">{firm?.established || "11/2022"}</p>
+                    </div>
+                    <div>
+                      <h3 className="font-bold mb-2">Country</h3>
+                      <p className="text-sm">{firm?.country || "United Arab Emirates"}</p>
+                    </div>
+                    {firm?.website && (
+                      <div>
+                        <h3 className="font-bold mb-2">Website</h3>
+                        <a
+                          href={firm.website}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-sm flex items-center hover:underline"
+                        >
+                          Visit <ExternalLink size={12} className="ml-1" />
+                        </a>
                       </div>
-                    ))
-                  ) : (
-                    <div className="text-center py-4 text-gray-400">No previous reviews found</div>
-                  )}
+                    )}
+                  </div>
+  
+                  {/* Broker & Platform */}
+                  <div className="grid grid-cols-1 gap-4 px-6 py-4 border-t border-[#0f0f0f]/10">
+                    <div>
+                      <h3 className="font-bold mb-2">Broker</h3>
+                      <p className="text-sm">{firm?.broker || "Liquidity Providers"}</p>
+                    </div>
+                    <div>
+                      <h3 className="font-bold mb-2">Platform</h3>
+                      <p className="text-sm">{firm?.platform || "TrustPilot"}</p>
+                    </div>
+                    {firm?.platform_details && (
+                      <div>
+                        <p className="text-xs">{firm.platform_details}</p>
+                      </div>
+                    )}
+                    <div>
+                      <h3 className="font-bold mb-2">Rating</h3>
+                      <p className="text-sm">{firm?.rating || "4.4"}</p>
+                    </div>
+                  </div>
+  
+                  {/* Instruments & Leverage */}
+                  <div className="grid grid-cols-2 gap-4 px-6 py-4 border-t border-[#0f0f0f]/10">
+                    <div>
+                      <h3 className="font-bold mb-3">Instruments</h3>
+                      <ul className="text-xs space-y-1">
+                        {firm?.instruments && Array.isArray(firm.instruments) ? (
+                          firm.instruments.map((instrument, index) => (
+                            <li key={index} className="flex items-center">
+                              <span className="mr-2">•</span>
+                              <span>{instrument}</span>
+                            </li>
+                          ))
+                        ) : (
+                          <>
+                            <li className="flex items-center">
+                              <span className="mr-2">•</span>
+                              <span>Forex</span>
+                            </li>
+                            <li className="flex items-center">
+                              <span className="mr-2">•</span>
+                              <span>Crypto</span>
+                            </li>
+                            <li className="flex items-center">
+                              <span className="mr-2">•</span>
+                              <span>Indices</span>
+                            </li>
+                            <li className="flex items-center">
+                              <span className="mr-2">•</span>
+                              <span>Metals & Energies</span>
+                            </li>
+                          </>
+                        )}
+                      </ul>
+                    </div>
+                    <div>
+                      <h3 className="font-bold mb-3">Leverage</h3>
+                      <ul className="text-xs space-y-1">
+                        {firm?.leverage && typeof firm.leverage === "object" ? (
+                          Object.entries<string>(firm.leverage as Record<string, string>).map(([key, value], index) => (
+                            <li key={index} className="flex items-center">
+                              <span className="mr-2">•</span>
+                              <span>
+                                {key} - {value}
+                              </span>
+                            </li>
+                          ))
+                        ) : (
+                          <>
+                            <li className="flex items-center">
+                              <span className="mr-2">•</span>
+                              <span>Forex - 1:100</span>
+                            </li>
+                            <li className="flex items-center">
+                              <span className="mr-2">•</span>
+                              <span>Metals & Energies - 1:50</span>
+                            </li>
+                            <li className="flex items-center">
+                              <span className="mr-2">•</span>
+                              <span>Indices - 1:30</span>
+                            </li>
+                            <li className="flex items-center">
+                              <span className="mr-2">•</span>
+                              <span>Crypto - 1:2</span>
+                            </li>
+                          </>
+                        )}
+                      </ul>
+                    </div>
+                  </div>
                 </div>
               </div>
+  
+              {/* Main Content */}
+              <div className="lg:col-span-9">
+                <Tabs defaultValue="overview" className="w-full">
+                  <TabsList className="bg-[#0f0f0f] p-0 mb-6 w-full flex overflow-x-auto h-[50px]">
+                    <TabsTrigger
+                      value="overview"
+                      className="data-[state=active]:bg-[#edb900] data-[state=active]:text-[#0f0f0f] rounded-none h-[50px] flex-1 hover:text-[#826600]"
+                    >
+                      <ListTree className="w-4 h-4 mr-2" />
+                      Overview
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="stats"
+                      className="data-[state=active]:bg-[#edb900] data-[state=active]:text-[#0f0f0f] rounded-none h-[50px] flex-1 hover:text-[#826600]"
+                    >
+                      <BarChart2 className="w-4 h-4 mr-2" />
+                      Stats
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="news"
+                      className="data-[state=active]:bg-[#edb900] data-[state=active]:text-[#0f0f0f] rounded-none h-[50px] flex-1 hover:text-[#826600]"
+                    >
+                      <Newspaper className="w-4 h-4 mr-2" />
+                      News
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="reviews"
+                      className="data-[state=active]:bg-[#edb900] data-[state=active]:text-[#0f0f0f] rounded-none h-[50px] flex-1 hover:text-[#826600]"
+                    >
+                      <Star className="w-4 h-4 mr-2" />
+                      Reviews
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="offers"
+                      className="data-[state=active]:bg-[#edb900] data-[state=active]:text-[#0f0f0f] rounded-none h-[50px] flex-1 hover:text-[#826600]"
+                    >
+                      <DollarSign className="w-4 h-4 mr-2" />
+                      Offers
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="challenges"
+                      className="data-[state=active]:bg-[#edb900] data-[state=active]:text-[#0f0f0f] rounded-none h-[50px] flex-1 hover:text-[#826600]"
+                    >
+                      <Award className="w-4 h-4 mr-2" />
+                      Challenges
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="rules"
+                      className="data-[state=active]:bg-[#edb900] data-[state=active]:text-[#0f0f0f] rounded-none h-[50px] flex-1 hover:text-[#826600]"
+                    >
+                      <FileText className="w-4 h-4 mr-2" />
+                      Rules
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="discussion"
+                      className="data-[state=active]:bg-[#edb900] data-[state=active]:text-[#0f0f0f] rounded-none h-[50px] flex-1 hover:text-[#826600]"
+                    >
+                      <MessageSquare className="w-4 h-4 mr-2" />
+                      Discussion
+                    </TabsTrigger>
+                  </TabsList>
+  
+                  <TabsContent value="overview">
+                    <div className="bg-[#0f0f0f] rounded-lg p-6">
+                      <h2 className="text-xl font-bold mb-4">Overview</h2>
+                      <p className="text-gray-400">No data available at the moment.</p>
+                    </div>
+                  </TabsContent>
+  
+                  <TabsContent value="stats" className="mt-0">
+                    <div className="bg-[#0f0f0f] rounded-lg p-6">
+                      <h2 className="text-xl font-bold mb-4">Payout Stats</h2>
+                      <p className="text-gray-400">No data available at the moment.</p>
+                    </div>
+                  </TabsContent>
+  
+                  <TabsContent value="news">
+                    <div className="bg-[#0f0f0f] rounded-lg p-6">
+                      <h2 className="text-xl font-bold mb-4">Latest News</h2>
+                      <p className="text-gray-400">No news available at the moment.</p>
+                    </div>
+                  </TabsContent>
+  
+                  {/* Then in the Reviews tab content section, replace: */}
+                  <TabsContent value="reviews">
+                    <div className="bg-[#0f0f0f] rounded-lg p-6">
+                      <ReviewSystem companyName={firm?.propfirm_name || "CHART NOMADS"} companyLogo={firm?.logo_url} />
+                    </div>
+                  </TabsContent>
+  
+                  <TabsContent value="offers">
+                    <div className="bg-[#0f0f0f] rounded-lg p-6">
+                      <h2 className="text-3xl font-bold text-[#edb900] mb-6">Special Offers</h2>
+                      {firmId ? (
+                        <>
+                          {console.log("Rendering offers component with firmId:", firmId)}
+                          <Offers
+                            firmId={firmId}
+                            supabase={supabase}
+                            hideCompanyCard={true}
+                            onLoginModalOpen={handleLoginModalOpen}
+                            showTabs={true}
+                          />
+                        </>
+                      ) : (
+                        <p className="text-gray-400">Unable to load offers at this time. No firm ID available.</p>
+                      )}
+                    </div>
+                  </TabsContent>
+  
+                  <TabsContent value="challenges">
+                    <div className="bg-[#0f0f0f] rounded-lg p-6">
+                      <h2 className="text-xl font-bold mb-4">Trading Challenges</h2>
+                      <p className="text-gray-400">No challenges available at the moment.</p>
+                    </div>
+                  </TabsContent>
+  
+                  <TabsContent value="rules">
+                    <div className="bg-[#0f0f0f] rounded-lg p-6">
+                      <h2 className="text-3xl font-bold text-[#edb900] mb-6">Trading Rules</h2>
+  
+                      {rulesLoading ? (
+                        <div className="flex justify-center py-10">
+                          <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-[#edb900]"></div>
+                        </div>
+                      ) : (
+                        <>
+                          {/* Rules Tabs */}
+                          <div className="flex space-x-4 mb-6">
+                            <button
+                              onClick={() => setRulesActiveTab("main-rules")}
+                              className={`px-4 py-2 rounded-[10px] border border-[rgba(237,185,0,0.1)] transition-colors ${
+                                rulesActiveTab === "main-rules" ? "bg-[#EDB900] text-black" : "opacity-100"
+                              } hover:border-[#EDB900] hover:opacity-80 focus:outline-none`}
+                            >
+                              Main Rules
+                            </button>
+                            <button
+                              onClick={() => setRulesActiveTab("change-log")}
+                              className={`px-4 py-2 rounded-[10px] border border-[rgba(237,185,0,0.1)] transition-colors ${
+                                rulesActiveTab === "change-log" ? "bg-[#EDB900] text-black" : "opacity-100"
+                              } hover:border-[#EDB900] hover:opacity-80 focus:outline-none`}
+                            >
+                              Change Log
+                            </button>
+                            <button
+                              onClick={() => setRulesActiveTab("banned-countries")}
+                              className={`px-4 py-2 rounded-[10px] border border-[rgba(237,185,0,0.1)] transition-colors ${
+                                rulesActiveTab === "banned-countries" ? "bg-[#EDB900] text-black" : "opacity-100"
+                              } hover:border-[#EDB900] hover:opacity-80 focus:outline-none`}
+                            >
+                              Banned Countries
+                            </button>
+                          </div>
+  
+                          {/* Main Rules Content */}
+                          {rulesActiveTab === "main-rules" && (
+                            <>
+                              {mainRules ? (
+                                <div className="rules-section">
+                                  <div className="flex text-xs justify-end mb-6">
+                                    <span className="mr-2">Updated on:</span>
+                                    <span>
+                                      {new Date(mainRules.last_updated).toLocaleDateString("en-US", {
+                                        year: "numeric",
+                                        month: "long",
+                                        day: "numeric",
+                                      })}
+                                    </span>
+                                  </div>
+                                  <div
+                                    className="prose prose-invert max-w-none"
+                                    dangerouslySetInnerHTML={{ __html: mainRules.main_rules }}
+                                  />
+                                </div>
+                              ) : (
+                                <div className="text-center py-10">
+                                  <p className="text-gray-400">No rules available for this prop firm.</p>
+                                </div>
+                              )}
+                            </>
+                          )}
+  
+                          {/* Change Log Content */}
+                          {rulesActiveTab === "change-log" && (
+                            <>
+                              {changeLogs.length > 0 ? (
+                                <div className="space-y-8">
+                                  {changeLogs.map((log, index) => (
+                                    <div
+                                      key={index}
+                                      className="rules-section border-b border-[rgba(237,185,0,0.1)] pb-8 mb-8 last:border-b-0"
+                                    >
+                                      <div className="flex text-xs justify-end mb-6">
+                                        <span className="mr-2">Updated on:</span>
+                                        <span>
+                                          {new Date(log.last_updated).toLocaleDateString("en-US", {
+                                            year: "numeric",
+                                            month: "long",
+                                            day: "numeric",
+                                          })}
+                                        </span>
+                                      </div>
+                                      <div
+                                        className="prose prose-invert max-w-none"
+                                        dangerouslySetInnerHTML={{ __html: log.change_log }}
+                                      />
+                                    </div>
+                                  ))}
+                                </div>
+                              ) : (
+                                <div className="text-center py-10">
+                                  <p className="text-gray-400">No change logs available for this prop firm.</p>
+                                </div>
+                              )}
+                            </>
+                          )}
+  
+                          {/* Banned Countries Content */}
+                          {rulesActiveTab === "banned-countries" && (
+                            <>
+                              {bannedCountries ? (
+                                <div className="rules-section">
+                                  <div className="flex text-xs justify-end mb-6">
+                                    <span className="mr-2">Updated on:</span>
+                                    <span>
+                                      {new Date(bannedCountries.last_updated).toLocaleDateString("en-US", {
+                                        year: "numeric",
+                                        month: "long",
+                                        day: "numeric",
+                                      })}
+                                    </span>
+                                  </div>
+                                  <h2 className="text-3xl mb-6">Restricted Countries List:</h2>
+                                  <div
+                                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-4"
+                                    dangerouslySetInnerHTML={{ __html: bannedCountries.banned_countries_list }}
+                                  />
+                                </div>
+                              ) : (
+                                <div className="text-center py-10">
+                                  <p className="text-gray-400">
+                                    No banned countries information available for this prop firm.
+                                  </p>
+                                </div>
+                              )}
+                            </>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </TabsContent>
+  
+                  <TabsContent value="discussion">
+                    <div className="bg-[#0f0f0f] rounded-lg p-6">
+                      <h2 className="text-xl font-bold mb-4">Discussion</h2>
+                      <CommentSection type="propfirm" itemId={firmId || 0} onLoginModalOpen={handleLoginModalOpen} />
+                    </div>
+                  </TabsContent>
+                </Tabs>
+              </div>
             </div>
-          </div>,
-          document.body,
-        )}
-    </>
-  )
-}
-
+          </div>
+        </div>
+  
+        <Testimonials />
+        <Community />
+        <Newsletter />
+        <Footer />
+      </div>
+    )
+  }
+  
+  export default PropFirmUI
+  
+  
