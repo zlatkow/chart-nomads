@@ -14,6 +14,9 @@ import Image from "next/image"
 import { Star } from "lucide-react"
 import { toast } from "@/hooks/use-toast"
 
+// Add the useAuth hook from Clerk at the top of the file
+import { useAuth } from "@clerk/nextjs"
+
 // Add the useNoise import at the top of the file
 import { useNoise } from "../../components/providers/noise-provider"
 
@@ -63,7 +66,7 @@ interface ReviewModalProps {
   companyId: string // Added companyId prop
 }
 
-// In the ReviewModal component, add the useNoise hook
+// In the ReviewModal component, add the useAuth hook to get the userId
 export default function ReviewModal({
   isOpen,
   onClose,
@@ -71,7 +74,13 @@ export default function ReviewModal({
   companyLogo,
   companyId,
 }: ReviewModalProps) {
-  // Add the useNoise hook to control noise visibility
+  // Add the useAuth hook to get the userId
+  const { userId } = useAuth()
+
+  // Add a console log to verify the userId
+  console.log("Current Clerk userId:", userId)
+
+  // Keep the existing useNoise hook
   const { setIsNoiseVisible, hideNoise, showNoise } = useNoise()
 
   const [step, setStep] = useState(1)
@@ -223,10 +232,14 @@ export default function ReviewModal({
       setIsSubmitting(true)
 
       try {
+        // Log userId before creating the JSON data
+        console.log("About to submit review with userId:", userId)
+
         // Create JSON data to send instead of FormData
         // Define the type with all possible properties to avoid TypeScript errors
         const jsonData: {
           companyId: string
+          userId: string | null // Add userId to the type
           accountSize: string
           accountType: string
           tradingDuration: string
@@ -248,6 +261,7 @@ export default function ReviewModal({
           payoutDenialDetails?: string
         } = {
           companyId: companyId,
+          userId: userId, // Add the userId from Clerk
           accountSize: formData.accountSize,
           accountType: formData.accountType,
           tradingDuration: formData.tradingDuration,
@@ -259,6 +273,9 @@ export default function ReviewModal({
           dislikedMost: formData.dislikedMost,
           reportIssue: formData.reportIssue,
         }
+
+        // Log the complete JSON data before sending
+        console.log("Sending JSON data:", JSON.stringify(jsonData, null, 2))
 
         if (formData.reportIssue) {
           jsonData.reportReason = formData.reportReason
@@ -295,10 +312,12 @@ export default function ReviewModal({
 
         if (!response.ok) {
           const errorData = await response.json()
+          console.error("API error response:", errorData)
           throw new Error(errorData.error || `Server responded with ${response.status}: ${response.statusText}`)
         }
 
         const result = await response.json()
+        console.log("API success response:", result)
 
         if (result.success) {
           setShowSuccess(true)
