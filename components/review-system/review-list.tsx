@@ -286,7 +286,7 @@ export default function ReviewList({
         // 1. Fetch reviews for the specific propfirm
         const { data: reviewsData, error: reviewsError } = await supabase
           .from("propfirm_reviews")
-          .select("*")
+          .select("published")
           .eq("prop_firm", propfirmId)
 
         if (reviewsError) {
