@@ -12,6 +12,8 @@ import { SignedIn, SignedOut } from "@clerk/nextjs"
 import { useRouter } from "next/navigation"
 import { createClient } from "@supabase/supabase-js"
 import { getCountryCode } from "@/lib/utils/country-codes"
+import Tippy from "@tippyjs/react"
+import { useAuth } from "@clerk/nextjs"
 
 // Add shimmer animation CSS
 const shimmerAnimation = `
@@ -126,6 +128,7 @@ export default function ReviewList({
   const dropdownRef = useRef<HTMLDivElement>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [propfirmId, setPropfirmId] = useState<number | null>(externalPropfirmId || null)
+  const [userHasReviewed, setUserHasReviewed] = useState(false)
 
   // Add these state variables inside the component
   const [averageRating, setAverageRating] = useState<number>(0)
@@ -284,10 +287,10 @@ export default function ReviewList({
         console.log("Starting to fetch reviews for prop_firm:", propfirmId)
 
         const { data: reviewsData, error: reviewsError } = await supabase
-        .from("propfirm_reviews")
-        .select("*")
-        .eq("prop_firm", propfirmId)
-        .eq("review_status", "published");      
+          .from("propfirm_reviews")
+          .select("*")
+          .eq("prop_firm", propfirmId)
+          .eq("review_status", "published")
 
         if (reviewsError) {
           console.error("Error fetching reviews:", reviewsError)
@@ -507,6 +510,37 @@ export default function ReviewList({
     fetchReviews()
   }, [propfirmId, externalLoading])
 
+  // Add useAuth hook to get current user ID
+  const { userId } = useAuth()
+
+  // Check if the current user has already reviewed this prop firm
+  useEffect(() => {
+    if (!userId || !propfirmId) return
+
+    const checkUserReview = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("propfirm_reviews")
+          .select("id")
+          .eq("prop_firm", propfirmId)
+          .eq("reviewer", userId)
+          .limit(1)
+
+        if (error) {
+          console.error("Error checking user review:", error)
+          return
+        }
+
+        setUserHasReviewed(data && data.length > 0)
+        console.log("User has already reviewed:", data && data.length > 0)
+      } catch (error) {
+        console.error("Exception when checking user review:", error)
+      }
+    }
+
+    checkUserReview()
+  }, [userId, propfirmId])
+
   // Update the useEffect that handles animation to use ratingPercentages instead of calculating them
   useEffect(() => {
     // Determine if we're in a loading state (either external or internal)
@@ -674,9 +708,22 @@ export default function ReviewList({
       <div className="flex justify-between items-start mb-6">
         {/* Conditional rendering based on authentication status */}
         <SignedIn>
-          <Button className="bg-[#edb900] text-[#0f0f0f] hover:bg-[#edb900]/90" onClick={onOpenReviewModal}>
-            Leave a review
-          </Button>
+          {userHasReviewed ? (
+            <Tippy
+              content="You can review a company only once, you can update your review via your user dashboard."
+              placement="bottom"
+            >
+              <div>
+                <Button className="bg-[#edb900]/40 text-[#0f0f0f] cursor-not-allowed" disabled>
+                  Leave a review
+                </Button>
+              </div>
+            </Tippy>
+          ) : (
+            <Button className="bg-[#edb900] text-[#0f0f0f] hover:bg-[#edb900]/90" onClick={onOpenReviewModal}>
+              Leave a review
+            </Button>
+          )}
         </SignedIn>
 
         <SignedOut>
