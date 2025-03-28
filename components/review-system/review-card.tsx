@@ -681,7 +681,7 @@ export default function ReviewCard({
           </div>
 
           {/* Proof Images Gallery - Moved below most liked/disliked aspects */}
-          {proofImages.length > 0 && (
+          {proofImages && proofImages.length > 0 && (
             <div className="mt-4">
               <h4 className="text-md font-[balboa] mb-2 border-b border-[#edb900] pb-1 inline-block">
                 Proof & Certificates
@@ -689,12 +689,12 @@ export default function ReviewCard({
               <div className="flex flex-wrap gap-2 mt-2">
                 {proofImages.map((image, index) => (
                   <button
-                    key={image.id}
+                    key={image.id || `proof-${index}`}
                     className="relative h-16 w-16 rounded-md overflow-hidden border border-[rgba(237,185,0,0.2)] hover:border-[#edb900] transition-colors"
                     onClick={() => openGallery(index)}
                   >
                     <Image
-                      src={image.thumbnail || "/placeholder.svg"}
+                      src={image.thumbnail || image.fullImage || "/placeholder.svg?height=100&width=100"}
                       alt={image.caption || `Proof ${index + 1}`}
                       fill
                       className="object-cover"

@@ -445,11 +445,6 @@ export default function ReviewList({
               firmCount: 0,
               payoutStatus: review.received_payout === "Yes" ? "Yes" : "No",
               fundedStatus: review.funded_status === "Yes" ? "Yes" : "No",
-              proofImages: review.proofs
-                ? typeof review.proofs === "string"
-                  ? JSON.parse(review.proofs)
-                  : review.proofs
-                : [],
               tradingStats: {
                 winRate: 0,
                 avgWin: 0,
@@ -458,6 +453,15 @@ export default function ReviewList({
                 profitFactor: 0,
               },
               socialLinks: socialLinks,
+              proofImages: review.proofs
+                ? typeof review.proofs === "string"
+                  ? JSON.parse(review.proofs)
+                  : Array.isArray(review.proofs)
+                    ? review.proofs
+                    : typeof review.proofs === "object" && review.proofs !== null
+                      ? Object.values(review.proofs)
+                      : []
+                : [],
             }
           }),
         )
