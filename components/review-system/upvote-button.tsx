@@ -135,7 +135,8 @@ export default function UpvoteButton({
       variant="ghost"
       size="sm"
       className={cn(
-        "bg-[#edb900] text-black hover:bg-[#edb900] hover:text-black",
+        "text-gray-400 hover:bg-[#edb900] hover:text-black",
+        isUpvoted && "bg-[#edb900] text-black",
         isLoading && "opacity-50 cursor-not-allowed",
         className,
       )}
