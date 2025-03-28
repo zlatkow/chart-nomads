@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useState } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import { Button, Input, Card, CardBody, CardHeader, CardFooter, Divider } from '@nextui-org/react'
