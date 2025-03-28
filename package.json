@@ -52,11 +52,13 @@
     "swiper": "^11.2.4",
     "tailwind-merge": "^3.0.2",
     "tailwindcss-animate": "^1.0.7",
+    "uuid": "^11.1.0",
     "world-countries": "^5.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@shadcn/ui": "^0.0.4",
+    "@types/formidable": "^3.4.5",
     "@types/next": "^8.0.7",
     "@types/node": "^20.17.25",
     "@types/react": "^19.0.12",

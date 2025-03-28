@@ -107,6 +107,7 @@ export function ModalProvider({ children }: { children: ReactNode }) {
               onClose={closeReviewModal}
               companyName={reviewModalProps.companyName}
               companyLogo={reviewModalProps.companyLogo}
+              companyId="your-company-id" // Add this line
             />
           </div>,
           document.body,

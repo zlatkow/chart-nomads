@@ -4,14 +4,14 @@
 import type React from "react"
 
 import { useState, useRef, useEffect } from "react"
-import { X, Upload, ChevronRight, ChevronLeft, Check } from "lucide-react"
+import { X, Upload, ChevronRight, ChevronLeft, Check } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
-import { Star } from "lucide-react"
+import { Star } from 'lucide-react'
 import { toast } from "@/hooks/use-toast"
 
 // Add the useNoise import at the top of the file
@@ -60,10 +60,11 @@ interface ReviewModalProps {
   onClose: () => void
   companyName?: string
   companyLogo?: string
+  companyId: string // Added companyId prop
 }
 
 // In the ReviewModal component, add the useNoise hook
-export default function ReviewModal({ isOpen, onClose, companyName = "CHART NOMADS", companyLogo }: ReviewModalProps) {
+export default function ReviewModal({ isOpen, onClose, companyName = "CHART NOMADS", companyLogo, companyId }: ReviewModalProps) {
   // Add the useNoise hook to control noise visibility
   const { setIsNoiseVisible, hideNoise, showNoise } = useNoise()
 
@@ -191,7 +192,8 @@ export default function ReviewModal({ isOpen, onClose, companyName = "CHART NOMA
     })
   }
 
-  const nextStep = () => {
+  // Updated nextStep function to handle form submission to the API
+  const nextStep = async () => {
     const currentStepErrors = validateStep(step)
 
     if (Object.keys(currentStepErrors).length > 0) {
@@ -214,11 +216,104 @@ export default function ReviewModal({ isOpen, onClose, companyName = "CHART NOMA
       // Submit the form
       setIsSubmitting(true)
 
-      // Simulate API call
-      setTimeout(() => {
+      try {
+        // Create FormData object to send files
+        const formDataToSend = new FormData()
+        
+        // Add company ID
+        formDataToSend.append('companyId', companyId)
+        
+        // Add all form fields
+        formDataToSend.append('accountSize', formData.accountSize)
+        formDataToSend.append('accountType', formData.accountType)
+        formDataToSend.append('tradingDuration', formData.tradingDuration)
+        formDataToSend.append('fundedStatus', formData.fundedStatus)
+        formDataToSend.append('payoutStatus', formData.payoutStatus)
+        formDataToSend.append('ratings', JSON.stringify(formData.ratings))
+        formDataToSend.append('reviewText', formData.reviewText)
+        formDataToSend.append('likedMost', formData.likedMost)
+        formDataToSend.append('dislikedMost', formData.dislikedMost)
+        formDataToSend.append('reportIssue', formData.reportIssue.toString())
+        
+        if (formData.reportIssue) {
+          formDataToSend.append('reportReason', formData.reportReason)
+          formDataToSend.append('reportDescription', formData.reportDescription)
+          
+          if (formData.reportReason === 'unjustified-breach') {
+            formDataToSend.append('breachedAccountSize', formData.breachedAccountSize)
+            formDataToSend.append('breachReason', formData.breachReason)
+            formDataToSend.append('breachDetails', formData.breachDetails)
+            formDataToSend.append('receivedLastPayout', formData.receivedLastPayout)
+            
+            if (formData.receivedLastPayout === 'No') {
+              formDataToSend.append('deniedAmount', formData.deniedAmount)
+            }
+          }
+          
+          if (formData.reportReason === 'payout-denial') {
+            formDataToSend.append('deniedAmount', formData.deniedAmount)
+            formDataToSend.append('payoutDenialReason', formData.payoutDenialReason)
+            formDataToSend.append('payoutDenialDetails', formData.payoutDenialDetails)
+          }
+          
+          // Add report proof files
+          formData.proofFiles.forEach((file, index) => {
+            if (file) {
+              formDataToSend.append('proofFiles', file)
+            }
+          })
+        }
+        
+        // Add main proof file
+        if (formData.proofFile) {
+          formDataToSend.append('proofFile', formData.proofFile)
+        }
+        
+        // Add funded proof file if exists
+        if (formData.fundedStatus === 'Yes' && formData.fundedProofFile) {
+          formDataToSend.append('fundedProofFile', formData.fundedProofFile)
+        }
+        
+        // Add payout proof file if exists
+        if (formData.payoutStatus === 'Yes' && formData.payoutProofFile) {
+          formDataToSend.append('payoutProofFile', formData.payoutProofFile)
+        }
+        
+        // Send the form data to the API endpoint
+        const response = await fetch('/api/submit-review', {
+          method: 'POST',
+          body: formDataToSend,
+        })
+        
+        if (!response.ok) {
+          throw new Error(`Server responded with ${response.status}: ${response.statusText}`)
+        }
+        
+        const result = await response.json()
+        
+        if (result.success) {
+          setShowSuccess(true)
+          toast({
+            title: "Review Submitted",
+            description: "Your review has been submitted successfully!",
+          })
+        } else {
+          toast({
+            title: "Error",
+            description: result.error || "Failed to submit review. Please try again.",
+            variant: "destructive",
+          })
+        }
+      } catch (error) {
+        console.error("Error submitting review:", error)
+        toast({
+          title: "Error",
+          description: "An unexpected error occurred. Please try again.",
+          variant: "destructive",
+        })
+      } finally {
         setIsSubmitting(false)
-        setShowSuccess(true)
-      }, 1500)
+      }
     }
   }
 
@@ -1196,4 +1291,3 @@ export default function ReviewModal({ isOpen, onClose, companyName = "CHART NOMA
     </div>
   )
 }
-
