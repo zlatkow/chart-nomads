@@ -7,7 +7,7 @@ import { useState, useEffect, useRef } from "react"
 import ReviewCard from "./review-card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
-import { Star } from 'lucide-react'
+import { Star } from "lucide-react"
 import { SignedIn, SignedOut } from "@clerk/nextjs"
 import { useRouter } from "next/navigation"
 import { createClient } from "@supabase/supabase-js"
@@ -74,34 +74,37 @@ interface SocialLinks {
 // Function to process proof images from different formats
 const processProofImages = (proofImages: any): any[] => {
   if (!proofImages) return []
-  
+
   // If it's a string (JSON), try to parse it
-  if (typeof proofImages === 'string') {
+  if (typeof proofImages === "string") {
     try {
       const parsed = JSON.parse(proofImages)
       return processProofImages(parsed)
     } catch (e) {
-      console.error('Failed to parse proof images string:', e)
+      console.error("Failed to parse proof images string:", e)
       return []
     }
   }
-  
+
   // If it's an object with URLs as values (like {proof_of_funding: "url1", proof_of_purchase: "url2"})
-  if (typeof proofImages === 'object' && proofImages !== null && !Array.isArray(proofImages)) {
+  if (typeof proofImages === "object" && proofImages !== null && !Array.isArray(proofImages)) {
     return Object.entries(proofImages).map(([key, value], index) => ({
       id: `proof-${index}`,
       url: value as string,
-      label: key.replace(/_/g, ' ').replace(/of/g, 'of ').split(' ').map(word => 
-        word.charAt(0).toUpperCase() + word.slice(1)
-      ).join(' ')
+      label: key
+        .replace(/_/g, " ")
+        .replace(/of/g, "of ")
+        .split(" ")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" "),
     }))
   }
-  
+
   // If it's already an array, return it
   if (Array.isArray(proofImages)) {
     return proofImages
   }
-  
+
   return []
 }
 
@@ -506,6 +509,15 @@ export default function ReviewList({
 
   // Update the useEffect that handles animation to use ratingPercentages instead of calculating them
   useEffect(() => {
+    // Determine if we're in a loading state (either external or internal)
+    const isCurrentlyLoading = isLoading || externalLoading
+
+    if (isCurrentlyLoading) {
+      // Keep bar widths at 0 during loading
+      setBarWidths({ 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 })
+      return
+    }
+
     // Start with zero width
     setBarWidths({ 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 })
 
@@ -522,14 +534,17 @@ export default function ReviewList({
     }, 100)
 
     return () => clearTimeout(timer)
-  }, [ratingPercentages]) // Update when ratingPercentages change
+  }, [ratingPercentages, isLoading, externalLoading]) // Update when ratingPercentages or loading states change
 
-  // Update the useEffect that updates bar widths without animation
+  // Also update the useEffect that updates bar widths without animation
   useEffect(() => {
-    if (!animateOnce) {
+    // Determine if we're in a loading state (either external or internal)
+    const isCurrentlyLoading = isLoading || externalLoading
+
+    if (!animateOnce && !isCurrentlyLoading) {
       setBarWidths(ratingPercentages)
     }
-  }, [ratingPercentages, animateOnce])
+  }, [ratingPercentages, animateOnce, isLoading, externalLoading])
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -630,7 +645,7 @@ export default function ReviewList({
           <>
             <div className="flex items-center gap-2 mb-4">
               <Star className="h-6 w-6 fill-[#edb900] text-[#edb900]" />
-              <span className="text-3xl font-bold text-[#edb900]">{averageRating.toFixed(1)}</span>
+              <span className="text-3xl font-bold text-[#edb900]">{averageRating.toFixed(2)}</span>
               <span className="text-gray-400">Out of 5.00 • {totalReviews} reviews</span>
             </div>
 
@@ -643,7 +658,7 @@ export default function ReviewList({
                     <span className="text-sm text-gray-400 w-15">{star}-star</span>
                     <div className="flex-1 h-2 bg-[#1a1a1a] rounded-full overflow-hidden">
                       <div
-                        className={`h-full bg-[#edb900] ${animateOnce ? "transition-all duration-1000 ease-out" : ""}`}
+                        className={`h-full bg-[#edb900] ${animateOnce && !(isLoading || externalLoading) ? "transition-all duration-1000 ease-out" : ""}`}
                         style={{ width: `${barWidths[star]}%` }}
                       />
                     </div>
