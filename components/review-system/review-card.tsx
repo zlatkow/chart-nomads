@@ -1,6 +1,8 @@
 /* eslint-disable */
 "use client"
 
+"use client"
+
 import { useState, useEffect, useRef } from "react"
 import { createPortal } from "react-dom"
 import Image from "next/image"
@@ -102,54 +104,6 @@ interface ReviewProps {
   }
   socialLinks?: SocialLinks
 }
-
-// Replace the static sample data with state variables
-// Remove these static sample data objects:
-
-// Add these state variables inside the ReviewCard component, after the existing state variables:
-
-// Sample data for the reviewer profile sidebar
-// Remove these static sample data objects:
-// const sampleReviewerStats = {
-//   totalReviews: 8,
-//   averageRating: 3.7,
-//   fundedAccounts: 3,
-//   receivedPayouts: 2,
-//   joinedDate: "Jan 2024",
-// }
-
-// const samplePreviousReviews = [
-//   {
-//     id: "prev1",
-//     companyName: "Alpha Trading",
-//     date: "Feb 15, 2025",
-//     rating: 4.5,
-//     content: "Great experience with Alpha Trading. The platform is intuitive and the support team is responsive.",
-//     accountSize: "$25k",
-//     fundedStatus: true,
-//     payoutStatus: "Yes",
-//   },
-//   {
-//     id: "prev2",
-//     companyName: "Beta Funds",
-//     date: "Jan 10, 2025",
-//     rating: 3.0,
-//     content: "Average experience. The platform works well but the rules are quite strict compared to other firms.",
-//     accountSize: "$50k",
-//     fundedStatus: true,
-//     payoutStatus: "Yes",
-//   },
-//   {
-//     id: "prev3",
-//     companyName: "Gamma Capital",
-//     date: "Dec 5, 2024",
-//     rating: 2.0,
-//     content: "Disappointing experience. The platform had technical issues and support was slow to respond.",
-//     accountSize: "$100k",
-//     fundedStatus: false,
-//     payoutStatus: "No",
-//   },
-// ]
 
 // Completely revised navbar handling function that also manages background color
 const adjustNavbar = (lower: boolean) => {
@@ -622,7 +576,7 @@ export default function ReviewCard({
     account_size,
     funded_status,
     received_payout,
-    prop_firm
+    prop_firm(id, propfirm_name)
   `)
           .eq("reviewer", authorId)
           .order("created_at", { ascending: false })
@@ -633,14 +587,23 @@ export default function ReviewCard({
         } else if (reviewsData && reviewsData.length > 0) {
           // Process reviews with minimal data
           const processedReviews = reviewsData.map((review) => {
-            // Handle different possible structures of prop_firm data
+            // Get the company name from the prop_firm relation
             let companyName = "Unknown Company"
             if (review.prop_firm) {
-              if (typeof review.prop_firm === "object") {
-                // It could be an object with propfirm_name property
-                companyName = review.prop_firm.propfirm_name || review.prop_firm.name || "Unknown Company"
+              // If prop_firm is an object with propfirm_name property
+              if (typeof review.prop_firm === "object" && review.prop_firm !== null) {
+                // Try to access the name using different possible property names
+                // Use type assertion to avoid TypeScript errors
+                const propFirmObj = review.prop_firm as Record<string, any>
+                companyName = propFirmObj.propfirm_name || propFirmObj.name || "Unknown Company"
+
+                // Debug log to see what properties are available
+                console.log("Prop firm object:", propFirmObj)
+              } else if (typeof review.prop_firm === "number") {
+                // If prop_firm is just the ID, we can't get the name directly
+                console.log("Prop firm is just an ID:", review.prop_firm)
               } else if (typeof review.prop_firm === "string") {
-                // Or it could be just a string
+                // If prop_firm is a string, use it directly
                 companyName = review.prop_firm
               }
             }
