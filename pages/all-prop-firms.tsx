@@ -21,6 +21,42 @@ import "tippy.js/dist/tippy.css" // Default tooltip styles
 // Import the ModalContext
 import { ModalContext } from "./_app"
 
+// Add shimmer animation CSS
+const shimmerAnimation = `
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.animate-pulse {
+  position: relative;
+  overflow: hidden;
+}
+
+.animate-pulse::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0,
+    rgba(255, 255, 255, 0.05) 20%,
+    rgba(255, 255, 255, 0.1) 60%,
+    rgba(255, 255, 255, 0)
+  );
+  animation: shimmer 2s infinite;
+  pointer-events: none;
+}
+`
+
 // ✅ Fetch Blogs for Server Side Props
 export async function getServerSideProps() {
   const { data, error } = await supabase.from("blogs").select("*").eq("featured", true)
@@ -42,9 +78,23 @@ const AllPropFirms = ({ blogs }) => {
   const { user } = useUser()
   const [userLikedFirms, setUserLikedFirms] = useState(new Set())
   const [loadingLikes, setLoadingLikes] = useState(true)
+  const [isLoading, setIsLoading] = useState(true) // Add loading state for prop firms
 
   // Use the ModalContext
   const { setShowLoginModal } = useContext(ModalContext)
+
+  // Add the shimmer animation to the document
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      const style = document.createElement("style")
+      style.textContent = shimmerAnimation
+      document.head.appendChild(style)
+
+      return () => {
+        document.head.removeChild(style)
+      }
+    }
+  }, [])
 
   useEffect(() => {
     if (!user) {
@@ -79,12 +129,14 @@ const AllPropFirms = ({ blogs }) => {
   // ✅ Fetch Prop Firms Data
   useEffect(() => {
     const fetchPropFirms = async () => {
+      setIsLoading(true) // Set loading to true before fetching
       console.log("🔄 Fetching Prop Firms...")
       const { data, error } = await supabase.from("prop_firms").select("*").eq("listing_status", "listed")
 
       if (error) console.error("❌ Error fetching prop firms:", error)
       console.log("✅ Prop Firms Fetched:", data)
       setPropFirms(data || [])
+      setIsLoading(false) // Set loading to false after fetching
     }
 
     fetchPropFirms()
@@ -187,6 +239,32 @@ const AllPropFirms = ({ blogs }) => {
   )
   const sortedPropFirms = sortPropFirms(filteredPropFirms, sortBy)
 
+  // Render loading skeleton
+  const renderSkeletonCards = () => {
+    return Array(8)
+      .fill(0)
+      .map((_, index) => (
+        <div
+          key={`skeleton-${index}`}
+          className="z-50 p-4 shadow-lg relative bg-[rgba(255,255,255,0.03)] rounded-[10px] animate-pulse"
+        >
+          <div className="flex">
+            <span className="absolute top-3 left-3 px-[5px] border text-xs rounded-[10px] w-16 h-4 bg-[rgba(255,255,255,0.05)]"></span>
+            <span className="absolute top-3 right-3 w-6 h-6 bg-[rgba(255,255,255,0.05)] rounded-full"></span>
+          </div>
+          <div className="flex justify-between px-7">
+            <div className="w-20 h-20 mb-2 flex items-center justify-center rounded-[10px] p-1 mt-[50px] bg-[rgba(255,255,255,0.05)]"></div>
+            <div className="block mt-9 justify-center">
+              <div className="h-6 w-24 bg-[rgba(255,255,255,0.05)] rounded mb-2 mx-auto"></div>
+              <div className="h-6 w-16 bg-[rgba(255,255,255,0.05)] rounded mb-2 mx-auto"></div>
+              <div className="h-6 w-20 bg-[rgba(255,255,255,0.05)] rounded mx-auto"></div>
+              <div className="absolute top-4 right-[45px] h-4 w-16 bg-[rgba(255,255,255,0.05)] rounded"></div>
+            </div>
+          </div>
+        </div>
+      ))
+  }
+
   return (
     <div className="min-h-screen text-white pt-[300px]">
       <Navbar />
@@ -225,8 +303,13 @@ const AllPropFirms = ({ blogs }) => {
           </div>
         </div>
 
-        {sortedPropFirms.length > 0 ? (
-          <div className="grid grid-cols-4 gap-10 mb-[300px]">
+        {isLoading ? (
+          // Show skeleton loading UI when loading
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10 mb-[300px]">
+            {renderSkeletonCards()}
+          </div>
+        ) : sortedPropFirms.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10 mb-[300px]">
             {sortedPropFirms.map((firm) => {
               const isLiked = !loadingLikes && userLikedFirms.has(Number(firm.id))
               return (
@@ -332,7 +415,6 @@ const AllPropFirms = ({ blogs }) => {
       <Testimonials />
       <Community />
       <Newsletter />
-      {/* Remove the direct LoginModal component */}
       <Footer />
     </div>
   )
