@@ -70,7 +70,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         prop_firm: Number.parseInt(companyId, 10), // Convert to integer as per schema
         reviewer: "Anonymous", // Default reviewer name
         trading_conditions_rating: ratings.tradingConditions || 0,
-        customer_suppport_rating: ratings.customerSupport || 0,
+        customer_support_rating: ratings.customerSupport || 0,
         inner_processes_rating: ratings.innerProcesses || 0,
         dashboard_ux_rating: ratings.dashboard || 0,
         education_community_rating: ratings.education || 0,
