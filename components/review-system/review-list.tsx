@@ -283,11 +283,11 @@ export default function ReviewList({
       try {
         console.log("Starting to fetch reviews for prop_firm:", propfirmId)
 
-        // 1. Fetch reviews for the specific propfirm
         const { data: reviewsData, error: reviewsError } = await supabase
-          .from("propfirm_reviews")
-          .select("published")
-          .eq("prop_firm", propfirmId)
+        .from("propfirm_reviews")
+        .select("*")
+        .eq("prop_firm", propfirmId)
+        .eq("review_status", "published");      
 
         if (reviewsError) {
           console.error("Error fetching reviews:", reviewsError)
