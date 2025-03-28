@@ -89,7 +89,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       console.log("Review data prepared:", JSON.stringify(reviewData))
 
       // Insert the review
-      const { data, error } = await supabase.from("reviews").insert([reviewData]).select()
+      const { data, error } = await supabase.from("propfirm_reviews").insert([reviewData]).select()
 
       if (error) {
         console.log("Database error:", error)
