@@ -106,14 +106,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       console.log("Review data prepared:", JSON.stringify(reviewData, null, 2))
 
-      // Insert the review into the propfirm_reviews table
+      // Insert the review into the propfirm_reviews table and let the database generate the ID
       const { data, error } = await supabase.from("propfirm_reviews").insert([reviewData]).select()
 
       if (error) {
         console.log("Database error:", error)
+        // Log more details about the error
+        console.log("Error code:", error.code)
+        console.log("Error details:", error.details)
+        console.log("Error hint:", error.hint)
+        console.log("Error message:", error.message)
+
         return res.status(500).json({
           error: "Database error: " + error.message,
           details: error,
+          code: error.code,
+          hint: error.hint,
         })
       }
 
