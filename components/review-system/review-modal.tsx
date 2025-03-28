@@ -330,6 +330,16 @@ export default function ReviewModal({
   const validateStep = (currentStep: number): Record<string, string> => {
     const stepErrors: Record<string, string> = {}
 
+    // Check if userId is available before proceeding
+    if (!userId) {
+      toast({
+        title: "Authentication Error",
+        description: "You must be logged in to submit a review",
+        variant: "destructive",
+      })
+      stepErrors.userId = "You must be logged in to submit a review"
+    }
+
     if (currentStep === 1) {
       // Step 1 validation
       if (!formData.accountSize) stepErrors.accountSize = "Account size is required"

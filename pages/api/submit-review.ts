@@ -85,11 +85,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // Extract individual ratings from the ratings object
       const ratings = jsonData.ratings || {}
 
+      // Get the user ID from the request
+      const userId = jsonData.userId || null
+      if (!userId) {
+        console.log("Missing user ID")
+        return res.status(400).json({ error: "User ID is required" })
+      }
+
       // Prepare review data with fallbacks for all fields
       const reviewData = {
         id: nextId, // Explicitly set the ID
         prop_firm: Number.parseInt(companyId, 10), // Convert to integer as per schema
-        reviewer: "Anonymous", // Default reviewer name
+        reviewer: userId, // Use the user ID from Clerk instead of "Anonymous"
         trading_conditions_rating: ratings.tradingConditions || 0,
         customer_support_rating: ratings.customerSupport || 0,
         inner_processes_rating: ratings.innerProcesses || 0,
