@@ -2,13 +2,14 @@
 import type { NextApiRequest, NextApiResponse } from "next"
 import formidable from "formidable"
 import { createClient } from "@supabase/supabase-js"
+// Remove unused imports
+// import fs from 'fs';
+// import path from 'path';
 
 // Disable the default body parser to handle form data
 export const config = {
   api: {
     bodyParser: false,
-    // Increase the limit to 10MB - this only applies to the API route parsing
-    // but won't override Vercel's 1MB limit
     responseLimit: false,
   },
 }
@@ -20,8 +21,8 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ""
 // Create Supabase client
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-// Use the correct bucket name
-const STORAGE_BUCKET = "proofs"
+// Remove the unused STORAGE_BUCKET constant
+// const STORAGE_BUCKET = 'proofs';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // Add CORS headers
@@ -38,6 +39,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ error: "Method not allowed" })
   }
 
+  // Basic validation of Supabase credentials
+  if (!supabaseUrl || !supabaseServiceKey) {
+    return res.status(500).json({
+      error: "Missing Supabase credentials. Please check your environment variables.",
+    })
+  }
+
   try {
     // Parse form data with formidable
     const form = formidable({
@@ -48,7 +56,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     })
 
     // Parse the form
-    const [fields, files] = await new Promise<[formidable.Fields, formidable.Files]>((resolve, reject) => {
+    const [fields] = await new Promise<[formidable.Fields, formidable.Files]>((resolve, reject) => {
       form.parse(req, (err, fields, files) => {
         if (err) {
           reject(err)
@@ -79,7 +87,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: "Company ID is required" })
     }
 
-    // Create review data in database first
+    // Create review data in database
     const { data: reviewData, error: reviewError } = await supabase
       .from("reviews")
       .insert([
