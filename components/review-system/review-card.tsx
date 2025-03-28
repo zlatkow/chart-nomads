@@ -29,6 +29,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { FaTiktok } from "react-icons/fa"
 import { RiTwitterXFill } from "react-icons/ri"
+import { useSupabaseClient } from "@supabase/auth-helpers-react"
 
 // Add the useNoise import at the top of the file
 import { useNoise } from "../../components/providers/noise-provider"
@@ -102,47 +103,53 @@ interface ReviewProps {
   socialLinks?: SocialLinks
 }
 
-// Sample data for the reviewer profile sidebar
-const sampleReviewerStats = {
-  totalReviews: 8,
-  averageRating: 3.7,
-  fundedAccounts: 3,
-  receivedPayouts: 2,
-  joinedDate: "Jan 2024",
-}
+// Replace the static sample data with state variables
+// Remove these static sample data objects:
 
-const samplePreviousReviews = [
-  {
-    id: "prev1",
-    companyName: "Alpha Trading",
-    date: "Feb 15, 2025",
-    rating: 4.5,
-    content: "Great experience with Alpha Trading. The platform is intuitive and the support team is responsive.",
-    accountSize: "$25k",
-    fundedStatus: true,
-    payoutStatus: "Yes",
-  },
-  {
-    id: "prev2",
-    companyName: "Beta Funds",
-    date: "Jan 10, 2025",
-    rating: 3.0,
-    content: "Average experience. The platform works well but the rules are quite strict compared to other firms.",
-    accountSize: "$50k",
-    fundedStatus: true,
-    payoutStatus: "Yes",
-  },
-  {
-    id: "prev3",
-    companyName: "Gamma Capital",
-    date: "Dec 5, 2024",
-    rating: 2.0,
-    content: "Disappointing experience. The platform had technical issues and support was slow to respond.",
-    accountSize: "$100k",
-    fundedStatus: false,
-    payoutStatus: "No",
-  },
-]
+// Add these state variables inside the ReviewCard component, after the existing state variables:
+
+// Sample data for the reviewer profile sidebar
+// Remove these static sample data objects:
+// const sampleReviewerStats = {
+//   totalReviews: 8,
+//   averageRating: 3.7,
+//   fundedAccounts: 3,
+//   receivedPayouts: 2,
+//   joinedDate: "Jan 2024",
+// }
+
+// const samplePreviousReviews = [
+//   {
+//     id: "prev1",
+//     companyName: "Alpha Trading",
+//     date: "Feb 15, 2025",
+//     rating: 4.5,
+//     content: "Great experience with Alpha Trading. The platform is intuitive and the support team is responsive.",
+//     accountSize: "$25k",
+//     fundedStatus: true,
+//     payoutStatus: "Yes",
+//   },
+//   {
+//     id: "prev2",
+//     companyName: "Beta Funds",
+//     date: "Jan 10, 2025",
+//     rating: 3.0,
+//     content: "Average experience. The platform works well but the rules are quite strict compared to other firms.",
+//     accountSize: "$50k",
+//     fundedStatus: true,
+//     payoutStatus: "Yes",
+//   },
+//   {
+//     id: "prev3",
+//     companyName: "Gamma Capital",
+//     date: "Dec 5, 2024",
+//     rating: 2.0,
+//     content: "Disappointing experience. The platform had technical issues and support was slow to respond.",
+//     accountSize: "$100k",
+//     fundedStatus: false,
+//     payoutStatus: "No",
+//   },
+// ]
 
 // Completely revised navbar handling function that also manages background color
 const adjustNavbar = (lower: boolean) => {
@@ -327,6 +334,17 @@ export default function ReviewCard({
   const [sidebarVisible, setSidebarVisible] = useState(false)
   const [backdropVisible, setBackdropVisible] = useState(false)
   const [isClosing, setIsClosing] = useState(false)
+
+  // Add these state variables inside the ReviewCard component, after the existing state variables:
+  const [reviewerStats, setReviewerStats] = useState({
+    totalReviews: 0,
+    averageRating: 0,
+    fundedAccounts: 0,
+    receivedPayouts: 0,
+    joinedDate: "",
+  })
+  const [previousReviews, setPreviousReviews] = useState<any[]>([])
+  const [isLoadingProfile, setIsLoadingProfile] = useState(false)
 
   // Reference to the sidebar element for animation
   const sidebarRef = useRef<HTMLDivElement>(null)
@@ -548,6 +566,100 @@ export default function ReviewCard({
     }
   }, [showFullscreenGallery])
 
+  // Add this useEffect to fetch reviewer profile data and previous reviews
+  const { supabase } = useSupabaseClient()
+  useEffect(() => {
+    // Only fetch if we have a valid authorId and the sidebar is being opened
+    if (!authorId || !showProfileSidebar) return
+
+    const fetchReviewerProfile = async () => {
+      setIsLoadingProfile(true)
+      try {
+        // 1. Fetch user profile data
+        const { data: userData, error: userError } = await supabase
+          .from("users")
+          .select("member_since, total_reviews, funded_accounts_count, payouts_count")
+          .eq("id", authorId)
+          .single()
+
+        if (userError) {
+          console.error("Error fetching user profile data:", userError)
+        } else if (userData) {
+          // Format the member_since date
+          const memberSince = userData.member_since
+            ? new Date(userData.member_since).toLocaleDateString("en-US", { month: "short", year: "numeric" })
+            : "Unknown"
+
+          setReviewerStats({
+            totalReviews: userData.total_reviews || 0,
+            averageRating: 0, // We'll calculate this from reviews
+            fundedAccounts: userData.funded_accounts_count || 0,
+            receivedPayouts: userData.payouts_count || 0,
+            joinedDate: memberSince,
+          })
+        }
+
+        // 2. Fetch user's previous reviews
+        const { data: reviewsData, error: reviewsError } = await supabase
+          .from("propfirm_reviews")
+          .select(`
+            id,
+            overall_rating,
+            detailed_review,
+            created_at,
+            account_size,
+            funded_status,
+            received_payout,
+            prop_firm(id, name, slug)
+          `)
+          .eq("reviewer", authorId)
+          .order("created_at", { ascending: false })
+          .limit(10)
+
+        if (reviewsError) {
+          console.error("Error fetching user reviews:", reviewsError)
+        } else if (reviewsData && reviewsData.length > 0) {
+          // Calculate average rating
+          const totalRating = reviewsData.reduce((sum, review) => sum + (review.overall_rating || 0), 0)
+          const avgRating = reviewsData.length > 0 ? totalRating / reviewsData.length : 0
+
+          // Update reviewer stats with calculated average rating
+          setReviewerStats((prev) => ({
+            ...prev,
+            averageRating: avgRating,
+          }))
+
+          // Process reviews
+          const processedReviews = reviewsData.map((review) => ({
+            id: review.id,
+            companyName: review.prop_firm?.name || "Unknown Company",
+            companySlug: review.prop_firm?.slug || "",
+            date: new Date(review.created_at).toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+            }),
+            rating: review.overall_rating || 0,
+            content: review.detailed_review || "",
+            accountSize: review.account_size || "",
+            fundedStatus: review.funded_status === "Yes",
+            payoutStatus: review.received_payout || "No",
+          }))
+
+          setPreviousReviews(processedReviews)
+        } else {
+          setPreviousReviews([])
+        }
+      } catch (error) {
+        console.error("Error fetching reviewer profile:", error)
+      } finally {
+        setIsLoadingProfile(false)
+      }
+    }
+
+    fetchReviewerProfile()
+  }, [authorId, showProfileSidebar, supabase])
+
   return (
     <>
       <Card className="w-full border-[rgba(237,185,0,0.2)] shadow-md bg-[#0f0f0f] text-white overflow-hidden">
@@ -571,7 +683,7 @@ export default function ReviewCard({
                 </Avatar>
               </div>
               <div className="mt-2 w-full">
-                <p className="group-hover:text-[#edb900] transition-colors font-[balboa]">{authorName}</p>
+                <p className="group-hover:text-[#edb900] transition-colors">{authorName}</p>
                 {authorLocation && (
                   <p className="text-xs text-gray-400 flex items-center justify-center gap-1 mt-1">
                     <span className="inline-block w-4 h-3 overflow-hidden">
@@ -1036,21 +1148,23 @@ export default function ReviewCard({
                   </div>
                 </div>
 
+                {/* Update the JSX in the sidebar to use the dynamic data */}
+                {/* Replace the reviewer stats section with: */}
                 <div className="grid grid-cols-2 gap-3 mb-6">
                   <div className="bg-[#1a1a1a] p-3 rounded-md text-center">
                     <p className="text-xs text-gray-400">Total Reviews</p>
-                    <p className="font-semibold text-[#edb900] text-lg">{sampleReviewerStats.totalReviews}</p>
+                    <p className="font-semibold text-[#edb900] text-lg">{reviewerStats.totalReviews}</p>
                   </div>
                   <div className="bg-[#1a1a1a] p-3 rounded-md text-center">
                     <p className="text-xs text-gray-400">Member Since</p>
-                    <p className="font-semibold text-[#edb900]">{sampleReviewerStats.joinedDate}</p>
+                    <p className="font-semibold text-[#edb900]">{reviewerStats.joinedDate}</p>
                   </div>
                   <div className="bg-[#1a1a1a] p-3 rounded-md text-center">
                     <p className="text-xs text-gray-400">Funded Accounts</p>
                     <div className="flex items-center justify-center mt-1">
                       <StatusIndicator
-                        isPositive={sampleReviewerStats.fundedAccounts > 0}
-                        label={sampleReviewerStats.fundedAccounts.toString()}
+                        isPositive={reviewerStats.fundedAccounts > 0}
+                        label={reviewerStats.fundedAccounts.toString()}
                       />
                     </div>
                   </div>
@@ -1058,57 +1172,74 @@ export default function ReviewCard({
                     <p className="text-xs text-gray-400">Received Payouts</p>
                     <div className="flex items-center justify-center mt-1">
                       <StatusIndicator
-                        isPositive={sampleReviewerStats.receivedPayouts > 0}
-                        label={sampleReviewerStats.receivedPayouts.toString()}
+                        isPositive={reviewerStats.receivedPayouts > 0}
+                        label={reviewerStats.receivedPayouts.toString()}
                       />
                     </div>
                   </div>
                 </div>
 
+                {/* Replace the previous reviews section with: */}
                 <h4 className="text-lg font-semibold mb-3">Previous Reviews</h4>
 
                 <div className="space-y-4 flex-1 overflow-y-auto">
-                  {samplePreviousReviews.map((review) => (
-                    <div key={review.id} className="bg-[#1a1a1a] rounded-md p-3">
-                      <div className="flex justify-between items-start mb-2">
-                        <h5 className="font-semibold">{review.companyName}</h5>
-                        <div className="flex items-center">{renderStars(review.rating)}</div>
-                      </div>
-
-                      <p className="text-sm text-gray-300 line-clamp-2 mb-2">{review.content}</p>
-
-                      <div className="flex justify-between items-center text-xs">
-                        <div className="flex items-center gap-2">
-                          <div className="flex items-center">
-                            <div
-                              className={cn(
-                                "flex items-center justify-center rounded-full w-4 h-4",
-                                review.fundedStatus ? "bg-green-500/20" : "bg-red-500/20",
-                              )}
-                            >
-                              {review.fundedStatus ? (
-                                <Check className="h-2.5 w-2.5 text-green-500" />
-                              ) : (
-                                <X className="h-2.5 w-2.5 text-red-500" />
-                              )}
-                            </div>
-                            <span className="ml-1 text-gray-400">{review.accountSize}</span>
-                          </div>
+                  {isLoadingProfile ? (
+                    // Loading state
+                    Array(3)
+                      .fill(0)
+                      .map((_, index) => (
+                        <div key={`skeleton-${index}`} className="bg-[#1a1a1a] rounded-md p-3 animate-pulse">
+                          <div className="h-5 bg-[rgba(237,185,0,0.1)] rounded w-1/3 mb-2"></div>
+                          <div className="h-4 bg-[rgba(255,255,255,0.05)] rounded w-full mb-2"></div>
+                          <div className="h-4 bg-[rgba(255,255,255,0.05)] rounded w-3/4 mb-4"></div>
+                          <div className="h-8 bg-[rgba(255,255,255,0.05)] rounded w-full"></div>
                         </div>
-                        <span className="text-gray-400">{review.date}</span>
-                      </div>
+                      ))
+                  ) : previousReviews.length > 0 ? (
+                    previousReviews.map((review) => (
+                      <div key={review.id} className="bg-[#1a1a1a] rounded-md p-3">
+                        <div className="flex justify-between items-start mb-2">
+                          <h5 className="font-semibold">{review.companyName}</h5>
+                          <div className="flex items-center">{renderStars(review.rating)}</div>
+                        </div>
 
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="w-full mt-2 text-[#edb900] hover:bg-gray-700"
-                        onClick={() => window.open(`/review/${review.id}`, "_blank")}
-                      >
-                        View Full Review
-                        <ChevronRight className="ml-1 h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
+                        <p className="text-sm text-gray-300 line-clamp-2 mb-2">{review.content}</p>
+
+                        <div className="flex justify-between items-center text-xs">
+                          <div className="flex items-center gap-2">
+                            <div className="flex items-center">
+                              <div
+                                className={cn(
+                                  "flex items-center justify-center rounded-full w-4 h-4",
+                                  review.fundedStatus ? "bg-green-500/20" : "bg-red-500/20",
+                                )}
+                              >
+                                {review.fundedStatus ? (
+                                  <Check className="h-2.5 w-2.5 text-green-500" />
+                                ) : (
+                                  <X className="h-2.5 w-2.5 text-red-500" />
+                                )}
+                              </div>
+                              <span className="ml-1 text-gray-400">{review.accountSize}</span>
+                            </div>
+                          </div>
+                          <span className="text-gray-400">{review.date}</span>
+                        </div>
+
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="w-full mt-2 text-[#edb900] hover:bg-gray-700"
+                          onClick={() => window.open(`/review/${review.id}`, "_blank")}
+                        >
+                          View Full Review
+                          <ChevronRight className="ml-1 h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-4 text-gray-400">No previous reviews found</div>
+                  )}
                 </div>
               </div>
             </div>
