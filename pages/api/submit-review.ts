@@ -62,11 +62,32 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.log("Creating review record")
 
     try {
+      // First, get the current max ID to determine the next ID
+      const { data: maxIdData, error: maxIdError } = await supabase
+        .from("propfirm_reviews")
+        .select("id")
+        .order("id", { ascending: false })
+        .limit(1)
+        .single()
+
+      if (maxIdError && maxIdError.code !== "PGRST116") {
+        console.log("Error fetching max ID:", maxIdError)
+        return res.status(500).json({
+          error: "Failed to determine next ID: " + maxIdError.message,
+          details: maxIdError,
+        })
+      }
+
+      // Calculate next ID (current max + 1, or 1 if no records exist)
+      const nextId = maxIdData ? maxIdData.id + 1 : 1
+      console.log("Next ID will be:", nextId)
+
       // Extract individual ratings from the ratings object
       const ratings = jsonData.ratings || {}
 
       // Prepare review data with fallbacks for all fields
       const reviewData = {
+        id: nextId, // Explicitly set the ID
         prop_firm: Number.parseInt(companyId, 10), // Convert to integer as per schema
         reviewer: "Anonymous", // Default reviewer name
         trading_conditions_rating: ratings.tradingConditions || 0,
@@ -106,17 +127,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       console.log("Review data prepared:", JSON.stringify(reviewData, null, 2))
 
-      // Insert the review into the propfirm_reviews table and let the database generate the ID
+      // Insert the review with the explicit ID
       const { data, error } = await supabase.from("propfirm_reviews").insert([reviewData]).select()
 
       if (error) {
         console.log("Database error:", error)
-        // Log more details about the error
-        console.log("Error code:", error.code)
-        console.log("Error details:", error.details)
-        console.log("Error hint:", error.hint)
-        console.log("Error message:", error.message)
-
         return res.status(500).json({
           error: "Database error: " + error.message,
           details: error,
