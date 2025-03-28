@@ -46,9 +46,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Get JSON data from request body
     const jsonData = req.body
-    console.log("Received request body:", req.body)
-    console.log("Request body type:", typeof req.body)
-    console.log("Request headers:", req.headers)
+    console.log("Received request body:", JSON.stringify(jsonData, null, 2))
 
     // Extract the company ID
     const companyId = jsonData?.companyId
@@ -60,34 +58,53 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: "Company ID is required" })
     }
 
-    // Create a minimal review record
+    // Create a review record matching the database schema
     console.log("Creating review record")
 
     try {
-      // Extract ratings with fallback
-      const ratingsData = jsonData.ratings || {}
+      // Extract individual ratings from the ratings object
+      const ratings = jsonData.ratings || {}
 
       // Prepare review data with fallbacks for all fields
-      // Use prop_firm instead of company_id to match the database column name
       const reviewData = {
-        prop_firm: companyId, // Changed from company_id to prop_firm
-        account_size: jsonData.accountSize || "",
+        prop_firm: Number.parseInt(companyId, 10), // Convert to integer as per schema
+        reviewer: "Anonymous", // Default reviewer name
+        trading_conditions_rating: ratings.tradingConditions || 0,
+        customer_suppport_rating: ratings.customerSupport || 0,
+        inner_processes_rating: ratings.innerProcesses || 0,
+        dashboard_ux_rating: ratings.dashboard || 0,
+        education_community_rating: ratings.education || 0,
+        // overall_rating is calculated in the database
+        detailed_review: jsonData.reviewText || "",
+        most_liked_aspect: jsonData.likedMost || "",
+        most_disliked_aspect: jsonData.dislikedMost || "",
         account_type: jsonData.accountType || "",
-        trading_duration: jsonData.tradingDuration || "",
+        account_size: jsonData.accountSize || "",
+        trading_period: jsonData.tradingDuration || "",
         funded_status: jsonData.fundedStatus || "",
-        payout_status: jsonData.payoutStatus || "",
-        ratings: ratingsData,
-        review_text: jsonData.reviewText || "",
-        liked_most: jsonData.likedMost || "",
-        disliked_most: jsonData.dislikedMost || "",
-        report_issue: !!jsonData.reportIssue,
-        report_reason: jsonData.reportReason || "",
-        report_description: jsonData.reportDescription || "",
-        status: "pending",
-        created_at: new Date().toISOString(),
+        received_payout: jsonData.payoutStatus || "",
+        proofs: {}, // Empty JSON object for proofs
+        reported_issues: !!jsonData.reportIssue,
+        review_status: "pending",
       }
 
-      console.log("Review data prepared:", JSON.stringify(reviewData))
+      // If there's a report issue, add the report details to the proofs JSON
+      if (jsonData.reportIssue) {
+        reviewData.proofs = {
+          reportReason: jsonData.reportReason || "",
+          reportDescription: jsonData.reportDescription || "",
+          // Add other report-specific fields if needed
+          breachedAccountSize: jsonData.breachedAccountSize || "",
+          breachReason: jsonData.breachReason || "",
+          breachDetails: jsonData.breachDetails || "",
+          receivedLastPayout: jsonData.receivedLastPayout || "",
+          deniedAmount: jsonData.deniedAmount || "",
+          payoutDenialReason: jsonData.payoutDenialReason || "",
+          payoutDenialDetails: jsonData.payoutDenialDetails || "",
+        }
+      }
+
+      console.log("Review data prepared:", JSON.stringify(reviewData, null, 2))
 
       // Insert the review into the propfirm_reviews table
       const { data, error } = await supabase.from("propfirm_reviews").insert([reviewData]).select()
@@ -100,7 +117,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         })
       }
 
-      console.log("Review created successfully")
+      console.log("Review created successfully:", data)
 
       // Return success response
       return res.status(200).json({
@@ -112,6 +129,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       console.log("Database operation error:", dbError)
       return res.status(500).json({
         error: "Database operation failed: " + dbError.message,
+        stack: dbError.stack,
       })
     }
   } catch (error: any) {

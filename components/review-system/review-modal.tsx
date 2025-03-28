@@ -1,4 +1,6 @@
 /* eslint-disable */
+"use client"
+
 import type React from "react"
 
 import { useState, useRef, useEffect } from "react"
@@ -648,7 +650,7 @@ export default function ReviewModal({
                           variant={formData.fundedStatus === "Yes" ? "default" : "outline"}
                           className={
                             formData.fundedStatus === "Yes"
-                              ? "bg-[#edb9কিন্তon] text-[#0f0f0f] hover:bg-[#edb900]/90"
+                              ? "bg-[#edb900] text-[#0f0f0f] hover:bg-[#edb900]/90"
                               : "border-[#333333] bg-[#0f0f0f] text-[#edb900] hover:border-[#edb900] hover:bg-[#0f0f0f] hover:text-[#edb900]"
                           }
                           onClick={() => handleRadioChange("fundedStatus", "Yes")}
