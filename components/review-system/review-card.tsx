@@ -615,15 +615,15 @@ export default function ReviewCard({
         const { data: reviewsData, error: reviewsError } = await supabaseClient
           .from("propfirm_reviews")
           .select(`
-          id,
-          overall_rating,
-          detailed_review,
-          created_at,
-          account_size,
-          funded_status,
-          received_payout,
-          prop_firm(propfirm_name)
-        `)
+    id,
+    overall_rating,
+    detailed_review,
+    created_at,
+    account_size,
+    funded_status,
+    received_payout,
+    prop_firm
+  `)
           .eq("reviewer", authorId)
           .order("created_at", { ascending: false })
           .limit(3)
@@ -632,20 +632,34 @@ export default function ReviewCard({
           console.error("Error fetching user reviews:", reviewsError)
         } else if (reviewsData && reviewsData.length > 0) {
           // Process reviews with minimal data
-          const processedReviews = reviewsData.map((review) => ({
-            id: review.id,
-            companyName: review.prop_firm?.propfirm_name || "Unknown Company",
-            date: new Date(review.created_at).toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-            }),
-            rating: review.overall_rating || 0,
-            content: review.detailed_review || "",
-            accountSize: review.account_size || "",
-            fundedStatus: review.funded_status === "Yes",
-            payoutStatus: review.received_payout || "No",
-          }))
+          const processedReviews = reviewsData.map((review) => {
+            // Handle different possible structures of prop_firm data
+            let companyName = "Unknown Company"
+            if (review.prop_firm) {
+              if (typeof review.prop_firm === "object") {
+                // It could be an object with propfirm_name property
+                companyName = review.prop_firm.propfirm_name || review.prop_firm.name || "Unknown Company"
+              } else if (typeof review.prop_firm === "string") {
+                // Or it could be just a string
+                companyName = review.prop_firm
+              }
+            }
+
+            return {
+              id: review.id,
+              companyName: companyName,
+              date: new Date(review.created_at).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+              }),
+              rating: review.overall_rating || 0,
+              content: review.detailed_review || "",
+              accountSize: review.account_size || "",
+              fundedStatus: review.funded_status === "Yes",
+              payoutStatus: review.received_payout || "No",
+            }
+          })
 
           setPreviousReviews(processedReviews)
         } else {
