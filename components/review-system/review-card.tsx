@@ -1,8 +1,6 @@
 /* eslint-disable */
 "use client"
 
-"use client"
-
 import { useState, useEffect, useRef } from "react"
 import { createPortal } from "react-dom"
 import Image from "next/image"
@@ -10,7 +8,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import {
-  ThumbsUp,
   Flag,
   Calendar,
   MessageSquare,
@@ -35,6 +32,11 @@ import { createClient } from "@supabase/supabase-js"
 
 // Add the useNoise import at the top of the file
 import { useNoise } from "../../components/providers/noise-provider"
+
+// Update the ReviewCard component to use the new UpvoteButton component
+// Find the existing upvote button in the ReviewCard component and replace it with:
+
+import UpvoteButton from "./upvote-button"
 
 // Define types for our review data
 interface ReviewRating {
@@ -576,7 +578,7 @@ export default function ReviewCard({
     account_size,
     funded_status,
     received_payout,
-    prop_firm(id, propfirm_name)
+    prop_firm(id, propfirm_name, slug)
   `)
           .eq("reviewer", authorId)
           .order("created_at", { ascending: false })
@@ -621,6 +623,7 @@ export default function ReviewCard({
               accountSize: review.account_size || "",
               fundedStatus: review.funded_status === "Yes",
               payoutStatus: review.received_payout || "No",
+              prop_firm: review.prop_firm,
             }
           })
 
@@ -720,18 +723,8 @@ export default function ReviewCard({
                 </a>
               )}
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              className={cn(
-                "text-gray-400 hover:text-black hover:bg-[#edb900] mt-8",
-                isUpvoted && "text-black hover:bg-[#edb900]",
-              )}
-              onClick={handleUpvote}
-            >
-              <ThumbsUp className={cn("h-4 w-4 mr-1", isUpvoted && "fill-[#edb900]")} />
-              Upvote {upvoteCount > 0 && `(${upvoteCount})`}
-            </Button>
+            {/* Then replace the existing upvote button JSX with: */}
+            <UpvoteButton reviewId={id} initialUpvotes={upvotes} initialUserUpvoted={hasUserUpvoted} className="mt-8" />
           </div>
 
           <div className="flex-1">
@@ -1208,7 +1201,33 @@ export default function ReviewCard({
                           variant="ghost"
                           size="sm"
                           className="w-full mt-2 text-[#edb900] hover:bg-gray-700"
-                          onClick={() => window.open(`/review/${review.id}`, "_blank")}
+                          onClick={() => {
+                            // Check if we have the prop_firm ID
+                            if (review.id) {
+                              // Get the prop firm slug or ID
+                              let propFirmIdentifier = ""
+
+                              // Try to get the slug first (preferred)
+                              if (typeof review.prop_firm === "object" && review.prop_firm !== null) {
+                                const propFirmObj = review.prop_firm as Record<string, any>
+                                propFirmIdentifier = propFirmObj.slug || propFirmObj.id
+                              } else if (typeof review.prop_firm === "number") {
+                                propFirmIdentifier = review.prop_firm.toString()
+                              }
+
+                              // If we have a prop firm identifier, navigate to the page
+                              if (propFirmIdentifier) {
+                                // Navigate to the prop firm page with reviews tab active and highlight this review
+                                window.open(
+                                  `/prop-firm/${propFirmIdentifier}?tab=reviews&highlight=${review.id}`,
+                                  "_blank",
+                                )
+                              } else {
+                                // Fallback to just opening the review directly
+                                window.open(`/review/${review.id}`, "_blank")
+                              }
+                            }
+                          }}
                         >
                           View Full Review
                           <ChevronRight className="ml-1 h-4 w-4" />
