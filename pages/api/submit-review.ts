@@ -1,11 +1,14 @@
 /* eslint-disable */
 import type { NextApiRequest, NextApiResponse } from "next"
 import { createClient } from "@supabase/supabase-js"
+import formidable from "formidable"
+import fs from "fs"
+import path from "path"
 
-// Enable the default body parser for JSON
+// Disable body parser to handle FormData with files
 export const config = {
   api: {
-    bodyParser: true, // Enable JSON body parsing
+    bodyParser: false,
   },
 }
 
@@ -44,9 +47,26 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Initialize Supabase client
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-    // Get JSON data from request body
-    const jsonData = req.body
-    console.log("Received request body:", JSON.stringify(jsonData, null, 2))
+    // Parse the incoming form data
+    const form = formidable({
+      multiples: true,
+      maxFileSize: 10 * 1024 * 1024, // 10MB max file size
+    })
+
+    const parseForm = async (): Promise<{ fields: formidable.Fields; files: formidable.Files }> => {
+      return new Promise((resolve, reject) => {
+        form.parse(req, (err, fields, files) => {
+          if (err) reject(err)
+          else resolve({ fields, files })
+        })
+      })
+    }
+
+    const { fields, files } = await parseForm()
+
+    // Get JSON data from the parsed form
+    const jsonData = JSON.parse(fields.data?.[0] as string)
+    console.log("Received JSON data:", JSON.stringify(jsonData, null, 2))
 
     // Extract the company ID
     const companyId = jsonData?.companyId
@@ -82,6 +102,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const nextId = maxIdData ? maxIdData.id + 1 : 1
       console.log("Next ID will be:", nextId)
 
+      // Create folder name for this review
+      const folderName = `review${nextId}`
+
       // Extract individual ratings from the ratings object
       const ratings = jsonData.ratings || {}
 
@@ -91,6 +114,82 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         console.log("Missing user ID")
         return res.status(400).json({ error: "User ID is required" })
       }
+
+      // Object to store file URLs
+      const proofs: Record<string, string> = {}
+
+      // Upload files to Supabase Storage
+      const fileUploadPromises = []
+
+      // Helper function to upload a file
+      const uploadFile = async (file: formidable.File, key: string) => {
+        try {
+          const fileContent = await fs.promises.readFile(file.filepath)
+          const fileName = `${folderName}/${key}_${Date.now()}${path.extname(file.originalFilename || "")}`
+
+          const { data, error } = await supabase.storage.from("proofs").upload(fileName, fileContent, {
+            contentType: file.mimetype || "application/octet-stream",
+            upsert: false,
+          })
+
+          if (error) {
+            console.error(`Error uploading ${key}:`, error)
+            return null
+          }
+
+          // Get public URL for the file
+          const { data: urlData } = supabase.storage.from("proofs").getPublicUrl(fileName)
+
+          return { key, url: urlData.publicUrl }
+        } catch (error) {
+          console.error(`Error processing ${key}:`, error)
+          return null
+        } finally {
+          // Clean up temp file
+          try {
+            await fs.promises.unlink(file.filepath)
+          } catch (unlinkError) {
+            console.error("Error deleting temp file:", unlinkError)
+          }
+        }
+      }
+
+      // Process proof of purchase
+      if (files.proof_of_purchase) {
+        const file = Array.isArray(files.proof_of_purchase) ? files.proof_of_purchase[0] : files.proof_of_purchase
+        fileUploadPromises.push(uploadFile(file, "proof_of_purchase"))
+      }
+
+      // Process proof of funding
+      if (files.proof_of_funding) {
+        const file = Array.isArray(files.proof_of_funding) ? files.proof_of_funding[0] : files.proof_of_funding
+        fileUploadPromises.push(uploadFile(file, "proof_of_funding"))
+      }
+
+      // Process proof of payout
+      if (files.proof_of_payout) {
+        const file = Array.isArray(files.proof_of_payout) ? files.proof_of_payout[0] : files.proof_of_payout
+        fileUploadPromises.push(uploadFile(file, "proof_of_payout"))
+      }
+
+      // Process problem report proofs
+      for (let i = 1; i <= 6; i++) {
+        const key = `problem_report_proof_${i}`
+        if (files[key]) {
+          const file = Array.isArray(files[key]) ? files[key][0] : files[key]
+          fileUploadPromises.push(uploadFile(file, key))
+        }
+      }
+
+      // Wait for all file uploads to complete
+      const uploadResults = await Promise.all(fileUploadPromises)
+
+      // Add successful uploads to proofs object
+      uploadResults.forEach((result) => {
+        if (result) {
+          proofs[result.key] = result.url
+        }
+      })
 
       // Prepare review data with fallbacks for all fields
       const reviewData = {
@@ -111,26 +210,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         trading_period: jsonData.tradingDuration || "",
         funded_status: jsonData.fundedStatus || "",
         received_payout: jsonData.payoutStatus || "",
-        proofs: {}, // Empty JSON object for proofs
+        proofs: proofs, // Add the file URLs
         reported_issues: !!jsonData.reportIssue,
         review_status: "pending",
-        problem_report: {}
+        problem_report: {},
       }
 
-      // If there's a report issue, add the report details to the proofs JSON
-      if (jsonData.reportIssue) {
-        reviewData.problem_report = {
-          reportReason: jsonData.reportReason || "",
-          reportDescription: jsonData.reportDescription || "",
-          // Add other report-specific fields if needed
-          breachedAccountSize: jsonData.breachedAccountSize || "",
-          breachReason: jsonData.breachReason || "",
-          breachDetails: jsonData.breachDetails || "",
-          receivedLastPayout: jsonData.receivedLastPayout || "",
-          deniedAmount: jsonData.deniedAmount || "",
-          payoutDenialReason: jsonData.payoutDenialReason || "",
-          payoutDenialDetails: jsonData.payoutDenialDetails || "",
-        }
+      // If there's a report issue, add the report details to the problem_report JSON
+      if (jsonData.reportIssue && jsonData.problem_report) {
+        reviewData.problem_report = jsonData.problem_report
       }
 
       console.log("Review data prepared:", JSON.stringify(reviewData, null, 2))
@@ -155,6 +243,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         success: true,
         reviewId: data?.[0]?.id,
         message: "Review submitted successfully",
+        proofs: proofs,
       })
     } catch (dbError: any) {
       console.log("Database operation error:", dbError)

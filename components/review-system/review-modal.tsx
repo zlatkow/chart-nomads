@@ -207,7 +207,7 @@ export default function ReviewModal({
     })
   }
 
-  // Updated nextStep function to handle form submission as JSON
+  // Update the nextStep function to handle file uploads
   const nextStep = async () => {
     const currentStepErrors = validateStep(step)
 
@@ -235,11 +235,13 @@ export default function ReviewModal({
         // Log userId before creating the JSON data
         console.log("About to submit review with userId:", userId)
 
-        // Create JSON data to send instead of FormData
-        // Define the type with all possible properties to avoid TypeScript errors
+        // Create FormData to send files
+        const formDataToSend = new FormData()
+
+        // Create the JSON data object with proper typing
         const jsonData: {
           companyId: string
-          userId: string | null // Add userId to the type
+          userId: string | null
           accountSize: string
           accountType: string
           tradingDuration: string
@@ -250,18 +252,20 @@ export default function ReviewModal({
           likedMost: string
           dislikedMost: string
           reportIssue: boolean
-          reportReason?: string
-          reportDescription?: string
-          breachedAccountSize?: string
-          breachReason?: string
-          breachDetails?: string
-          receivedLastPayout?: string
-          deniedAmount?: string
-          payoutDenialReason?: string
-          payoutDenialDetails?: string
+          problem_report?: {
+            reportReason?: string
+            reportDescription?: string
+            breachedAccountSize?: string
+            breachReason?: string
+            breachDetails?: string
+            receivedLastPayout?: string
+            deniedAmount?: string
+            payoutDenialReason?: string
+            payoutDenialDetails?: string
+          }
         } = {
           companyId: companyId,
-          userId: userId, // Add the userId from Clerk
+          userId: userId,
           accountSize: formData.accountSize,
           accountType: formData.accountType,
           tradingDuration: formData.tradingDuration,
@@ -274,40 +278,66 @@ export default function ReviewModal({
           reportIssue: formData.reportIssue,
         }
 
-        // Log the complete JSON data before sending
-        console.log("Sending JSON data:", JSON.stringify(jsonData, null, 2))
-
+        // Add problem report data if reporting an issue
         if (formData.reportIssue) {
-          jsonData.reportReason = formData.reportReason
-          jsonData.reportDescription = formData.reportDescription
+          jsonData.problem_report = {
+            reportReason: formData.reportReason,
+          }
+
+          if (formData.reportReason !== "unjustified-breach" && formData.reportReason !== "payout-denial") {
+            jsonData.problem_report.reportDescription = formData.reportDescription
+          }
 
           if (formData.reportReason === "unjustified-breach") {
-            jsonData.breachedAccountSize = formData.breachedAccountSize
-            jsonData.breachReason = formData.breachReason
-            jsonData.breachDetails = formData.breachDetails
-            jsonData.receivedLastPayout = formData.receivedLastPayout
+            jsonData.problem_report.breachedAccountSize = formData.breachedAccountSize
+            jsonData.problem_report.breachReason = formData.breachReason
+            jsonData.problem_report.breachDetails = formData.breachDetails
+            jsonData.problem_report.receivedLastPayout = formData.receivedLastPayout
 
             if (formData.receivedLastPayout === "No") {
-              jsonData.deniedAmount = formData.deniedAmount
+              jsonData.problem_report.deniedAmount = formData.deniedAmount
             }
           }
 
           if (formData.reportReason === "payout-denial") {
-            jsonData.deniedAmount = formData.deniedAmount
-            jsonData.payoutDenialReason = formData.payoutDenialReason
-            jsonData.payoutDenialDetails = formData.payoutDenialDetails
+            jsonData.problem_report.deniedAmount = formData.deniedAmount
+            jsonData.problem_report.payoutDenialReason = formData.payoutDenialReason
+            jsonData.problem_report.payoutDenialDetails = formData.payoutDenialDetails
           }
         }
 
-        console.log("Sending JSON data with companyId:", companyId)
+        // Add the JSON data
+        formDataToSend.append("data", JSON.stringify(jsonData))
 
-        // Send the JSON data to the API endpoint
+        // Add files with specific keys
+        if (formData.proofFile) {
+          formDataToSend.append("proof_of_purchase", formData.proofFile)
+        }
+
+        if (formData.fundedProofFile) {
+          formDataToSend.append("proof_of_funding", formData.fundedProofFile)
+        }
+
+        if (formData.payoutProofFile) {
+          formDataToSend.append("proof_of_payout", formData.payoutProofFile)
+        }
+
+        // Add problem report proof files
+        if (formData.proofFiles && formData.proofFiles.length > 0) {
+          formData.proofFiles.forEach((file, index) => {
+            if (file) {
+              formDataToSend.append(`problem_report_proof_${index + 1}`, file)
+            }
+          })
+        }
+
+        console.log("Sending form data with companyId:", companyId)
+
+        // Send the FormData to the API endpoint
         const response = await fetch("/api/submit-review", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(jsonData),
+          body: formDataToSend,
+          // Don't set Content-Type header, browser will set it with boundary for FormData
         })
 
         if (!response.ok) {
@@ -733,7 +763,7 @@ export default function ReviewModal({
                           className={
                             formData.payoutStatus === "No"
                               ? "bg-[#edb900] text-[#0f0f0f] hover:bg-[#edb900]/90"
-                              : "border-[#333333] bg-[#0f0f0f] text-[#edb900] hover:border-[#edb900] hover:bg-[#0f0f0f] hover:text-[#edb900]"
+                              : "border-[#333333] bg-[#0f0f0f] text-[#edb9আমর0] hover:border-[#edb900] hover:bg-[#0f0f0f] hover:text-[#edb900]"
                           }
                           onClick={() => handleRadioChange("payoutStatus", "No")}
                         >
