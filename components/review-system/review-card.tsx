@@ -9,7 +9,21 @@ import Image from "next/image"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { ThumbsUp, Flag, Calendar, MessageSquare, AlertCircle, X, ArrowLeft, ArrowRight, Instagram, Youtube, ChevronRight, Info, Check } from 'lucide-react'
+import {
+  ThumbsUp,
+  Flag,
+  Calendar,
+  MessageSquare,
+  AlertCircle,
+  X,
+  ArrowLeft,
+  ArrowRight,
+  Instagram,
+  Youtube,
+  ChevronRight,
+  Info,
+  Check,
+} from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
@@ -234,34 +248,37 @@ const StatusIndicator = ({ isPositive, label }: { isPositive: boolean; label: st
 // Function to process proof images from different formats
 const processProofImages = (proofImages: any): ProofImage[] => {
   if (!proofImages) return []
-  
+
   // If it's already an array of ProofImage objects, return it
-  if (Array.isArray(proofImages) && proofImages.length > 0 && typeof proofImages[0] === 'object') {
+  if (Array.isArray(proofImages) && proofImages.length > 0 && typeof proofImages[0] === "object") {
     return proofImages
   }
-  
+
   // If it's a string (JSON), try to parse it
-  if (typeof proofImages === 'string') {
+  if (typeof proofImages === "string") {
     try {
       const parsed = JSON.parse(proofImages)
       return processProofImages(parsed)
     } catch (e) {
-      console.error('Failed to parse proof images string:', e)
+      console.error("Failed to parse proof images string:", e)
       return []
     }
   }
-  
+
   // If it's an object with URLs as values (like {proof_of_funding: "url1", proof_of_purchase: "url2"})
-  if (typeof proofImages === 'object' && proofImages !== null && !Array.isArray(proofImages)) {
+  if (typeof proofImages === "object" && proofImages !== null && !Array.isArray(proofImages)) {
     return Object.entries(proofImages).map(([key, value], index) => ({
       id: `proof-${index}`,
       url: value as string,
-      label: key.replace(/_/g, ' ').replace(/of/g, 'of ').split(' ').map(word => 
-        word.charAt(0).toUpperCase() + word.slice(1)
-      ).join(' ')
+      label: key
+        .replace(/_/g, " ")
+        .replace(/of/g, "of ")
+        .split(" ")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" "),
     }))
   }
-  
+
   return []
 }
 
@@ -296,7 +313,7 @@ export default function ReviewCard({
 }: ReviewProps) {
   // Process proof images
   const [processedProofImages, setProcessedProofImages] = useState<ProofImage[]>([])
-  
+
   // Add this state variable near the top of your component, with the other state variables
   const [profileImage, setProfileImage] = useState<string | null>(authorAvatar || null)
   // Add the useNoise hook to control noise visibility
@@ -510,6 +527,26 @@ export default function ReviewCard({
     }
     return stars
   }
+
+  // First, add a new useEffect for keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!showFullscreenGallery) return
+
+      if (e.key === "ArrowRight") {
+        nextImage()
+      } else if (e.key === "ArrowLeft") {
+        prevImage()
+      } else if (e.key === "Escape") {
+        closeGallery()
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown)
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown)
+    }
+  }, [showFullscreenGallery])
 
   return (
     <>
@@ -799,22 +836,33 @@ export default function ReviewCard({
               position: "fixed",
               inset: 0,
               zIndex: 99999,
-              backgroundColor: "black",
+              backgroundColor: "rgba(0, 0, 0, 0.9)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               pointerEvents: "auto",
             }}
+            onClick={closeGallery} // Close when clicking anywhere in the backdrop
           >
             <div className="relative w-full h-full flex items-center justify-center">
-              <Image
-                src={processedProofImages[currentImageIndex].url || "/placeholder.svg"}
-                alt={processedProofImages[currentImageIndex].label || `Proof ${currentImageIndex + 1}`}
-                fill
-                className="object-contain"
-              />
+              {/* Container with max width/height to make images smaller */}
+              <div
+                className="relative max-w-3xl max-h-[80vh] w-full h-full flex items-center justify-center"
+                onClick={(e) => e.stopPropagation()} // Prevent closing when clicking on the image container
+              >
+                <Image
+                  src={processedProofImages[currentImageIndex].url || "/placeholder.svg"}
+                  alt={processedProofImages[currentImageIndex].label || `Proof ${currentImageIndex + 1}`}
+                  fill
+                  className="object-contain"
+                  sizes="(max-width: 768px) 100vw, 800px"
+                />
+              </div>
 
-              <div className="absolute inset-0 flex items-center justify-between p-4">
+              <div
+                className="absolute inset-0 flex items-center justify-between p-4"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <Button
                   variant="outline"
                   size="icon"
@@ -839,7 +887,10 @@ export default function ReviewCard({
                 </Button>
               </div>
 
-              <div className="absolute bottom-0 left-0 right-0 bg-black/70 p-4 text-center">
+              <div
+                className="absolute bottom-0 left-0 right-0 bg-black/70 p-4 text-center"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <p className="text-white text-sm">
                   {processedProofImages[currentImageIndex].label || `Proof ${currentImageIndex + 1}`}
                 </p>
@@ -850,7 +901,10 @@ export default function ReviewCard({
 
               <button
                 className="absolute right-4 top-4 rounded-full bg-black/50 p-2 text-white hover:bg-black/70"
-                onClick={closeGallery}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  closeGallery()
+                }}
               >
                 <X className="h-6 w-6" />
               </button>
