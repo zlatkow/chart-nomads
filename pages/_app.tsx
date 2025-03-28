@@ -22,8 +22,9 @@ interface ModalContextType {
     isOpen: boolean
     companyName: string
     companyLogo?: string
+    companyId: string // Add companyId to the type
   }
-  openReviewModal: (props: { companyName: string; companyLogo?: string }) => void
+  openReviewModal: (props: { companyName: string; companyLogo?: string; companyId: string }) => void // Update type
   closeReviewModal: () => void
 }
 
@@ -34,6 +35,7 @@ export const ModalContext = createContext<ModalContextType>({
   reviewModal: {
     isOpen: false,
     companyName: "",
+    companyId: "", // Add default value
   },
   openReviewModal: () => {},
   closeReviewModal: () => {},
@@ -87,15 +89,17 @@ export default function MyApp({ Component, pageProps }: AppProps) {
     isOpen: false,
     companyName: "",
     companyLogo: undefined as string | undefined,
+    companyId: "", // Add companyId to state
   })
 
   // Function to open review modal
-  const openReviewModal = (props: { companyName: string; companyLogo?: string }) => {
+  const openReviewModal = (props: { companyName: string; companyLogo?: string; companyId: string }) => {
     console.log("Opening review modal with:", props)
     setReviewModal({
       isOpen: true,
       companyName: props.companyName,
       companyLogo: props.companyLogo,
+      companyId: props.companyId, // Set companyId
     })
 
     if (typeof document !== "undefined") {
@@ -176,6 +180,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
                 onClose={closeReviewModal}
                 companyName={reviewModal.companyName}
                 companyLogo={reviewModal.companyLogo}
+                companyId={reviewModal.companyId} // Add the companyId prop
               />,
               document.body,
             )}
@@ -184,4 +189,3 @@ export default function MyApp({ Component, pageProps }: AppProps) {
     </NoiseProvider>
   )
 }
-
