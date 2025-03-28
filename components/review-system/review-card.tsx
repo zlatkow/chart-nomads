@@ -9,21 +9,7 @@ import Image from "next/image"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import {
-  ThumbsUp,
-  Flag,
-  Calendar,
-  MessageSquare,
-  AlertCircle,
-  X,
-  ArrowLeft,
-  ArrowRight,
-  Instagram,
-  Youtube,
-  ChevronRight,
-  Info,
-  Check,
-} from "lucide-react"
+import { ThumbsUp, Flag, Calendar, MessageSquare, AlertCircle, X, ArrowLeft, ArrowRight, Instagram, Youtube, ChevronRight, Info, Check } from 'lucide-react'
 import { cn } from "@/lib/utils"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
@@ -52,11 +38,11 @@ interface CompanyResponse {
   content: string
 }
 
+// Updated ProofImage interface to match the actual data structure
 interface ProofImage {
-  id: string
-  thumbnail: string
-  fullImage: string
-  caption?: string
+  id?: string
+  url: string
+  label: string
 }
 
 interface SocialLinks {
@@ -91,7 +77,7 @@ interface ReviewProps {
   firmCount?: number
   payoutStatus?: string
   fundedStatus?: string // Changed from boolean to string
-  proofImages?: ProofImage[]
+  proofImages?: ProofImage[] | Record<string, string> | any
   tradingStats?: {
     winRate?: number
     avgWin?: number
@@ -245,6 +231,40 @@ const StatusIndicator = ({ isPositive, label }: { isPositive: boolean; label: st
   )
 }
 
+// Function to process proof images from different formats
+const processProofImages = (proofImages: any): ProofImage[] => {
+  if (!proofImages) return []
+  
+  // If it's already an array of ProofImage objects, return it
+  if (Array.isArray(proofImages) && proofImages.length > 0 && typeof proofImages[0] === 'object') {
+    return proofImages
+  }
+  
+  // If it's a string (JSON), try to parse it
+  if (typeof proofImages === 'string') {
+    try {
+      const parsed = JSON.parse(proofImages)
+      return processProofImages(parsed)
+    } catch (e) {
+      console.error('Failed to parse proof images string:', e)
+      return []
+    }
+  }
+  
+  // If it's an object with URLs as values (like {proof_of_funding: "url1", proof_of_purchase: "url2"})
+  if (typeof proofImages === 'object' && proofImages !== null && !Array.isArray(proofImages)) {
+    return Object.entries(proofImages).map(([key, value], index) => ({
+      id: `proof-${index}`,
+      url: value as string,
+      label: key.replace(/_/g, ' ').replace(/of/g, 'of ').split(' ').map(word => 
+        word.charAt(0).toUpperCase() + word.slice(1)
+      ).join(' ')
+    }))
+  }
+  
+  return []
+}
+
 // In the ReviewCard component, add the useNoise hook
 export default function ReviewCard({
   id,
@@ -274,6 +294,9 @@ export default function ReviewCard({
   tradingStats = {},
   socialLinks = {},
 }: ReviewProps) {
+  // Process proof images
+  const [processedProofImages, setProcessedProofImages] = useState<ProofImage[]>([])
+  
   // Add this state variable near the top of your component, with the other state variables
   const [profileImage, setProfileImage] = useState<string | null>(authorAvatar || null)
   // Add the useNoise hook to control noise visibility
@@ -290,6 +313,11 @@ export default function ReviewCard({
 
   // Reference to the sidebar element for animation
   const sidebarRef = useRef<HTMLDivElement>(null)
+
+  // Process proof images when the component mounts or proofImages changes
+  useEffect(() => {
+    setProcessedProofImages(processProofImages(proofImages))
+  }, [proofImages])
 
   // Add this useEffect to fetch the profile image if needed
   useEffect(() => {
@@ -368,11 +396,11 @@ export default function ReviewCard({
   }
 
   const nextImage = () => {
-    setCurrentImageIndex((prev) => (prev === proofImages.length - 1 ? 0 : prev + 1))
+    setCurrentImageIndex((prev) => (prev === processedProofImages.length - 1 ? 0 : prev + 1))
   }
 
   const prevImage = () => {
-    setCurrentImageIndex((prev) => (prev === 0 ? proofImages.length - 1 : prev - 1))
+    setCurrentImageIndex((prev) => (prev === 0 ? processedProofImages.length - 1 : prev - 1))
   }
 
   // Update the gallery and sidebar functions to ensure they properly hide/show noise
@@ -681,21 +709,21 @@ export default function ReviewCard({
           </div>
 
           {/* Proof Images Gallery - Moved below most liked/disliked aspects */}
-          {proofImages && proofImages.length > 0 && (
+          {processedProofImages.length > 0 && (
             <div className="mt-4">
               <h4 className="text-md font-[balboa] mb-2 border-b border-[#edb900] pb-1 inline-block">
                 Proof & Certificates
               </h4>
               <div className="flex flex-wrap gap-2 mt-2">
-                {proofImages.map((image, index) => (
+                {processedProofImages.map((image, index) => (
                   <button
                     key={image.id || `proof-${index}`}
                     className="relative h-16 w-16 rounded-md overflow-hidden border border-[rgba(237,185,0,0.2)] hover:border-[#edb900] transition-colors"
                     onClick={() => openGallery(index)}
                   >
                     <Image
-                      src={image.thumbnail || image.fullImage || "/placeholder.svg?height=100&width=100"}
-                      alt={image.caption || `Proof ${index + 1}`}
+                      src={image.url || "/placeholder.svg?height=100&width=100"}
+                      alt={image.label || `Proof ${index + 1}`}
                       fill
                       className="object-cover"
                     />
@@ -780,8 +808,8 @@ export default function ReviewCard({
           >
             <div className="relative w-full h-full flex items-center justify-center">
               <Image
-                src={proofImages[currentImageIndex].fullImage || "/placeholder.svg"}
-                alt={proofImages[currentImageIndex].caption || `Proof ${currentImageIndex + 1}`}
+                src={processedProofImages[currentImageIndex].url || "/placeholder.svg"}
+                alt={processedProofImages[currentImageIndex].label || `Proof ${currentImageIndex + 1}`}
                 fill
                 className="object-contain"
               />
@@ -813,10 +841,10 @@ export default function ReviewCard({
 
               <div className="absolute bottom-0 left-0 right-0 bg-black/70 p-4 text-center">
                 <p className="text-white text-sm">
-                  {proofImages[currentImageIndex].caption || `Proof ${currentImageIndex + 1}`}
+                  {processedProofImages[currentImageIndex].label || `Proof ${currentImageIndex + 1}`}
                 </p>
                 <p className="text-gray-400 text-xs mt-1">
-                  {currentImageIndex + 1} of {proofImages.length}
+                  {currentImageIndex + 1} of {processedProofImages.length}
                 </p>
               </div>
 

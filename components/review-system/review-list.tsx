@@ -7,7 +7,7 @@ import { useState, useEffect, useRef } from "react"
 import ReviewCard from "./review-card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
-import { Star } from "lucide-react"
+import { Star } from 'lucide-react'
 import { SignedIn, SignedOut } from "@clerk/nextjs"
 import { useRouter } from "next/navigation"
 import { createClient } from "@supabase/supabase-js"
@@ -71,6 +71,40 @@ interface SocialLinks {
   tiktok?: string
 }
 
+// Function to process proof images from different formats
+const processProofImages = (proofImages: any): any[] => {
+  if (!proofImages) return []
+  
+  // If it's a string (JSON), try to parse it
+  if (typeof proofImages === 'string') {
+    try {
+      const parsed = JSON.parse(proofImages)
+      return processProofImages(parsed)
+    } catch (e) {
+      console.error('Failed to parse proof images string:', e)
+      return []
+    }
+  }
+  
+  // If it's an object with URLs as values (like {proof_of_funding: "url1", proof_of_purchase: "url2"})
+  if (typeof proofImages === 'object' && proofImages !== null && !Array.isArray(proofImages)) {
+    return Object.entries(proofImages).map(([key, value], index) => ({
+      id: `proof-${index}`,
+      url: value as string,
+      label: key.replace(/_/g, ' ').replace(/of/g, 'of ').split(' ').map(word => 
+        word.charAt(0).toUpperCase() + word.slice(1)
+      ).join(' ')
+    }))
+  }
+  
+  // If it's already an array, return it
+  if (Array.isArray(proofImages)) {
+    return proofImages
+  }
+  
+  return []
+}
+
 export default function ReviewList({
   onOpenReviewModal,
   companyName = "CHART NOMADS",
@@ -100,11 +134,6 @@ export default function ReviewList({
     2: 0,
     1: 0,
   })
-
-  // Remove the existing averageRating and ratingCounts variables since we're using state variables now
-  // const averageRating = calculateAverageRating(reviews);
-  // const ratingCounts = countRatingsByStars(reviews);
-  // const totalReviews = reviews.length;
 
   // Replace the existing useEffect that fetches propfirmId with this updated version that also fetches rating data
   useEffect(() => {
@@ -404,6 +433,10 @@ export default function ReviewList({
 
             console.log("Social links for review:", review.id, socialLinks)
 
+            // Process proof images
+            const processedProofs = processProofImages(review.proofs)
+            console.log("Processed proof images for review:", review.id, processedProofs)
+
             // 3. Map the review data to the format expected by ReviewCard
             return {
               id: review.id,
@@ -453,15 +486,7 @@ export default function ReviewList({
                 profitFactor: 0,
               },
               socialLinks: socialLinks,
-              proofImages: review.proofs
-                ? typeof review.proofs === "string"
-                  ? JSON.parse(review.proofs)
-                  : Array.isArray(review.proofs)
-                    ? review.proofs
-                    : typeof review.proofs === "object" && review.proofs !== null
-                      ? Object.values(review.proofs)
-                      : []
-                : [],
+              proofImages: processedProofs,
             }
           }),
         )
@@ -478,8 +503,6 @@ export default function ReviewList({
 
     fetchReviews()
   }, [propfirmId, externalLoading])
-
-  // Remove or comment out the existing calculatePercentages function since we're using data directly from the database
 
   // Update the useEffect that handles animation to use ratingPercentages instead of calculating them
   useEffect(() => {
