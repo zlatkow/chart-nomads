@@ -664,7 +664,7 @@ export default function ReviewCard({
                 </Avatar>
               </div>
               <div className="mt-2 w-full">
-                <p className="group-hover:text-[#edb900] transition-colors">{authorName}</p>
+                <p className="group-hover:text-[#edb900] transition-colors font-[balboa]">{authorName}</p>
                 {authorLocation && (
                   <p className="text-xs text-gray-400 flex items-center justify-center gap-1 mt-1">
                     <span className="inline-block w-4 h-3 overflow-hidden">
