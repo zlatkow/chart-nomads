@@ -101,14 +101,18 @@ export default function ReviewSystem({
   const handleOpenReviewModal = () => {
     console.log("Opening review modal for:", companyName)
 
-    // Only pass the properties that the modal accepts
+    // Make sure we have a valid propfirmId to pass
+    if (resolvedPropfirmId === null) {
+      console.error("Cannot open review modal: No propfirmId available")
+      return
+    }
+
+    // Pass all required properties including companyId
     openReviewModal({
       companyName,
       companyLogo,
+      companyId: resolvedPropfirmId.toString(), // Convert number to string
     })
-
-    // We don't pass propfirmId because the modal doesn't accept it
-    // The propfirmId will be used by ReviewList to fetch reviews
   }
 
   return (
@@ -124,4 +128,3 @@ export default function ReviewSystem({
     </div>
   )
 }
-
