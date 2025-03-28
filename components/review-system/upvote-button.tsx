@@ -135,15 +135,14 @@ export default function UpvoteButton({
       variant="ghost"
       size="sm"
       className={cn(
-        "text-black hover:text-black hover:bg-[#edb900]",
-        isUpvoted ? "bg-[#edb900]" : "text-gray-400",
+        "bg-[#edb900] text-black hover:bg-[#edb900] hover:text-black",
         isLoading && "opacity-50 cursor-not-allowed",
         className,
       )}
       onClick={handleUpvote}
       disabled={isLoading}
     >
-      <ThumbsUp className={cn("h-4 w-4 mr-1", isUpvoted && "fill-[#edb900]")} />
+      <ThumbsUp className="h-4 w-4 mr-1" />
       {isUpvoted ? "Upvoted" : "Upvote"} {upvoteCount > 0 && `(${upvoteCount})`}
     </Button>
   )
