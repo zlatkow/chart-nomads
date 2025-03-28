@@ -143,8 +143,8 @@ export default function UpvoteButton({
       onClick={handleUpvote}
       disabled={isLoading}
     >
-      <ThumbsUp className={cn("h-4 w-4 mr-1", isUpvoted && "fill-current")} />
-      {isUpvoted ? "Upvoted" : "Upvote"} {!isUpvoted && upvoteCount > 0 && `(${upvoteCount})`}
+      <ThumbsUp className={cn("h-4 w-4 mr-1", isUpvoted && "fill-[#edb900]")} />
+      {isUpvoted ? "Upvoted" : "Upvote"} {upvoteCount > 0 && `(${upvoteCount})`}
     </Button>
   )
 }
