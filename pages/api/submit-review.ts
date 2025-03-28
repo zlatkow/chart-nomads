@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextApiRequest, NextApiResponse } from 'next';
 import formidable from 'formidable';
 import { createClient } from '@supabase/supabase-js';
