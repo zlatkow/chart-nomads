@@ -114,11 +114,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         proofs: {}, // Empty JSON object for proofs
         reported_issues: !!jsonData.reportIssue,
         review_status: "pending",
+        problem_report: {}
       }
 
       // If there's a report issue, add the report details to the proofs JSON
       if (jsonData.reportIssue) {
-        reviewData.proofs = {
+        reviewData.problem_report = {
           reportReason: jsonData.reportReason || "",
           reportDescription: jsonData.reportDescription || "",
           // Add other report-specific fields if needed
