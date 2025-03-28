@@ -46,13 +46,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Get JSON data from request body
     const jsonData = req.body
-    console.log("Received JSON data:", JSON.stringify(jsonData))
+    console.log("Received request body:", req.body)
+    console.log("Request body type:", typeof req.body)
+    console.log("Request headers:", req.headers)
 
     // Extract the company ID
-    const companyId = jsonData.companyId
-
-    // Log the company ID for debugging
-    console.log("Company ID:", companyId)
+    const companyId = jsonData?.companyId
+    console.log("Extracted companyId:", companyId, "type:", typeof companyId)
 
     // Validate company ID
     if (!companyId) {
@@ -68,8 +68,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const ratingsData = jsonData.ratings || {}
 
       // Prepare review data with fallbacks for all fields
+      // Use prop_firm instead of company_id to match the database column name
       const reviewData = {
-        company_id: companyId,
+        prop_firm: companyId, // Changed from company_id to prop_firm
         account_size: jsonData.accountSize || "",
         account_type: jsonData.accountType || "",
         trading_duration: jsonData.tradingDuration || "",
@@ -88,7 +89,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       console.log("Review data prepared:", JSON.stringify(reviewData))
 
-      // Insert the review
+      // Insert the review into the propfirm_reviews table
       const { data, error } = await supabase.from("propfirm_reviews").insert([reviewData]).select()
 
       if (error) {
