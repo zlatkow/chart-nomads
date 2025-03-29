@@ -163,7 +163,7 @@ export default function ProblemReportDisplay({ report }: ProblemReportProps) {
           </div>
 
           {report.deniedAmount && (
-              <div>
+              <div className="mb-4">
                 <p className="text-xs text-red-400 mb-1">Owed Amount</p>
                 <p className="text-sm text-white">{report.deniedAmount}</p>
               </div>
