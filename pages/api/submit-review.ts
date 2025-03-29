@@ -115,8 +115,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(400).json({ error: "User ID is required" })
       }
 
-      // Object to store file URLs
+      // Object to store main proof file URLs
       const proofs: Record<string, string> = {}
+
+      // Object to store problem report proof file URLs
+      const problemReportProofs: Record<string, string> = {}
 
       // Upload files to Supabase Storage
       const fileUploadPromises = []
@@ -154,19 +157,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
       }
 
-      // Process proof of purchase
+      // Process main proof files
       if (files.proof_of_purchase) {
         const file = Array.isArray(files.proof_of_purchase) ? files.proof_of_purchase[0] : files.proof_of_purchase
         fileUploadPromises.push(uploadFile(file, "proof_of_purchase"))
       }
 
-      // Process proof of funding
       if (files.proof_of_funding) {
         const file = Array.isArray(files.proof_of_funding) ? files.proof_of_funding[0] : files.proof_of_funding
         fileUploadPromises.push(uploadFile(file, "proof_of_funding"))
       }
 
-      // Process proof of payout
       if (files.proof_of_payout) {
         const file = Array.isArray(files.proof_of_payout) ? files.proof_of_payout[0] : files.proof_of_payout
         fileUploadPromises.push(uploadFile(file, "proof_of_payout"))
@@ -184,10 +185,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // Wait for all file uploads to complete
       const uploadResults = await Promise.all(fileUploadPromises)
 
-      // Add successful uploads to proofs object
+      // Separate the file URLs into the appropriate objects
       uploadResults.forEach((result) => {
         if (result) {
-          proofs[result.key] = result.url
+          if (result.key.startsWith("problem_report_proof_")) {
+            // Store problem report proofs in the problemReportProofs object
+            problemReportProofs[result.key] = result.url
+          } else {
+            // Store main proofs in the proofs object
+            proofs[result.key] = result.url
+          }
         }
       })
 
@@ -210,7 +217,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         trading_period: jsonData.tradingDuration || "",
         funded_status: jsonData.fundedStatus || "",
         received_payout: jsonData.payoutStatus || "",
-        proofs: proofs, // Add the file URLs
+        proofs: proofs, // Add the main proof file URLs
         reported_issues: !!jsonData.reportIssue,
         review_status: "pending",
         problem_report: {},
@@ -218,7 +225,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       // If there's a report issue, add the report details to the problem_report JSON
       if (jsonData.reportIssue && jsonData.problem_report) {
-        reviewData.problem_report = jsonData.problem_report
+        // Copy all properties from jsonData.problem_report to reviewData.problem_report
+        Object.assign(reviewData.problem_report, jsonData.problem_report)
+
+        // Add the problem report proof URLs directly to reviewData.problem_report
+        if (Object.keys(problemReportProofs).length > 0) {
+          reviewData.problem_report.proofs = problemReportProofs
+        }
       }
 
       console.log("Review data prepared:", JSON.stringify(reviewData, null, 2))
