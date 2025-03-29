@@ -291,6 +291,7 @@ export default function ReviewList({
           .select("*")
           .eq("prop_firm", propfirmId)
           .eq("review_status", "published")
+          .order("created_at", { ascending: false }) // Sort by newest first by default
 
         if (reviewsError) {
           console.error("Error fetching reviews:", reviewsError)
@@ -499,7 +500,7 @@ export default function ReviewList({
               ].filter((rating) => rating.value > 0),
               likedAspect: review.most_liked_aspect || "",
               dislikedAspect: review.most_disliked_aspect || "",
-              upvotes: 0,
+              upvotes: review.upvotes_count || 0,
               hasUserUpvoted: false,
               reported_issues: review.reported_issues || false,
               problem_report: problemReport,
@@ -645,7 +646,8 @@ export default function ReviewList({
     } else if (value === "lowest") {
       sortedReviews.sort((a, b) => a.rating - b.rating)
     } else if (value === "most-upvoted") {
-      sortedReviews.sort((a, b) => b.upvotes - a.upvotes)
+      // Use upvotes_count from the database if available, otherwise fall back to upvotes
+      sortedReviews.sort((a, b) => (b.upvotes_count || b.upvotes || 0) - (a.upvotes_count || a.upvotes || 0))
     }
 
     setReviews(sortedReviews)

@@ -150,13 +150,13 @@ export default function ProblemReportDisplay({ report }: ProblemReportProps) {
           <div className="pt-4 grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             {report.breachedAccountSize && (
               <div>
-                <p className="text-xs text-red-400 mb-1">Account Size</p>
+                <p className="text-xs text-red-400">Account Size</p>
                 <p className="text-sm text-white">${report.breachedAccountSize.replace("k", ",000")}</p>
               </div>
             )}
             {report.receivedLastPayout && (
                 <div className="mb-4">
-                <p className="text-xs text-red-400 mb-1">Paid Upon Breack</p>
+                <p className="text-xs text-red-400">Paid Upon Breack</p>
                 <p className="text-sm text-white">{report.receivedLastPayout}</p>
                 </div>
             )}
@@ -179,7 +179,7 @@ export default function ProblemReportDisplay({ report }: ProblemReportProps) {
           {report.breachDetails && (
             <div className="mb-4">
               <p className="text-xs text-red-400 mb-1">Case Details</p>
-              <p className="text-sm text-gray-300 whitespace-pre-line">{report.breachDetails}</p>
+              <p className="text-sm text-white whitespace-pre-line">{report.breachDetails}</p>
             </div>
           )}
 
@@ -210,7 +210,7 @@ export default function ProblemReportDisplay({ report }: ProblemReportProps) {
           {report.payoutDenialDetails && (
             <div className="mb-4">
               <p className="text-xs text-red-400 mb-1">Case Details</p>
-              <p className="text-sm text-gray-300 whitespace-pre-line">{report.payoutDenialDetails}</p>
+              <p className="text-sm text-white whitespace-pre-line">{report.payoutDenialDetails}</p>
             </div>
           )}
 
@@ -234,7 +234,7 @@ export default function ProblemReportDisplay({ report }: ProblemReportProps) {
         {(report.reportDescription || report.description) && (
           <div>
             <p className="text-xs text-red-400 mb-1">Case Details</p>
-            <p className="text-sm text-gray-300">{report.reportDescription || report.description}</p>
+            <p className="text-sm text-white">{report.reportDescription || report.description}</p>
           </div>
         )}
 
