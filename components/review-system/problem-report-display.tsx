@@ -4,7 +4,7 @@
 import { useState } from "react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { createPortal } from "react-dom"
-import { X, ArrowLeft, ArrowRight } from "lucide-react"
+import { X, ArrowLeft, ArrowRight, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 interface ProblemReportProps {
@@ -313,9 +313,7 @@ export default function ProblemReportDisplay({ report }: ProblemReportProps) {
         <AccordionItem value="report" className="border border-red-500 bg-red-900/20 rounded-md overflow-hidden">
           <AccordionTrigger className="py-3 px-4 hover:bg-red-900/30 hover:no-underline group">
             <div className="flex items-center gap-2 text-red-400">
-              <div className="flex items-center justify-center w-5 h-5 rounded-full border border-red-500 text-red-500 text-xs font-bold">
-                !
-              </div>
+              <AlertCircle className="h-5 w-5" />
               <h4>Report: {getReportTitle()}</h4>
             </div>
           </AccordionTrigger>
