@@ -408,32 +408,41 @@ export default function ReviewCard({
 
     setCurrentImageIndex(index)
     setShowFullscreenGallery(true)
-    document.body.style.overflow = "hidden"
+
+    // Fix the body at the current scroll position without shifting content
+    document.body.style.top = `-${window.scrollY}px`
     document.body.style.position = "fixed"
     document.body.style.width = "100%"
-    document.body.style.top = `-${window.scrollY}px`
-    adjustNavbar(true)
+    document.body.style.overflow = "hidden"
+    document.body.style.left = "0"
+    document.body.style.right = "0"
+
+    // Lower navbar z-index but don't change its position
+    adjustNavbarZIndex(true)
     hideNoise()
-    console.log("Gallery opened - hiding noise")
   }
 
+  // Update the closeGallery function to restore the exact position
   const closeGallery = () => {
     setShowFullscreenGallery(false)
-    document.body.style.overflow = ""
+
+    // Restore body styles
     document.body.style.position = ""
     document.body.style.width = ""
+    document.body.style.overflow = ""
     document.body.style.top = ""
+    document.body.style.left = ""
+    document.body.style.right = ""
 
-    // Restore scroll position
+    // Restore scroll position immediately to prevent layout shift
     window.scrollTo(0, scrollPosition)
 
-    // First restore the navbar
-    adjustNavbar(false)
+    // Restore navbar z-index
+    adjustNavbarZIndex(false)
 
-    // Then show the noise
+    // Show noise after a small delay
     setTimeout(() => {
       showNoise()
-      console.log("Gallery closed - showing noise")
     }, 50)
   }
 
@@ -552,7 +561,10 @@ export default function ReviewCard({
       }
     }
 
-    document.addEventListener("mousedown", handleClickOutside)
+    if (showFullscreenGallery) {
+      document.addEventListener("mousedown", handleClickOutside)
+    }
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside)
     }
@@ -560,7 +572,7 @@ export default function ReviewCard({
 
   // Add this useEffect to fetch reviewer profile data and previous reviews
   // Replace the line that imports supabase directly
-  // import { supabase } from "@/supabaseClient"
+  // import { supabase } "@/supabaseClient"
 
   // With this line that uses the hook you already have
   // import { useSupabaseClient } from '@supabase/auth-helpers-react'
@@ -983,17 +995,15 @@ export default function ReviewCard({
                   fill
                   className="object-contain"
                   sizes="(max-width: 768px) 100vw, 800px"
+                  priority={true}
                 />
               </div>
 
-              <div
-                className="absolute inset-0 flex items-center justify-between p-4"
-                onClick={(e) => e.stopPropagation()}
-              >
+              <div className="absolute inset-0 flex items-center justify-between p-4 pointer-events-none">
                 <Button
                   variant="outline"
                   size="icon"
-                  className="rounded-full bg-black/50 border-0 text-white hover:bg-black/70"
+                  className="rounded-full bg-black/50 border-0 text-white hover:bg-black/70 pointer-events-auto"
                   onClick={(e) => {
                     e.stopPropagation()
                     prevImage()
@@ -1004,7 +1014,7 @@ export default function ReviewCard({
                 <Button
                   variant="outline"
                   size="icon"
-                  className="rounded-full bg-black/50 border-0 text-white hover:bg-black/70"
+                  className="rounded-full bg-black/50 border-0 text-white hover:bg-black/70 pointer-events-auto"
                   onClick={(e) => {
                     e.stopPropagation()
                     nextImage()
@@ -1015,7 +1025,7 @@ export default function ReviewCard({
               </div>
 
               <div
-                className="absolute bottom-0 left-0 right-0 bg-black/70 p-4 text-center"
+                className="absolute bottom-0 left-0 right-0 bg-black/70 p-4 text-center pointer-events-auto"
                 onClick={(e) => e.stopPropagation()}
               >
                 <p className="text-white text-sm">
