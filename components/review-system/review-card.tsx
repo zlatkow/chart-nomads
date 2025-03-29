@@ -93,6 +93,7 @@ interface ReviewProps {
   hasUserUpvoted?: boolean
   report?: ReviewReport
   problem_report?: any
+  reported_issues?: boolean
   companyResponse?: CompanyResponse
   certificates?: number
   firmCount?: number
@@ -107,7 +108,6 @@ interface ReviewProps {
     profitFactor?: number
   }
   socialLinks?: SocialLinks
-  reported_issues?: boolean
 }
 
 // Completely revised navbar handling function that also manages background color
