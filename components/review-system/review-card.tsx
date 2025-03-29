@@ -37,6 +37,7 @@ import { useNoise } from "../../components/providers/noise-provider"
 // Find the existing upvote button in the ReviewCard component and replace it with:
 
 import UpvoteButton from "./upvote-button"
+import ProblemReportDisplay from "./problem-report-display"
 
 // Define types for our review data
 interface ReviewRating {
@@ -91,6 +92,7 @@ interface ReviewProps {
   upvotes: number
   hasUserUpvoted?: boolean
   report?: ReviewReport
+  problem_report?: any
   companyResponse?: CompanyResponse
   certificates?: number
   firmCount?: number
@@ -105,6 +107,7 @@ interface ReviewProps {
     profitFactor?: number
   }
   socialLinks?: SocialLinks
+  reported_issues?: boolean
 }
 
 // Completely revised navbar handling function that also manages background color
@@ -265,6 +268,8 @@ export default function ReviewCard({
   upvotes,
   hasUserUpvoted = false,
   report,
+  problem_report,
+  reported_issues,
   companyResponse,
   certificates = 0,
   firmCount = 0,
@@ -290,6 +295,7 @@ export default function ReviewCard({
   const [sidebarVisible, setSidebarVisible] = useState(false)
   const [backdropVisible, setBackdropVisible] = useState(false)
   const [isClosing, setIsClosing] = useState(false)
+  const [scrollPosition, setScrollPosition] = useState(0)
 
   // Add these state variables inside the ReviewCard component, after the existing state variables:
   const [reviewerStats, setReviewerStats] = useState({
@@ -304,6 +310,7 @@ export default function ReviewCard({
 
   // Reference to the sidebar element for animation
   const sidebarRef = useRef<HTMLDivElement>(null)
+  const galleryRef = useRef<HTMLDivElement>(null)
 
   // Process proof images when the component mounts or proofImages changes
   useEffect(() => {
@@ -396,11 +403,15 @@ export default function ReviewCard({
 
   // Update the gallery and sidebar functions to ensure they properly hide/show noise
   const openGallery = (index: number) => {
+    // Save current scroll position
+    setScrollPosition(window.scrollY)
+
     setCurrentImageIndex(index)
     setShowFullscreenGallery(true)
     document.body.style.overflow = "hidden"
     document.body.style.position = "fixed"
     document.body.style.width = "100%"
+    document.body.style.top = `-${window.scrollY}px`
     adjustNavbar(true)
     hideNoise()
     console.log("Gallery opened - hiding noise")
@@ -411,6 +422,10 @@ export default function ReviewCard({
     document.body.style.overflow = ""
     document.body.style.position = ""
     document.body.style.width = ""
+    document.body.style.top = ""
+
+    // Restore scroll position
+    window.scrollTo(0, scrollPosition)
 
     // First restore the navbar
     adjustNavbar(false)
@@ -424,6 +439,9 @@ export default function ReviewCard({
 
   // Update the openProfileSidebar function to properly disable scrolling and hide noise
   const openProfileSidebar = () => {
+    // Save current scroll position
+    setScrollPosition(window.scrollY)
+
     // First hide the noise completely before showing the sidebar
     hideNoise()
 
@@ -453,12 +471,13 @@ export default function ReviewCard({
     // After animation completes (300ms), clean up everything else
     setTimeout(() => {
       // Restore scrolling
-      const scrollY = document.body.style.top
       document.body.style.overflow = ""
       document.body.style.position = ""
       document.body.style.width = ""
       document.body.style.top = ""
-      window.scrollTo(0, Number.parseInt(scrollY || "0") * -1)
+
+      // Restore scroll position
+      window.scrollTo(0, scrollPosition)
 
       // Hide the sidebar component
       setShowProfileSidebar(false)
@@ -519,6 +538,23 @@ export default function ReviewCard({
     window.addEventListener("keydown", handleKeyDown)
     return () => {
       window.removeEventListener("keydown", handleKeyDown)
+    }
+  }, [showFullscreenGallery])
+
+  // Add this useEffect to handle clicks outside the gallery
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (!showFullscreenGallery) return
+
+      // Check if the click is outside the gallery content
+      if (galleryRef.current && !galleryRef.current.contains(e.target as Node)) {
+        closeGallery()
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
     }
   }, [showFullscreenGallery])
 
@@ -853,8 +889,15 @@ export default function ReviewCard({
             </div>
           )}
 
-          {/* Report section as accordion */}
-          {report && (
+          {/* Problem Report Display */}
+          {reported_issues && problem_report && (
+            <div className="mt-6">
+              <ProblemReportDisplay report={problem_report} />
+            </div>
+          )}
+
+          {/* Legacy Report section as accordion - for backward compatibility */}
+          {report && !problem_report && (
             <Accordion type="single" collapsible className="mt-6">
               <AccordionItem value="report" className="border border-red-500 bg-red-900/20 rounded-md overflow-hidden">
                 <AccordionTrigger className="py-3 px-4 hover:bg-red-900/30 hover:no-underline">
@@ -930,6 +973,7 @@ export default function ReviewCard({
             <div className="relative w-full h-full flex items-center justify-center">
               {/* Container with max width/height to make images smaller */}
               <div
+                ref={galleryRef}
                 className="relative max-w-3xl max-h-[80vh] w-full h-full flex items-center justify-center"
                 onClick={(e) => e.stopPropagation()} // Prevent closing when clicking on the image container
               >
