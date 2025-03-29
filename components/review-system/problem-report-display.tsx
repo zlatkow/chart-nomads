@@ -154,31 +154,31 @@ export default function ProblemReportDisplay({ report }: ProblemReportProps) {
                 <p className="text-sm text-white">${report.breachedAccountSize.replace("k", ",000")}</p>
               </div>
             )}
-            {report.deniedAmount && (
-              <div>
-                <p className="text-xs text-red-400 mb-1">Denied Amount</p>
-                <p className="text-sm text-white">{report.deniedAmount}</p>
-              </div>
+            {report.receivedLastPayout && (
+                <div className="mb-4">
+                <p className="text-xs text-red-400 mb-1">Paid Upon Breack</p>
+                <p className="text-sm text-white">{report.receivedLastPayout}</p>
+                </div>
             )}
           </div>
 
+          {report.deniedAmount && (
+              <div>
+                <p className="text-xs text-red-400 mb-1">Owed Amount</p>
+                <p className="text-sm text-white">{report.deniedAmount}</p>
+              </div>
+            )}
+
           {report.breachReason && (
             <div className="mb-4">
-              <p className="text-xs text-red-400 mb-1">Reason Given by Firm</p>
+              <p className="text-xs text-red-400 mb-1">Reason Given by the Firm</p>
               <p className="text-sm text-white">{report.breachReason}</p>
-            </div>
-          )}
-
-          {report.receivedLastPayout && (
-            <div className="mb-4">
-              <p className="text-xs text-red-400 mb-1">Received Last Payout</p>
-              <p className="text-sm text-white">{report.receivedLastPayout}</p>
             </div>
           )}
 
           {report.breachDetails && (
             <div className="mb-4">
-              <p className="text-xs text-red-400 mb-1">Details</p>
+              <p className="text-xs text-red-400 mb-1">Case Details</p>
               <p className="text-sm text-gray-300 whitespace-pre-line">{report.breachDetails}</p>
             </div>
           )}
@@ -201,7 +201,7 @@ export default function ProblemReportDisplay({ report }: ProblemReportProps) {
             )}
             {report.payoutDenialReason && (
               <div>
-                <p className="text-xs text-red-400 mb-1">Reason Given by Firm</p>
+                <p className="text-xs text-red-400 mb-1">Reason Given by the Firm</p>
                 <p className="text-sm text-white">{report.payoutDenialReason}</p>
               </div>
             )}
@@ -209,7 +209,7 @@ export default function ProblemReportDisplay({ report }: ProblemReportProps) {
 
           {report.payoutDenialDetails && (
             <div className="mb-4">
-              <p className="text-xs text-red-400 mb-1">Details</p>
+              <p className="text-xs text-red-400 mb-1">Case Details</p>
               <p className="text-sm text-gray-300 whitespace-pre-line">{report.payoutDenialDetails}</p>
             </div>
           )}
@@ -229,15 +229,11 @@ export default function ProblemReportDisplay({ report }: ProblemReportProps) {
               <p className="text-sm text-white">{report.deniedAmount}</p>
             </div>
           )}
-          <div>
-            <p className="text-xs text-red-400 mb-1">Reason</p>
-            <p className="text-sm text-white">{formatReportReason(report.reportReason)}</p>
-          </div>
         </div>
 
         {(report.reportDescription || report.description) && (
           <div>
-            <p className="text-xs text-red-400 mb-1">Summary</p>
+            <p className="text-xs text-red-400 mb-1">Case Details</p>
             <p className="text-sm text-gray-300">{report.reportDescription || report.description}</p>
           </div>
         )}
