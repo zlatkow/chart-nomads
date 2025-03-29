@@ -406,6 +406,9 @@ export default function ReviewCard({
     // Save current scroll position
     setScrollPosition(window.scrollY)
 
+    // First hide the noise completely before showing the gallery
+    hideNoise()
+
     setCurrentImageIndex(index)
     setShowFullscreenGallery(true)
 
@@ -419,12 +422,19 @@ export default function ReviewCard({
 
     // Lower navbar z-index but don't change its position
     adjustNavbarZIndex(true)
-    hideNoise()
+    console.log("Gallery opened - hiding noise")
   }
 
   // Update the closeGallery function to restore the exact position
   const closeGallery = () => {
+    // Set closing state to prevent noise from showing prematurely
+    setIsClosing(true)
+
     setShowFullscreenGallery(false)
+
+    // Restore navbar z-index IMMEDIATELY
+    adjustNavbarZIndex(false)
+    console.log("Navbar z-index restored immediately")
 
     // Restore body styles
     document.body.style.position = ""
@@ -437,13 +447,12 @@ export default function ReviewCard({
     // Restore scroll position immediately to prevent layout shift
     window.scrollTo(0, scrollPosition)
 
-    // Restore navbar z-index
-    adjustNavbarZIndex(false)
-
-    // Show noise after a small delay
+    // Wait a bit before showing noise to ensure smooth transition
     setTimeout(() => {
+      setIsClosing(false)
       showNoise()
-    }, 50)
+      console.log("Gallery closed - showing noise")
+    }, 100)
   }
 
   // Update the openProfileSidebar function to properly disable scrolling and hide noise
@@ -978,16 +987,7 @@ export default function ReviewCard({
         isBrowser() &&
         createPortal(
           <div
-            style={{
-              position: "fixed",
-              inset: 0,
-              zIndex: 99999,
-              backgroundColor: "rgba(0, 0, 0, 0.9)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              pointerEvents: "auto",
-            }}
+            className="fixed inset-0 z-[99999] flex items-center justify-center pointer-events-auto bg-black/80 backdrop-blur-md transition-opacity duration-200 ease-in-out"
             onClick={closeGallery} // Close when clicking anywhere in the backdrop
           >
             <div className="relative w-full h-full flex items-center justify-center">
