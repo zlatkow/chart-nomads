@@ -1,7 +1,7 @@
 /* eslint-disable */
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { createPortal } from "react-dom"
 import { X, ArrowLeft, ArrowRight, AlertCircle } from "lucide-react"
@@ -98,13 +98,56 @@ export default function ProblemReportDisplay({ report }: ProblemReportProps) {
     window.scrollTo(0, scrollPosition)
   }
 
+  // Add keyboard navigation for the gallery
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!showFullscreenGallery) return
+
+      if (e.key === "ArrowRight") {
+        nextImage()
+      } else if (e.key === "ArrowLeft") {
+        prevImage()
+      } else if (e.key === "Escape") {
+        closeGallery()
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown)
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown)
+    }
+  }, [showFullscreenGallery, nextImage, prevImage, closeGallery])
+
+  // Add this useEffect to handle clicks outside the gallery
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (!showFullscreenGallery) return
+
+      // Check if the click is outside the gallery content
+      const galleryContent = document.querySelector(".gallery-content")
+      if (galleryContent && !galleryContent.contains(e.target as Node)) {
+        closeGallery()
+      }
+    }
+
+    if (showFullscreenGallery) {
+      document.addEventListener("mousedown", handleClickOutside)
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [showFullscreenGallery, closeGallery])
+
   // Render the content based on report type
   const renderReportContent = () => {
     // For unjustified breach reports
     if (report.reportReason === "unjustified-breach") {
       return (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div className="pt-4 grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             {report.breachedAccountSize && (
               <div>
                 <p className="text-xs text-red-400 mb-1">Account Size</p>
@@ -126,6 +169,13 @@ export default function ProblemReportDisplay({ report }: ProblemReportProps) {
             </div>
           )}
 
+          {report.receivedLastPayout && (
+            <div className="mb-4">
+              <p className="text-xs text-red-400 mb-1">Received Last Payout</p>
+              <p className="text-sm text-white">{report.receivedLastPayout}</p>
+            </div>
+          )}
+
           {report.breachDetails && (
             <div className="mb-4">
               <p className="text-xs text-red-400 mb-1">Details</p>
@@ -142,7 +192,7 @@ export default function ProblemReportDisplay({ report }: ProblemReportProps) {
     if (report.reportReason === "payout-denial") {
       return (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div className="pt-4 grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             {report.deniedAmount && (
               <div>
                 <p className="text-xs text-red-400 mb-1">Denied Amount</p>
@@ -172,7 +222,7 @@ export default function ProblemReportDisplay({ report }: ProblemReportProps) {
     // For other report types
     return (
       <>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div className="pt-4 grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           {report.deniedAmount && (
             <div>
               <p className="text-xs text-red-400 mb-1">Denied Amount</p>
@@ -248,7 +298,7 @@ export default function ProblemReportDisplay({ report }: ProblemReportProps) {
       >
         <div className="relative w-full h-full flex items-center justify-center">
           <div
-            className="relative max-w-3xl max-h-[80vh] w-full h-full flex items-center justify-center"
+            className="gallery-content relative max-w-3xl max-h-[80vh] w-full h-full flex items-center justify-center"
             onClick={(e) => e.stopPropagation()}
           >
             <img

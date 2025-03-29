@@ -1260,7 +1260,7 @@ export default function ReviewModal({
                               ))}
                             </div>
                             {getErrorMessage("proofFiles")}
-
+{/* 
                             {formData.proofFiles.length < 6 && formData.proofFiles.length > 0 && (
                               <button
                                 type="button"
@@ -1272,7 +1272,7 @@ export default function ReviewModal({
                               >
                                 <span>Add More +</span>
                               </button>
-                            )}
+                            )} */}
 
                             <p className="text-xs text-gray-500 mt-1">
                               *Accepted file formats: .jpg, .jpeg, .png, .pdf
