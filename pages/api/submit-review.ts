@@ -12,6 +12,20 @@ export const config = {
   },
 }
 
+// Define types for our problem report
+interface ProblemReport {
+  reportReason?: string
+  reportDescription?: string
+  breachedAccountSize?: string
+  breachReason?: string
+  breachDetails?: string
+  receivedLastPayout?: string
+  deniedAmount?: string
+  payoutDenialReason?: string
+  payoutDenialDetails?: string
+  proofs?: Record<string, string>
+}
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // Add CORS headers
   res.setHeader("Access-Control-Allow-Origin", "*")
@@ -198,6 +212,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
       })
 
+      // Initialize problem report with proper typing
+      const problemReport: ProblemReport = {}
+
+      // If there's a report issue, add the report details to the problem_report
+      if (jsonData.reportIssue && jsonData.problem_report) {
+        // Copy all properties from jsonData.problem_report to problemReport
+        Object.assign(problemReport, jsonData.problem_report)
+
+        // Add the problem report proof URLs to the problem_report object
+        if (Object.keys(problemReportProofs).length > 0) {
+          problemReport.proofs = problemReportProofs
+        }
+      }
+
       // Prepare review data with fallbacks for all fields
       const reviewData = {
         id: nextId, // Explicitly set the ID
@@ -220,18 +248,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         proofs: proofs, // Add the main proof file URLs
         reported_issues: !!jsonData.reportIssue,
         review_status: "pending",
-        problem_report: {},
-      }
-
-      // If there's a report issue, add the report details to the problem_report JSON
-      if (jsonData.reportIssue && jsonData.problem_report) {
-        // Copy all properties from jsonData.problem_report to reviewData.problem_report
-        Object.assign(reviewData.problem_report, jsonData.problem_report)
-
-        // Add the problem report proof URLs directly to reviewData.problem_report
-        if (Object.keys(problemReportProofs).length > 0) {
-          reviewData.problem_report.proofs = problemReportProofs
-        }
+        problem_report: problemReport, // Use the properly typed problem report object
       }
 
       console.log("Review data prepared:", JSON.stringify(reviewData, null, 2))
