@@ -1,7 +1,7 @@
-/* eslint-disable */
 "use client"
 
 import { useState } from "react"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { DollarSign, AlertTriangle, XCircle, AlertOctagon, Clock, FileWarning, Settings } from "lucide-react"
 
 interface ProblemReportProps {
@@ -19,21 +19,21 @@ export default function ProblemReportDisplay({ report }: ProblemReportProps) {
   const getReportIcon = () => {
     switch (report.reportReason) {
       case "unjustified-breach":
-        return <XCircle className="h-5 w-5 text-red-500" />
+        return <XCircle className="h-5 w-5" />
       case "payout-denial":
-        return <DollarSign className="h-5 w-5 text-red-500" />
+        return <DollarSign className="h-5 w-5" />
       case "imposing-limitations":
-        return <Settings className="h-5 w-5 text-red-500" />
+        return <Settings className="h-5 w-5" />
       case "payment-issues":
-        return <DollarSign className="h-5 w-5 text-red-500" />
+        return <DollarSign className="h-5 w-5" />
       case "false-advertising":
-        return <AlertOctagon className="h-5 w-5 text-red-500" />
+        return <AlertOctagon className="h-5 w-5" />
       case "rule-changes":
-        return <FileWarning className="h-5 w-5 text-red-500" />
+        return <FileWarning className="h-5 w-5" />
       case "technical-issues":
-        return <Clock className="h-5 w-5 text-red-500" />
+        return <Clock className="h-5 w-5" />
       default:
-        return <AlertTriangle className="h-5 w-5 text-red-500" />
+        return <AlertTriangle className="h-5 w-5" />
     }
   }
 
@@ -108,98 +108,6 @@ export default function ProblemReportDisplay({ report }: ProblemReportProps) {
     )
   }
 
-  // Render the report content based on type
-  const renderReportContent = () => {
-    // For unjustified breach reports
-    if (report.reportReason === "unjustified-breach") {
-      return (
-        <>
-          {report.breachedAccountSize && (
-            <div className="mb-4">
-              <p className="text-xs text-red-400 mb-1">Account Size</p>
-              <p className="text-sm text-white">${report.breachedAccountSize.replace("k", ",000")}</p>
-            </div>
-          )}
-
-          {report.deniedAmount && (
-            <div className="mb-4">
-              <p className="text-xs text-red-400 mb-1">Denied Amount</p>
-              <p className="text-sm text-white">{report.deniedAmount}</p>
-            </div>
-          )}
-
-          {report.breachReason && (
-            <div className="mb-4">
-              <p className="text-xs text-red-400 mb-1">Reason Given by Firm</p>
-              <p className="text-sm text-white">{report.breachReason}</p>
-            </div>
-          )}
-
-          {report.breachDetails && (
-            <div className="mb-4">
-              <p className="text-xs text-red-400 mb-1">Details</p>
-              <p className="text-sm text-gray-300 whitespace-pre-line">{report.breachDetails}</p>
-            </div>
-          )}
-        </>
-      )
-    }
-
-    // For payout denial reports
-    if (report.reportReason === "payout-denial") {
-      return (
-        <>
-          {report.deniedAmount && (
-            <div className="mb-4">
-              <p className="text-xs text-red-400 mb-1">Denied Amount</p>
-              <p className="text-sm text-white">{report.deniedAmount}</p>
-            </div>
-          )}
-
-          {report.payoutDenialReason && (
-            <div className="mb-4">
-              <p className="text-xs text-red-400 mb-1">Reason Given by Firm</p>
-              <p className="text-sm text-white">{report.payoutDenialReason}</p>
-            </div>
-          )}
-
-          {report.payoutDenialDetails && (
-            <div className="mb-4">
-              <p className="text-xs text-red-400 mb-1">Details</p>
-              <p className="text-sm text-gray-300 whitespace-pre-line">{report.payoutDenialDetails}</p>
-            </div>
-          )}
-        </>
-      )
-    }
-
-    // For other report types or legacy reports
-    return (
-      <>
-        {report.deniedAmount && (
-          <div className="mb-4">
-            <p className="text-xs text-red-400 mb-1">Denied Amount</p>
-            <p className="text-sm text-white">{report.deniedAmount}</p>
-          </div>
-        )}
-
-        {report.reportReason && (
-          <div className="mb-4">
-            <p className="text-xs text-red-400 mb-1">Reason</p>
-            <p className="text-sm text-white">{formatReportReason(report.reportReason)}</p>
-          </div>
-        )}
-
-        {(report.reportDescription || report.description) && (
-          <div className="mb-4">
-            <p className="text-xs text-red-400 mb-1">Summary</p>
-            <p className="text-sm text-gray-300">{report.reportDescription || report.description}</p>
-          </div>
-        )}
-      </>
-    )
-  }
-
   // Render proof images
   const renderProofImages = () => {
     if (!report.proofs || Object.keys(report.proofs).length === 0) {
@@ -235,23 +143,118 @@ export default function ProblemReportDisplay({ report }: ProblemReportProps) {
     )
   }
 
+  // Render the content based on report type
+  const renderReportContent = () => {
+    // For unjustified breach reports
+    if (report.reportReason === "unjustified-breach") {
+      return (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            {report.breachedAccountSize && (
+              <div>
+                <p className="text-xs text-red-400 mb-1">Account Size</p>
+                <p className="text-sm text-white">${report.breachedAccountSize.replace("k", ",000")}</p>
+              </div>
+            )}
+            {report.deniedAmount && (
+              <div>
+                <p className="text-xs text-red-400 mb-1">Denied Amount</p>
+                <p className="text-sm text-white">{report.deniedAmount}</p>
+              </div>
+            )}
+          </div>
+
+          {report.breachReason && (
+            <div className="mb-4">
+              <p className="text-xs text-red-400 mb-1">Reason Given by Firm</p>
+              <p className="text-sm text-white">{report.breachReason}</p>
+            </div>
+          )}
+
+          {report.breachDetails && (
+            <div className="mb-4">
+              <p className="text-xs text-red-400 mb-1">Details</p>
+              <p className="text-sm text-gray-300 whitespace-pre-line">{report.breachDetails}</p>
+            </div>
+          )}
+
+          {renderProofImages()}
+        </>
+      )
+    }
+
+    // For payout denial reports
+    if (report.reportReason === "payout-denial") {
+      return (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            {report.deniedAmount && (
+              <div>
+                <p className="text-xs text-red-400 mb-1">Denied Amount</p>
+                <p className="text-sm text-white">{report.deniedAmount}</p>
+              </div>
+            )}
+            {report.payoutDenialReason && (
+              <div>
+                <p className="text-xs text-red-400 mb-1">Reason Given by Firm</p>
+                <p className="text-sm text-white">{report.payoutDenialReason}</p>
+              </div>
+            )}
+          </div>
+
+          {report.payoutDenialDetails && (
+            <div className="mb-4">
+              <p className="text-xs text-red-400 mb-1">Details</p>
+              <p className="text-sm text-gray-300 whitespace-pre-line">{report.payoutDenialDetails}</p>
+            </div>
+          )}
+
+          {renderProofImages()}
+        </>
+      )
+    }
+
+    // For other report types
+    return (
+      <>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          {report.deniedAmount && (
+            <div>
+              <p className="text-xs text-red-400 mb-1">Denied Amount</p>
+              <p className="text-sm text-white">{report.deniedAmount}</p>
+            </div>
+          )}
+          <div>
+            <p className="text-xs text-red-400 mb-1">Reason</p>
+            <p className="text-sm text-white">{formatReportReason(report.reportReason)}</p>
+          </div>
+        </div>
+
+        {(report.reportDescription || report.description) && (
+          <div>
+            <p className="text-xs text-red-400 mb-1">Summary</p>
+            <p className="text-sm text-gray-300">{report.reportDescription || report.description}</p>
+          </div>
+        )}
+
+        {renderProofImages()}
+      </>
+    )
+  }
+
   return (
     <>
-      <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900 rounded-md p-4">
-        <div className="flex items-center gap-2 mb-4">
-          {getReportIcon()}
-          <h3 className="text-lg font-semibold text-red-600">{getReportTitle()}</h3>
-        </div>
-
-        <div className="mb-2">
-          <span className="inline-block bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 border border-red-200 dark:border-red-800 rounded px-2 py-1 text-xs">
-            {formatReportReason(report.reportReason)}
-          </span>
-        </div>
-
-        {renderReportContent()}
-        {renderProofImages()}
-      </div>
+      <Accordion type="single" collapsible className="mt-6">
+        <AccordionItem value="report" className="border border-red-500 bg-red-900/20 rounded-md overflow-hidden">
+          <AccordionTrigger className="py-3 px-4 hover:bg-red-900/30 hover:no-underline">
+            <div className="flex items-center gap-2 text-red-400">
+              {getReportIcon()}
+              <h4>{getReportTitle()}</h4>
+            </div>
+          </AccordionTrigger>
+          <AccordionContent className="px-4 pb-4 pt-0">{renderReportContent()}</AccordionContent>
+        </AccordionItem>
+      </Accordion>
 
       {/* Render expanded image modal */}
       {renderExpandedImage()}
