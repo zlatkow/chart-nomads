@@ -443,6 +443,35 @@ export default function ReviewList({
             const processedProofs = processProofImages(review.proofs)
             console.log("Processed proof images for review:", review.id, processedProofs)
 
+            // Process problem report data correctly
+            let problemReport = null
+            if (review.reported_issues && review.problem_report) {
+              // If problem_report is a string (JSON), parse it
+              if (typeof review.problem_report === "string") {
+                try {
+                  problemReport = JSON.parse(review.problem_report)
+                } catch (e) {
+                  console.error("Failed to parse problem report:", e)
+                }
+              } else {
+                // If it's already an object, use it directly
+                problemReport = review.problem_report
+              }
+            }
+
+            // Create a legacy report object for backward compatibility
+            const legacyReport = review.reported_issues
+              ? {
+                  reason: review.problem_report?.reportReason || "Issue Reported",
+                  description:
+                    review.problem_report?.reportDescription ||
+                    review.problem_report?.breachDetails ||
+                    review.problem_report?.payoutDenialDetails ||
+                    "No details provided",
+                  deniedAmount: review.problem_report?.deniedAmount || "N/A",
+                }
+              : null
+
             // 3. Map the review data to the format expected by ReviewCard
             return {
               id: review.id,
@@ -472,13 +501,9 @@ export default function ReviewList({
               dislikedAspect: review.most_disliked_aspect || "",
               upvotes: 0,
               hasUserUpvoted: false,
-              report: review.reported_issues
-                ? {
-                    reason: "Payout Denial",
-                    description: review.reported_issues || "No details provided",
-                    deniedAmount: "N/A",
-                  }
-                : null,
+              reported_issues: review.reported_issues || false,
+              problem_report: problemReport,
+              report: legacyReport,
               companyResponse: null,
               certificates: 0,
               firmCount: 0,

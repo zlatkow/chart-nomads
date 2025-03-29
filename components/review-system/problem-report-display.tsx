@@ -3,27 +3,39 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { AlertTriangle, DollarSign, XCircle, AlertOctagon, Clock, FileWarning, Settings } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 interface ProblemReportProps {
-  report: {
-    reportReason?: string
-    reportDescription?: string
-    breachedAccountSize?: string
-    breachReason?: string
-    breachDetails?: string
-    receivedLastPayout?: string
-    deniedAmount?: string
-    payoutDenialReason?: string
-    payoutDenialDetails?: string
-    proofs?: Record<string, string>
-  }
+  report: any // Use any to handle different report structures
 }
 
 export default function ProblemReportDisplay({ report }: ProblemReportProps) {
   const [expandedImage, setExpandedImage] = useState<string | null>(null)
+  const [processedReport, setProcessedReport] = useState<any>(null)
 
-  if (!report || Object.keys(report).length === 0) {
+  // Process the report to ensure consistent structure
+  useEffect(() => {
+    if (!report || Object.keys(report).length === 0) {
+      setProcessedReport(null)
+      return
+    }
+
+    // If report is a string (JSON), try to parse it
+    if (typeof report === "string") {
+      try {
+        const parsed = JSON.parse(report)
+        setProcessedReport(parsed)
+      } catch (e) {
+        console.error("Failed to parse report string:", e)
+        setProcessedReport(report)
+      }
+      return
+    }
+
+    setProcessedReport(report)
+  }, [report])
+
+  if (!processedReport || Object.keys(processedReport).length === 0) {
     return null
   }
 
@@ -35,7 +47,7 @@ export default function ProblemReportDisplay({ report }: ProblemReportProps) {
 
   // Get the appropriate icon based on report reason
   const getReportIcon = () => {
-    switch (report.reportReason) {
+    switch (processedReport.reportReason) {
       case "unjustified-breach":
         return <XCircle className="h-5 w-5 text-red-500" />
       case "payout-denial":
@@ -57,7 +69,7 @@ export default function ProblemReportDisplay({ report }: ProblemReportProps) {
 
   // Get the appropriate title based on report reason
   const getReportTitle = () => {
-    switch (report.reportReason) {
+    switch (processedReport.reportReason) {
       case "unjustified-breach":
         return "Unjustified Breach Report"
       case "payout-denial":
@@ -73,7 +85,7 @@ export default function ProblemReportDisplay({ report }: ProblemReportProps) {
       case "technical-issues":
         return "Technical Issues"
       default:
-        return "Problem Report"
+        return processedReport.reportReason ? formatReportReason(processedReport.reportReason) : "Problem Report"
     }
   }
 
@@ -83,13 +95,13 @@ export default function ProblemReportDisplay({ report }: ProblemReportProps) {
     return reason
       .replace(/-/g, " ")
       .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(" ")
   }
 
   // Render proof images if available
   const renderProofs = () => {
-    if (!report.proofs || Object.keys(report.proofs).length === 0) {
+    if (!processedReport.proofs || Object.keys(processedReport.proofs).length === 0) {
       return null
     }
 
@@ -97,15 +109,15 @@ export default function ProblemReportDisplay({ report }: ProblemReportProps) {
       <div className="mt-4">
         <h4 className="text-sm font-medium text-red-700 dark:text-red-400 mb-2">Supporting Evidence</h4>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-          {Object.entries(report.proofs).map(([key, url], index) => (
+          {Object.entries(processedReport.proofs).map(([key, url], index) => (
             <div
               key={key}
               className="block border border-red-300 dark:border-red-800 rounded-md overflow-hidden hover:border-red-500 dark:hover:border-red-600 transition-colors cursor-pointer"
-              onClick={() => setExpandedImage(url)}
+              onClick={() => setExpandedImage(url as string)}
             >
               <div className="aspect-square relative bg-red-50 dark:bg-red-950/30">
                 <img
-                  src={url || "/placeholder.svg"}
+                  src={(url as string) || "/placeholder.svg"}
                   alt={`Proof ${index + 1}`}
                   className="w-full h-full object-cover"
                   onError={(e) => {
@@ -172,82 +184,84 @@ export default function ProblemReportDisplay({ report }: ProblemReportProps) {
             <CardTitle className="text-lg text-red-700 dark:text-red-400">{getReportTitle()}</CardTitle>
           </div>
           <CardDescription className="text-red-600 dark:text-red-300">
-            {report.reportReason && (
+            {processedReport.reportReason && (
               <Badge
                 variant="outline"
                 className="bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 border-red-200 dark:border-red-800"
               >
-                {formatReportReason(report.reportReason)}
+                {formatReportReason(processedReport.reportReason)}
               </Badge>
             )}
           </CardDescription>
         </CardHeader>
         <CardContent>
           {/* Render different content based on report type */}
-          {report.reportReason === "unjustified-breach" && (
+          {processedReport.reportReason === "unjustified-breach" && (
             <div className="space-y-3">
-              {report.breachedAccountSize && (
+              {processedReport.breachedAccountSize && (
                 <div>
                   <h4 className="text-sm font-medium text-red-700 dark:text-red-400">Account Size</h4>
                   <p className="text-sm text-red-600 dark:text-red-300">
-                    ${formatAccountSize(report.breachedAccountSize)}
+                    ${formatAccountSize(processedReport.breachedAccountSize)}
                   </p>
                 </div>
               )}
 
-              {report.breachReason && (
+              {processedReport.breachReason && (
                 <div>
                   <h4 className="text-sm font-medium text-red-700 dark:text-red-400">Reason Given by Firm</h4>
-                  <p className="text-sm text-red-600 dark:text-red-300">{report.breachReason}</p>
+                  <p className="text-sm text-red-600 dark:text-red-300">{processedReport.breachReason}</p>
                 </div>
               )}
 
-              {report.breachDetails && (
-                <div>
-                  <h4 className="text-sm font-medium text-red-700 dark:text-red-400">Details</h4>
-                  <p className="text-sm text-red-600 dark:text-red-300 whitespace-pre-line">{report.breachDetails}</p>
-                </div>
-              )}
-
-              {report.receivedLastPayout && (
-                <div>
-                  <h4 className="text-sm font-medium text-red-700 dark:text-red-400">Received Last Payout</h4>
-                  <p className="text-sm text-red-600 dark:text-red-300">{report.receivedLastPayout}</p>
-                </div>
-              )}
-
-              {report.deniedAmount && (
-                <div>
-                  <h4 className="text-sm font-medium text-red-700 dark:text-red-400">Denied Amount</h4>
-                  <p className="text-sm text-red-600 dark:text-red-300">{report.deniedAmount}</p>
-                </div>
-              )}
-
-              {renderProofs()}
-            </div>
-          )}
-
-          {report.reportReason === "payout-denial" && (
-            <div className="space-y-3">
-              {report.deniedAmount && (
-                <div>
-                  <h4 className="text-sm font-medium text-red-700 dark:text-red-400">Denied Amount</h4>
-                  <p className="text-sm text-red-600 dark:text-red-300">{report.deniedAmount}</p>
-                </div>
-              )}
-
-              {report.payoutDenialReason && (
-                <div>
-                  <h4 className="text-sm font-medium text-red-700 dark:text-red-400">Reason Given by Firm</h4>
-                  <p className="text-sm text-red-600 dark:text-red-300">{report.payoutDenialReason}</p>
-                </div>
-              )}
-
-              {report.payoutDenialDetails && (
+              {processedReport.breachDetails && (
                 <div>
                   <h4 className="text-sm font-medium text-red-700 dark:text-red-400">Details</h4>
                   <p className="text-sm text-red-600 dark:text-red-300 whitespace-pre-line">
-                    {report.payoutDenialDetails}
+                    {processedReport.breachDetails}
+                  </p>
+                </div>
+              )}
+
+              {processedReport.receivedLastPayout && (
+                <div>
+                  <h4 className="text-sm font-medium text-red-700 dark:text-red-400">Received Last Payout</h4>
+                  <p className="text-sm text-red-600 dark:text-red-300">{processedReport.receivedLastPayout}</p>
+                </div>
+              )}
+
+              {processedReport.deniedAmount && (
+                <div>
+                  <h4 className="text-sm font-medium text-red-700 dark:text-red-400">Denied Amount</h4>
+                  <p className="text-sm text-red-600 dark:text-red-300">{processedReport.deniedAmount}</p>
+                </div>
+              )}
+
+              {renderProofs()}
+            </div>
+          )}
+
+          {processedReport.reportReason === "payout-denial" && (
+            <div className="space-y-3">
+              {processedReport.deniedAmount && (
+                <div>
+                  <h4 className="text-sm font-medium text-red-700 dark:text-red-400">Denied Amount</h4>
+                  <p className="text-sm text-red-600 dark:text-red-300">{processedReport.deniedAmount}</p>
+                </div>
+              )}
+
+              {processedReport.payoutDenialReason && (
+                <div>
+                  <h4 className="text-sm font-medium text-red-700 dark:text-red-400">Reason Given by Firm</h4>
+                  <p className="text-sm text-red-600 dark:text-red-300">{processedReport.payoutDenialReason}</p>
+                </div>
+              )}
+
+              {processedReport.payoutDenialDetails && (
+                <div>
+                  <h4 className="text-sm font-medium text-red-700 dark:text-red-400">Details</h4>
+                  <p className="text-sm text-red-600 dark:text-red-300 whitespace-pre-line">
+                    {processedReport.payoutDenialDetails}
                   </p>
                 </div>
               )}
@@ -256,22 +270,32 @@ export default function ProblemReportDisplay({ report }: ProblemReportProps) {
             </div>
           )}
 
-          {/* For other report types */}
-          {report.reportReason &&
-            report.reportReason !== "unjustified-breach" &&
-            report.reportReason !== "payout-denial" &&
-            report.reportDescription && (
-              <div className="space-y-3">
+          {/* For other report types or fallback */}
+          {(!processedReport.reportReason ||
+            (processedReport.reportReason !== "unjustified-breach" &&
+              processedReport.reportReason !== "payout-denial")) && (
+            <div className="space-y-3">
+              {/* Try different possible description fields */}
+              {(processedReport.reportDescription || processedReport.description) && (
                 <div>
                   <h4 className="text-sm font-medium text-red-700 dark:text-red-400">Description</h4>
                   <p className="text-sm text-red-600 dark:text-red-300 whitespace-pre-line">
-                    {report.reportDescription}
+                    {processedReport.reportDescription || processedReport.description}
                   </p>
                 </div>
+              )}
 
-                {renderProofs()}
-              </div>
-            )}
+              {/* Display denied amount if available */}
+              {processedReport.deniedAmount && (
+                <div>
+                  <h4 className="text-sm font-medium text-red-700 dark:text-red-400">Denied Amount</h4>
+                  <p className="text-sm text-red-600 dark:text-red-300">{processedReport.deniedAmount}</p>
+                </div>
+              )}
+
+              {renderProofs()}
+            </div>
+          )}
         </CardContent>
       </Card>
 
