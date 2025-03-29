@@ -11,7 +11,6 @@ import {
   Flag,
   Calendar,
   MessageSquare,
-  AlertCircle,
   X,
   ArrowLeft,
   ArrowRight,
@@ -20,6 +19,7 @@ import {
   ChevronRight,
   Info,
   Check,
+  AlertCircle
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
@@ -919,23 +919,19 @@ export default function ReviewCard({
           )}
 
           {/* Problem Report Display */}
-          {reported_issues && problem_report && (
-            <div className="mt-6">
-              <ProblemReportDisplay report={problem_report} />
-            </div>
-          )}
+          {reported_issues && problem_report && <ProblemReportDisplay report={problem_report} />}
 
           {/* Legacy Report section as accordion - for backward compatibility */}
           {report && !problem_report && (
             <Accordion type="single" collapsible className="mt-6">
               <AccordionItem value="report" className="border border-red-500 bg-red-900/20 rounded-md overflow-hidden">
-                <AccordionTrigger className="py-3 px-4 hover:bg-red-900/30 hover:no-underline">
+                <AccordionTrigger className="py-3 px-4 hover:bg-red-900/30 hover:no-underline group">
                   <div className="flex items-center gap-2 text-red-400">
                     <AlertCircle className="h-5 w-5" />
                     <h4>Report: {report.reason}</h4>
                   </div>
                 </AccordionTrigger>
-                <AccordionContent className="px-4 pb-4 pt-0">
+                <AccordionContent className="px-4 pb-4 pt-0 bg-red-900/30">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
                       <p className="text-xs text-red-400 mb-1">Denied Amount</p>

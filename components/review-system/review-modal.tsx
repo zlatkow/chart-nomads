@@ -678,11 +678,11 @@ export default function ReviewModal({
                         <SelectValue placeholder="Select one..." />
                       </SelectTrigger>
                       <SelectContent className="bg-[#1a1a1a] border-[#333333] text-white">
-                        <SelectItem value="less-than-1">Less than 1 month</SelectItem>
-                        <SelectItem value="1-3">1-3 months</SelectItem>
-                        <SelectItem value="3-6">3-6 months</SelectItem>
-                        <SelectItem value="6-12">6-12 months</SelectItem>
-                        <SelectItem value="more-than-12">More than an year</SelectItem>
+                        <SelectItem value="less than 1 month">Less than 1 month</SelectItem>
+                        <SelectItem value="1-3 months">1-3 months</SelectItem>
+                        <SelectItem value="3-6 months">3-6 months</SelectItem>
+                        <SelectItem value="6-12 months">6-12 months</SelectItem>
+                        <SelectItem value="more than an year">More than an year</SelectItem>
                       </SelectContent>
                     </Select>
                     {getErrorMessage("tradingDuration")}
