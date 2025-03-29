@@ -456,11 +456,17 @@ export default function ReviewCard({
 
     // Then set up the sidebar
     setShowProfileSidebar(true)
-    document.body.style.overflow = "hidden"
+
+    // Fix the body at the current scroll position without shifting content
+    document.body.style.top = `-${window.scrollY}px`
     document.body.style.position = "fixed"
     document.body.style.width = "100%"
-    document.body.style.top = `-${window.scrollY}px`
-    adjustNavbar(true)
+    document.body.style.overflow = "hidden"
+    document.body.style.left = "0"
+    document.body.style.right = "0"
+
+    // Lower navbar z-index but don't change its position
+    adjustNavbarZIndex(true)
     console.log("Sidebar opened - hiding noise")
   }
 
@@ -484,8 +490,10 @@ export default function ReviewCard({
       document.body.style.position = ""
       document.body.style.width = ""
       document.body.style.top = ""
+      document.body.style.left = ""
+      document.body.style.right = ""
 
-      // Restore scroll position
+      // Restore scroll position immediately to prevent layout shift
       window.scrollTo(0, scrollPosition)
 
       // Hide the sidebar component
