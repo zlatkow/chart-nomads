@@ -3,39 +3,24 @@
 
 import { useState } from "react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { DollarSign, AlertTriangle, XCircle, AlertOctagon, Clock, FileWarning, Settings } from "lucide-react"
+import { createPortal } from "react-dom"
+import { X, ArrowLeft, ArrowRight } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 interface ProblemReportProps {
   report: any // Use any to handle different report structures
 }
 
+// Add this function to check if we're in the browser
+const isBrowser = () => typeof window !== "undefined"
+
 export default function ProblemReportDisplay({ report }: ProblemReportProps) {
-  const [expandedImage, setExpandedImage] = useState<string | null>(null)
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [showFullscreenGallery, setShowFullscreenGallery] = useState(false)
+  const [scrollPosition, setScrollPosition] = useState(0)
 
   if (!report || Object.keys(report).length === 0) {
     return null
-  }
-
-  // Get the appropriate icon based on report reason
-  const getReportIcon = () => {
-    switch (report.reportReason) {
-      case "unjustified-breach":
-        return <XCircle className="h-5 w-5" />
-      case "payout-denial":
-        return <DollarSign className="h-5 w-5" />
-      case "imposing-limitations":
-        return <Settings className="h-5 w-5" />
-      case "payment-issues":
-        return <DollarSign className="h-5 w-5" />
-      case "false-advertising":
-        return <AlertOctagon className="h-5 w-5" />
-      case "rule-changes":
-        return <FileWarning className="h-5 w-5" />
-      case "technical-issues":
-        return <Clock className="h-5 w-5" />
-      default:
-        return <AlertTriangle className="h-5 w-5" />
-    }
   }
 
   // Get the appropriate title based on report reason
@@ -70,78 +55,47 @@ export default function ProblemReportDisplay({ report }: ProblemReportProps) {
       .join(" ")
   }
 
-  // Expanded image modal
-  const renderExpandedImage = () => {
-    if (!expandedImage) return null
-
-    return (
-      <div
-        className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/80 backdrop-blur-md"
-        onClick={() => setExpandedImage(null)}
-      >
-        <div className="relative max-w-3xl max-h-[80vh] w-full h-full flex items-center justify-center">
-          <img
-            src={expandedImage || "/placeholder.svg"}
-            alt="Expanded proof"
-            className="max-w-full max-h-full object-contain"
-          />
-          <button
-            className="absolute top-4 right-4 bg-black/50 text-white p-2 rounded-full"
-            onClick={() => setExpandedImage(null)}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-          </button>
-        </div>
-      </div>
-    )
+  // Gallery navigation functions
+  const nextImage = () => {
+    if (!report.proofs) return
+    const proofKeys = Object.keys(report.proofs)
+    setCurrentImageIndex((prev) => (prev === proofKeys.length - 1 ? 0 : prev + 1))
   }
 
-  // Render proof images
-  const renderProofImages = () => {
-    if (!report.proofs || Object.keys(report.proofs).length === 0) {
-      return null
-    }
+  const prevImage = () => {
+    if (!report.proofs) return
+    const proofKeys = Object.keys(report.proofs)
+    setCurrentImageIndex((prev) => (prev === 0 ? proofKeys.length - 1 : prev - 1))
+  }
 
-    return (
-      <div className="mt-4">
-        <p className="text-xs text-red-400 mb-2">Supporting Evidence</p>
-        <div className="flex flex-wrap gap-2">
-          {Object.entries(report.proofs).map(([key, url], index) => (
-            <div
-              key={key}
-              className="relative h-32 w-32 rounded-md overflow-hidden border border-red-300 hover:border-red-500 transition-colors cursor-pointer"
-              onClick={() => setExpandedImage(url as string)}
-            >
-              <img
-                src={(url as string) || "/placeholder.svg?height=100&width=100"}
-                alt={`Proof ${index + 1}`}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  // If image fails to load, show a placeholder
-                  e.currentTarget.src = "/placeholder.svg?height=100&width=100"
-                }}
-              />
-              <div className="absolute bottom-0 left-0 right-0 bg-black/70 p-1 text-xs text-white text-center">
-                Proof {index + 1}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    )
+  const openGallery = (index: number) => {
+    // Save current scroll position
+    setScrollPosition(window.scrollY)
+    setCurrentImageIndex(index)
+    setShowFullscreenGallery(true)
+
+    // Fix the body at the current scroll position without shifting content
+    document.body.style.top = `-${window.scrollY}px`
+    document.body.style.position = "fixed"
+    document.body.style.width = "100%"
+    document.body.style.overflow = "hidden"
+    document.body.style.left = "0"
+    document.body.style.right = "0"
+  }
+
+  const closeGallery = () => {
+    setShowFullscreenGallery(false)
+
+    // Restore body styles
+    document.body.style.position = ""
+    document.body.style.width = ""
+    document.body.style.overflow = ""
+    document.body.style.top = ""
+    document.body.style.left = ""
+    document.body.style.right = ""
+
+    // Restore scroll position immediately to prevent layout shift
+    window.scrollTo(0, scrollPosition)
   }
 
   // Render the content based on report type
@@ -243,22 +197,134 @@ export default function ProblemReportDisplay({ report }: ProblemReportProps) {
     )
   }
 
+  // Render proof images
+  const renderProofImages = () => {
+    if (!report.proofs || Object.keys(report.proofs).length === 0) {
+      return null
+    }
+
+    const proofKeys = Object.keys(report.proofs)
+
+    return (
+      <div className="mt-4">
+        <p className="text-xs text-red-400 mb-2">Supporting Evidence</p>
+        <div className="flex flex-wrap gap-2">
+          {proofKeys.map((key, index) => (
+            <button
+              key={key}
+              className="relative h-16 w-16 rounded-md overflow-hidden border border-[rgba(237,185,0,0.2)] hover:border-[#edb900] transition-colors"
+              onClick={() => openGallery(index)}
+            >
+              <img
+                src={report.proofs[key] || "/placeholder.svg?height=100&width=100"}
+                alt={`Proof ${index + 1}`}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  // If image fails to load, show a placeholder
+                  e.currentTarget.src = "/placeholder.svg?height=100&width=100"
+                }}
+              />
+            </button>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  // Fullscreen gallery
+  const renderFullscreenGallery = () => {
+    if (!showFullscreenGallery || !report.proofs) return null
+
+    const proofKeys = Object.keys(report.proofs)
+    if (proofKeys.length === 0) return null
+
+    const currentProofKey = proofKeys[currentImageIndex]
+    const currentProofUrl = report.proofs[currentProofKey]
+
+    return createPortal(
+      <div
+        className="fixed inset-0 z-[99999] flex items-center justify-center pointer-events-auto bg-black/80 backdrop-blur-md transition-opacity duration-200 ease-in-out"
+        onClick={closeGallery}
+      >
+        <div className="relative w-full h-full flex items-center justify-center">
+          <div
+            className="relative max-w-3xl max-h-[80vh] w-full h-full flex items-center justify-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={currentProofUrl || "/placeholder.svg"}
+              alt={`Proof ${currentImageIndex + 1}`}
+              className="max-w-full max-h-full object-contain"
+            />
+          </div>
+
+          <div className="absolute inset-0 flex items-center justify-between p-4 pointer-events-none">
+            <Button
+              variant="outline"
+              size="icon"
+              className="rounded-full bg-black/50 border-0 text-white hover:bg-black/70 pointer-events-auto"
+              onClick={(e) => {
+                e.stopPropagation()
+                prevImage()
+              }}
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="rounded-full bg-black/50 border-0 text-white hover:bg-black/70 pointer-events-auto"
+              onClick={(e) => {
+                e.stopPropagation()
+                nextImage()
+              }}
+            >
+              <ArrowRight className="h-5 w-5" />
+            </Button>
+          </div>
+
+          <div
+            className="absolute bottom-0 left-0 right-0 bg-black/70 p-4 text-center pointer-events-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p className="text-white text-sm">
+              Proof {currentImageIndex + 1} of {proofKeys.length}
+            </p>
+          </div>
+
+          <button
+            className="absolute right-4 top-4 rounded-full bg-black/50 p-2 text-white hover:bg-black/70"
+            onClick={(e) => {
+              e.stopPropagation()
+              closeGallery()
+            }}
+          >
+            <X className="h-6 w-6" />
+          </button>
+        </div>
+      </div>,
+      document.body,
+    )
+  }
+
   return (
     <>
       <Accordion type="single" collapsible className="mt-6">
         <AccordionItem value="report" className="border border-red-500 bg-red-900/20 rounded-md overflow-hidden">
-          <AccordionTrigger className="py-3 px-4 hover:bg-red-900/30 hover:no-underline">
+          <AccordionTrigger className="py-3 px-4 hover:bg-red-900/30 hover:no-underline group">
             <div className="flex items-center gap-2 text-red-400">
-              {getReportIcon()}
-              <h4>{getReportTitle()}</h4>
+              <div className="flex items-center justify-center w-5 h-5 rounded-full border border-red-500 text-red-500 text-xs font-bold">
+                !
+              </div>
+              <h4>Report: {getReportTitle()}</h4>
             </div>
           </AccordionTrigger>
-          <AccordionContent className="px-4 pb-4 pt-0">{renderReportContent()}</AccordionContent>
+          <AccordionContent className="px-4 pb-4 pt-0 bg-red-900/30">{renderReportContent()}</AccordionContent>
         </AccordionItem>
       </Accordion>
 
-      {/* Render expanded image modal */}
-      {renderExpandedImage()}
+      {/* Render fullscreen gallery */}
+      {isBrowser() && renderFullscreenGallery()}
     </>
   )
 }
