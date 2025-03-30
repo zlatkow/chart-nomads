@@ -705,9 +705,9 @@ export default function ReviewCard({
     trading_period,
     funded_status,
     received_payout,
-    liked_aspect,
-    disliked_aspect,
-    proof_images,
+    most_liked_aspect,
+    most_disliked_aspect,
+    proofs,
     prop_firm(id, propfirm_name, slug)
   `)
           .eq("reviewer", authorId)
