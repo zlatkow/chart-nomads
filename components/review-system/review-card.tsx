@@ -19,7 +19,7 @@ import {
   ChevronRight,
   Info,
   Check,
-  AlertCircle
+  AlertCircle,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
@@ -1010,8 +1010,11 @@ export default function ReviewCard({
                   className="rounded-full bg-black/50 border-0 text-white hover:bg-black/70 pointer-events-auto"
                   onClick={(e) => {
                     e.stopPropagation()
+                    e.preventDefault()
                     prevImage()
                   }}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onTouchStart={(e) => e.stopPropagation()}
                 >
                   <ArrowLeft className="h-5 w-5" />
                 </Button>
@@ -1021,8 +1024,11 @@ export default function ReviewCard({
                   className="rounded-full bg-black/50 border-0 text-white hover:bg-black/70 pointer-events-auto"
                   onClick={(e) => {
                     e.stopPropagation()
+                    e.preventDefault()
                     nextImage()
                   }}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onTouchStart={(e) => e.stopPropagation()}
                 >
                   <ArrowRight className="h-5 w-5" />
                 </Button>

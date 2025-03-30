@@ -295,7 +295,7 @@ interface Firm {
                           handleLoginModalOpen()
                         }}
                         className="relative top-1 right-50 hover:animate-[heartbeat_1.5s_infinite_ease-in-out] z-60"
-                        style={{ color: "rgba(237, 185, 0, 0.3)" }}
+                        style={{ color: "#0f0f0f" }}
                       >
                         <FontAwesomeIcon icon={regularHeart} style={{ fontSize: "25px" }} />
                       </button>
