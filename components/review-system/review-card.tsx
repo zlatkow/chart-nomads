@@ -970,13 +970,13 @@ export default function ReviewCard({
                 <Accordion
                   type="single"
                   collapsible
-                  className="mt-6 border border-[rgba(237,185,0,0.2)] rounded-md overflow-hidden"
+                  className="mt-6 border-2 border-[#edb900] rounded-md overflow-hidden"
                 >
                   <AccordionItem value="company-response" className="border-b-0">
                     <AccordionTrigger
                       className="py-2 px-4 hover:no-underline group"
                       style={{
-                        backgroundColor: "#edb900", // 10% opacity
+                        backgroundColor: "#0f0f0f", // 10% opacity
                       }}
                     >
                       <div className="flex items-center gap-3 w-full">
@@ -994,11 +994,11 @@ export default function ReviewCard({
                         </div>
                         <div className="flex flex-col items-start">
                           <div className="flex items-center">
-                            <span className="font-[balboa]" style={{ color: "black" }}>
+                            <span className="font-[balboa]" style={{ color: "white" }}>
                               Reply from {companyResponse.companyName}
                             </span>
                           </div>
-                          <span className="text-xs text-black">{companyResponse.date}</span>
+                          <span className="text-xs text-gray-300">{companyResponse.date}</span>
                         </div>
                       </div>
                     </AccordionTrigger>
