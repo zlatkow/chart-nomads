@@ -977,14 +977,14 @@ export default function ReviewCard({
                     <AccordionTrigger
                       className="py-3 px-4 hover:no-underline group"
                       style={{
-                        backgroundColor: `${brandColor}10`,
-                        borderBottom: `1px solid ${brandColor}30`,
+                        backgroundColor: "#edb9001a", // 10% opacity
+                        borderBottom: "1px solid #edb9004d", // 30% opacity                        
                       }}
                     >
                       <div className="flex items-center gap-3 w-full">
                         <div
                           className="flex items-center justify-center w-10 h-10 rounded-full p-1"
-                          style={{ backgroundColor: `${brandColor}30` }}
+                          style={{ backgroundColor: `${brandColor}` }}
                         >
                           {companyResponse.companyLogo && (
                             <img
@@ -994,9 +994,9 @@ export default function ReviewCard({
                             />
                           )}
                         </div>
-                        <div className="flex flex-col items-start">
+                        <div className="flex items-start">
                           <div className="flex items-center">
-                            <span className="font-semibold" style={{ color: brandColor }}>
+                            <span className="font-[balboa]" style={{ color: "white" }}>
                               Reply from {companyResponse.companyName}
                             </span>
                           </div>
@@ -1004,7 +1004,7 @@ export default function ReviewCard({
                         </div>
                       </div>
                     </AccordionTrigger>
-                    <AccordionContent className="px-6 py-5" style={{ backgroundColor: `${brandColor}05` }}>
+                    <AccordionContent className="px-6 py-5" style={{ backgroundColor: "#edb9000D" }}>
                       <div className="prose prose-sm max-w-none prose-p:text-gray-200 prose-headings:text-white prose-strong:text-white prose-strong:font-semibold">
                         {companyResponse.content.split("\n").map((paragraph, index) => (
                           <p key={index} className="mb-3 leading-relaxed">
