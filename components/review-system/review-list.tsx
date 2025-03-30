@@ -57,6 +57,7 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
 const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
+// Update the ReviewListProps interface to include highlightReviewId
 interface ReviewListProps {
   onOpenReviewModal: () => void
   companyName?: string
@@ -64,7 +65,7 @@ interface ReviewListProps {
   propfirmId?: number | null
   companyLogo?: string
   isLoading?: boolean
-  highlightReviewId?: string
+  highlightReviewId?: string | null
 }
 
 // Define the social links interface
@@ -119,6 +120,7 @@ export default function ReviewList({
   propfirmId: externalPropfirmId,
   companyLogo,
   isLoading: externalLoading = false,
+  highlightReviewId,
 }: ReviewListProps) {
   const [reviews, setReviews] = useState<any[]>([])
   const [sortBy, setSortBy] = useState("newest")
@@ -650,6 +652,36 @@ export default function ReviewList({
     checkUserReview()
   }, [userId, propfirmId])
 
+  // Add this useEffect after the other useEffects to handle highlighting the review
+  useEffect(() => {
+    if (highlightReviewId && !(isLoading || externalLoading) && reviews.length > 0) {
+      console.log(`ReviewList: Reviews loaded, looking for review with ID: review-${highlightReviewId}`)
+
+      // Use a short delay to ensure the DOM is updated with the reviews
+      const timer = setTimeout(() => {
+        const reviewElement = document.getElementById(`review-${highlightReviewId}`)
+        if (reviewElement) {
+          console.log(`ReviewList: Found review element, scrolling to it`)
+
+          // Scroll to the review with smooth behavior
+          reviewElement.scrollIntoView({ behavior: "smooth", block: "center" })
+
+          // Add a highlight effect
+          reviewElement.classList.add("highlight-review")
+
+          // Remove the highlight effect after a few seconds
+          setTimeout(() => {
+            reviewElement.classList.remove("highlight-review")
+          }, 3000)
+        } else {
+          console.warn(`ReviewList: Review element with ID review-${highlightReviewId} not found after reviews loaded`)
+        }
+      }, 500)
+
+      return () => clearTimeout(timer)
+    }
+  }, [highlightReviewId, isLoading, externalLoading, reviews])
+
   // Update the useEffect that handles animation to use ratingPercentages instead of calculating them
   useEffect(() => {
     // Determine if we're in a loading state (either external or internal)
@@ -923,7 +955,9 @@ export default function ReviewList({
       ) : reviews.length > 0 ? (
         <div className="space-y-6">
           {reviews.map((review) => (
-            <ReviewCard key={review.id} {...review} />
+            <div key={review.id} id={`review-${review.id}`} className="transition-all duration-500">
+              <ReviewCard key={review.id} {...review} />
+            </div>
           ))}
         </div>
       ) : (
