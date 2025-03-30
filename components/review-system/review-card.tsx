@@ -1242,90 +1242,117 @@ export default function ReviewCard({
                       ))
                   ) : previousReviews.length > 0 ? (
                     previousReviews.map((review) => (
-                      <div key={review.id} className="bg-[#1a1a1a] rounded-md p-3 mb-3">
-                        <div className="flex items-center gap-3 mb-2">
-                          {/* Company logo with brand color background */}
-                          <div className="flex-shrink-0 w-10 h-10 rounded-md overflow-hidden bg-[#edb900] flex items-center justify-center">
-                            <img
-                              src={`/api/company-logo?name=${encodeURIComponent(review.companyName)}`}
-                              alt={review.companyName}
-                              className="w-8 h-8 object-contain"
-                              onError={(e) => {
-                                // Fallback to first letter if image fails to load
-                                ;(e.target as HTMLImageElement).style.display = "none"
-                                ;(e.target as HTMLImageElement).parentElement!.innerHTML = review.companyName
-                                  .charAt(0)
-                                  .toUpperCase()
-                              }}
-                            />
+                      <div
+                        key={review.id}
+                        className="w-full border-[rgba(237,185,0,0.2)] shadow-md bg-[#0f0f0f] text-white overflow-hidden rounded-md mb-4"
+                      >
+                        <div className="flex flex-row items-start gap-3 p-3">
+                          <div className="flex flex-col items-center text-center w-[60px]">
+                            <div className="flex justify-center w-full">
+                              {/* Company logo with brand color background */}
+                              <div className="h-12 w-12 rounded-md overflow-hidden bg-[#edb900] flex items-center justify-center">
+                                <span className="text-[#0f0f0f] font-bold text-xl">
+                                  {review.companyName.charAt(0).toUpperCase()}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="mt-1 w-full">
+                              <p className="text-xs font-[balboa] text-[#edb900] truncate">{review.companyName}</p>
+                            </div>
                           </div>
 
-                          <div className="flex-1 min-w-0">
-                            <div className="flex justify-between items-center">
-                              <h5 className="font-[balboa] text-white truncate">{review.companyName}</h5>
-                              <div className="flex text-[#edb900] text-sm">{renderStars(review.rating)}</div>
+                          <div className="flex-1">
+                            <div className="flex justify-between items-start">
+                              <div className="flex items-center gap-2">
+                                <div className="flex flex-col items-start gap-1">
+                                  <div className="flex items-center justify-between w-full">
+                                    <span className="text-xs text-gray-400">Overall Rating</span>
+                                  </div>
+                                  <div className="rounded-full flex items-center gap-1">
+                                    <div className="font-bold text-[#edb900] text-sm">{review.rating.toFixed(1)}</div>
+                                    <div className="text-sm">{renderStars(review.rating)}</div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="flex items-center text-xs text-gray-400">
+                                <Calendar className="h-3 w-3 mr-1" />
+                                {review.date}
+                              </div>
                             </div>
 
-                            <div className="flex items-center text-xs text-gray-400 mt-1">
-                              <span className="inline-flex items-center">
-                                <div
-                                  className={cn(
-                                    "flex items-center justify-center rounded-full w-4 h-4 mr-1",
-                                    review.fundedStatus ? "bg-green-500/20" : "bg-red-500/20",
-                                  )}
-                                >
-                                  {review.fundedStatus ? (
-                                    <Check className="h-2.5 w-2.5 text-green-500" />
-                                  ) : (
-                                    <X className="h-2.5 w-2.5 text-red-500" />
-                                  )}
+                            <div className="grid grid-cols-3 gap-1 mt-2">
+                              <div className="bg-[#1a1a1a] rounded-md p-1 text-center">
+                                <p className="text-[10px] text-gray-400">Account Size</p>
+                                <p className="text-sm text-white">{review.accountSize}</p>
+                              </div>
+                              <div className="bg-[#1a1a1a] rounded-md p-1 text-center col-span-2">
+                                <p className="text-[10px] text-gray-400 mb-0.5 text-center">Funded Status</p>
+                                <div className="flex justify-center">
+                                  <div
+                                    className={cn(
+                                      "flex items-center justify-center rounded-full w-4 h-4",
+                                      review.fundedStatus ? "bg-green-500/20" : "bg-red-500/20",
+                                    )}
+                                  >
+                                    {review.fundedStatus ? (
+                                      <Check className="h-2.5 w-2.5 text-green-500" />
+                                    ) : (
+                                      <X className="h-2.5 w-2.5 text-red-500" />
+                                    )}
+                                  </div>
+                                  <span
+                                    className={cn(
+                                      "text-xs font-medium",
+                                      review.fundedStatus ? "text-green-500" : "text-red-500",
+                                    )}
+                                  >
+                                    {review.fundedStatus ? "Funded" : "Not Funded"}
+                                  </span>
                                 </div>
-                                {review.accountSize}
-                              </span>
-                              <span className="mx-2">•</span>
-                              <Calendar className="h-3 w-3 mr-1" />
-                              <span>{review.date}</span>
+                              </div>
                             </div>
                           </div>
                         </div>
 
-                        <p className="text-sm text-gray-300 line-clamp-2 mb-2">{review.content}</p>
+                        <div className="px-3 pb-3 pt-0">
+                          <p className="text-xs text-gray-200 leading-relaxed mb-2 line-clamp-2">{review.content}</p>
 
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="w-full mt-1 text-[#edb900] hover:bg-gray-700 h-8"
-                          onClick={() => {
-                            // Check if we have the prop_firm ID
-                            if (review.id) {
-                              // Get the prop firm slug or ID
-                              let propFirmIdentifier = ""
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="w-full mt-1 text-[#edb900] hover:bg-gray-700 h-7 text-xs"
+                            onClick={() => {
+                              // Check if we have the prop_firm ID
+                              if (review.id) {
+                                // Get the prop firm slug or ID
+                                let propFirmIdentifier = ""
 
-                              // Try to get the slug first (preferred)
-                              if (typeof review.prop_firm === "object" && review.prop_firm !== null) {
-                                const propFirmObj = review.prop_firm as Record<string, any>
-                                propFirmIdentifier = propFirmObj.slug || propFirmObj.id
-                              } else if (typeof review.prop_firm === "number") {
-                                propFirmIdentifier = review.prop_firm.toString()
+                                // Try to get the slug first (preferred)
+                                if (typeof review.prop_firm === "object" && review.prop_firm !== null) {
+                                  const propFirmObj = review.prop_firm as Record<string, any>
+                                  propFirmIdentifier = propFirmObj.slug || propFirmObj.id
+                                } else if (typeof review.prop_firm === "number") {
+                                  propFirmIdentifier = review.prop_firm.toString()
+                                }
+
+                                // If we have a prop firm identifier, navigate to the page
+                                if (propFirmIdentifier) {
+                                  // Navigate to the prop firm page with reviews tab active and highlight this review
+                                  window.open(
+                                    `/prop-firm/${propFirmIdentifier}?tab=reviews&highlight=${review.id}`,
+                                    "_blank",
+                                  )
+                                } else {
+                                  // Fallback to just opening the review directly
+                                  window.open(`/review/${review.id}`, "_blank")
+                                }
                               }
-
-                              // If we have a prop firm identifier, navigate to the page
-                              if (propFirmIdentifier) {
-                                // Navigate to the prop firm page with reviews tab active and highlight this review
-                                window.open(
-                                  `/prop-firm/${propFirmIdentifier}?tab=reviews&highlight=${review.id}`,
-                                  "_blank",
-                                )
-                              } else {
-                                // Fallback to just opening the review directly
-                                window.open(`/review/${review.id}`, "_blank")
-                              }
-                            }
-                          }}
-                        >
-                          View Full Review
-                          <ChevronRight className="ml-1 h-4 w-4" />
-                        </Button>
+                            }}
+                          >
+                            View Full Review
+                            <ChevronRight className="ml-1 h-3 w-3" />
+                          </Button>
+                        </div>
                       </div>
                     ))
                   ) : (
