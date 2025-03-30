@@ -290,32 +290,13 @@ export default function ReviewList({
       try {
         console.log("Starting to fetch reviews for prop_firm:", propfirmId)
 
+        // First, fetch the reviews
         const { data: reviewsData, error: reviewsError } = await supabase
           .from("propfirm_reviews")
-          .select(`
-    *,
-    company_responses!review_id(id, content, created_at, prop_firm_id),
-    prop_firm:prop_firms(id, propfirm_name, logo_url)
-  `)
+          .select("*")
           .eq("prop_firm", propfirmId)
           .eq("review_status", "published")
           .order("created_at", { ascending: false })
-
-        // Add this log to see the raw SQL query
-        console.log("Raw SQL query:", (supabase as any)._lastSqlQuery)
-
-        // Add this log right after the query to check the raw response:
-        console.log(
-          "Raw response from Supabase:",
-          reviewsData
-            ? reviewsData.map((review) => ({
-                id: review.id,
-                reviewIdType: typeof review.id,
-                hasResponses: review.company_responses && review.company_responses.length > 0,
-                responseIds: review.company_responses?.map((r) => r.id),
-              }))
-            : "No data",
-        )
 
         if (reviewsError) {
           console.error("Error fetching reviews:", reviewsError)
@@ -326,19 +307,34 @@ export default function ReviewList({
 
         console.log(`Found ${reviewsData.length} reviews for prop_firm ${propfirmId}`)
 
-        // In the fetchReviews function, after the initial query, add this log:
-        console.log(
-          "Raw reviews data with company responses:",
-          reviewsData.map((review) => ({
-            id: review.id,
-            hasResponses: review.company_responses && review.company_responses.length > 0,
-            responseCount: review.company_responses?.length || 0,
-          })),
-        )
-
-        // Process each review to get user data
+        // Then, for each review, fetch the company response and prop firm data
         const processedReviews = await Promise.all(
           reviewsData.map(async (review) => {
+            // Fetch company responses for this review
+            const { data: responseData, error: responseError } = await supabase
+              .from("company_responses")
+              .select("*")
+              .eq("review_id", review.id)
+              .limit(1)
+
+            if (responseError) {
+              console.error(`Error fetching company response for review ${review.id}:`, responseError)
+            }
+
+            // Fetch prop firm data
+            const { data: propFirmData, error: propFirmError } = await supabase
+              .from("prop_firms")
+              .select("id, propfirm_name, logo_url")
+              .eq("id", review.prop_firm)
+              .single()
+
+            if (propFirmError) {
+              console.error(`Error fetching prop firm data for review ${review.id}:`, propFirmError)
+            }
+
+            // Log the company response data for debugging
+            console.log(`Company response for review ${review.id}:`, responseData)
+
             // 2. For each review, fetch the user data using the reviewer ID
             let userData = null
             let authorName = "Anonymous"
@@ -507,6 +503,22 @@ export default function ReviewList({
                 }
               : null
 
+            // Create company response object if we have response data
+            let companyResponse = null
+            if (responseData && responseData.length > 0) {
+              companyResponse = {
+                companyName: propFirmData?.propfirm_name || companyName,
+                companyLogo: propFirmData?.logo_url || companyLogo || "/placeholder.svg?height=50&width=50",
+                date: new Date(responseData[0].created_at).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                }),
+                content: responseData[0].content,
+              }
+              console.log(`Created company response object for review ${review.id}:`, companyResponse)
+            }
+
             // 3. Map the review data to the format expected by ReviewCard
             return {
               id: review.id,
@@ -539,24 +551,7 @@ export default function ReviewList({
               reported_issues: review.reported_issues || false,
               problem_report: problemReport,
               report: legacyReport,
-              // When creating the companyResponse object, add detailed logging:
-              companyResponse:
-                review.company_responses && review.company_responses.length > 0
-                  ? (() => {
-                      const response = {
-                        companyName: review.prop_firm?.propfirm_name || companyName,
-                        companyLogo: review.prop_firm?.logo_url || companyLogo || "/placeholder.svg?height=50&width=50",
-                        date: new Date(review.company_responses[0].created_at).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        }),
-                        content: review.company_responses[0].content,
-                      }
-                      console.log(`Company response for review ${review.id}:`, response)
-                      return response
-                    })()
-                  : null,
+              companyResponse,
               certificates: 0,
               firmCount: 0,
               payoutStatus: review.received_payout === "Yes" ? "Yes" : "No",
