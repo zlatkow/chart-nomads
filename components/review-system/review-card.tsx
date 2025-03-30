@@ -597,15 +597,75 @@ export default function ReviewCard({
   // And update the useEffect that fetches reviewer profile data
   // Replace the useSupabaseClient hook with a direct client initialization
   // const supabaseClient = useSupabaseClient();
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://your-project-url.supabase.co"
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "your-anon-key"
   const supabaseClient = createClient(supabaseUrl, supabaseAnonKey)
+
+  // Check if we have valid Supabase credentials
+  const hasValidSupabaseConfig = supabaseUrl.includes("supabase.co") && supabaseAnonKey.length > 10
+  console.log("Has valid Supabase config:", hasValidSupabaseConfig)
+
+  // Debug Supabase connection
+  console.log("Supabase URL:", supabaseUrl)
+  console.log("Supabase Anon Key exists:", !!supabaseAnonKey)
 
   useEffect(() => {
     // Only fetch if we have a valid authorId and the sidebar is being opened
     if (!authorId || !showProfileSidebar) return
 
     const fetchReviewerProfile = async () => {
+      // Skip Supabase queries if we don't have valid credentials
+      if (!hasValidSupabaseConfig) {
+        console.warn("Missing valid Supabase credentials - using mock data instead")
+
+        // Set mock data for testing
+        setReviewerStats({
+          totalReviews: 3,
+          averageRating: 4.5,
+          fundedAccounts: 2,
+          receivedPayouts: 1,
+          joinedDate: "January 2023",
+        })
+
+        // Create mock previous reviews
+        setPreviousReviews([
+          {
+            id: "mock-1",
+            companyName: "Test Prop Firm",
+            date: "Jan 15, 2023",
+            rating: 4.5,
+            content: "This is a great prop firm with excellent customer service and fast payouts.",
+            accountSize: "$10,000",
+            accountType: "Standard",
+            tradingDuration: "30 days",
+            fundedStatus: true,
+            payoutStatus: true,
+            likedAspect: "Fast customer service",
+            dislikedAspect: "High monthly fee",
+            proofImages: [],
+            prop_firm: { id: "mock-firm-1", slug: "test-prop-firm" },
+          },
+          {
+            id: "mock-2",
+            companyName: "Another Firm",
+            date: "Mar 22, 2023",
+            rating: 3.5,
+            content: "Decent firm but slow verification process.",
+            accountSize: "$25,000",
+            accountType: "Swing",
+            tradingDuration: "45 days",
+            fundedStatus: true,
+            payoutStatus: false,
+            likedAspect: "Good platform",
+            dislikedAspect: "Slow verification",
+            proofImages: [],
+            prop_firm: { id: "mock-firm-2", slug: "another-firm" },
+          },
+        ])
+
+        setIsLoadingProfile(false)
+        return
+      }
       setIsLoadingProfile(true)
       try {
         // 1. Fetch user profile data
@@ -653,6 +713,10 @@ export default function ReviewCard({
           .eq("reviewer", authorId)
           .order("created_at", { ascending: false })
           .limit(3)
+
+        // After the reviewsData query, add:
+        console.log("Reviews data fetched:", reviewsData)
+        console.log("Reviews error:", reviewsError)
 
         if (reviewsError) {
           console.error("Error fetching user reviews:", reviewsError)
@@ -1256,7 +1320,7 @@ export default function ReviewCard({
                           <div className="h-8 bg-[rgba(255,255,255,0.05)] rounded w-full"></div>
                         </div>
                       ))
-                  ) : previousReviews.length > 0 ? (
+                  ) : previousReviews && previousReviews.length > 0 ? (
                     previousReviews.map((review) => (
                       <div key={review.id} className="w-full text-white mb-4">
                         <div className="flex items-start gap-3">
