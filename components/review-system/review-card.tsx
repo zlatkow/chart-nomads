@@ -998,7 +998,7 @@ export default function ReviewCard({
                               Reply from {companyResponse.companyName}
                             </span>
                           </div>
-                          <span className="text-xs text-gray-400">{companyResponse.date}</span>
+                          <span className="text-xs text-black">{companyResponse.date}</span>
                         </div>
                       </div>
                     </AccordionTrigger>
