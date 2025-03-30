@@ -994,7 +994,7 @@ export default function ReviewCard({
                             />
                           )}
                         </div>
-                        <div className="flex items-start">
+                        <div className="flex flex-col items-start">
                           <div className="flex items-center">
                             <span className="font-[balboa]" style={{ color: "white" }}>
                               Reply from {companyResponse.companyName}
