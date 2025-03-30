@@ -730,7 +730,7 @@ export default function ReviewCard({
             >
               <div className="flex justify-center w-full">
                 {/* Update the Avatar component to use the profileImage state instead of authorAvatar */}
-                <Avatar className="h-16 w-16 border-2 border-[#edb900] group-hover:border-white transition-colors">
+                <Avatar className="h-16 w-16 border-1 border-[rgba(237,185,0,0.2)] group-hover:border-[#edb900] transition-colors">
                   <AvatarImage
                     src={profileImage || authorAvatar || "/placeholder.svg?height=100&width=100"}
                     alt={authorName}
