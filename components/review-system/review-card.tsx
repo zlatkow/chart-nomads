@@ -730,7 +730,7 @@ export default function ReviewCard({
             >
               <div className="flex justify-center w-full">
                 {/* Update the Avatar component to use the profileImage state instead of authorAvatar */}
-                <Avatar className="h-16 w-16 border-1 border-[rgba(237,185,0,0.2)] group-hover:border-[#edb900] transition-colors">
+                <Avatar className="h-16 w-16 border-2 border-[rgba(237,185,0,0.2)] group-hover:border-[#edb900] transition-colors">
                   <AvatarImage
                     src={profileImage || authorAvatar || "/placeholder.svg?height=100&width=100"}
                     alt={authorName}
@@ -974,10 +974,9 @@ export default function ReviewCard({
                 >
                   <AccordionItem value="company-response" className="border-b-0">
                     <AccordionTrigger
-                      className="py-1 px-4 hover:no-underline group"
+                      className="py-2 px-4 hover:no-underline group"
                       style={{
-                        backgroundColor: "#edb9001a", // 10% opacity
-                        borderBottom: `1px solid rgba(237,185,0,0.2)`, // 30% opacity
+                        backgroundColor: "#edb900", // 10% opacity
                       }}
                     >
                       <div className="flex items-center gap-3 w-full">
@@ -995,7 +994,7 @@ export default function ReviewCard({
                         </div>
                         <div className="flex flex-col items-start">
                           <div className="flex items-center">
-                            <span className="font-[balboa]" style={{ color: "white" }}>
+                            <span className="font-[balboa]" style={{ color: "black" }}>
                               Reply from {companyResponse.companyName}
                             </span>
                           </div>
@@ -1003,7 +1002,7 @@ export default function ReviewCard({
                         </div>
                       </div>
                     </AccordionTrigger>
-                    <AccordionContent className="px-6 py-5" style={{ backgroundColor: "#edb9000D" }}>
+                    <AccordionContent className="px-6 py-5" style={{ backgroundColor: "#0f0f0f" }}>
                       <div className="prose prose-sm max-w-none prose-p:text-gray-200 prose-headings:text-white prose-strong:text-white prose-strong:font-semibold">
                         {companyResponse.content.split("\n").map((paragraph, index) => (
                           <p key={index} className="mb-3 leading-relaxed">
