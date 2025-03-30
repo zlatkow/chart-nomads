@@ -931,10 +931,10 @@ export default function ReviewCard({
           {/* Legacy Report section as accordion - for backward compatibility */}
           {report && !problem_report && (
             <Accordion type="single" collapsible className="mt-6">
-              <AccordionItem value="report" className="border border-red-500 bg-red-900/20 hover:bg-red-900/20 rounded-md overflow-hidden">
+              <AccordionItem value="report" className="border border-red-500 bg-red-900/10 hover:bg-red-900/10 rounded-md overflow-hidden">
                 <AccordionTrigger
-                  className="py-3 px-4 hover:no-underline group data-[state=open]:bg-red-900/20 data-[state=closed]:hover:bg-red-900/20"
-                  style={{ backgroundColor: "rgba(220, 38, 38, 0.2)" }} // Explicitly set the background color
+                  className="py-3 px-4 hover:no-underline group data-[state=open]:bg-red-900/10 data-[state=closed]:hover:bg-red-900/10"
+                  style={{ backgroundColor: "rgba(220, 38, 38, 0.1)" }} // Explicitly set the background color
                 >
                   <div className="flex items-center gap-2 text-red-400">
                     <AlertCircle className="h-5 w-5" />
