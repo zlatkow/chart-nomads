@@ -367,8 +367,8 @@ export default function ProblemReportDisplay({ report }: ProblemReportProps) {
   return (
     <>
       <Accordion type="single" collapsible className="mt-6">
-        <AccordionItem value="report" className="border border-red-500 bg-red-900/20 rounded-md overflow-hidden">
-          <AccordionTrigger className="py-3 px-4 hover:bg-red-900/20 hover:no-underline group">
+        <AccordionItem value="report" className="border border-red-500 bg-red-900/10 rounded-md overflow-hidden">
+          <AccordionTrigger className="py-3 px-4 hover:bg-red-900/10 hover:no-underline group">
             <div className="flex items-center gap-2 text-red-400">
               <AlertCircle className="h-5 w-5" />
               <h4>Report: {getReportTitle()}</h4>
