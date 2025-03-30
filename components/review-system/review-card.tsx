@@ -970,11 +970,11 @@ export default function ReviewCard({
                 <Accordion
                   type="single"
                   collapsible
-                  className="mt-6 border border-[rgba(237,185,0,0.2)] rounded-md overflow-hidden h-[55px]"
+                  className="mt-6 border border-[rgba(237,185,0,0.2)] rounded-md overflow-hidden"
                 >
                   <AccordionItem value="company-response" className="border-b-0">
                     <AccordionTrigger
-                      className="py-3 px-4 hover:no-underline group"
+                      className="py-1 px-4 hover:no-underline group"
                       style={{
                         backgroundColor: "#edb9001a", // 10% opacity
                         borderBottom: `1px solid rgba(237,185,0,0.2)`, // 30% opacity
