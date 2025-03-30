@@ -928,39 +928,6 @@ export default function ReviewCard({
           {/* Problem Report Display */}
           {reported_issues && problem_report && <ProblemReportDisplay report={problem_report} />}
 
-          {/* Legacy Report section as accordion - for backward compatibility */}
-          {report && !problem_report && (
-            <Accordion type="single" collapsible className="mt-6">
-              <AccordionItem value="report" className="border border-red-500 bg-red-900/10 hover:bg-red-900/10 rounded-md overflow-hidden">
-                <AccordionTrigger
-                  className="py-3 px-4 hover:no-underline group data-[state=open]:bg-red-900/10 data-[state=closed]:hover:bg-red-900/10"
-                  style={{ backgroundColor: "rgba(220, 38, 38, 0.1)" }} // Explicitly set the background color
-                >
-                  <div className="flex items-center gap-2 text-red-400">
-                    <AlertCircle className="h-5 w-5" />
-                    <h4>Report: {report.reason}</h4>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent className="px-4 pb-4 pt-0 bg-red-900/30">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                      <p className="text-xs text-red-400 mb-1">Denied Amount</p>
-                      <p className="text-sm text-white">{report.deniedAmount || "N/A"}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-red-400 mb-1">Reason</p>
-                      <p className="text-sm text-white">{report.reason}</p>
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-xs text-red-400 mb-1">Summary</p>
-                    <p className="text-sm text-gray-300">{report.description}</p>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          )}
-
           {/* Company Response as Accordion */}
           {companyResponse &&
             (() => {
