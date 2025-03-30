@@ -976,7 +976,7 @@ export default function ReviewCard({
                     <AccordionTrigger
                       className="py-2 px-4 hover:no-underline group"
                       style={{
-                        backgroundColor: "rgba(237,185,0,0.2)", // 20% opacity
+                        backgroundColor: "rgba(237,185,0,0.05)", // 20% opacity
                       }}
                     >
                       <div className="flex items-center gap-3 w-full">
