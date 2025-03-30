@@ -10,7 +10,6 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import {
   Flag,
   Calendar,
-  MessageSquare,
   X,
   ArrowLeft,
   ArrowRight,
@@ -57,6 +56,7 @@ interface CompanyResponse {
   companyLogo: string
   date: string
   content: string
+  brandColor?: string
 }
 
 // Updated ProofImage interface to match the actual data structure
@@ -839,10 +839,6 @@ export default function ReviewCard({
                 </TooltipProvider>
               </div>
               <div className="flex items-center text-sm text-gray-400">
-                <Button variant="ghost" size="sm" className="text-gray-400 hover:bg-[#edb900] hover:text-black">
-                  <Flag className="h-4 w-4 mr-1" />
-                  Report
-                </Button>
                 <div className="text-gray-500 mx-1">|</div>
                 <Calendar className="h-4 w-4 ml-3 mr-1" />
                 {date}
@@ -968,6 +964,9 @@ export default function ReviewCard({
           {companyResponse &&
             (() => {
               console.log(`Rendering company response for review ${id}`)
+              // Use the brand color from the company or default to #edb900
+              const brandColor = companyResponse.brandColor || "#edb900"
+
               return (
                 <Accordion
                   type="single"
@@ -975,27 +974,44 @@ export default function ReviewCard({
                   className="mt-6 border border-[rgba(237,185,0,0.2)] rounded-md overflow-hidden"
                 >
                   <AccordionItem value="company-response" className="border-b-0">
-                    <AccordionTrigger className="py-3 px-4 hover:bg-[rgba(237,185,0,0.03)] hover:no-underline">
-                      <div className="flex items-center gap-2 text-[#edb900]">
-                        <MessageSquare className="h-5 w-5" />
-                        <span>Company Response</span>
-                        <span className="text-xs text-gray-400 ml-2">{companyResponse.date}</span>
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent className="px-4 pb-4 mt-4 pt-0">
-                      <div className="flex items-center gap-3 mb-3">
-                        {companyResponse.companyLogo && (
-                          <div className="w-8 h-8 relative overflow-hidden rounded-full">
+                    <AccordionTrigger
+                      className="py-3 px-4 hover:no-underline group"
+                      style={{
+                        backgroundColor: `${brandColor}10`,
+                        borderBottom: `1px solid ${brandColor}30`,
+                      }}
+                    >
+                      <div className="flex items-center gap-3 w-full">
+                        <div
+                          className="flex items-center justify-center w-10 h-10 rounded-full p-1"
+                          style={{ backgroundColor: `${brandColor}30` }}
+                        >
+                          {companyResponse.companyLogo && (
                             <img
                               src={companyResponse.companyLogo || "/placeholder.svg"}
                               alt={companyResponse.companyName}
-                              className="w-full h-full object-contain"
+                              className="w-full h-full object-contain rounded-full"
                             />
+                          )}
+                        </div>
+                        <div className="flex flex-col items-start">
+                          <div className="flex items-center">
+                            <span className="font-semibold" style={{ color: brandColor }}>
+                              Reply from {companyResponse.companyName}
+                            </span>
                           </div>
-                        )}
-                        <span className="font-semibold text-[#edb900]">{companyResponse.companyName}</span>
+                          <span className="text-xs text-gray-400">{companyResponse.date}</span>
+                        </div>
                       </div>
-                      <p className="text-sm text-gray-300">{companyResponse.content}</p>
+                    </AccordionTrigger>
+                    <AccordionContent className="px-6 py-5" style={{ backgroundColor: `${brandColor}05` }}>
+                      <div className="prose prose-sm max-w-none prose-p:text-gray-200 prose-headings:text-white prose-strong:text-white prose-strong:font-semibold">
+                        {companyResponse.content.split("\n").map((paragraph, index) => (
+                          <p key={index} className="mb-3 leading-relaxed">
+                            {paragraph}
+                          </p>
+                        ))}
+                      </div>
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>

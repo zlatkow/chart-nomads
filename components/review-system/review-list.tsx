@@ -324,7 +324,7 @@ export default function ReviewList({
             // Fetch prop firm data
             const { data: propFirmData, error: propFirmError } = await supabase
               .from("prop_firms")
-              .select("id, propfirm_name, logo_url")
+              .select("id, propfirm_name, logo_url, brand_colour, brand_color")
               .eq("id", review.prop_firm)
               .single()
 
@@ -506,6 +506,14 @@ export default function ReviewList({
             // Create company response object if we have response data
             let companyResponse = null
             if (responseData && responseData.length > 0) {
+              // Fetch the brand color from prop_firms
+              let brandColor = "#edb900" // Default color
+
+              if (propFirmData) {
+                // Try to get the brand_colour from the prop firm data
+                brandColor = propFirmData.brand_colour || propFirmData.brand_color || "#edb900"
+              }
+
               companyResponse = {
                 companyName: propFirmData?.propfirm_name || companyName,
                 companyLogo: propFirmData?.logo_url || companyLogo || "/placeholder.svg?height=50&width=50",
@@ -515,6 +523,7 @@ export default function ReviewList({
                   day: "numeric",
                 }),
                 content: responseData[0].content,
+                brandColor: brandColor,
               }
               console.log(`Created company response object for review ${review.id}:`, companyResponse)
             }
