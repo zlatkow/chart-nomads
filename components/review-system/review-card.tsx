@@ -983,7 +983,7 @@ export default function ReviewCard({
                     >
                       <div className="flex items-center gap-3 w-full">
                         <div
-                          className="flex items-center justify-center w-10 h-10 rounded-full p-1"
+                          className="flex items-center justify-center w-10 h-10 rounded-[10px] p-1"
                           style={{ backgroundColor: `${brandColor}` }}
                         >
                           {companyResponse.companyLogo && (
