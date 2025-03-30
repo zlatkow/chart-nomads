@@ -294,12 +294,28 @@ export default function ReviewList({
           .from("propfirm_reviews")
           .select(`
     *,
-    company_responses(*),
+    company_responses!review_id(id, content, created_at, prop_firm_id),
     prop_firm:prop_firms(id, propfirm_name, logo_url)
   `)
           .eq("prop_firm", propfirmId)
           .eq("review_status", "published")
-          .order("created_at", { ascending: false }) // Sort by newest first by default
+          .order("created_at", { ascending: false })
+
+        // Add this log to see the raw SQL query
+        console.log("Raw SQL query:", (supabase as any)._lastSqlQuery)
+
+        // Add this log right after the query to check the raw response:
+        console.log(
+          "Raw response from Supabase:",
+          reviewsData
+            ? reviewsData.map((review) => ({
+                id: review.id,
+                reviewIdType: typeof review.id,
+                hasResponses: review.company_responses && review.company_responses.length > 0,
+                responseIds: review.company_responses?.map((r) => r.id),
+              }))
+            : "No data",
+        )
 
         if (reviewsError) {
           console.error("Error fetching reviews:", reviewsError)
