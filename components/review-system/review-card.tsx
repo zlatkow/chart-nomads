@@ -707,6 +707,18 @@ export default function ReviewCard({
     fetchReviewerProfile()
   }, [authorId, showProfileSidebar])
 
+  // Add this log at the beginning of the ReviewCard component:
+  useEffect(() => {
+    console.log(`ReviewCard ${id} - Has company response:`, !!companyResponse)
+    if (companyResponse) {
+      console.log(`ReviewCard ${id} - Company response details:`, {
+        companyName: companyResponse.companyName,
+        date: companyResponse.date,
+        contentLength: companyResponse.content.length,
+      })
+    }
+  }, [id, companyResponse])
+
   return (
     <>
       <Card className="w-full border-[rgba(237,185,0,0.2)] shadow-md bg-[#0f0f0f] text-white overflow-hidden">
@@ -953,38 +965,42 @@ export default function ReviewCard({
           )}
 
           {/* Company Response as Accordion */}
-          {companyResponse && (
-            <Accordion
-              type="single"
-              collapsible
-              className="mt-6 border border-[rgba(237,185,0,0.2)] rounded-md overflow-hidden"
-            >
-              <AccordionItem value="company-response" className="border-b-0">
-                <AccordionTrigger className="py-3 px-4 hover:bg-[rgba(237,185,0,0.03)] hover:no-underline">
-                  <div className="flex items-center gap-2 text-[#edb900]">
-                    <MessageSquare className="h-5 w-5" />
-                    <span>Company Response</span>
-                    <span className="text-xs text-gray-400 ml-2">{companyResponse.date}</span>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent className="px-4 pb-4 mt-4 pt-0">
-                  <div className="flex items-center gap-3 mb-3">
-                    {companyResponse.companyLogo && (
-                      <div className="w-8 h-8 relative overflow-hidden rounded-full">
-                        <img
-                          src={companyResponse.companyLogo || "/placeholder.svg"}
-                          alt={companyResponse.companyName}
-                          className="w-full h-full object-contain"
-                        />
+          {companyResponse &&
+            (() => {
+              console.log(`Rendering company response for review ${id}`)
+              return (
+                <Accordion
+                  type="single"
+                  collapsible
+                  className="mt-6 border border-[rgba(237,185,0,0.2)] rounded-md overflow-hidden"
+                >
+                  <AccordionItem value="company-response" className="border-b-0">
+                    <AccordionTrigger className="py-3 px-4 hover:bg-[rgba(237,185,0,0.03)] hover:no-underline">
+                      <div className="flex items-center gap-2 text-[#edb900]">
+                        <MessageSquare className="h-5 w-5" />
+                        <span>Company Response</span>
+                        <span className="text-xs text-gray-400 ml-2">{companyResponse.date}</span>
                       </div>
-                    )}
-                    <span className="font-semibold text-[#edb900]">{companyResponse.companyName}</span>
-                  </div>
-                  <p className="text-sm text-gray-300">{companyResponse.content}</p>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          )}
+                    </AccordionTrigger>
+                    <AccordionContent className="px-4 pb-4 mt-4 pt-0">
+                      <div className="flex items-center gap-3 mb-3">
+                        {companyResponse.companyLogo && (
+                          <div className="w-8 h-8 relative overflow-hidden rounded-full">
+                            <img
+                              src={companyResponse.companyLogo || "/placeholder.svg"}
+                              alt={companyResponse.companyName}
+                              className="w-full h-full object-contain"
+                            />
+                          </div>
+                        )}
+                        <span className="font-semibold text-[#edb900]">{companyResponse.companyName}</span>
+                      </div>
+                      <p className="text-sm text-gray-300">{companyResponse.content}</p>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              )
+            })()}
         </CardContent>
       </Card>
 

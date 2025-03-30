@@ -310,6 +310,16 @@ export default function ReviewList({
 
         console.log(`Found ${reviewsData.length} reviews for prop_firm ${propfirmId}`)
 
+        // In the fetchReviews function, after the initial query, add this log:
+        console.log(
+          "Raw reviews data with company responses:",
+          reviewsData.map((review) => ({
+            id: review.id,
+            hasResponses: review.company_responses && review.company_responses.length > 0,
+            responseCount: review.company_responses?.length || 0,
+          })),
+        )
+
         // Process each review to get user data
         const processedReviews = await Promise.all(
           reviewsData.map(async (review) => {
@@ -513,18 +523,23 @@ export default function ReviewList({
               reported_issues: review.reported_issues || false,
               problem_report: problemReport,
               report: legacyReport,
+              // When creating the companyResponse object, add detailed logging:
               companyResponse:
                 review.company_responses && review.company_responses.length > 0
-                  ? {
-                      companyName: review.prop_firm?.propfirm_name || companyName,
-                      companyLogo: review.prop_firm?.logo_url || companyLogo || "/placeholder.svg?height=50&width=50",
-                      date: new Date(review.company_responses[0].created_at).toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      }),
-                      content: review.company_responses[0].content,
-                    }
+                  ? (() => {
+                      const response = {
+                        companyName: review.prop_firm?.propfirm_name || companyName,
+                        companyLogo: review.prop_firm?.logo_url || companyLogo || "/placeholder.svg?height=50&width=50",
+                        date: new Date(review.company_responses[0].created_at).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        }),
+                        content: review.company_responses[0].content,
+                      }
+                      console.log(`Company response for review ${review.id}:`, response)
+                      return response
+                    })()
                   : null,
               certificates: 0,
               firmCount: 0,
@@ -544,6 +559,15 @@ export default function ReviewList({
         )
 
         setReviews(processedReviews)
+
+        // After processing all reviews, add this log:
+        console.log(
+          "Processed reviews with company responses:",
+          processedReviews.map((review) => ({
+            id: review.id,
+            hasCompanyResponse: !!review.companyResponse,
+          })),
+        )
       } catch (error) {
         console.error("Error in fetchReviews:", error)
         setReviews([])
