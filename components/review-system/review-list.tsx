@@ -64,6 +64,7 @@ interface ReviewListProps {
   propfirmId?: number | null
   companyLogo?: string
   isLoading?: boolean
+  highlightReviewId?: string
 }
 
 // Define the social links interface

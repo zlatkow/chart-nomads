@@ -11,18 +11,22 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
 const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
+// Update the ReviewSystemProps interface to include highlightReviewId
 interface ReviewSystemProps {
   companyName?: string
   companySlug?: string
   propfirmId?: number
   companyLogo?: string
+  highlightReviewId?: string
 }
 
+// Update the function parameters to include highlightReviewId with a default value of null
 export default function ReviewSystem({
   companyName = "CHART NOMADS",
   companySlug,
   propfirmId,
   companyLogo,
+  highlightReviewId = null,
 }: ReviewSystemProps) {
   // Get the openReviewModal function from context
   const modalContext = useContext(ModalContext)
@@ -115,6 +119,7 @@ export default function ReviewSystem({
     })
   }
 
+  // Add the highlightReviewId prop to the ReviewList component
   return (
     <div className="w-full">
       <ReviewList
@@ -124,7 +129,9 @@ export default function ReviewSystem({
         propfirmId={resolvedPropfirmId}
         onOpenReviewModal={handleOpenReviewModal}
         isLoading={isLoading}
+        highlightReviewId={highlightReviewId}
       />
     </div>
   )
 }
+
