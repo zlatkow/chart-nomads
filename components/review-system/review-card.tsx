@@ -8,7 +8,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import {
-  Flag,
   Calendar,
   X,
   ArrowLeft,
@@ -966,6 +965,7 @@ export default function ReviewCard({
               console.log(`Rendering company response for review ${id}`)
               // Use the brand color from the company or default to #edb900
               const brandColor = companyResponse.brandColor || "#edb900"
+              console.log(`Using brand color for company response: ${brandColor}`)
 
               return (
                 <Accordion
@@ -977,14 +977,14 @@ export default function ReviewCard({
                     <AccordionTrigger
                       className="py-3 px-4 hover:no-underline group"
                       style={{
-                        backgroundColor: "#edb9001a", // 10% opacity
-                        borderBottom: "1px solid #edb9004d", // 30% opacity                        
+                        backgroundColor: `${brandColor}1a`, // 10% opacity
+                        borderBottom: `1px solid ${brandColor}4d`, // 30% opacity
                       }}
                     >
                       <div className="flex items-center gap-3 w-full">
                         <div
                           className="flex items-center justify-center w-10 h-10 rounded-[10px] p-1"
-                          style={{ backgroundColor: `${brandColor}` }}
+                          style={{ backgroundColor: brandColor }}
                         >
                           {companyResponse.companyLogo && (
                             <img
@@ -1004,7 +1004,7 @@ export default function ReviewCard({
                         </div>
                       </div>
                     </AccordionTrigger>
-                    <AccordionContent className="px-6 py-5" style={{ backgroundColor: "#edb9000D" }}>
+                    <AccordionContent className="px-6 py-5" style={{ backgroundColor: `${brandColor}0D` }}>
                       <div className="prose prose-sm max-w-none prose-p:text-gray-200 prose-headings:text-white prose-strong:text-white prose-strong:font-semibold">
                         {companyResponse.content.split("\n").map((paragraph, index) => (
                           <p key={index} className="mb-3 leading-relaxed">

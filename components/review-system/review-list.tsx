@@ -324,9 +324,18 @@ export default function ReviewList({
             // Fetch prop firm data
             const { data: propFirmData, error: propFirmError } = await supabase
               .from("prop_firms")
-              .select("id, propfirm_name, logo_url, brand_colour, brand_color")
+              .select("*") // Select all fields to make sure we get brand_colour
               .eq("id", review.prop_firm)
               .single()
+
+            if (propFirmData) {
+              console.log(`Prop firm data for review ${review.id}:`, {
+                id: propFirmData.id,
+                name: propFirmData.propfirm_name,
+                brand_colour: propFirmData.brand_colour,
+                brand_color: propFirmData.brand_color,
+              })
+            }
 
             if (propFirmError) {
               console.error(`Error fetching prop firm data for review ${review.id}:`, propFirmError)
@@ -511,7 +520,13 @@ export default function ReviewList({
 
               if (propFirmData) {
                 // Try to get the brand_colour from the prop firm data
-                brandColor = propFirmData.brand_colour || propFirmData.brand_color || "#edb900"
+                if (propFirmData.brand_colour) {
+                  brandColor = propFirmData.brand_colour
+                  console.log(`Using brand_colour from prop_firm: ${brandColor}`)
+                } else if (propFirmData.brand_color) {
+                  brandColor = propFirmData.brand_color
+                  console.log(`Using brand_color from prop_firm: ${brandColor}`)
+                }
               }
 
               companyResponse = {
@@ -525,7 +540,10 @@ export default function ReviewList({
                 content: responseData[0].content,
                 brandColor: brandColor,
               }
-              console.log(`Created company response object for review ${review.id}:`, companyResponse)
+              console.log(
+                `Created company response object for review ${review.id} with brand color ${brandColor}:`,
+                companyResponse,
+              )
             }
 
             // 3. Map the review data to the format expected by ReviewCard
