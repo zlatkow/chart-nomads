@@ -838,7 +838,6 @@ export default function ReviewCard({
                 </TooltipProvider>
               </div>
               <div className="flex items-center text-sm text-gray-400">
-                <div className="text-gray-500 mx-1">|</div>
                 <Calendar className="h-4 w-4 ml-3 mr-1" />
                 {date}
               </div>
@@ -971,14 +970,14 @@ export default function ReviewCard({
                 <Accordion
                   type="single"
                   collapsible
-                  className="mt-6 border border-[rgba(237,185,0,0.2)] rounded-md overflow-hidden"
+                  className="mt-6 border border-[rgba(237,185,0,0.2)] rounded-md overflow-hidden h-[55px]"
                 >
                   <AccordionItem value="company-response" className="border-b-0">
                     <AccordionTrigger
                       className="py-3 px-4 hover:no-underline group"
                       style={{
-                        backgroundColor: `${brandColor}1a`, // 10% opacity
-                        borderBottom: `1px solid ${brandColor}4d`, // 30% opacity
+                        backgroundColor: "#edb9001a", // 10% opacity
+                        borderBottom: `1px solid rgba(237,185,0,0.2)`, // 30% opacity
                       }}
                     >
                       <div className="flex items-center gap-3 w-full">
@@ -1004,7 +1003,7 @@ export default function ReviewCard({
                         </div>
                       </div>
                     </AccordionTrigger>
-                    <AccordionContent className="px-6 py-5" style={{ backgroundColor: `${brandColor}0D` }}>
+                    <AccordionContent className="px-6 py-5" style={{ backgroundColor: "#edb9000D" }}>
                       <div className="prose prose-sm max-w-none prose-p:text-gray-200 prose-headings:text-white prose-strong:text-white prose-strong:font-semibold">
                         {companyResponse.content.split("\n").map((paragraph, index) => (
                           <p key={index} className="mb-3 leading-relaxed">
