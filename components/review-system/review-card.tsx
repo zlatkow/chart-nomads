@@ -597,15 +597,75 @@ export default function ReviewCard({
   // And update the useEffect that fetches reviewer profile data
   // Replace the useSupabaseClient hook with a direct client initialization
   // const supabaseClient = useSupabaseClient();
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://your-project-url.supabase.co"
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "your-anon-key"
   const supabaseClient = createClient(supabaseUrl, supabaseAnonKey)
+
+  // Check if we have valid Supabase credentials
+  const hasValidSupabaseConfig = supabaseUrl.includes("supabase.co") && supabaseAnonKey.length > 10
+  console.log("Has valid Supabase config:", hasValidSupabaseConfig)
+
+  // Debug Supabase connection
+  console.log("Supabase URL:", supabaseUrl)
+  console.log("Supabase Anon Key exists:", !!supabaseAnonKey)
 
   useEffect(() => {
     // Only fetch if we have a valid authorId and the sidebar is being opened
     if (!authorId || !showProfileSidebar) return
 
     const fetchReviewerProfile = async () => {
+      // Skip Supabase queries if we don't have valid credentials
+      if (!hasValidSupabaseConfig) {
+        console.warn("Missing valid Supabase credentials - using mock data instead")
+
+        // Set mock data for testing
+        setReviewerStats({
+          totalReviews: 3,
+          averageRating: 4.5,
+          fundedAccounts: 2,
+          receivedPayouts: 1,
+          joinedDate: "January 2023",
+        })
+
+        // Create mock previous reviews
+        setPreviousReviews([
+          {
+            id: "mock-1",
+            companyName: "Test Prop Firm",
+            date: "Jan 15, 2023",
+            rating: 4.5,
+            content: "This is a great prop firm with excellent customer service and fast payouts.",
+            accountSize: "$10,000",
+            accountType: "Standard",
+            tradingDuration: "30 days",
+            fundedStatus: true,
+            payoutStatus: true,
+            likedAspect: "Fast customer service",
+            dislikedAspect: "High monthly fee",
+            proofImages: [],
+            prop_firm: { id: "mock-firm-1", slug: "test-prop-firm" },
+          },
+          {
+            id: "mock-2",
+            companyName: "Another Firm",
+            date: "Mar 22, 2023",
+            rating: 3.5,
+            content: "Decent firm but slow verification process.",
+            accountSize: "$25,000",
+            accountType: "Swing",
+            tradingDuration: "45 days",
+            fundedStatus: true,
+            payoutStatus: false,
+            likedAspect: "Good platform",
+            dislikedAspect: "Slow verification",
+            proofImages: [],
+            prop_firm: { id: "mock-firm-2", slug: "another-firm" },
+          },
+        ])
+
+        setIsLoadingProfile(false)
+        return
+      }
       setIsLoadingProfile(true)
       try {
         // 1. Fetch user profile data
@@ -636,18 +696,27 @@ export default function ReviewCard({
         const { data: reviewsData, error: reviewsError } = await supabaseClient
           .from("propfirm_reviews")
           .select(`
-    id,
-    overall_rating,
-    detailed_review,
-    created_at,
-    account_size,
-    funded_status,
-    received_payout,
-    prop_firm(id, propfirm_name, slug)
-  `)
+id,
+overall_rating,
+detailed_review,
+created_at,
+account_size,
+account_type,
+trading_period,
+funded_status,
+received_payout,
+most_liked_aspect,
+most_disliked_aspect,
+proofs,
+prop_firm(id, propfirm_name, slug, brand_colour, logo_url)
+`)
           .eq("reviewer", authorId)
           .order("created_at", { ascending: false })
           .limit(3)
+
+        // After the reviewsData query, add:
+        console.log("Reviews data fetched:", reviewsData)
+        console.log("Reviews error:", reviewsError)
 
         if (reviewsError) {
           console.error("Error fetching user reviews:", reviewsError)
@@ -675,6 +744,12 @@ export default function ReviewCard({
               }
             }
 
+            // Process proof images if they exist
+            let processedImages: ProofImage[] = []
+            if (review.proofs) {
+              processedImages = processProofImages(review.proofs)
+            }
+
             return {
               id: review.id,
               companyName: companyName,
@@ -686,8 +761,13 @@ export default function ReviewCard({
               rating: review.overall_rating || 0,
               content: review.detailed_review || "",
               accountSize: review.account_size || "",
+              accountType: review.account_type || "Standard",
+              tradingDuration: review.trading_period || "N/A",
               fundedStatus: review.funded_status === "Yes",
-              payoutStatus: review.received_payout || "No",
+              payoutStatus: review.received_payout === "Yes",
+              likedAspect: review.most_liked_aspect || "Not specified",
+              dislikedAspect: review.most_disliked_aspect || "Not specified",
+              proofImages: processedImages,
               prop_firm: review.prop_firm,
             }
           })
@@ -1225,9 +1305,9 @@ export default function ReviewCard({
                 </div>
 
                 {/* Replace the previous reviews section with: */}
-                <h4 className="text-lg font-semibold mb-3">Recent Reviews</h4>
+                <h4 className="text-lg font-semibold mb-3">Previous Reviews</h4>
 
-                <div className="space-y-4 flex-1 overflow-y-auto">
+                <div className="space-y-6 flex-1 overflow-y-auto">
                   {isLoadingProfile ? (
                     // Loading state
                     Array(3)
@@ -1240,55 +1320,141 @@ export default function ReviewCard({
                           <div className="h-8 bg-[rgba(255,255,255,0.05)] rounded w-full"></div>
                         </div>
                       ))
-                  ) : previousReviews.length > 0 ? (
+                  ) : previousReviews && previousReviews.length > 0 ? (
                     previousReviews.map((review) => (
                       <div
                         key={review.id}
-                        className="w-full border-[rgba(237,185,0,0.2)] shadow-md bg-[#0f0f0f] text-white overflow-hidden rounded-md mb-4"
+                        className="w-full text-white mb-4 pb-4 border-b border-[rgba(237,185,0,0.2)]"
                       >
-                        <div className="flex flex-row items-start gap-3 p-3">
-                          <div className="flex flex-col items-center text-center w-[60px]">
-                            <div className="flex justify-center w-full">
-                              {/* Company logo with brand color background */}
-                              <div className="h-12 w-12 rounded-md overflow-hidden bg-[#edb900] flex items-center justify-center">
-                                <span className="text-[#0f0f0f] font-bold text-xl">
+                        <div className="flex items-start gap-3">
+                          {/* Company logo square */}
+                          <div className="flex flex-col items-center text-center">
+                            <div
+                              className="h-16 w-16 flex items-center justify-center rounded-md overflow-hidden"
+                              style={{ backgroundColor: review.prop_firm?.brand_colour || "#0f0f0f" }}
+                            >
+                              {review.prop_firm?.logo_url ? (
+                                <img
+                                  src={review.prop_firm.logo_url || "/placeholder.svg"}
+                                  alt={review.companyName}
+                                  className="w-full h-full object-contain p-1"
+                                />
+                              ) : (
+                                <span className="text-white font-bold text-2xl">
                                   {review.companyName.charAt(0).toUpperCase()}
                                 </span>
-                              </div>
+                              )}
                             </div>
-                            <div className="mt-1 w-full">
-                              <p className="text-xs font-[balboa] text-[#edb900] truncate">{review.companyName}</p>
-                            </div>
+                            <span className="text-xs mt-1 text-white">{review.companyName}</span>
                           </div>
 
+                          {/* Rating and date */}
                           <div className="flex-1">
-                            <div className="flex justify-between items-start">
-                              <div className="flex items-center gap-2">
-                                <div className="flex flex-col items-start gap-1">
-                                  <div className="flex items-center justify-between w-full">
-                                    <span className="text-xs text-gray-400">Overall Rating</span>
-                                  </div>
-                                  <div className="rounded-full flex items-center gap-1">
-                                    <div className="font-bold text-[#edb900] text-sm">{review.rating.toFixed(1)}</div>
-                                    <div className="text-sm">{renderStars(review.rating)}</div>
-                                  </div>
+                            <div className="flex justify-between items-center">
+                              <div>
+                                <span className="text-sm text-gray-400">Overall Rating</span>
+                                <div className="flex items-center">
+                                  <span className="text-[#edb900] font-bold mr-2">{review.rating.toFixed(1)}</span>
+                                  <div className="text-sm">{renderStars(review.rating)}</div>
                                 </div>
                               </div>
-                              <div className="flex items-center text-xs text-gray-400">
+                              <div className="text-xs text-gray-400 flex items-center">
                                 <Calendar className="h-3 w-3 mr-1" />
                                 {review.date}
+                              </div>
+                            </div>
+
+                            {/* Account size and funded status */}
+                            <div className="grid grid-cols-2 gap-2 mt-2">
+                              <div className="bg-[#1a1a1a] rounded-md p-2 text-center">
+                                <p className="text-xs text-gray-400">Account Size</p>
+                                <p className="text-sm text-white">{review.accountSize}</p>
+                              </div>
+                              <div className="bg-[#1a1a1a] rounded-md p-2 text-center">
+                                <p className="text-xs text-gray-400">Funded Status</p>
+                                <div className="flex items-center justify-center gap-1">
+                                  <X className="h-3 w-3 text-red-500" />
+                                  <span className="text-xs text-red-500">Not Funded</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Account type and trading duration */}
+                            <div className="grid grid-cols-2 gap-2 mt-2">
+                              <div className="bg-[#1a1a1a] rounded-md p-2 text-center">
+                                <p className="text-xs text-gray-400">Account Type</p>
+                                <p className="text-sm text-white">{review.accountType}</p>
+                              </div>
+                              <div className="bg-[#1a1a1a] rounded-md p-2 text-center">
+                                <p className="text-xs text-gray-400">Trading Duration</p>
+                                <p className="text-sm text-white">{review.tradingDuration}</p>
+                              </div>
+                            </div>
+
+                            {/* Payout status */}
+                            <div className="bg-[#1a1a1a] rounded-md p-2 text-center mt-2">
+                              <p className="text-xs text-gray-400">Payout Status</p>
+                              <div className="flex items-center justify-center gap-1">
+                                <X className="h-3 w-3 text-red-500" />
+                                <span className="text-xs text-red-500">No Payout</span>
                               </div>
                             </div>
                           </div>
                         </div>
 
-                        <div className="px-3 pb-3 pt-0">
-                          <p className="text-xs text-gray-200 leading-relaxed mb-2 line-clamp-2">{review.content}</p>
+                        {/* Review content */}
+                        <div className="mt-3">
+                          <p className="text-sm text-gray-200 leading-relaxed line-clamp-2">{review.content}</p>
+
+                          {/* Most Liked and Disliked Aspects */}
+                          <div className="grid grid-cols-2 gap-2 mt-2">
+                            <div className="bg-[#1a1a1a] p-2 rounded-md">
+                              <p className="text-xs text-gray-400 border-b border-[#edb900] pb-1 mb-1 inline-block">
+                                Most Liked
+                              </p>
+                              <p className="text-xs text-gray-300 line-clamp-1">{review.likedAspect}</p>
+                            </div>
+                            <div className="bg-[#1a1a1a] p-2 rounded-md">
+                              <p className="text-xs text-gray-400 border-b border-[#edb900] pb-1 mb-1 inline-block">
+                                Most Disliked
+                              </p>
+                              <p className="text-xs text-gray-300 line-clamp-1">{review.dislikedAspect}</p>
+                            </div>
+                          </div>
+
+                          {/* Proof Images Gallery - if any */}
+                          {review.proofImages && review.proofImages.length > 0 && (
+                            <div className="mt-2">
+                              <p className="text-xs text-gray-400 border-b border-[#edb900] pb-1 mb-1 inline-block">
+                                Proof & Certificates
+                              </p>
+                              <div className="flex flex-wrap gap-1 mt-1">
+                                {review.proofImages.slice(0, 3).map((image: ProofImage, index: number) => (
+                                  <div
+                                    key={image.id || `proof-${index}`}
+                                    className="relative h-10 w-10 rounded-md overflow-hidden border border-[rgba(237,185,0,0.2)]"
+                                  >
+                                    <Image
+                                      src={image.url || "/placeholder.svg?height=100&width=100"}
+                                      alt={image.label || `Proof ${index + 1}`}
+                                      fill
+                                      className="object-cover"
+                                    />
+                                  </div>
+                                ))}
+                                {review.proofImages.length > 3 && (
+                                  <div className="flex items-center justify-center h-10 w-10 rounded-md bg-[#1a1a1a] text-[#edb900] text-xs">
+                                    +{review.proofImages.length - 3}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
 
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="w-full mt-1 text-[#edb900] hover:bg-gray-700 h-7 text-xs"
+                            className="w-full mt-2 text-[#edb900] hover:bg-gray-800 h-8 text-xs"
                             onClick={() => {
                               // Check if we have the prop_firm ID
                               if (review.id) {
@@ -1317,8 +1483,7 @@ export default function ReviewCard({
                               }
                             }}
                           >
-                            View Full Review
-                            <ChevronRight className="ml-1 h-3 w-3" />
+                            View Full Review <ChevronRight className="ml-1 h-3 w-3" />
                           </Button>
                         </div>
                       </div>

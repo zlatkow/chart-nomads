@@ -38,11 +38,13 @@ const LoginModal = ({ isOpen, onClose }) => {
 
   const handleOAuthSignIn = async (provider) => {
     try {
+      // Get the current URL to return to after authentication
+      const currentUrl = window.location.href
+
       await signIn.authenticateWithRedirect({
         strategy: provider === "google" ? "oauth_google" : provider === "facebook" ? "oauth_facebook" : "oauth_google",
-        redirectUrl: "/dashboard", // Replace with your correct redirect
-        redirectUrlComplete: "/dashboard", // Where users land after successful login
-        // Remove preferPopup as it's not a valid property
+        redirectUrl: currentUrl, // Redirect back to current page
+        redirectUrlComplete: currentUrl, // Return to current page after successful login
       })
     } catch (err) {
       setError("Failed to sign in with " + provider)
@@ -59,16 +61,16 @@ const LoginModal = ({ isOpen, onClose }) => {
       if (isSignUp) {
         const result = await signUp.create({ emailAddress: email, password })
         if (result.status === "complete") {
-          setActive({ session: result.createdSessionId })
-          window.location.href = "/dashboard"
+          await setActive({ session: result.createdSessionId })
+          onClose() // Close the modal after successful sign-up
         } else {
           setError("Sign-up failed, please try again.")
         }
       } else {
         const result = await signIn.create({ identifier: email, password })
         if (result.status === "complete") {
-          setActive({ session: result.createdSessionId })
-          window.location.href = "/dashboard"
+          await setActive({ session: result.createdSessionId })
+          onClose() // Close the modal after successful login
         } else {
           setError("Invalid credentials.")
         }
