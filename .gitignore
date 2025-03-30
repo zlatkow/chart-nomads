@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Supabase - keep functions, ignore secrets & cache
+supabase/.env
+supabase/.temp/

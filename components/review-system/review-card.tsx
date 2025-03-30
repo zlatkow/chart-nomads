@@ -1242,39 +1242,59 @@ export default function ReviewCard({
                       ))
                   ) : previousReviews.length > 0 ? (
                     previousReviews.map((review) => (
-                      <div key={review.id} className="bg-[#1a1a1a] rounded-md p-3">
-                        <div className="flex justify-between items-start mb-2">
-                          <h5 className="font-semibold">{review.companyName}</h5>
-                          <div className="flex items-center">{renderStars(review.rating)}</div>
+                      <div key={review.id} className="bg-[#1a1a1a] rounded-md p-3 mb-3">
+                        <div className="flex items-center gap-3 mb-2">
+                          {/* Company logo with brand color background */}
+                          <div className="flex-shrink-0 w-10 h-10 rounded-md overflow-hidden bg-[#edb900] flex items-center justify-center">
+                            <img
+                              src={`/api/company-logo?name=${encodeURIComponent(review.companyName)}`}
+                              alt={review.companyName}
+                              className="w-8 h-8 object-contain"
+                              onError={(e) => {
+                                // Fallback to first letter if image fails to load
+                                ;(e.target as HTMLImageElement).style.display = "none"
+                                ;(e.target as HTMLImageElement).parentElement!.innerHTML = review.companyName
+                                  .charAt(0)
+                                  .toUpperCase()
+                              }}
+                            />
+                          </div>
+
+                          <div className="flex-1 min-w-0">
+                            <div className="flex justify-between items-center">
+                              <h5 className="font-[balboa] text-white truncate">{review.companyName}</h5>
+                              <div className="flex text-[#edb900] text-sm">{renderStars(review.rating)}</div>
+                            </div>
+
+                            <div className="flex items-center text-xs text-gray-400 mt-1">
+                              <span className="inline-flex items-center">
+                                <div
+                                  className={cn(
+                                    "flex items-center justify-center rounded-full w-4 h-4 mr-1",
+                                    review.fundedStatus ? "bg-green-500/20" : "bg-red-500/20",
+                                  )}
+                                >
+                                  {review.fundedStatus ? (
+                                    <Check className="h-2.5 w-2.5 text-green-500" />
+                                  ) : (
+                                    <X className="h-2.5 w-2.5 text-red-500" />
+                                  )}
+                                </div>
+                                {review.accountSize}
+                              </span>
+                              <span className="mx-2">•</span>
+                              <Calendar className="h-3 w-3 mr-1" />
+                              <span>{review.date}</span>
+                            </div>
+                          </div>
                         </div>
 
                         <p className="text-sm text-gray-300 line-clamp-2 mb-2">{review.content}</p>
 
-                        <div className="flex justify-between items-center text-xs">
-                          <div className="flex items-center gap-2">
-                            <div className="flex items-center">
-                              <div
-                                className={cn(
-                                  "flex items-center justify-center rounded-full w-4 h-4",
-                                  review.fundedStatus ? "bg-green-500/20" : "bg-red-500/20",
-                                )}
-                              >
-                                {review.fundedStatus ? (
-                                  <Check className="h-2.5 w-2.5 text-green-500" />
-                                ) : (
-                                  <X className="h-2.5 w-2.5 text-red-500" />
-                                )}
-                              </div>
-                              <span className="ml-1 text-gray-400">{review.accountSize}</span>
-                            </div>
-                          </div>
-                          <span className="text-gray-400">{review.date}</span>
-                        </div>
-
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="w-full mt-2 text-[#edb900] hover:bg-gray-700"
+                          className="w-full mt-1 text-[#edb900] hover:bg-gray-700 h-8"
                           onClick={() => {
                             // Check if we have the prop_firm ID
                             if (review.id) {
@@ -1309,7 +1329,10 @@ export default function ReviewCard({
                       </div>
                     ))
                   ) : (
-                    <div className="text-center py-4 text-gray-400">No previous reviews found</div>
+                    <div className="text-center py-6 text-gray-400 bg-[#1a1a1a] rounded-md">
+                      <AlertCircle className="h-8 w-8 mx-auto mb-2 text-[#edb900]/50" />
+                      No previous reviews found
+                    </div>
                   )}
                 </div>
               </div>
