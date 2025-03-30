@@ -1392,7 +1392,7 @@ prop_firm(id, propfirm_name, slug, brand_colour, logo_url)
                                 if (propFirmIdentifier) {
                                   // Navigate to the prop firm page with reviews tab active and highlight this review
                                   window.open(
-                                    `/prop-firm/${propFirmIdentifier}?tab=reviews&highlight=${review.id}`,
+                                    `/prop-firms/${propFirmIdentifier}?tab=reviews&highlight=${review.id}`,
                                     "_blank",
                                   )
                                 } else {

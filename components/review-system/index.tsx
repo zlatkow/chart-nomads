@@ -17,7 +17,7 @@ interface ReviewSystemProps {
   companySlug?: string
   propfirmId?: number
   companyLogo?: string
-  highlightReviewId?: string
+  highlightReviewId?: string | null
 }
 
 // Update the function parameters to include highlightReviewId with a default value of null
@@ -93,6 +93,36 @@ export default function ReviewSystem({
 
     fetchPropfirmId()
   }, [companySlug, propfirmId, router.asPath, router.query.slug])
+
+  // Add a useEffect to handle highlighting the review
+  useEffect(() => {
+    if (highlightReviewId) {
+      console.log(`ReviewSystem: Looking for review with ID: review-${highlightReviewId}`)
+
+      // Use a longer delay to ensure the reviews have loaded
+      const timer = setTimeout(() => {
+        const reviewElement = document.getElementById(`review-${highlightReviewId}`)
+        if (reviewElement) {
+          console.log(`ReviewSystem: Found review element, scrolling to it`)
+
+          // Scroll to the review with smooth behavior
+          reviewElement.scrollIntoView({ behavior: "smooth", block: "center" })
+
+          // Add a highlight effect
+          reviewElement.classList.add("highlight-review")
+
+          // Remove the highlight effect after a few seconds
+          setTimeout(() => {
+            reviewElement.classList.remove("highlight-review")
+          }, 3000)
+        } else {
+          console.warn(`ReviewSystem: Review element with ID review-${highlightReviewId} not found after delay`)
+        }
+      }, 1000) // Longer delay to ensure DOM is ready
+
+      return () => clearTimeout(timer)
+    }
+  }, [highlightReviewId, isLoading])
 
   // Handle case where modalContext is not available
   if (!modalContext) {
