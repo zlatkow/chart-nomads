@@ -746,8 +746,8 @@ export default function ReviewCard({
 
             // Process proof images if they exist
             let processedImages: ProofImage[] = []
-            if (review.proof_images) {
-              processedImages = processProofImages(review.proof_images)
+            if (review.proofs) {
+              processedImages = processProofImages(review.proofs)
             }
 
             return {
@@ -765,8 +765,8 @@ export default function ReviewCard({
               tradingDuration: review.trading_period || "N/A",
               fundedStatus: review.funded_status === "Yes",
               payoutStatus: review.received_payout === "Yes",
-              likedAspect: review.liked_aspect || "Not specified",
-              dislikedAspect: review.disliked_aspect || "Not specified",
+              likedAspect: review.most_liked_aspect || "Not specified",
+              dislikedAspect: review.most_disliked_aspect || "Not specified",
               proofImages: processedImages,
               prop_firm: review.prop_firm,
             }
