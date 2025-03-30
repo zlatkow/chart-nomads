@@ -1,11 +1,13 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useContext } from "react"
 import { Button } from "@/components/ui/button"
 import { ThumbsUp } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { createClient } from "@supabase/supabase-js"
 import { useUser } from "@clerk/nextjs"
+// Import the ModalContext
+import { ModalContext } from "../../pages/_app"
 
 // Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
@@ -29,6 +31,8 @@ export default function UpvoteButton({
   const [upvoteCount, setUpvoteCount] = useState(initialUpvotes)
   const [isLoading, setIsLoading] = useState(false)
   const { user, isSignedIn } = useUser()
+  // Get the setShowLoginModal function from context
+  const { setShowLoginModal } = useContext(ModalContext)
 
   // Check if the user has already upvoted this review
   useEffect(() => {
@@ -85,8 +89,8 @@ export default function UpvoteButton({
 
   const handleUpvote = async () => {
     if (!isSignedIn || !user) {
-      // Redirect to sign in or show a message
-      alert("Please sign in to upvote reviews")
+      // Use the modal context to show the login modal instead of alert
+      setShowLoginModal(true)
       return
     }
 
