@@ -970,7 +970,7 @@ export default function ReviewCard({
                 <Accordion
                   type="single"
                   collapsible
-                  className="mt-6 border-2 border-[#edb900] rounded-md overflow-hidden"
+                  className="mt-6 border-[2px] border-[#edb900] rounded-md overflow-hidden"
                 >
                   <AccordionItem value="company-response" className="border-b-0">
                     <AccordionTrigger
