@@ -1,7 +1,7 @@
 /* eslint-disable */
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { createPortal } from "react-dom"
 import { X, ArrowLeft, ArrowRight, AlertCircle } from "lucide-react"
@@ -18,6 +18,7 @@ export default function ProblemReportDisplay({ report }: ProblemReportProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [showFullscreenGallery, setShowFullscreenGallery] = useState(false)
   const [scrollPosition, setScrollPosition] = useState(0)
+  const galleryRef = useRef<HTMLDivElement>(null)
 
   if (!report || Object.keys(report).length === 0) {
     return null
@@ -124,17 +125,20 @@ export default function ProblemReportDisplay({ report }: ProblemReportProps) {
       if (!showFullscreenGallery) return
 
       // Check if the click is outside the gallery content
-      const galleryContent = document.querySelector(".gallery-content")
-      if (galleryContent && !galleryContent.contains(e.target as Node)) {
+      if (galleryRef.current && !galleryRef.current.contains(e.target as Node)) {
         closeGallery()
       }
     }
 
-    if (showFullscreenGallery) {
-      document.addEventListener("mousedown", handleClickOutside)
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside)
+    const handleShowFullscreenGallery = () => {
+      if (showFullscreenGallery) {
+        document.addEventListener("mousedown", handleClickOutside)
+      } else {
+        document.removeEventListener("mousedown", handleClickOutside)
+      }
     }
+
+    handleShowFullscreenGallery()
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside)
@@ -155,19 +159,19 @@ export default function ProblemReportDisplay({ report }: ProblemReportProps) {
               </div>
             )}
             {report.receivedLastPayout && (
-                <div className="mb-4">
+              <div className="mb-4">
                 <p className="text-xs text-red-400">Paid Upon Breack</p>
                 <p className="text-sm text-white">{report.receivedLastPayout}</p>
-                </div>
+              </div>
             )}
           </div>
 
           {report.deniedAmount && (
-              <div className="mb-4">
-                <p className="text-xs text-red-400 mb-1">Owed Amount</p>
-                <p className="text-sm text-white">{report.deniedAmount}</p>
-              </div>
-            )}
+            <div className="mb-4">
+              <p className="text-xs text-red-400 mb-1">Owed Amount</p>
+              <p className="text-sm text-white">{report.deniedAmount}</p>
+            </div>
+          )}
 
           {report.breachReason && (
             <div className="mb-4">
@@ -294,6 +298,7 @@ export default function ProblemReportDisplay({ report }: ProblemReportProps) {
       >
         <div className="relative w-full h-full flex items-center justify-center">
           <div
+            ref={galleryRef}
             className="gallery-content relative max-w-3xl max-h-[80vh] w-full h-full flex items-center justify-center"
             onClick={(e) => e.stopPropagation()}
           >
@@ -311,8 +316,11 @@ export default function ProblemReportDisplay({ report }: ProblemReportProps) {
               className="rounded-full bg-black/50 border-0 text-white hover:bg-black/70 pointer-events-auto"
               onClick={(e) => {
                 e.stopPropagation()
+                e.preventDefault()
                 prevImage()
               }}
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
@@ -322,8 +330,11 @@ export default function ProblemReportDisplay({ report }: ProblemReportProps) {
               className="rounded-full bg-black/50 border-0 text-white hover:bg-black/70 pointer-events-auto"
               onClick={(e) => {
                 e.stopPropagation()
+                e.preventDefault()
                 nextImage()
               }}
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
             >
               <ArrowRight className="h-5 w-5" />
             </Button>

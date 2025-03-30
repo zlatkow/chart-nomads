@@ -33,7 +33,7 @@ const shimmerAnimation = `
 }
 
 .animate-pulse::after {
-  content: "";
+  content = "";
   position: absolute;
   top: 0;
   right: 0;
@@ -292,7 +292,11 @@ export default function ReviewList({
 
         const { data: reviewsData, error: reviewsError } = await supabase
           .from("propfirm_reviews")
-          .select("*")
+          .select(`
+    *,
+    company_responses(*),
+    prop_firm:prop_firms(id, propfirm_name, logo_url)
+  `)
           .eq("prop_firm", propfirmId)
           .eq("review_status", "published")
           .order("created_at", { ascending: false }) // Sort by newest first by default
@@ -509,7 +513,19 @@ export default function ReviewList({
               reported_issues: review.reported_issues || false,
               problem_report: problemReport,
               report: legacyReport,
-              companyResponse: null,
+              companyResponse:
+                review.company_responses && review.company_responses.length > 0
+                  ? {
+                      companyName: review.prop_firm?.propfirm_name || companyName,
+                      companyLogo: review.prop_firm?.logo_url || companyLogo || "/placeholder.svg?height=50&width=50",
+                      date: new Date(review.company_responses[0].created_at).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      }),
+                      content: review.company_responses[0].content,
+                    }
+                  : null,
               certificates: 0,
               firmCount: 0,
               payoutStatus: review.received_payout === "Yes" ? "Yes" : "No",

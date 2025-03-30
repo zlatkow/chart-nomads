@@ -51,9 +51,10 @@ interface ReviewReport {
   deniedAmount?: string
 }
 
+// Update the CompanyResponse interface to match the new structure
 interface CompanyResponse {
-  responderName: string
-  position: string
+  companyName: string
+  companyLogo: string
   date: string
   content: string
 }
@@ -967,10 +968,19 @@ export default function ReviewCard({
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className="px-4 pb-4 mt-4 pt-0">
-                  <p className="text-sm text-gray-300 mb-2">{companyResponse.content}</p>
-                  <p className="text-xs text-[#edb900]">
-                    {companyResponse.responderName}, {companyResponse.position}
-                  </p>
+                  <div className="flex items-center gap-3 mb-3">
+                    {companyResponse.companyLogo && (
+                      <div className="w-8 h-8 relative overflow-hidden rounded-full">
+                        <img
+                          src={companyResponse.companyLogo || "/placeholder.svg"}
+                          alt={companyResponse.companyName}
+                          className="w-full h-full object-contain"
+                        />
+                      </div>
+                    )}
+                    <span className="font-semibold text-[#edb900]">{companyResponse.companyName}</span>
+                  </div>
+                  <p className="text-sm text-gray-300">{companyResponse.content}</p>
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
