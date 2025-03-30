@@ -3,7 +3,7 @@
 
 import type React from "react"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useContext } from "react"
 import ReviewCard from "./review-card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
@@ -14,6 +14,7 @@ import { createClient } from "@supabase/supabase-js"
 import { getCountryCode } from "@/lib/utils/country-codes"
 import Tippy from "@tippyjs/react"
 import { useAuth } from "@clerk/nextjs"
+import { ModalContext } from "../../pages/_app"
 
 // Add shimmer animation CSS
 const shimmerAnimation = `
@@ -140,6 +141,9 @@ export default function ReviewList({
     2: 0,
     1: 0,
   })
+
+  // Add this near the other state variables
+  const { setShowLoginModal } = useContext(ModalContext)
 
   // Replace the existing useEffect that fetches propfirmId with this updated version that also fetches rating data
   useEffect(() => {
@@ -662,14 +666,16 @@ export default function ReviewList({
   const handleLoginClick = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    router.push("/login")
+    setShowLoginModal(true)
+    setShowAuthMessage(false) // Close the auth message when opening the modal
   }
 
   // Handle signup button click
   const handleSignupClick = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    router.push("/sign-up")
+    setShowLoginModal(true) // Use the same modal for signup
+    setShowAuthMessage(false) // Close the auth message
   }
 
   // Determine if we're in a loading state (either external or internal)

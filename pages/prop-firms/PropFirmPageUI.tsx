@@ -373,8 +373,8 @@ interface Firm {
                     </div>
                     <div className="flex items-center mb-2">
                       <FontAwesomeIcon icon={solidStar} className="text-lg mr-1 text-[#0f0f0f]" />
-                      <span className="font-bold">{firm?.rating?.toFixed(2) || "4.45"}</span>
-                      <span className="text-xs ml-1">• {firm?.reviews_count || "4.5k"} reviews</span>
+                      <span className="font-bold">{firm?.rating?.toFixed(2)}</span>
+                      <span className="text-xs ml-1">• {firm?.reviews_count} reviews</span>
                     </div>
                   </div>
   
@@ -463,15 +463,15 @@ interface Firm {
                   <div className="grid grid-cols-2 gap-4 px-6 py-4 border-t border-[#0f0f0f]/10">
                     <div>
                       <h3 className="font-bold mb-2">CEO</h3>
-                      <p className="text-sm">{firm?.ceo || "Khaled Ayesh"}</p>
+                      <p className="text-sm">{firm?.ceo}</p>
                     </div>
                     <div>
                       <h3 className="font-bold mb-2">Established</h3>
-                      <p className="text-sm">{firm?.established || "11/2022"}</p>
+                      <p className="text-sm">{firm?.established}</p>
                     </div>
                     <div>
                       <h3 className="font-bold mb-2">Country</h3>
-                      <p className="text-sm">{firm?.country || "United Arab Emirates"}</p>
+                      <p className="text-sm">{firm?.country}</p>
                     </div>
                     {firm?.website && (
                       <div>
@@ -492,11 +492,11 @@ interface Firm {
                   <div className="grid grid-cols-1 gap-4 px-6 py-4 border-t border-[#0f0f0f]/10">
                     <div>
                       <h3 className="font-bold mb-2">Broker</h3>
-                      <p className="text-sm">{firm?.broker || "Liquidity Providers"}</p>
+                      <p className="text-sm">{firm?.broker}</p>
                     </div>
                     <div>
                       <h3 className="font-bold mb-2">Platform</h3>
-                      <p className="text-sm">{firm?.platform || "TrustPilot"}</p>
+                      <p className="text-sm">{firm?.platform}</p>
                     </div>
                     {firm?.platform_details && (
                       <div>
@@ -505,7 +505,7 @@ interface Firm {
                     )}
                     <div>
                       <h3 className="font-bold mb-2">Rating</h3>
-                      <p className="text-sm">{firm?.rating || "4.4"}</p>
+                      <p className="text-sm">{firm?.rating}</p>
                     </div>
                   </div>
   
