@@ -625,7 +625,7 @@ function PropFirmUI({ firm, ratingBreakdown, formatCurrency }: PropFirmUIProps) 
 
             {/* Main Content */}
             <div className="lg:col-span-9">
-              <Tabs defaultValue={activeTab} className="w-full" onValueChange={handleTabChange}>
+              <Tabs value={activeTab} defaultValue="overview" className="w-full" onValueChange={handleTabChange}>
                 <TabsList className="bg-[#0f0f0f] p-0 mb-6 w-full flex overflow-x-auto h-[50px]">
                   <TabsTrigger
                     value="overview"
