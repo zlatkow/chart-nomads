@@ -18,6 +18,7 @@ import { DollarSign } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 const CompanyCombinedPaymentChart = ({ companyName }) => {
+  console.log("CompanyCombinedPaymentChart received companyName:", companyName);
   const [chartData, setChartData] = useState([])
   const [timeRange, setTimeRange] = useState("All Time")
   const [filteredStats, setFilteredStats] = useState([])

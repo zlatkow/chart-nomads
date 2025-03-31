@@ -2,7 +2,6 @@
 
 import CompanyCombinedPaymentChart from "./CompanyCombinedPaymentChart"
 import MonthlyTransactionChart from "./MonthlyTransactionChart"
-import CompanyTransactionCharts from "./CompanyTransactionCharts"
 import MonthlyUniqueTradersChart from "./MonthlyUniqueTradersChart"
 import MonthlyUniquePaidTradersChart from "./MonthlyUniquePaidTradersChart"
 import ChurnRateChart from "./ChurnRateChart"
@@ -39,6 +38,9 @@ interface StatsTabContentProps {
 }
 
 const StatsTabContent = ({ activeTab, stats }: StatsTabContentProps) => {
+    console.log("StatsTabContent received stats:", stats);
+  console.log("Company name:", stats?.companyName);
+  console.log("Monthly transaction stats:", stats?.monthlyTransactionStats);
   if (!stats) return null;
 
   return (
@@ -49,7 +51,6 @@ const StatsTabContent = ({ activeTab, stats }: StatsTabContentProps) => {
            {stats?.companyName && <CompanyCombinedPaymentChart companyName={stats.companyName} />}
            {stats?.monthlyTransactionStats && <MonthlyUniquePaidTradersChart uniquePaidTradersStats={stats.monthlyTransactionStats} />}
            {stats?.monthlyTransactionStats && <MonthlyUniqueTradersChart uniqueTradersStats={stats.monthlyTransactionStats} />}
-          {stats?.companyTransactionStats && <CompanyTransactionCharts companyStats={stats.companyTransactionStats} />}
           {Array.isArray(stats?.payoutStats) && stats.payoutStats.length > 0 && (
             <HighEarnersChart payoutStats={stats.payoutStats} />
           )}
