@@ -1298,7 +1298,7 @@ prop_firm(id, propfirm_name, slug, brand_colour, logo_url)
                 </div>
 
                 {/* Replace the previous reviews section with: */}
-                <h4 className="text-lg font-semibold mb-3">Recent Reviews</h4>
+                <h4 className="text-lg font-[balboa] mb-3">Recent Reviews</h4>
 
                 <div className="space-y-6 flex-1 overflow-y-auto">
                   {isLoadingProfile ? (
@@ -1338,14 +1338,13 @@ prop_firm(id, propfirm_name, slug, brand_colour, logo_url)
                                 </span>
                               )}
                             </div>
-                            <span className="text-xs mt-1 text-white">{review.companyName}</span>
+                            <span className="text-sm font-[balboa] mt-1 text-white w-[100px]">{review.companyName}</span>
                           </div>
 
                           {/* Rating and date */}
                           <div className="flex-1">
                             <div className="flex justify-between items-center">
                               <div>
-                                <span className="text-sm text-gray-400">Overall Rating</span>
                                 <div className="flex items-center">
                                   <span className="text-[#edb900] font-bold mr-2">{review.rating.toFixed(1)}</span>
                                   <div className="text-sm">{renderStars(review.rating)}</div>
