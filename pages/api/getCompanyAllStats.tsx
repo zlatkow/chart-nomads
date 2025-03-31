@@ -25,60 +25,82 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     console.log(`[API] Fetching stats for company: ${company}`)
 
-    // Use a single query approach with direct SQL
-    const { data: stats24h, error: error24h } = await supabase
-      .from("transactions_stats") // Use your actual table name
-      .select("*")
-      .eq("company_name", company)
-      .eq("period", "24h")
-      .limit(1)
-
-    const { data: stats7d, error: error7d } = await supabase
-      .from("transactions_stats") // Use your actual table name
-      .select("*")
-      .eq("company_name", company)
-      .eq("period", "7d")
-      .limit(1)
-
-    const { data: stats30d, error: error30d } = await supabase
-      .from("transactions_stats") // Use your actual table name
-      .select("*")
-      .eq("company_name", company)
-      .eq("period", "30d")
-      .limit(1)
-
-    const { data: statsAll, error: errorAll } = await supabase
-      .from("transactions_stats") // Use your actual table name
-      .select("*")
-      .eq("company_name", company)
-      .eq("period", "all")
-      .limit(1)
+    // Call the function with the exact parameter names from your SQL definition
+    const [stats24h, stats7d, stats30d, statsAll] = await Promise.all([
+      supabase.rpc("get_transaction_stats_by_company", {
+        input_propfirm_name: company,
+        input_period: "24h",
+      }),
+      supabase.rpc("get_transaction_stats_by_company", {
+        input_propfirm_name: company,
+        input_period: "7d",
+      }),
+      supabase.rpc("get_transaction_stats_by_company", {
+        input_propfirm_name: company,
+        input_period: "30d",
+      }),
+      supabase.rpc("get_transaction_stats_by_company", {
+        input_propfirm_name: company,
+        input_period: "all",
+      }),
+    ])
 
     // Log the results for debugging
-    console.log("[API] 24h stats:", { data: stats24h, error: error24h })
-    console.log("[API] 7d stats:", { data: stats7d, error: error7d })
-    console.log("[API] 30d stats:", { data: stats30d, error: error30d })
-    console.log("[API] all stats:", { data: statsAll, error: errorAll })
+    console.log("[API] 24h stats data:", stats24h.data)
+    console.log("[API] 24h stats error:", stats24h.error)
+    console.log("[API] 7d stats data:", stats7d.data)
+    console.log("[API] 7d stats error:", stats7d.error)
+    console.log("[API] 30d stats data:", stats30d.data)
+    console.log("[API] 30d stats error:", stats30d.error)
+    console.log("[API] all stats data:", statsAll.data)
+    console.log("[API] all stats error:", statsAll.error)
 
-    // Check for errors
-    if (error24h || error7d || error30d || errorAll) {
+    if (stats24h.error || stats7d.error || stats30d.error || statsAll.error) {
+      console.error("[API] One or more Supabase errors:", {
+        stats24h: stats24h.error,
+        stats7d: stats7d.error,
+        stats30d: stats30d.error,
+        statsAll: statsAll.error,
+      })
+
       return res.status(500).json({
-        error: "Error fetching data from database",
+        error: "Error fetching data from stored procedure",
         details: {
-          error24h,
-          error7d,
-          error30d,
-          errorAll,
+          stats24h: stats24h.error,
+          stats7d: stats7d.error,
+          stats30d: stats30d.error,
+          statsAll: statsAll.error,
         },
       })
     }
 
-    // Return the data
+    // Map the column names from your SQL function to the expected format
+    const mapData = (data) => {
+      if (!data || !data[0]) return null
+
+      return {
+        total_amount: data[0].totalamount || 0,
+        total_amount_change: data[0].totalamountchange || "0%",
+        total_transactions: data[0].totaltransactions || 0,
+        total_transactions_change: data[0].totaltransactionschange || "0%",
+        unique_traders: data[0].uniquetraders || 0,
+        unique_traders_change: data[0].uniquetraderschange || "0%",
+        average_payout: data[0].averagepayout || 0,
+        average_payout_change: "0%", // Not provided by your function
+        largest_payout: data[0].largestpayout || 0,
+        largest_payout_change: "0%", // Not provided by your function
+        avg_transactions_per_trader: data[0].avgtransactionspertrader || 0,
+        avg_transactions_per_trader_change: "0%", // Not provided by your function
+        time_since_last_transaction: data[0].timesincelasttransaction || "No data",
+      }
+    }
+
+    // Return the data with mapped column names
     return res.status(200).json({
-      "24h": stats24h?.[0] || null,
-      "7d": stats7d?.[0] || null,
-      "30d": stats30d?.[0] || null,
-      all: statsAll?.[0] || null,
+      "24h": mapData(stats24h.data),
+      "7d": mapData(stats7d.data),
+      "30d": mapData(stats30d.data),
+      all: mapData(statsAll.data),
     })
   } catch (err) {
     console.error("[API] Unexpected Error:", err)
