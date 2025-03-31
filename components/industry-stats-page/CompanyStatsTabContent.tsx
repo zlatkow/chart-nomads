@@ -10,9 +10,7 @@ import PropFirmPayouts from "./PropFirmPayouts"
 import AllTransactions from "./AllTransactions"
 import HighEarnersLeaderboard from "./HighEarnersLeaderboard"
 
-// The rest of your StatsTabContent.tsx file remains unchanged
-
-// ✅ Define type based on your screenshot
+// Define type based on your screenshot
 interface PayoutStat {
   category: string
   count: number
@@ -24,59 +22,61 @@ interface PayoutStat {
 interface Stats {
   monthlyTransactionStats?: any
   companyTransactionStats?: any
-  payoutStats?: PayoutStat[] // ✅ Use the correct type
+  payoutStats?: PayoutStat[]
   churnRate?: any
   topPayouts?: any[]
   transactions?: any
   topTraders?: any
-  companyName?: string // Add this line
 }
 
 interface StatsTabContentProps {
   activeTab: string
   stats: Stats | null
-  companyName: string // Add this prop
+  companyName: string // Company name prop
 }
 
-const StatsTabContent = ({ activeTab, stats, companyName }: StatsTabContentProps) => {
-  console.log("StatsTabContent received stats:", stats)
-  console.log("Company name:", stats?.companyName)
-  console.log("Monthly transaction stats:", stats?.monthlyTransactionStats)
-  if (!stats) return null
+const CompanyStatsTabContent = ({ activeTab, stats, companyName }: StatsTabContentProps) => {
+  console.log("CompanyStatsTabContent received company name:", companyName)
 
   return (
     <div className="w-full">
-      {/* ✅ Keep all content inside the same JSX block */}
       {activeTab === "stats" && (
         <>
-          {<CompanyCombinedPaymentChart companyName={companyName} />}
-          {stats?.monthlyTransactionStats && (
-            <MonthlyUniquePaidTradersChart uniquePaidTradersStats={stats.monthlyTransactionStats} />
+          {/* Pass only the company name to the chart component */}
+          <CompanyCombinedPaymentChart companyName={companyName} />
+
+          {/* Only render these if stats is available */}
+          {stats && (
+            <>
+              {stats.monthlyTransactionStats && (
+                <MonthlyUniquePaidTradersChart uniquePaidTradersStats={stats.monthlyTransactionStats} />
+              )}
+              {stats.monthlyTransactionStats && (
+                <MonthlyUniqueTradersChart uniqueTradersStats={stats.monthlyTransactionStats} />
+              )}
+              {Array.isArray(stats.payoutStats) && stats.payoutStats.length > 0 && (
+                <HighEarnersChart payoutStats={stats.payoutStats} />
+              )}
+              {stats.churnRate && <ChurnRateChart companyStats={stats.churnRate} />}
+            </>
           )}
-          {stats?.monthlyTransactionStats && (
-            <MonthlyUniqueTradersChart uniqueTradersStats={stats.monthlyTransactionStats} />
-          )}
-          {Array.isArray(stats?.payoutStats) && stats.payoutStats.length > 0 && (
-            <HighEarnersChart payoutStats={stats.payoutStats} />
-          )}
-          {stats?.churnRate && <ChurnRateChart companyStats={stats.churnRate} />}
         </>
       )}
 
-      {activeTab === "transactions" && (
+      {activeTab === "transactions" && stats && (
         <>
-          {stats?.monthlyTransactionStats && <MonthlyTransactionChart monthlyStats={stats.monthlyTransactionStats} />}
-          {stats?.topPayouts && stats.topPayouts.length > 0 && <PropFirmPayouts topPayouts={stats.topPayouts} />}
-          {stats?.transactions && <AllTransactions transactions={stats.transactions} />}
+          {stats.monthlyTransactionStats && <MonthlyTransactionChart monthlyStats={stats.monthlyTransactionStats} />}
+          {stats.topPayouts && stats.topPayouts.length > 0 && <PropFirmPayouts topPayouts={stats.topPayouts} />}
+          {stats.transactions && <AllTransactions transactions={stats.transactions} />}
         </>
       )}
 
-      {activeTab === "high-earners" && (
-        <>{stats?.topTraders && <HighEarnersLeaderboard topTraders={stats.topTraders} />}</>
+      {activeTab === "high-earners" && stats && (
+        <>{stats.topTraders && <HighEarnersLeaderboard topTraders={stats.topTraders} />}</>
       )}
     </div>
   )
 }
 
-export default StatsTabContent
+export default CompanyStatsTabContent
 

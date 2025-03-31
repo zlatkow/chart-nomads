@@ -17,8 +17,11 @@ import {
 import { DollarSign } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
-const CompanyCombinedPaymentChart = ({ companyName }) => {
-  console.log("CompanyCombinedPaymentChart received companyName:", companyName);
+interface CompanyCombinedPaymentChartProps {
+  companyName: string
+}
+
+const CompanyCombinedPaymentChart = ({ companyName }: CompanyCombinedPaymentChartProps) => {
   const [chartData, setChartData] = useState([])
   const [timeRange, setTimeRange] = useState("All Time")
   const [filteredStats, setFilteredStats] = useState([])
@@ -29,8 +32,10 @@ const CompanyCombinedPaymentChart = ({ companyName }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        console.log(`Fetching data for company: ${companyName}`)
         const response = await fetch(`/api/company-stats?company=${encodeURIComponent(companyName)}&dataType=monthly`)
         const data = await response.json()
+        console.log("API response:", data)
         setMonthlyStats(data.monthly || [])
         setFilteredStats(data.monthly || [])
       } catch (error) {
@@ -40,7 +45,9 @@ const CompanyCombinedPaymentChart = ({ companyName }) => {
       }
     }
 
-    fetchData()
+    if (companyName) {
+      fetchData()
+    }
   }, [companyName])
 
   // Filter data based on the selected time range
@@ -178,6 +185,26 @@ const CompanyCombinedPaymentChart = ({ companyName }) => {
     )
   }
 
+  if (loading) {
+    return (
+      <div className="bg-[#0f0f0f] text-white rounded-lg border-[1px] border-[#666666] mb-[50px] p-6 flex justify-center items-center h-[400px]">
+        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-[#edb900]"></div>
+      </div>
+    )
+  }
+
+  if (chartData.length === 0) {
+    return (
+      <div className="bg-[#0f0f0f] text-white rounded-lg border-[1px] border-[#666666] mb-[50px] p-6 flex justify-center items-center h-[400px]">
+        <div className="text-center">
+          <DollarSign className="h-10 w-10 mx-auto mb-4 text-[#edb900]" />
+          <p className="text-xl font-[balboa]">No payment data available for {companyName}</p>
+          <p className="text-[#666666] mt-2">We'll update this chart when data becomes available.</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="bg-[#0f0f0f] text-white rounded-lg border-[1px] border-[#666666] mb-[50px] pb-6">
       <div className="flex justify-between items-center mb-6 border-b-[1px] border-[#666666] p-6">
@@ -259,10 +286,7 @@ const CompanyCombinedPaymentChart = ({ companyName }) => {
             stroke="#444"
           />
 
-          <Tooltip
-            content={<CustomTooltip />}
-            cursor={{ fill: "rgba(255, 191, 0, 0.2)" }} // Darker yellow shade on hover instead of white line
-          />
+          <Tooltip content={CustomTooltip} cursor={{ fill: "rgba(255, 191, 0, 0.2)" }} />
 
           {/* Cumulative Amount Area with Gradient */}
           <Area
