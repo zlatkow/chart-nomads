@@ -42,8 +42,8 @@ import CommentSection from "../../components/comment-section"
 import ReviewSystem from "../../components/review-system"
 // Import the stats components
 import useFetchStats from "../../webhooks/useFetchStats"
-import StatsTabs from "../../components/industry-stats-page/StatsTabs"
-import StatsTabContent from "../../components/industry-stats-page/StatsTabContent"
+import CompanyStatsTabs from "../../components/industry-stats-page/CompanyStatsTabs"
+import CompanyStatsTabContent from "../../components/industry-stats-page/CompanyStatsTabContent"
 
 // Import the NoiseProvider
 import { useNoise } from "../../components/providers/noise-provider"
@@ -785,10 +785,10 @@ function PropFirmUI({ firm, ratingBreakdown, formatCurrency }: PropFirmUIProps) 
                       {!loading && (
                         <div className="w-full mt-8">
                           <div className="flex justify-left mx-auto">
-                            <StatsTabs activeTab={statsActiveTab} onTabChange={setStatsActiveTab} />
+                            <CompanyStatsTabs activeTab={statsActiveTab} onTabChange={setStatsActiveTab} />
                           </div>
                           {/* Tab content */}
-                          <StatsTabContent activeTab={statsActiveTab} stats={stats} />
+                          <CompanyStatsTabContent activeTab={statsActiveTab} stats={stats} />
                         </div>
                       )}
 
