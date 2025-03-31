@@ -446,24 +446,25 @@ strong {
 /* Add this for the highlight effect */
 .highlight-review {
   animation: highlight-pulse 3s ease-in-out;
-  box-shadow: 0 0 0 4px rgba(237, 185, 0, 0.5);
+  box-shadow: 0 0 0 2px rgba(237, 185, 0, 0.5);
+  border-radius: 10px;
 }
 
 @keyframes highlight-pulse {
   0%,
   100% {
-    box-shadow: 0 0 0 4px rgba(237, 185, 0, 0);
+    box-shadow: 0 0 0 1px rgba(237, 185, 0, 0);
   }
   20% {
-    box-shadow: 0 0 0 8px rgba(237, 185, 0, 0.5);
+    box-shadow: 0 0 0 2px rgba(237, 185, 0, 0.5);
   }
   40% {
-    box-shadow: 0 0 0 8px rgba(237, 185, 0, 0.5);
+    box-shadow: 0 0 0 2px rgba(237, 185, 0, 0.5);
   }
   60% {
-    box-shadow: 0 0 0 8px rgba(237, 185, 0, 0.5);
+    box-shadow: 0 0 0 2px rgba(237, 185, 0, 0.5);
   }
   80% {
-    box-shadow: 0 0 0 8px rgba(237, 185, 0, 0.3);
+    box-shadow: 0 0 0 2px rgba(237, 185, 0, 0.3);
   }
 }

@@ -144,6 +144,12 @@ function PropFirmUI({ firm, ratingBreakdown, formatCurrency }: PropFirmUIProps) 
     // Update URL with the new tab value without refreshing the page
     const url = new URL(window.location.href)
     url.searchParams.set("tab", value)
+
+    // Remove the highlight parameter when changing tabs
+    if (value !== "reviews" && url.searchParams.has("highlight")) {
+      url.searchParams.delete("highlight")
+    }
+
     window.history.pushState({}, "", url.toString())
   }
 

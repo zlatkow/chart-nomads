@@ -587,13 +587,6 @@ export default function ReviewCard({
     }
   }, [showFullscreenGallery])
 
-  // Add this useEffect to fetch reviewer profile data and previous reviews
-  // Replace the line that imports supabase directly
-  // import { supabase } "@/supabaseClient"
-
-  // With this line that uses the hook you already have
-  // import { useSupabaseClient } from '@supabase/auth-helpers-react'
-
   // And update the useEffect that fetches reviewer profile data
   // Replace the useSupabaseClient hook with a direct client initialization
   // const supabaseClient = useSupabaseClient();
