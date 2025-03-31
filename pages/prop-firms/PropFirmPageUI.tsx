@@ -50,6 +50,9 @@ import StatsTabContent from "../../components/industry-stats-page/StatsTabConten
 import { useNoise } from "../../components/providers/noise-provider"
 import { ModalContext } from "../../pages/_app"
 
+// In the imports section, add:
+import CompanyStatsSlider from "../../components/company-stats-slider"
+
 // Define types for the firm and rating data
 interface Firm {
   id: number
@@ -757,20 +760,25 @@ function PropFirmUI({ firm, ratingBreakdown, formatCurrency }: PropFirmUIProps) 
                     Discussion
                   </TabsTrigger>
                 </TabsList>
-
                 <TabsContent value="overview">
                   <div className="bg-[#0f0f0f] rounded-lg p-6">
                     <h2 className="text-xl font-bold mb-4">Overview</h2>
                     <p className="text-gray-400">No data available at the moment.</p>
                   </div>
                 </TabsContent>
-
+                // Find the TabsContent for stats and replace the content with:
                 <TabsContent value="stats" className="mt-0">
                   <div className="bg-[#0f0f0f] rounded-lg p-6">
-                    <h2 className="text-xl font-bold mb-4">Payout Stats</h2>
+                    <h2 className="text-3xl text-[#edb900] font-bold mb-4">Payout Stats</h2>
 
-                    {/* Add the industry stats components here */}
-                    <div className="w-full flex justify-center items-center flex-col">
+                    {/* Company-specific stats slider */}
+                    <div className="w-full flex justify-center items-center flex-col mb-8">
+                      {firm && firm.propfirm_name && <CompanyStatsSlider companyName={firm.propfirm_name} />}
+                    </div>
+
+                    {/* Industry-wide stats (optional) */}
+                    <div className="w-full flex justify-center items-center flex-col mt-12 pt-8 border-t border-gray-800">
+                      <h3 className="text-2xl text-white font-bold mb-6">Industry-Wide Stats</h3>
                       {statsData && <IndustryStatsSlider statsData={statsData} />}
 
                       {!loading && (
@@ -791,14 +799,12 @@ function PropFirmUI({ firm, ratingBreakdown, formatCurrency }: PropFirmUIProps) 
                     </div>
                   </div>
                 </TabsContent>
-
                 <TabsContent value="news">
                   <div className="bg-[#0f0f0f] rounded-lg p-6">
                     <h2 className="text-xl font-bold mb-4">Latest News</h2>
                     <p className="text-gray-400">No news available at the moment.</p>
                   </div>
                 </TabsContent>
-
                 {/* Then in the Reviews tab content section, replace: */}
                 <TabsContent value="reviews">
                   <div className="bg-[#0f0f0f] rounded-lg p-6">
@@ -809,7 +815,6 @@ function PropFirmUI({ firm, ratingBreakdown, formatCurrency }: PropFirmUIProps) 
                     />
                   </div>
                 </TabsContent>
-
                 <TabsContent value="offers">
                   <div className="bg-[#0f0f0f] rounded-lg p-6">
                     <h2 className="text-3xl font-bold text-[#edb900] mb-6">Special Offers</h2>
@@ -829,14 +834,12 @@ function PropFirmUI({ firm, ratingBreakdown, formatCurrency }: PropFirmUIProps) 
                     )}
                   </div>
                 </TabsContent>
-
                 <TabsContent value="challenges">
                   <div className="bg-[#0f0f0f] rounded-lg p-6">
                     <h2 className="text-xl font-bold mb-4">Trading Challenges</h2>
                     <p className="text-gray-400">No challenges available at the moment.</p>
                   </div>
                 </TabsContent>
-
                 <TabsContent value="rules">
                   <div className="bg-[#0f0f0f] rounded-lg p-6">
                     <h2 className="text-3xl font-bold text-[#edb900] mb-6">Trading Rules</h2>
@@ -972,7 +975,6 @@ function PropFirmUI({ firm, ratingBreakdown, formatCurrency }: PropFirmUIProps) 
                     )}
                   </div>
                 </TabsContent>
-
                 <TabsContent value="discussion">
                   <div className="bg-[#0f0f0f] rounded-lg p-6">
                     <h2 className="text-xl font-bold mb-4">Discussion</h2>

@@ -1,22 +1,22 @@
-// pages/api/getCompanyAllStats.js
+import { createClient } from "@supabase/supabase-js"
+import { NextResponse } from "next/server"
 
-import { createClient } from "@supabase/supabase-js";
+// Initialize Supabase
+const supabaseUrl = process.env.SUPABASE_URL
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-// ✅ Initialize Supabase
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
+if (!supabaseUrl || !supabaseKey) {
+  throw new Error("Missing Supabase environment variables")
+}
 
-export default async function handler(req, res) {
-  if (req.method !== "GET") {
-    return res.status(405).json({ error: "Method Not Allowed" });
-  }
+const supabase = createClient(supabaseUrl, supabaseKey)
 
-  const { company } = req.query;
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url)
+  const company = searchParams.get("company")
 
   if (!company) {
-    return res.status(400).json({ error: "Missing 'company' query parameter" });
+    return NextResponse.json({ error: "Missing 'company' query parameter" }, { status: 400 })
   }
 
   try {
@@ -37,7 +37,7 @@ export default async function handler(req, res) {
         input_propfirm_name: company,
         input_period: "all",
       }),
-    ]);
+    ])
 
     if (stats24h.error || stats7d.error || stats30d.error || statsAll.error) {
       console.error("One or more Supabase errors:", {
@@ -45,19 +45,20 @@ export default async function handler(req, res) {
         stats7d: stats7d.error,
         stats30d: stats30d.error,
         statsAll: statsAll.error,
-      });
+      })
 
-      return res.status(500).json({ error: "Failed to fetch one or more timeframes" });
+      return NextResponse.json({ error: "Failed to fetch one or more timeframes" }, { status: 500 })
     }
 
-    return res.status(200).json({
+    return NextResponse.json({
       "24h": stats24h.data?.[0] || null,
       "7d": stats7d.data?.[0] || null,
       "30d": stats30d.data?.[0] || null,
       all: statsAll.data?.[0] || null,
-    });
+    })
   } catch (err) {
-    console.error("Unexpected Error:", err);
-    return res.status(500).json({ error: "Internal Server Error" });
+    console.error("Unexpected Error:", err)
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
   }
 }
+
