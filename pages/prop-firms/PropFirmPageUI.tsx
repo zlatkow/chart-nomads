@@ -101,7 +101,13 @@ function PropFirmUI({ firm, ratingBreakdown, formatCurrency }: PropFirmUIProps) 
   // Get URL search params to handle tab selection and review highlighting
   const searchParams = useSearchParams()
   const highlightReviewId = searchParams.get("highlight")
-  const activeTab = searchParams.get("tab") || "overview"
+  const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "overview")
+
+  // Add this useEffect to update the active tab when the URL changes
+  useEffect(() => {
+    const tab = searchParams.get("tab") || "overview"
+    setActiveTab(tab)
+  }, [searchParams])
 
   const [liked, setLiked] = useState(false)
   const [likeCount, setLikeCount] = useState(firm && firm.likes_count ? firm.likes_count : 91)
@@ -132,8 +138,9 @@ function PropFirmUI({ firm, ratingBreakdown, formatCurrency }: PropFirmUIProps) 
   // Memoize the firmId to prevent it from changing on every render
   const firmId = firm?.id || null
 
-  // Handle tab change and update URL
+  // Then modify the handleTabChange function to:
   const handleTabChange = (value: string) => {
+    setActiveTab(value)
     // Update URL with the new tab value without refreshing the page
     const url = new URL(window.location.href)
     url.searchParams.set("tab", value)

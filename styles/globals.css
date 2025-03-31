@@ -442,3 +442,28 @@ strong {
   display: inline-block;
   transform-origin: center;
 }
+
+/* Add this for the highlight effect */
+.highlight-review {
+  animation: highlight-pulse 3s ease-in-out;
+  box-shadow: 0 0 0 4px rgba(237, 185, 0, 0.5);
+}
+
+@keyframes highlight-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 4px rgba(237, 185, 0, 0);
+  }
+  20% {
+    box-shadow: 0 0 0 8px rgba(237, 185, 0, 0.5);
+  }
+  40% {
+    box-shadow: 0 0 0 8px rgba(237, 185, 0, 0.5);
+  }
+  60% {
+    box-shadow: 0 0 0 8px rgba(237, 185, 0, 0.5);
+  }
+  80% {
+    box-shadow: 0 0 0 8px rgba(237, 185, 0, 0.3);
+  }
+}
