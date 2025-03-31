@@ -807,7 +807,7 @@ export default function ReviewList({
     <div className="w-full max-w-5xl mx-auto">
       {/* Community Reviews Header */}
       <div id="reviewBreakdownContainer" className="mb-[75px]">
-        <h2 className="text-2xl font-bold text-[#edb900] mb-4">Community Reviews</h2>
+        <h2 className="text-3xl font-bold text-[#edb900] mb-4">Community Reviews</h2>
 
         {showLoading ? (
           // Skeleton loading for review breakdown
@@ -972,9 +972,9 @@ export default function ReviewList({
           ))}
         </div>
       ) : (
-        <div className="text-center py-10">
-          <p className="text-gray-400">No reviews found for {companyName}.</p>
-          <p className="text-gray-500 mt-2">Be the first to leave a review!</p>
+        <div className="text-center py-10 rounded-[10px] bg-[#edb900]">
+          <p className="text-black text-lg">No reviews found for {companyName}.</p>
+          <p className="text-black mt-2">Be the first to leave a review!</p>
         </div>
       )}
     </div>
