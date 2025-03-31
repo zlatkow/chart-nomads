@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js"
-import type { NextApiRequest, NextApiResponse } from 'next'
+import type { NextApiRequest, NextApiResponse } from "next"
 
 // Initialize Supabase
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -12,8 +12,8 @@ if (!supabaseUrl || !supabaseKey) {
 const supabase = createClient(supabaseUrl || "", supabaseKey || "")
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' })
+  if (req.method !== "GET") {
+    return res.status(405).json({ error: "Method not allowed" })
   }
 
   try {
@@ -24,51 +24,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     console.log(`[API] Fetching stats for company: ${company}`)
-    console.log(`[API] Using Supabase URL: ${supabaseUrl?.substring(0, 15)}...`)
-    console.log(`[API] Service Role Key exists: ${!!supabaseKey}`)
 
-    // Check if the stored procedure exists
-    console.log(`[API] Checking if stored procedure exists...`)
-    const { data: procedureCheck, error: procedureError } = await supabase.rpc("check_function_exists", {
-      function_name: "get_transaction_stats_by_company",
-    })
-
-    console.log(`[API] Procedure check result:`, procedureCheck)
-    
-    if (procedureError) {
-      console.error("[API] Error checking for stored procedure:", procedureError)
-      return res.status(500).json({
-        error: "Failed to check if stored procedure exists",
-        details: procedureError
-      })
-    }
-
-    if (!procedureCheck) {
-      console.log("[API] Stored procedure does not exist")
-      return res.status(404).json({
-        error: "Stored procedure 'get_transaction_stats_by_company' does not exist in the database"
-      })
-    }
-
-    // If the procedure exists, try to call it
-    console.log(`[API] Calling stored procedure for company: ${company}`)
-    
+    // Call the stored procedure directly with the two required parameters
     const [stats24h, stats7d, stats30d, statsAll] = await Promise.all([
       supabase.rpc("get_transaction_stats_by_company", {
-        input_propfirm_name: company,
-        input_period: "24h",
+        company_name: company, // Changed parameter name to match your function
+        period: "24h",
       }),
       supabase.rpc("get_transaction_stats_by_company", {
-        input_propfirm_name: company,
-        input_period: "7d",
+        company_name: company, // Changed parameter name to match your function
+        period: "7d",
       }),
       supabase.rpc("get_transaction_stats_by_company", {
-        input_propfirm_name: company,
-        input_period: "30d",
+        company_name: company, // Changed parameter name to match your function
+        period: "30d",
       }),
       supabase.rpc("get_transaction_stats_by_company", {
-        input_propfirm_name: company,
-        input_period: "all",
+        company_name: company, // Changed parameter name to match your function
+        period: "all",
       }),
     ])
 
@@ -97,7 +70,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           stats7d: stats7d.error,
           stats30d: stats30d.error,
           statsAll: statsAll.error,
-        }
+        },
       })
     }
 
@@ -110,9 +83,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     })
   } catch (err) {
     console.error("[API] Unexpected Error:", err)
-    return res.status(500).json({ 
-      error: "Internal Server Error", 
-      details: err instanceof Error ? err.message : String(err)
+    return res.status(500).json({
+      error: "Internal Server Error",
+      details: err instanceof Error ? err.message : String(err),
     })
   }
 }
+
