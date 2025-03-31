@@ -19,16 +19,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     const company = req.query.company as string
     const dataType = req.query.dataType as string || "stats" // Default to "stats" if not specified
+    const timeFilter = req.query.timeFilter as string || "all" // Default to "all" if not specified
 
     if (!company) {
       return res.status(400).json({ error: "Missing 'company' query parameter" })
     }
 
-    console.log(`[API] Fetching ${dataType} for company: ${company}`)
+    console.log(`[API] Fetching ${dataType} for company: ${company}, timeFilter: ${timeFilter}`)
 
     // Handle different data types
     if (dataType === "monthly") {
-      // Call the new monthly stats function
+      // Call the monthly stats function
       const { data: monthlyStats, error: monthlyError } = await supabase.rpc(
         "get_monthly_combined_transaction_stats_by_firm",
         { firm_name: company }
@@ -46,6 +47,29 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       
       return res.status(200).json({
         monthly: monthlyStats || []
+      })
+    } else if (dataType === "topPayouts") {
+      // Call the new top payouts function for a specific company
+      const { data: topPayouts, error: topPayoutsError } = await supabase.rpc(
+        "get_top_10_payouts_for_company",
+        { 
+          companyNameParam: company,
+          timeFilter: timeFilter 
+        }
+      )
+
+      if (topPayoutsError) {
+        console.error("[API] Error fetching top payouts:", topPayoutsError)
+        return res.status(500).json({
+          error: "Error fetching top payouts data",
+          details: topPayoutsError
+        })
+      }
+
+      console.log("[API] Top payouts data:", topPayouts)
+      
+      return res.status(200).json({
+        topPayouts: topPayouts || []
       })
     } else {
       // Original functionality for regular stats

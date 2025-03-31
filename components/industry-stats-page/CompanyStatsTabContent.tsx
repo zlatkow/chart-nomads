@@ -6,7 +6,7 @@ import CompanyMonthlyUniqueTradersChart from "./CompanyMonthlyUniqueTradersChart
 import CompanyMonthlyUniquePaidTradersChart from "./CompanyMonthlyUniquePaidTradersChart"
 import ChurnRateChart from "./ChurnRateChart"
 import HighEarnersChart from "./HighEarnersChart"
-import PropFirmPayouts from "./PropFirmPayouts"
+import CompanyTopPayouts from "./CompanyTopPayouts"
 import AllTransactions from "./AllTransactions"
 import HighEarnersLeaderboard from "./HighEarnersLeaderboard"
 
@@ -61,7 +61,7 @@ const CompanyStatsTabContent = ({ activeTab, stats, companyName }: StatsTabConte
       {activeTab === "transactions" && (
         <>
           <CompanyMonthlyTransactionChart companyName={companyName} />
-          {stats.topPayouts && stats.topPayouts.length > 0 && <PropFirmPayouts topPayouts={stats.topPayouts} />}
+          <CompanyTopPayouts companyName={companyName} />
           {stats.transactions && <AllTransactions transactions={stats.transactions} />}
         </>
       )}
