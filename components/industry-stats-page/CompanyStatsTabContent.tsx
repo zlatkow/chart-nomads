@@ -46,7 +46,7 @@ const StatsTabContent = ({ activeTab, stats }: StatsTabContentProps) => {
       {/* ✅ Keep all content inside the same JSX block */}
       {activeTab === "stats" && (
         <>
-           {stats?.monthlyTransactionStats && stats?.companyName && <CompanyCombinedPaymentChart companyName={stats.companyName} />}
+           {stats?.companyName && <CompanyCombinedPaymentChart companyName={stats.companyName} />}
            {stats?.monthlyTransactionStats && <MonthlyUniquePaidTradersChart uniquePaidTradersStats={stats.monthlyTransactionStats} />}
            {stats?.monthlyTransactionStats && <MonthlyUniqueTradersChart uniqueTradersStats={stats.monthlyTransactionStats} />}
           {stats?.companyTransactionStats && <CompanyTransactionCharts companyStats={stats.companyTransactionStats} />}
