@@ -62,12 +62,12 @@ const CompanyStatsTabContent = ({ activeTab, stats, companyName }: StatsTabConte
         <>
           <CompanyMonthlyTransactionChart companyName={companyName} />
           <CompanyTopPayouts companyName={companyName} />
-          {stats.transactions && <AllTransactions transactions={stats.transactions} />}
+          {/* {stats.transactions && <AllTransactions transactions={stats.transactions} />} */}
         </>
       )}
 
       {activeTab === "high-earners" && stats && (
-        <>{stats.topTraders && <HighEarnersLeaderboard topTraders={stats.topTraders} />}</>
+        // <>{stats.topTraders && <HighEarnersLeaderboard topTraders={stats.topTraders} />}</>
       )}
     </div>
   )
