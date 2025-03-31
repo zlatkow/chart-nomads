@@ -67,7 +67,7 @@ const CompanyStatsTabContent = ({ activeTab, stats, companyName }: StatsTabConte
       )}
 
       {activeTab === "high-earners" && stats && (
-        // <>{stats.topTraders && <HighEarnersLeaderboard topTraders={stats.topTraders} />}</>
+        <>{stats.topTraders && <HighEarnersLeaderboard topTraders={stats.topTraders} />}</>
       )}
     </div>
   )
