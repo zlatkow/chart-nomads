@@ -787,11 +787,14 @@ function PropFirmUI({ firm, ratingBreakdown, formatCurrency }: PropFirmUIProps) 
                           <div className="flex justify-left mx-auto">
                             <CompanyStatsTabs activeTab={statsActiveTab} onTabChange={setStatsActiveTab} />
                           </div>
-                          {/* Tab content */}
-                          <CompanyStatsTabContent activeTab={statsActiveTab} stats={stats} />
+                          {/* Pass company name directly */}
+                          <CompanyStatsTabContent 
+                            activeTab={statsActiveTab} 
+                            stats={stats}
+                            companyName={firm?.propfirm_name || ""} 
+                          />
                         </div>
                       )}
-
                       {loading && (
                         <div className="flex justify-center py-10">
                           <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-[#edb900]"></div>

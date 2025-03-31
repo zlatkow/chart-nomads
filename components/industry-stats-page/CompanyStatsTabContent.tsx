@@ -14,43 +14,48 @@ import HighEarnersLeaderboard from "./HighEarnersLeaderboard"
 
 // ✅ Define type based on your screenshot
 interface PayoutStat {
-  category: string;
-  count: number;
-  percentage: number;
-  total_unique_traders: number;
-  category_type: string;
+  category: string
+  count: number
+  percentage: number
+  total_unique_traders: number
+  category_type: string
 }
 
 interface Stats {
-  monthlyTransactionStats?: any;
-  companyTransactionStats?: any;
-  payoutStats?: PayoutStat[]; // ✅ Use the correct type
-  churnRate?: any;
-  topPayouts?: any[];
-  transactions?: any;
-  topTraders?: any;
-  companyName?: string; // Add this line
+  monthlyTransactionStats?: any
+  companyTransactionStats?: any
+  payoutStats?: PayoutStat[] // ✅ Use the correct type
+  churnRate?: any
+  topPayouts?: any[]
+  transactions?: any
+  topTraders?: any
+  companyName?: string // Add this line
 }
 
 interface StatsTabContentProps {
-  activeTab: string;
-  stats: Stats | null;
+  activeTab: string
+  stats: Stats | null
+  companyName: string // Add this prop
 }
 
-const StatsTabContent = ({ activeTab, stats }: StatsTabContentProps) => {
-    console.log("StatsTabContent received stats:", stats);
-  console.log("Company name:", stats?.companyName);
-  console.log("Monthly transaction stats:", stats?.monthlyTransactionStats);
-  if (!stats) return null;
+const StatsTabContent = ({ activeTab, stats, companyName }: StatsTabContentProps) => {
+  console.log("StatsTabContent received stats:", stats)
+  console.log("Company name:", stats?.companyName)
+  console.log("Monthly transaction stats:", stats?.monthlyTransactionStats)
+  if (!stats) return null
 
   return (
     <div className="w-full">
       {/* ✅ Keep all content inside the same JSX block */}
       {activeTab === "stats" && (
         <>
-           {stats?.companyName && <CompanyCombinedPaymentChart companyName={stats.companyName} />}
-           {stats?.monthlyTransactionStats && <MonthlyUniquePaidTradersChart uniquePaidTradersStats={stats.monthlyTransactionStats} />}
-           {stats?.monthlyTransactionStats && <MonthlyUniqueTradersChart uniqueTradersStats={stats.monthlyTransactionStats} />}
+          {<CompanyCombinedPaymentChart companyName={companyName} />}
+          {stats?.monthlyTransactionStats && (
+            <MonthlyUniquePaidTradersChart uniquePaidTradersStats={stats.monthlyTransactionStats} />
+          )}
+          {stats?.monthlyTransactionStats && (
+            <MonthlyUniqueTradersChart uniqueTradersStats={stats.monthlyTransactionStats} />
+          )}
           {Array.isArray(stats?.payoutStats) && stats.payoutStats.length > 0 && (
             <HighEarnersChart payoutStats={stats.payoutStats} />
           )}
@@ -67,12 +72,11 @@ const StatsTabContent = ({ activeTab, stats }: StatsTabContentProps) => {
       )}
 
       {activeTab === "high-earners" && (
-        <>
-          {stats?.topTraders && <HighEarnersLeaderboard topTraders={stats.topTraders} />}
-        </>
+        <>{stats?.topTraders && <HighEarnersLeaderboard topTraders={stats.topTraders} />}</>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default StatsTabContent;
+export default StatsTabContent
+
