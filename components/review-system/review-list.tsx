@@ -148,6 +148,9 @@ export default function ReviewList({
   // Add this near the other state variables
   const { setShowLoginModal } = useContext(ModalContext)
 
+  // Add a new state variable to track if highlighting has been done
+  const [hasHighlighted, setHasHighlighted] = useState(false)
+
   // Replace the existing useEffect that fetches propfirmId with this updated version that also fetches rating data
   useEffect(() => {
     // If we already have a propfirmId or no companySlug, skip this
@@ -654,7 +657,7 @@ export default function ReviewList({
 
   // Add this useEffect after the other useEffects to handle highlighting the review
   useEffect(() => {
-    if (highlightReviewId && !(isLoading || externalLoading) && reviews.length > 0) {
+    if (highlightReviewId && !(isLoading || externalLoading) && reviews.length > 0 && !hasHighlighted) {
       console.log(`ReviewList: Reviews loaded, looking for review with ID: review-${highlightReviewId}`)
 
       // Use a short delay to ensure the DOM is updated with the reviews
@@ -673,6 +676,9 @@ export default function ReviewList({
           setTimeout(() => {
             reviewElement.classList.remove("highlight-review")
           }, 3000)
+
+          // Set the flag to prevent future highlighting
+          setHasHighlighted(true)
         } else {
           console.warn(`ReviewList: Review element with ID review-${highlightReviewId} not found after reviews loaded`)
         }
@@ -680,7 +686,7 @@ export default function ReviewList({
 
       return () => clearTimeout(timer)
     }
-  }, [highlightReviewId, isLoading, externalLoading, reviews])
+  }, [highlightReviewId, isLoading, externalLoading, reviews, hasHighlighted])
 
   // Update the useEffect that handles animation to use ratingPercentages instead of calculating them
   useEffect(() => {
