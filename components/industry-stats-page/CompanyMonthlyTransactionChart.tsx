@@ -14,14 +14,14 @@ import {
   ResponsiveContainer,
   ReferenceLine,
 } from "recharts"
-import { UserPlus } from "lucide-react"
+import { BarChart2 } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
-interface CompanyMonthlyUniqueTradersChartProps {
+interface CompanyMonthlyTransactionChartProps {
   companyName: string
 }
 
-const CompanyMonthlyUniqueTradersChart = ({ companyName }: CompanyMonthlyUniqueTradersChartProps) => {
+const CompanyMonthlyTransactionChart = ({ companyName }: CompanyMonthlyTransactionChartProps) => {
   const [chartData, setChartData] = useState([])
   const [timeRange, setTimeRange] = useState("All Time")
   const [filteredStats, setFilteredStats] = useState([])
@@ -102,8 +102,8 @@ const CompanyMonthlyUniqueTradersChart = ({ companyName }: CompanyMonthlyUniqueT
   useEffect(() => {
     if (!filteredStats || filteredStats.length === 0) return
 
-    let cumulativeSum = 0
-    let previousNewTraders = null
+    let cumulativeTransactions = 0
+    let previousMonthlyTransactions = null
 
     const transformedData = filteredStats.map((entry) => {
       const year = entry.year ?? new Date().getFullYear()
@@ -126,23 +126,23 @@ const CompanyMonthlyUniqueTradersChart = ({ companyName }: CompanyMonthlyUniqueT
       const monthName = entry.month?.trim()
       const month = monthMap[monthName] ? `${monthMap[monthName]}/${year}` : `??/${year}`
 
-      // Get new unique traders count
-      const newUniqueTraders = Number.parseInt(entry.newuniquetraders) || 0
-      cumulativeSum += newUniqueTraders
+      // Get transaction count
+      const monthlyTransactions = Number.parseInt(entry.totaltransactions) || 0
+      cumulativeTransactions += monthlyTransactions
 
-      console.log(`Month: ${month}, New unique traders: ${newUniqueTraders}, Cumulative: ${cumulativeSum}`)
+      console.log(`Month: ${month}, Transactions: ${monthlyTransactions}, Cumulative: ${cumulativeTransactions}`)
 
       // Calculate Monthly Percentage Change
       let monthlyPercentChange = null
-      if (previousNewTraders !== null) {
-        monthlyPercentChange = ((newUniqueTraders - previousNewTraders) / previousNewTraders) * 100
+      if (previousMonthlyTransactions !== null) {
+        monthlyPercentChange = ((monthlyTransactions - previousMonthlyTransactions) / previousMonthlyTransactions) * 100
       }
-      previousNewTraders = newUniqueTraders
+      previousMonthlyTransactions = monthlyTransactions
 
       return {
         month,
-        newUniqueTraders,
-        cumulativeUniqueTraders: cumulativeSum,
+        monthlyTransactions,
+        cumulativeTransactions,
         monthlyPercentChange,
       }
     })
@@ -151,14 +151,14 @@ const CompanyMonthlyUniqueTradersChart = ({ companyName }: CompanyMonthlyUniqueT
     setChartData(transformedData)
   }, [filteredStats])
 
-  // Calculate average monthly new traders
-  const averageNewTraders = chartData.length
-    ? (chartData.reduce((sum, item) => sum + item.newUniqueTraders, 0) / chartData.length).toFixed(2)
+  // Calculate average monthly transactions
+  const averageMonthlyTransactions = chartData.length
+    ? (chartData.reduce((sum, item) => sum + item.monthlyTransactions, 0) / chartData.length).toFixed(2)
     : 0
 
-  // Get total cumulative traders (last item in the array)
-  const totalCumulativeTraders = chartData.length
-    ? chartData[chartData.length - 1].cumulativeUniqueTraders.toLocaleString()
+  // Get total cumulative transactions (last item in the array)
+  const totalCumulativeTransactions = chartData.length
+    ? chartData[chartData.length - 1].cumulativeTransactions.toLocaleString()
     : 0
 
   // Format date range for display
@@ -170,8 +170,8 @@ const CompanyMonthlyUniqueTradersChart = ({ companyName }: CompanyMonthlyUniqueT
     if (!active || !payload || payload.length === 0) return null
 
     const data = payload[0].payload
-    const newUniqueTraders = data.newUniqueTraders.toLocaleString()
-    const cumulativeUniqueTraders = data.cumulativeUniqueTraders.toLocaleString()
+    const monthlyTransactions = data.monthlyTransactions.toLocaleString()
+    const cumulativeTransactions = data.cumulativeTransactions.toLocaleString()
     const monthlyChange = data.monthlyPercentChange
 
     const formatPercent = (value) => {
@@ -187,10 +187,10 @@ const CompanyMonthlyUniqueTradersChart = ({ companyName }: CompanyMonthlyUniqueT
       <div className="bg-black border border-[#666666] px-4 py-3 rounded shadow-lg">
         <p className="text-white font-[balboa] mb-1">{label}</p>
         <p className="text-white text-sm font-medium">
-          <span className="text-[#e9e9e9]">Cumulative:</span> {cumulativeUniqueTraders}
+          <span className="text-[#e9e9e9]">Cumulative:</span> {cumulativeTransactions}
         </p>
         <p className="text-white text-sm font-medium flex items-center">
-          <span className="text-[#e9e9e9]">Monthly:</span> {newUniqueTraders}&nbsp;
+          <span className="text-[#e9e9e9]">Monthly:</span> {monthlyTransactions}&nbsp;
           {formatPercent(monthlyChange)}
         </p>
       </div>
@@ -209,7 +209,7 @@ const CompanyMonthlyUniqueTradersChart = ({ companyName }: CompanyMonthlyUniqueT
     return (
       <div className="bg-[#0f0f0f] text-white rounded-lg border-[1px] border-[#666666] mb-[50px] p-6 flex justify-center items-center h-[400px]">
         <div className="text-center">
-          <UserPlus className="h-10 w-10 mx-auto mb-4 text-red-500" />
+          <BarChart2 className="h-10 w-10 mx-auto mb-4 text-red-500" />
           <p className="text-xl font-[balboa]">Error loading data for {companyName}</p>
           <p className="text-[#666666] mt-2">{error}</p>
         </div>
@@ -221,8 +221,8 @@ const CompanyMonthlyUniqueTradersChart = ({ companyName }: CompanyMonthlyUniqueT
     return (
       <div className="bg-[#0f0f0f] text-white rounded-lg border-[1px] border-[#666666] mb-[50px] p-6 flex justify-center items-center h-[400px]">
         <div className="text-center">
-          <UserPlus className="h-10 w-10 mx-auto mb-4 text-[#edb900]" />
-          <p className="text-xl font-[balboa]">No unique traders data available for {companyName}</p>
+          <BarChart2 className="h-10 w-10 mx-auto mb-4 text-[#edb900]" />
+          <p className="text-xl font-[balboa]">No transaction data available for {companyName}</p>
           <p className="text-[#666666] mt-2">We'll update this chart when data becomes available.</p>
         </div>
       </div>
@@ -234,11 +234,11 @@ const CompanyMonthlyUniqueTradersChart = ({ companyName }: CompanyMonthlyUniqueT
       <div className="flex justify-between items-center mb-6 border-b-[1px] border-[#666666] p-6">
         <div>
           <div className="flex">
-            <UserPlus className="h-5 w-5 mr-2 mt-1 text-[#edb900]" />
-            <h2 className="text-2xl font-[balboa]">Monthly & Cumulative New Unique Traders</h2>
+            <BarChart2 className="h-5 w-5 mr-2 mt-1 text-[#edb900]" />
+            <h2 className="text-2xl font-[balboa]">Monthly & Cumulative Transactions</h2>
           </div>
           <div>
-            <p className="text-[#666666]">Historical monthly & cumulative new unique traders for {companyName}</p>
+            <p className="text-[#666666]">Historical monthly & cumulative payout transactions for {companyName}</p>
           </div>
         </div>
 
@@ -260,7 +260,7 @@ const CompanyMonthlyUniqueTradersChart = ({ companyName }: CompanyMonthlyUniqueT
         <ComposedChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
           {/* Gradient Definition for Cumulative Amount */}
           <defs>
-            <linearGradient id="cumulativeUniqueTradersGradient" x1="0" y1="0" x2="0" y2="1">
+            <linearGradient id="cumulativeTransactionsGradient" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#5a3e00" stopOpacity={0.3} />
               <stop offset="100%" stopColor="#5a3e00" stopOpacity={0} />
             </linearGradient>
@@ -268,7 +268,7 @@ const CompanyMonthlyUniqueTradersChart = ({ companyName }: CompanyMonthlyUniqueT
 
           <ReferenceLine
             yAxisId="left"
-            y={averageNewTraders}
+            y={averageMonthlyTransactions}
             stroke="#5a3e00"
             strokeDasharray="5 5"
             strokeWidth={3}
@@ -312,19 +312,19 @@ const CompanyMonthlyUniqueTradersChart = ({ companyName }: CompanyMonthlyUniqueT
 
           <Tooltip content={CustomTooltip} />
 
-          {/* Cumulative Unique Traders Area with Gradient */}
+          {/* Cumulative Transactions Area with Gradient */}
           <Area
             yAxisId="right"
             type="monotone"
-            dataKey="cumulativeUniqueTraders"
+            dataKey="cumulativeTransactions"
             stroke="#ffb700"
-            fill="url(#cumulativeUniqueTradersGradient)"
+            fill="url(#cumulativeTransactionsGradient)"
           />
 
-          {/* Monthly New Unique Traders Bars */}
+          {/* Monthly Transactions Bars */}
           <Bar
             yAxisId="left"
-            dataKey="newUniqueTraders"
+            dataKey="monthlyTransactions"
             fill="#ffb700"
             radius={[10, 10, 0, 0]}
             activeBar={{ fill: "#c99400" }} // Darker yellow on hover
@@ -335,14 +335,17 @@ const CompanyMonthlyUniqueTradersChart = ({ companyName }: CompanyMonthlyUniqueT
       <div className="mt-4 text-white text-xs px-6">
         <p>{dateRangeText}</p>
         <p className="mt-1">
-          Average monthly new users:{" "}
-          {Number(averageNewTraders).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}
-          | Total cumulative new users: {totalCumulativeTraders}
+          Average monthly transactions:{" "}
+          {Number(averageMonthlyTransactions).toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })}{" "}
+          | Total cumulative transactions: {totalCumulativeTransactions}
         </p>
       </div>
     </div>
   )
 }
 
-export default CompanyMonthlyUniqueTradersChart
+export default CompanyMonthlyTransactionChart
 

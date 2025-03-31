@@ -1,7 +1,7 @@
 /* eslint-disable */
 
 import CompanyCombinedPaymentChart from "./CompanyCombinedPaymentChart"
-import MonthlyTransactionChart from "./MonthlyTransactionChart"
+import CompanyMonthlyTransactionChart from "./CompanyMonthlyTransactionChart"
 import CompanyMonthlyUniqueTradersChart from "./CompanyMonthlyUniqueTradersChart"
 import CompanyMonthlyUniquePaidTradersChart from "./CompanyMonthlyUniquePaidTradersChart"
 import ChurnRateChart from "./ChurnRateChart"
@@ -58,9 +58,9 @@ const CompanyStatsTabContent = ({ activeTab, stats, companyName }: StatsTabConte
         </>
       )}
 
-      {activeTab === "transactions" && stats && (
+      {activeTab === "transactions" && (
         <>
-          {stats.monthlyTransactionStats && <MonthlyTransactionChart monthlyStats={stats.monthlyTransactionStats} />}
+          <CompanyMonthlyTransactionChart companyName={companyName} />
           {stats.topPayouts && stats.topPayouts.length > 0 && <PropFirmPayouts topPayouts={stats.topPayouts} />}
           {stats.transactions && <AllTransactions transactions={stats.transactions} />}
         </>
