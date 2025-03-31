@@ -4,7 +4,7 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { DollarSign } from "lucide-react"
+import { DollarSign, AlertTriangle } from "lucide-react"
 
 interface CompanyTopPayoutsProps {
   companyName: string
@@ -15,12 +15,14 @@ export default function CompanyTopPayouts({ companyName }: CompanyTopPayoutsProp
   const [payoutData, setPayoutData] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [apiStatus, setApiStatus] = useState(null)
 
   // Fetch data from the API whenever filter changes
   useEffect(() => {
     const fetchPayouts = async () => {
       setLoading(true)
       setError(null)
+      setApiStatus(null)
 
       try {
         console.log(`Fetching top payouts for company: ${companyName}, timeFilter: ${selectedFilter}`)
@@ -30,6 +32,9 @@ export default function CompanyTopPayouts({ companyName }: CompanyTopPayoutsProp
 
         const response = await fetch(apiUrl)
         console.log(`API response status: ${response.status}`)
+
+        // Store the API status code for better error handling
+        setApiStatus(response.status)
 
         if (!response.ok) {
           throw new Error(`API returned status ${response.status}`)
@@ -101,6 +106,30 @@ export default function CompanyTopPayouts({ companyName }: CompanyTopPayoutsProp
     return "#333333"
   }
 
+  // Render appropriate error message based on API status
+  const renderErrorMessage = () => {
+    if (apiStatus === 500) {
+      return (
+        <div className="text-center">
+          <AlertTriangle className="h-10 w-10 mx-auto mb-4 text-red-500" />
+          <p className="text-xl font-[balboa]">Server Error</p>
+          <p className="text-[#666666] mt-2">
+            We're experiencing issues with our database. Our team has been notified.
+          </p>
+          <p className="text-[#666666] mt-2">Please try again later or contact support if the issue persists.</p>
+        </div>
+      )
+    }
+
+    return (
+      <div className="text-center">
+        <DollarSign className="h-10 w-10 mx-auto mb-4 text-red-500" />
+        <p className="text-xl font-[balboa]">Error loading payouts for {companyName}</p>
+        <p className="text-[#666666] mt-2">{error}</p>
+      </div>
+    )
+  }
+
   return (
     <div className="w-full bg-[#0f0f0f] rounded-[10px] border-[1px] border-[#666666] mb-[50px]">
       <div className="w-full">
@@ -142,13 +171,7 @@ export default function CompanyTopPayouts({ companyName }: CompanyTopPayoutsProp
                 <div className="w-8 h-8 border-4 border-[#FFD700] border-t-transparent rounded-full animate-spin"></div>
               </div>
             ) : error ? (
-              <div className="flex items-center justify-center h-[200px] text-[#999999]">
-                <div className="text-center">
-                  <DollarSign className="h-10 w-10 mx-auto mb-4 text-red-500" />
-                  <p className="text-xl font-[balboa]">Error loading payouts for {companyName}</p>
-                  <p className="text-[#666666] mt-2">{error}</p>
-                </div>
-              </div>
+              <div className="flex items-center justify-center h-[200px] text-[#999999]">{renderErrorMessage()}</div>
             ) : payoutData.length > 0 ? (
               <div>
                 {payoutData.map((item) => (
