@@ -790,12 +790,6 @@ function PropFirmUI({ firm, ratingBreakdown, formatCurrency }: PropFirmUIProps) 
                         </div>
                       )}
                     </div>
-
-                    {/* Industry-wide stats section */}
-                    <div className="w-full mt-12 pt-8 border-t border-gray-800">
-
-                      {statsData && <IndustryStatsSlider statsData={statsData} />}
-
                       {!loading && (
                         <div className="w-full mt-8">
                           <div className="flex justify-left mx-auto">
@@ -811,7 +805,6 @@ function PropFirmUI({ firm, ratingBreakdown, formatCurrency }: PropFirmUIProps) 
                           <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-[#edb900]"></div>
                         </div>
                       )}
-                    </div>
                   </div>
                 </TabsContent>
                 <TabsContent value="news">
