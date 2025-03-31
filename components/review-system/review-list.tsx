@@ -296,7 +296,7 @@ export default function ReviewList({
         // First, fetch the reviews
         const { data: reviewsData, error: reviewsError } = await supabase
           .from("propfirm_reviews")
-          .select("*")
+          .select("*, upvotes_count") // Explicitly select upvotes_count
           .eq("prop_firm", propfirmId)
           .eq("review_status", "published")
           .order("created_at", { ascending: false })
@@ -761,8 +761,13 @@ export default function ReviewList({
     } else if (value === "lowest") {
       sortedReviews.sort((a, b) => a.rating - b.rating)
     } else if (value === "most-upvoted") {
-      // Use upvotes_count from the database if available, otherwise fall back to upvotes
-      sortedReviews.sort((a, b) => (b.upvotes_count || b.upvotes || 0) - (a.upvotes_count || a.upvotes || 0))
+      // Sort by upvotes count, ensuring we handle all possible data formats
+      sortedReviews.sort((a, b) => {
+        // Get upvotes count from the review object, with fallbacks
+        const aUpvotes = a.upvotes_count || a.upvotes || 0
+        const bUpvotes = b.upvotes_count || b.upvotes || 0
+        return bUpvotes - aUpvotes
+      })
     }
 
     setReviews(sortedReviews)
