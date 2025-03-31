@@ -27,19 +27,37 @@ const CompanyCombinedPaymentChart = ({ companyName }: CompanyCombinedPaymentChar
   const [filteredStats, setFilteredStats] = useState([])
   const [loading, setLoading] = useState(true)
   const [monthlyStats, setMonthlyStats] = useState([])
+  const [error, setError] = useState(null)
 
   // Fetch data from the API
   useEffect(() => {
     const fetchData = async () => {
       try {
         console.log(`Fetching data for company: ${companyName}`)
-        const response = await fetch(`/api/getCompanyAllStats?company=${encodeURIComponent(companyName)}&dataType=monthly`)
+        // Use the correct API endpoint
+        const apiUrl = `/api/getCompanyAllStats?company=${encodeURIComponent(companyName)}&dataType=monthly`
+        console.log(`API URL: ${apiUrl}`)
+
+        const response = await fetch(apiUrl)
+        console.log(`API response status: ${response.status}`)
+
+        if (!response.ok) {
+          throw new Error(`API returned status ${response.status}`)
+        }
+
         const data = await response.json()
-        console.log("API response:", data)
+        console.log("API response data:", data)
+
+        if (data.error) {
+          throw new Error(data.error)
+        }
+
         setMonthlyStats(data.monthly || [])
         setFilteredStats(data.monthly || [])
+        console.log(`Received ${data.monthly?.length || 0} monthly records`)
       } catch (error) {
         console.error("Error fetching data:", error)
+        setError(error.message)
       } finally {
         setLoading(false)
       }
@@ -47,6 +65,9 @@ const CompanyCombinedPaymentChart = ({ companyName }: CompanyCombinedPaymentChar
 
     if (companyName) {
       fetchData()
+    } else {
+      console.warn("No company name provided")
+      setLoading(false)
     }
   }, [companyName])
 
@@ -106,8 +127,13 @@ const CompanyCombinedPaymentChart = ({ companyName }: CompanyCombinedPaymentChar
       const monthName = entry.month?.trim()
       const month = monthMap[monthName] ? `${monthMap[monthName]}/${year}` : `??/${year}`
 
-      // Updated to use totalAmount instead of totalamount
-      const monthlyAmount = Number.parseFloat(entry.totalAmount) / 1_000_000 || 0
+      // Check for both totalAmount and totalamount (case sensitivity)
+      // Convert to number and divide by 1,000,000 to get millions
+      const totalAmount = entry.totalamount !== undefined ? entry.totalamount : entry.totalAmount
+      const monthlyAmount = Number.parseFloat(totalAmount) / 1_000_000 || 0
+
+      console.log(`Month: ${month}, Raw amount: ${totalAmount}, Converted: ${monthlyAmount}M`)
+
       cumulative += monthlyAmount
 
       let monthlyPercentChange = null
@@ -133,6 +159,7 @@ const CompanyCombinedPaymentChart = ({ companyName }: CompanyCombinedPaymentChar
       }
     })
 
+    console.log("Transformed chart data:", transformedData)
     setChartData(transformedData)
   }, [filteredStats])
 
@@ -189,6 +216,18 @@ const CompanyCombinedPaymentChart = ({ companyName }: CompanyCombinedPaymentChar
     return (
       <div className="bg-[#0f0f0f] text-white rounded-lg border-[1px] border-[#666666] mb-[50px] p-6 flex justify-center items-center h-[400px]">
         <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-[#edb900]"></div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="bg-[#0f0f0f] text-white rounded-lg border-[1px] border-[#666666] mb-[50px] p-6 flex justify-center items-center h-[400px]">
+        <div className="text-center">
+          <DollarSign className="h-10 w-10 mx-auto mb-4 text-red-500" />
+          <p className="text-xl font-[balboa]">Error loading data for {companyName}</p>
+          <p className="text-[#666666] mt-2">{error}</p>
+        </div>
       </div>
     )
   }
@@ -286,7 +325,7 @@ const CompanyCombinedPaymentChart = ({ companyName }: CompanyCombinedPaymentChar
             stroke="#444"
           />
 
-          <Tooltip content={CustomTooltip} cursor={{ fill: "rgba(255, 191, 0, 0.2)" }} />
+          <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(255, 191, 0, 0.2)" }} />
 
           {/* Cumulative Amount Area with Gradient */}
           <Area
