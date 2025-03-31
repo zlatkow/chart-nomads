@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js"
-import { NextResponse } from "next/server"
+import type { NextApiRequest, NextApiResponse } from "next"
 
 // Initialize Supabase
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -11,13 +11,16 @@ if (!supabaseUrl || !supabaseKey) {
 
 const supabase = createClient(supabaseUrl || "", supabaseKey || "")
 
-export async function GET(request: Request) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== "GET") {
+    return res.status(405).json({ error: "Method not allowed" })
+  }
+
   try {
-    const { searchParams } = new URL(request.url)
-    const company = searchParams.get("company")
+    const company = req.query.company as string
 
     if (!company) {
-      return NextResponse.json({ error: "Missing 'company' query parameter" }, { status: 400 })
+      return res.status(400).json({ error: "Missing 'company' query parameter" })
     }
 
     console.log(`Fetching stats for company: ${company}`)
@@ -31,7 +34,7 @@ export async function GET(request: Request) {
       console.error("Error checking for stored procedure:", procedureError)
 
       // If the stored procedure doesn't exist, return mock data for testing
-      return NextResponse.json({
+      return res.status(200).json({
         "24h": mockCompanyStats(company, "24h"),
         "7d": mockCompanyStats(company, "7d"),
         "30d": mockCompanyStats(company, "30d"),
@@ -74,7 +77,7 @@ export async function GET(request: Request) {
       })
 
       // Return mock data if there are errors
-      return NextResponse.json({
+      return res.status(200).json({
         "24h": mockCompanyStats(company, "24h"),
         "7d": mockCompanyStats(company, "7d"),
         "30d": mockCompanyStats(company, "30d"),
@@ -84,7 +87,7 @@ export async function GET(request: Request) {
 
     // If we have real data, return it
     if (stats24h.data?.length || stats7d.data?.length || stats30d.data?.length || statsAll.data?.length) {
-      return NextResponse.json({
+      return res.status(200).json({
         "24h": stats24h.data?.[0] || null,
         "7d": stats7d.data?.[0] || null,
         "30d": stats30d.data?.[0] || null,
@@ -93,7 +96,7 @@ export async function GET(request: Request) {
     }
 
     // If no data was returned, use mock data
-    return NextResponse.json({
+    return res.status(200).json({
       "24h": mockCompanyStats(company, "24h"),
       "7d": mockCompanyStats(company, "7d"),
       "30d": mockCompanyStats(company, "30d"),
@@ -101,7 +104,7 @@ export async function GET(request: Request) {
     })
   } catch (err) {
     console.error("Unexpected Error:", err)
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
+    return res.status(500).json({ error: "Internal Server Error" })
   }
 }
 
