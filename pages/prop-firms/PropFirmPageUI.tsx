@@ -50,8 +50,8 @@ import StatsTabContent from "../../components/industry-stats-page/StatsTabConten
 import { useNoise } from "../../components/providers/noise-provider"
 import { ModalContext } from "../../pages/_app"
 
-// In the imports section, add:
-import CompanyStatsSlider from "../../components/company-stats-slider"
+// Find the import section and add:
+import CompanyStatsDisplay from "../../components/company-stats-display"
 
 // Define types for the firm and rating data
 interface Firm {
@@ -770,15 +770,36 @@ function PropFirmUI({ firm, ratingBreakdown, formatCurrency }: PropFirmUIProps) 
                 <TabsContent value="stats" className="mt-0">
                   <div className="bg-[#0f0f0f] rounded-lg p-6">
                     <h2 className="text-3xl text-[#edb900] font-bold mb-4">Payout Stats</h2>
+                    // Then find the company-specific stats section in the stats tab and replace it with:
+                    {/* Company-specific stats section */}
+                    <div className="w-full mb-12">
+                      {firm && firm.propfirm_name ? (
+                        <>
+                          <div className="flex items-center mb-6">
+                            <div className="w-1 h-8 bg-[#edb900] mr-3"></div>
+                            <h3 className="text-2xl text-white font-bold">
+                              {firm.propfirm_name} <span className="text-[#edb900]">Stats</span>
+                            </h3>
+                          </div>
 
-                    {/* Company-specific stats slider */}
-                    <div className="w-full flex justify-center items-center flex-col mb-8">
-                      {firm && firm.propfirm_name && <CompanyStatsSlider companyName={firm.propfirm_name} />}
+                          {/* Use the new CompanyStatsDisplay component */}
+                          <CompanyStatsDisplay companyName={firm.propfirm_name} />
+                        </>
+                      ) : (
+                        <div className="text-center py-10">
+                          <p className="text-gray-400">No company-specific stats available.</p>
+                        </div>
+                      )}
                     </div>
+                    {/* Industry-wide stats section */}
+                    <div className="w-full mt-12 pt-8 border-t border-gray-800">
+                      <div className="flex items-center mb-6">
+                        <div className="w-1 h-8 bg-[#edb900] mr-3"></div>
+                        <h3 className="text-2xl text-white font-bold">
+                          Industry-Wide <span className="text-[#edb900]">Stats</span>
+                        </h3>
+                      </div>
 
-                    {/* Industry-wide stats (optional) */}
-                    <div className="w-full flex justify-center items-center flex-col mt-12 pt-8 border-t border-gray-800">
-                      <h3 className="text-2xl text-white font-bold mb-6">Industry-Wide Stats</h3>
                       {statsData && <IndustryStatsSlider statsData={statsData} />}
 
                       {!loading && (

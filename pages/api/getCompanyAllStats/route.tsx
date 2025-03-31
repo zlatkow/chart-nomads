@@ -2,14 +2,14 @@ import { createClient } from "@supabase/supabase-js"
 import { NextResponse } from "next/server"
 
 // Initialize Supabase
-const supabaseUrl = process.env.SUPABASE_URL
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
 if (!supabaseUrl || !supabaseKey) {
-  throw new Error("Missing Supabase environment variables")
+  console.error("Missing Supabase environment variables")
 }
 
-const supabase = createClient(supabaseUrl, supabaseKey)
+const supabase = createClient(supabaseUrl || "", supabaseKey || "")
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -19,7 +19,12 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Missing 'company' query parameter" }, { status: 400 })
   }
 
+  console.log(`Fetching stats for company: ${company}`)
+
   try {
+    // For debugging purposes, log the request
+    console.log(`API Request for company: ${company}`)
+
     const [stats24h, stats7d, stats30d, statsAll] = await Promise.all([
       supabase.rpc("get_transaction_stats_by_company", {
         input_propfirm_name: company,
@@ -38,6 +43,12 @@ export async function GET(request: Request) {
         input_period: "all",
       }),
     ])
+
+    // Log the results for debugging
+    console.log("24h stats:", stats24h.data)
+    console.log("7d stats:", stats7d.data)
+    console.log("30d stats:", stats30d.data)
+    console.log("all stats:", statsAll.data)
 
     if (stats24h.error || stats7d.error || stats30d.error || statsAll.error) {
       console.error("One or more Supabase errors:", {
