@@ -1,9 +1,8 @@
-/* eslint-disable */
 "use client"
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { DollarSign, Users, TrendingUp, BarChart2, LoaderCircle, Gem, Banknote, AlertCircle } from "lucide-react"
+import { DollarSign, Users, TrendingUp, BarChart2, LoaderCircle, Gem, Banknote } from "lucide-react"
 
 const CompanyStatsSlider = ({ companyName }) => {
   const [currentSlide, setCurrentSlide] = useState(0)
@@ -11,7 +10,6 @@ const CompanyStatsSlider = ({ companyName }) => {
   const [isHovered, setIsHovered] = useState(false)
   const [statsData, setStatsData] = useState(null)
   const [error, setError] = useState(null)
-  const [isMockData, setIsMockData] = useState(false)
 
   // Array of headings for each slide
   const slideHeadings = ["Last 24 Hours", "Last 7 Days", "Last 30 Days", "All Time"]
@@ -29,17 +27,12 @@ const CompanyStatsSlider = ({ companyName }) => {
         const response = await fetch(`/api/getCompanyAllStats?company=${encodeURIComponent(companyName)}`)
 
         if (!response.ok) {
-          throw new Error(`Failed to fetch stats: ${response.status}`)
+          const errorData = await response.json()
+          throw new Error(`Failed to fetch stats: ${response.status} - ${errorData.error || "Unknown error"}`)
         }
 
         const data = await response.json()
         console.log("Received company stats data:", data)
-
-        // Check if we're using mock data
-        if (data.mockData) {
-          console.warn("Using mock data for company stats")
-          setIsMockData(true)
-        }
 
         // Transform API response to match expected format
         const transformedData = {
@@ -101,22 +94,22 @@ const CompanyStatsSlider = ({ companyName }) => {
     )
   }
 
+  if (!loading && (!statsData || !slides.length || !slides[0])) {
+    return (
+      <div className="relative w-full bg-[#0f0f0f] rounded-lg p-6 mb-[50px]">
+        <div className="text-center py-6">
+          <p className="text-gray-400">No stats data available for {companyName}.</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div
       className="relative w-full bg-[#0f0f0f] rounded-lg p-6 mb-[50px]"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Mock Data Warning */}
-      {isMockData && !loading && (
-        <div className="mb-4 p-2 bg-yellow-900/30 border border-yellow-600/50 rounded-md flex items-center">
-          <AlertCircle size={16} className="text-yellow-500 mr-2" />
-          <p className="text-yellow-400 text-sm">
-            Using sample data. Real transaction data for {companyName} is not available.
-          </p>
-        </div>
-      )}
-
       {/* Loading Indicator */}
       {loading ? (
         <div className="flex flex-col items-center justify-center py-10">
