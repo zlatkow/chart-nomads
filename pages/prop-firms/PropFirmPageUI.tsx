@@ -42,7 +42,6 @@ import CommentSection from "../../components/comment-section"
 import ReviewSystem from "../../components/review-system"
 // Import the stats components
 import useFetchStats from "../../webhooks/useFetchStats"
-import IndustryStatsSlider from "../../components/industry-stats-page/IndustryStatsSlider"
 import StatsTabs from "../../components/industry-stats-page/StatsTabs"
 import StatsTabContent from "../../components/industry-stats-page/StatsTabContent"
 
