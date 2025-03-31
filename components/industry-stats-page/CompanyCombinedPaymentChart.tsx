@@ -179,10 +179,18 @@ const CompanyCombinedPaymentChart = ({ companyName }: CompanyCombinedPaymentChar
   const CustomTooltip = ({ active, payload, label }) => {
     if (!active || !payload || payload.length === 0) return null
 
-    const data = payload[0].payload
-    const monthlyAmount = data.monthlyAmount
-    const cumulativeAmount = data.cumulativeAmount
-    const monthlyChange = data.monthlyPercentChange
+    // Get data from both series (Bar and Area)
+    const monthlyData = payload.find((p) => p.dataKey === "monthlyAmount")
+    const cumulativeData = payload.find((p) => p.dataKey === "cumulativeAmount")
+
+    if (!monthlyData || !cumulativeData) return null
+
+    const monthlyAmount = monthlyData.value
+    const cumulativeAmount = cumulativeData.value
+
+    // Find the original data point to get the percent change
+    const dataPoint = chartData.find((d) => d.month === label)
+    const monthlyChange = dataPoint ? dataPoint.monthlyPercentChange : null
 
     const formatPercent = (value) => {
       if (value === null || isNaN(value)) return ""
@@ -325,7 +333,7 @@ const CompanyCombinedPaymentChart = ({ companyName }: CompanyCombinedPaymentChar
             stroke="#444"
           />
 
-          <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(255, 191, 0, 0.2)" }} />
+          <Tooltip content={CustomTooltip} cursor={{ fill: "rgba(255, 191, 0, 0.2)" }} />
 
           {/* Cumulative Amount Area with Gradient */}
           <Area
