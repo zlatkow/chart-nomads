@@ -69,16 +69,18 @@ const CompanyStatsSlider = ({ companyName }) => {
     return () => clearInterval(interval)
   }, [currentSlide, loading, isHovered, slides.length])
 
-  const PercentageBubble = ({ change, isAllTimeSlide, statTitle }) => {
-    // For "All Time" slide, only show percentage bubbles for top row metrics
-    if (isAllTimeSlide) {
-      // Only show bubbles for these specific stats in the All Time view
-      const topRowStats = ["Total Amount", "Total Transactions", "Unique Traders"]
-      if (!topRowStats.includes(statTitle)) {
-        return null
-      }
+  const shouldShowPercentageBubble = (statTitle, currentSlideIndex) => {
+    // For "All Time" slide (index 3), don't show any percentage bubbles
+    if (currentSlideIndex === 3) {
+      return false
     }
 
+    // For other slides, only show percentage bubbles for top row metrics
+    const topRowStats = ["Total Amount", "Total Transactions", "Unique Traders"]
+    return topRowStats.includes(statTitle)
+  }
+
+  const PercentageBubble = ({ change }) => {
     if (change === null || change === undefined) return null
 
     const parsedChange = Number.parseFloat(change)
@@ -214,12 +216,8 @@ const CompanyStatsSlider = ({ companyName }) => {
                           <h3 className="text-[#666666] font-medium">{stat.title}</h3>
                           <p className="text-3xl font-bold text-white">
                             {stat.value}
-                            {stat.change !== null && (
-                              <PercentageBubble
-                                change={stat.change}
-                                isAllTimeSlide={currentSlide === 3} // 3 is the index of "All Time" in the slideHeadings array
-                                statTitle={stat.title}
-                              />
+                            {stat.change !== null && shouldShowPercentageBubble(stat.title, currentSlide) && (
+                              <PercentageBubble change={stat.change} />
                             )}
                           </p>
                           <p className="text-[#666666] text-sm">{stat.subtitle}</p>
