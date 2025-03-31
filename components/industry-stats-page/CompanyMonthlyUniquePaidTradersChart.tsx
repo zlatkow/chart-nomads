@@ -4,8 +4,7 @@
 
 import { useState, useEffect } from "react"
 import {
-  Area,
-  Bar,
+  Line,
   ComposedChart,
   CartesianGrid,
   XAxis,
@@ -13,15 +12,16 @@ import {
   Tooltip,
   ResponsiveContainer,
   ReferenceLine,
+  Area,
 } from "recharts"
-import { DollarSign } from "lucide-react"
+import { Users } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
-interface CompanyCombinedPaymentChartProps {
+interface CompanyMonthlyUniquePaidTradersChartProps {
   companyName: string
 }
 
-const CompanyCombinedPaymentChart = ({ companyName }: CompanyCombinedPaymentChartProps) => {
+const CompanyMonthlyUniquePaidTradersChart = ({ companyName }: CompanyMonthlyUniquePaidTradersChartProps) => {
   const [chartData, setChartData] = useState([])
   const [timeRange, setTimeRange] = useState("All Time")
   const [filteredStats, setFilteredStats] = useState([])
@@ -102,9 +102,7 @@ const CompanyCombinedPaymentChart = ({ companyName }: CompanyCombinedPaymentChar
   useEffect(() => {
     if (!filteredStats || filteredStats.length === 0) return
 
-    let cumulative = 0
-    let previousMonthlyAmount = null
-    let previousCumulativeAmount = null
+    let previousMonthlyPaidTraders = null
 
     const transformedData = filteredStats.map((entry) => {
       const year = entry.year ?? new Date().getFullYear()
@@ -127,35 +125,22 @@ const CompanyCombinedPaymentChart = ({ companyName }: CompanyCombinedPaymentChar
       const monthName = entry.month?.trim()
       const month = monthMap[monthName] ? `${monthMap[monthName]}/${year}` : `??/${year}`
 
-      // Check for both totalAmount and totalamount (case sensitivity)
-      // Convert to number and divide by 1,000,000 to get millions
-      const totalAmount = entry.totalamount !== undefined ? entry.totalamount : entry.totalAmount
-      const monthlyAmount = Number.parseFloat(totalAmount) / 1_000_000 || 0
+      // Get unique paid traders count
+      const uniquePaidTraders = Number.parseInt(entry.uniquereceivers) || 0
 
-      console.log(`Month: ${month}, Raw amount: ${totalAmount}, Converted: ${monthlyAmount}M`)
+      console.log(`Month: ${month}, Unique paid traders: ${uniquePaidTraders}`)
 
-      cumulative += monthlyAmount
-
+      // Calculate Monthly Percentage Change
       let monthlyPercentChange = null
-      let cumulativePercentChange = null
-
-      if (previousMonthlyAmount !== null) {
-        monthlyPercentChange = ((monthlyAmount - previousMonthlyAmount) / previousMonthlyAmount) * 100
+      if (previousMonthlyPaidTraders !== null) {
+        monthlyPercentChange = ((uniquePaidTraders - previousMonthlyPaidTraders) / previousMonthlyPaidTraders) * 100
       }
-
-      if (previousCumulativeAmount !== null) {
-        cumulativePercentChange = ((cumulative - previousCumulativeAmount) / previousCumulativeAmount) * 100
-      }
-
-      previousMonthlyAmount = monthlyAmount
-      previousCumulativeAmount = cumulative
+      previousMonthlyPaidTraders = uniquePaidTraders
 
       return {
         month,
-        monthlyAmount,
-        cumulativeAmount: cumulative,
+        uniquePaidTraders,
         monthlyPercentChange,
-        cumulativePercentChange,
       }
     })
 
@@ -163,13 +148,10 @@ const CompanyCombinedPaymentChart = ({ companyName }: CompanyCombinedPaymentChar
     setChartData(transformedData)
   }, [filteredStats])
 
-  // Calculate average monthly payment
-  const averageMonthlyPayment = chartData.length
-    ? (chartData.reduce((sum, item) => sum + item.monthlyAmount, 0) / chartData.length).toFixed(2)
+  // Calculate average monthly unique paid traders
+  const averageMonthlyPaidTraders = chartData.length
+    ? (chartData.reduce((sum, item) => sum + item.uniquePaidTraders, 0) / chartData.length).toFixed(2)
     : 0
-
-  // Get total cumulative amount (last item in the array)
-  const totalCumulativeAmount = chartData.length ? chartData[chartData.length - 1].cumulativeAmount.toFixed(2) : 0
 
   // Format date range for display
   const dateRangeText = chartData.length
@@ -179,18 +161,9 @@ const CompanyCombinedPaymentChart = ({ companyName }: CompanyCombinedPaymentChar
   const CustomTooltip = ({ active, payload, label }) => {
     if (!active || !payload || payload.length === 0) return null
 
-    // Get data from both series (Bar and Area)
-    const monthlyData = payload.find((p) => p.dataKey === "monthlyAmount")
-    const cumulativeData = payload.find((p) => p.dataKey === "cumulativeAmount")
-
-    if (!monthlyData || !cumulativeData) return null
-
-    const monthlyAmount = monthlyData.value
-    const cumulativeAmount = cumulativeData.value
-
-    // Find the original data point to get the percent change
-    const dataPoint = chartData.find((d) => d.month === label)
-    const monthlyChange = dataPoint ? dataPoint.monthlyPercentChange : null
+    const data = payload[0].payload
+    const uniquePaidTraders = data.uniquePaidTraders.toLocaleString()
+    const monthlyChange = data.monthlyPercentChange
 
     const formatPercent = (value) => {
       if (value === null || isNaN(value)) return ""
@@ -203,17 +176,9 @@ const CompanyCombinedPaymentChart = ({ companyName }: CompanyCombinedPaymentChar
 
     return (
       <div className="bg-black border border-[#666666] px-4 py-3 rounded shadow-lg">
-        {/* Date */}
         <p className="text-white font-[balboa] mb-1">{label}</p>
-
-        {/* Cumulative Amount */}
-        <p className="text-white text-sm font-medium">
-          <span className="text-[#e9e9e9]">Cumulative:</span> ${cumulativeAmount.toFixed(2)}M
-        </p>
-
-        {/* Monthly Amount with % Change on the Same Row */}
         <p className="text-white text-sm font-medium flex items-center">
-          <span className="text-[#e9e9e9]">Monthly:</span> ${monthlyAmount.toFixed(2)}M&nbsp;
+          <span className="text-[#e9e9e9]">Monthly:</span> {uniquePaidTraders}&nbsp;
           {formatPercent(monthlyChange)}
         </p>
       </div>
@@ -232,7 +197,7 @@ const CompanyCombinedPaymentChart = ({ companyName }: CompanyCombinedPaymentChar
     return (
       <div className="bg-[#0f0f0f] text-white rounded-lg border-[1px] border-[#666666] mb-[50px] p-6 flex justify-center items-center h-[400px]">
         <div className="text-center">
-          <DollarSign className="h-10 w-10 mx-auto mb-4 text-red-500" />
+          <Users className="h-10 w-10 mx-auto mb-4 text-red-500" />
           <p className="text-xl font-[balboa]">Error loading data for {companyName}</p>
           <p className="text-[#666666] mt-2">{error}</p>
         </div>
@@ -244,8 +209,8 @@ const CompanyCombinedPaymentChart = ({ companyName }: CompanyCombinedPaymentChar
     return (
       <div className="bg-[#0f0f0f] text-white rounded-lg border-[1px] border-[#666666] mb-[50px] p-6 flex justify-center items-center h-[400px]">
         <div className="text-center">
-          <DollarSign className="h-10 w-10 mx-auto mb-4 text-[#edb900]" />
-          <p className="text-xl font-[balboa]">No payment data available for {companyName}</p>
+          <Users className="h-10 w-10 mx-auto mb-4 text-[#edb900]" />
+          <p className="text-xl font-[balboa]">No unique paid traders data available for {companyName}</p>
           <p className="text-[#666666] mt-2">We'll update this chart when data becomes available.</p>
         </div>
       </div>
@@ -257,11 +222,11 @@ const CompanyCombinedPaymentChart = ({ companyName }: CompanyCombinedPaymentChar
       <div className="flex justify-between items-center mb-6 border-b-[1px] border-[#666666] p-6">
         <div>
           <div className="flex">
-            <DollarSign className="h-5 w-5 mr-2 mt-1 text-[#edb900]" />
-            <h2 className="text-2xl font-[balboa]">Monthly & Cumulative Paid Amount (in millions $)</h2>
+            <Users className="h-5 w-5 mr-2 mt-1 text-[#edb900]" />
+            <h2 className="text-2xl font-[balboa]">{companyName} - Monthly Unique Paid Traders</h2>
           </div>
           <div>
-            <p className="text-[#666666]">Monthly & cumulative amounts paid by {companyName}</p>
+            <p className="text-[#666666]">Historical monthly unique paid traders for {companyName}</p>
           </div>
         </div>
 
@@ -281,29 +246,6 @@ const CompanyCombinedPaymentChart = ({ companyName }: CompanyCombinedPaymentChar
 
       <ResponsiveContainer width="100%" height={500}>
         <ComposedChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
-          {/* Gradient Definition for Cumulative Amount */}
-          <defs>
-            <linearGradient id="cumulativeAmountGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#5a3e00" stopOpacity={0.3} />
-              <stop offset="100%" stopColor="#5a3e00" stopOpacity={0} />
-            </linearGradient>
-          </defs>
-
-          <ReferenceLine
-            yAxisId="left"
-            y={averageMonthlyPayment}
-            stroke="#5a3e00"
-            strokeDasharray="5 5"
-            strokeWidth={3}
-            label={{
-              value: "AVG",
-              position: "right",
-              fill: "#5a3e00",
-              fontSize: 14,
-              fontFamily: "Balboa",
-            }}
-          />
-
           <CartesianGrid strokeDasharray="3 3" stroke="#1F1F1F" vertical={true} horizontal={true} />
 
           <XAxis
@@ -317,40 +259,46 @@ const CompanyCombinedPaymentChart = ({ companyName }: CompanyCombinedPaymentChar
 
           <YAxis
             yAxisId="left"
-            orientation="left"
-            tickFormatter={(value) => `$${value}M`}
+            tickFormatter={(value) => value.toLocaleString()}
             tick={{ fontFamily: "Balboa", fill: "#666666", fontSize: 14 }}
             domain={[0, "auto"]}
             stroke="#444"
           />
 
-          <YAxis
-            yAxisId="right"
-            orientation="right"
-            tickFormatter={(value) => `$${value}M`}
-            tick={{ fontFamily: "Balboa", fill: "#666666", fontSize: 14 }}
-            domain={[0, "auto"]}
-            stroke="#444"
-          />
+          <defs>
+            <linearGradient id="uniquePaidTradersGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#5a3e00" stopOpacity={0.3} />
+              <stop offset="100%" stopColor="#5a3e00" stopOpacity={0} />
+            </linearGradient>
+          </defs>
 
-          <Tooltip content={CustomTooltip} cursor={{ fill: "rgba(255, 191, 0, 0.2)" }} />
+          <Area yAxisId="left" dataKey="uniquePaidTraders" stroke="none" fill="url(#uniquePaidTradersGradient)" />
 
-          {/* Cumulative Amount Area with Gradient */}
-          <Area
-            yAxisId="right"
-            type="monotone"
-            dataKey="cumulativeAmount"
-            stroke="#ffb700"
-            fill="url(#cumulativeAmountGradient)"
-          />
-
-          {/* Monthly Amount Bars */}
-          <Bar
+          <ReferenceLine
             yAxisId="left"
-            dataKey="monthlyAmount"
-            fill="#ffb700"
-            radius={[10, 10, 0, 0]}
-            activeBar={{ fill: "#c99400" }} // Darker yellow on hover
+            y={averageMonthlyPaidTraders}
+            stroke="#5a3e00"
+            strokeDasharray="5 5"
+            strokeWidth={3}
+            label={{
+              value: "AVG",
+              position: "right",
+              fill: "#5a3e00",
+              fontSize: 14,
+              fontFamily: "Balboa",
+            }}
+          />
+
+          <Tooltip content={CustomTooltip} />
+
+          <Line
+            yAxisId="left"
+            dataKey="uniquePaidTraders"
+            stroke="#ffb700"
+            strokeWidth={3}
+            dot={{ fill: "#ffb700", r: 5 }}
+            activeDot={{ r: 8 }}
+            type="monotone"
           />
         </ComposedChart>
       </ResponsiveContainer>
@@ -358,12 +306,16 @@ const CompanyCombinedPaymentChart = ({ companyName }: CompanyCombinedPaymentChar
       <div className="mt-4 text-white text-xs px-6">
         <p>{dateRangeText}</p>
         <p className="mt-1">
-          Average monthly payment: ${averageMonthlyPayment}M | Total cumulative amount: ${totalCumulativeAmount}M
+          Average monthly unique paid traders:{" "}
+          {Number(averageMonthlyPaidTraders).toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })}
         </p>
       </div>
     </div>
   )
 }
 
-export default CompanyCombinedPaymentChart
+export default CompanyMonthlyUniquePaidTradersChart
 
