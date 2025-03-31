@@ -25,61 +25,60 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     console.log(`[API] Fetching stats for company: ${company}`)
 
-    // Call the stored procedure directly with the two required parameters
-    const [stats24h, stats7d, stats30d, statsAll] = await Promise.all([
-      supabase.rpc("get_transaction_stats_by_company", {
-        company_name: company, // Changed parameter name to match your function
-        period: "24h",
-      }),
-      supabase.rpc("get_transaction_stats_by_company", {
-        company_name: company, // Changed parameter name to match your function
-        period: "7d",
-      }),
-      supabase.rpc("get_transaction_stats_by_company", {
-        company_name: company, // Changed parameter name to match your function
-        period: "30d",
-      }),
-      supabase.rpc("get_transaction_stats_by_company", {
-        company_name: company, // Changed parameter name to match your function
-        period: "all",
-      }),
-    ])
+    // Use a single query approach with direct SQL
+    const { data: stats24h, error: error24h } = await supabase
+      .from("transactions_stats") // Use your actual table name
+      .select("*")
+      .eq("company_name", company)
+      .eq("period", "24h")
+      .limit(1)
+
+    const { data: stats7d, error: error7d } = await supabase
+      .from("transactions_stats") // Use your actual table name
+      .select("*")
+      .eq("company_name", company)
+      .eq("period", "7d")
+      .limit(1)
+
+    const { data: stats30d, error: error30d } = await supabase
+      .from("transactions_stats") // Use your actual table name
+      .select("*")
+      .eq("company_name", company)
+      .eq("period", "30d")
+      .limit(1)
+
+    const { data: statsAll, error: errorAll } = await supabase
+      .from("transactions_stats") // Use your actual table name
+      .select("*")
+      .eq("company_name", company)
+      .eq("period", "all")
+      .limit(1)
 
     // Log the results for debugging
-    console.log("[API] 24h stats data:", stats24h.data)
-    console.log("[API] 24h stats error:", stats24h.error)
-    console.log("[API] 7d stats data:", stats7d.data)
-    console.log("[API] 7d stats error:", stats7d.error)
-    console.log("[API] 30d stats data:", stats30d.data)
-    console.log("[API] 30d stats error:", stats30d.error)
-    console.log("[API] all stats data:", statsAll.data)
-    console.log("[API] all stats error:", statsAll.error)
+    console.log("[API] 24h stats:", { data: stats24h, error: error24h })
+    console.log("[API] 7d stats:", { data: stats7d, error: error7d })
+    console.log("[API] 30d stats:", { data: stats30d, error: error30d })
+    console.log("[API] all stats:", { data: statsAll, error: errorAll })
 
-    if (stats24h.error || stats7d.error || stats30d.error || statsAll.error) {
-      console.error("[API] One or more Supabase errors:", {
-        stats24h: stats24h.error,
-        stats7d: stats7d.error,
-        stats30d: stats30d.error,
-        statsAll: statsAll.error,
-      })
-
+    // Check for errors
+    if (error24h || error7d || error30d || errorAll) {
       return res.status(500).json({
-        error: "Error fetching data from stored procedure",
+        error: "Error fetching data from database",
         details: {
-          stats24h: stats24h.error,
-          stats7d: stats7d.error,
-          stats30d: stats30d.error,
-          statsAll: statsAll.error,
+          error24h,
+          error7d,
+          error30d,
+          errorAll,
         },
       })
     }
 
     // Return the data
     return res.status(200).json({
-      "24h": stats24h.data?.[0] || null,
-      "7d": stats7d.data?.[0] || null,
-      "30d": stats30d.data?.[0] || null,
-      all: statsAll.data?.[0] || null,
+      "24h": stats24h?.[0] || null,
+      "7d": stats7d?.[0] || null,
+      "30d": stats30d?.[0] || null,
+      all: statsAll?.[0] || null,
     })
   } catch (err) {
     console.error("[API] Unexpected Error:", err)
