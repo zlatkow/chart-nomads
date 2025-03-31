@@ -23,18 +23,36 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: "Missing 'company' query parameter" })
     }
 
-    console.log(`Fetching stats for company: ${company}`)
+    console.log(`[API] Fetching stats for company: ${company}`)
+    console.log(`[API] Using Supabase URL: ${supabaseUrl?.substring(0, 15)}...`)
+    console.log(`[API] Service Role Key exists: ${!!supabaseKey}`)
 
     // Check if the stored procedure exists
+    console.log(`[API] Checking if stored procedure exists...`)
     const { data: procedureCheck, error: procedureError } = await supabase.rpc("check_function_exists", {
       function_name: "get_transaction_stats_by_company",
     })
 
-    if (procedureError || !procedureCheck) {
-      console.error("Error checking for stored procedure:", procedureError)
+    console.log(`[API] Procedure check result:`, procedureCheck)
 
-      // If the stored procedure doesn't exist, return mock data for testing
+    if (procedureError) {
+      console.error("[API] Error checking for stored procedure:", procedureError)
       return res.status(200).json({
+        error: "Failed to check if stored procedure exists",
+        details: procedureError,
+        mockData: true,
+        "24h": mockCompanyStats(company, "24h"),
+        "7d": mockCompanyStats(company, "7d"),
+        "30d": mockCompanyStats(company, "30d"),
+        all: mockCompanyStats(company, "all"),
+      })
+    }
+
+    if (!procedureCheck) {
+      console.log("[API] Stored procedure does not exist, returning mock data")
+      return res.status(200).json({
+        error: "Stored procedure does not exist",
+        mockData: true,
         "24h": mockCompanyStats(company, "24h"),
         "7d": mockCompanyStats(company, "7d"),
         "30d": mockCompanyStats(company, "30d"),
@@ -43,6 +61,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // If the procedure exists, try to call it
+    console.log(`[API] Calling stored procedure for company: ${company}`)
+
     const [stats24h, stats7d, stats30d, statsAll] = await Promise.all([
       supabase.rpc("get_transaction_stats_by_company", {
         input_propfirm_name: company,
@@ -63,13 +83,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     ])
 
     // Log the results for debugging
-    console.log("24h stats:", stats24h.data)
-    console.log("7d stats:", stats7d.data)
-    console.log("30d stats:", stats30d.data)
-    console.log("all stats:", statsAll.data)
+    console.log("[API] 24h stats data length:", stats24h.data?.length || 0)
+    console.log("[API] 7d stats data length:", stats7d.data?.length || 0)
+    console.log("[API] 30d stats data length:", stats30d.data?.length || 0)
+    console.log("[API] all stats data length:", statsAll.data?.length || 0)
 
     if (stats24h.error || stats7d.error || stats30d.error || statsAll.error) {
-      console.error("One or more Supabase errors:", {
+      console.error("[API] One or more Supabase errors:", {
         stats24h: stats24h.error,
         stats7d: stats7d.error,
         stats30d: stats30d.error,
@@ -78,6 +98,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       // Return mock data if there are errors
       return res.status(200).json({
+        error: "Error fetching data from stored procedure",
+        details: {
+          stats24h: stats24h.error,
+          stats7d: stats7d.error,
+          stats30d: stats30d.error,
+          statsAll: statsAll.error,
+        },
+        mockData: true,
         "24h": mockCompanyStats(company, "24h"),
         "7d": mockCompanyStats(company, "7d"),
         "30d": mockCompanyStats(company, "30d"),
@@ -87,7 +115,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // If we have real data, return it
     if (stats24h.data?.length || stats7d.data?.length || stats30d.data?.length || statsAll.data?.length) {
+      console.log("[API] Returning real data from database")
       return res.status(200).json({
+        mockData: false,
         "24h": stats24h.data?.[0] || null,
         "7d": stats7d.data?.[0] || null,
         "30d": stats30d.data?.[0] || null,
@@ -96,15 +126,26 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // If no data was returned, use mock data
+    console.log("[API] No data returned from database, using mock data")
     return res.status(200).json({
+      error: "No data found for this company",
+      mockData: true,
       "24h": mockCompanyStats(company, "24h"),
       "7d": mockCompanyStats(company, "7d"),
       "30d": mockCompanyStats(company, "30d"),
       all: mockCompanyStats(company, "all"),
     })
   } catch (err) {
-    console.error("Unexpected Error:", err)
-    return res.status(500).json({ error: "Internal Server Error" })
+    console.error("[API] Unexpected Error:", err)
+    return res.status(500).json({
+      error: "Internal Server Error",
+      details: err instanceof Error ? err.message : String(err),
+      mockData: true,
+      "24h": mockCompanyStats(req.query.company as string, "24h"),
+      "7d": mockCompanyStats(req.query.company as string, "7d"),
+      "30d": mockCompanyStats(req.query.company as string, "30d"),
+      all: mockCompanyStats(req.query.company as string, "all"),
+    })
   }
 }
 
