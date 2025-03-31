@@ -766,11 +766,10 @@ function PropFirmUI({ firm, ratingBreakdown, formatCurrency }: PropFirmUIProps) 
                     <p className="text-gray-400">No data available at the moment.</p>
                   </div>
                 </TabsContent>
-                // Find the TabsContent for stats and replace the content with:
                 <TabsContent value="stats" className="mt-0">
                   <div className="bg-[#0f0f0f] rounded-lg p-6">
                     <h2 className="text-3xl text-[#edb900] font-bold mb-4">Payout Stats</h2>
-                    // Then find the company-specific stats section in the stats tab and replace it with:
+
                     {/* Company-specific stats section */}
                     <div className="w-full mb-12">
                       {firm && firm.propfirm_name ? (
@@ -782,7 +781,7 @@ function PropFirmUI({ firm, ratingBreakdown, formatCurrency }: PropFirmUIProps) 
                             </h3>
                           </div>
 
-                          {/* Use the new CompanyStatsDisplay component */}
+                          {/* Use the CompanyStatsSlider component */}
                           <CompanyStatsDisplay companyName={firm.propfirm_name} />
                         </>
                       ) : (
@@ -791,6 +790,7 @@ function PropFirmUI({ firm, ratingBreakdown, formatCurrency }: PropFirmUIProps) 
                         </div>
                       )}
                     </div>
+
                     {/* Industry-wide stats section */}
                     <div className="w-full mt-12 pt-8 border-t border-gray-800">
                       <div className="flex items-center mb-6">
@@ -826,7 +826,6 @@ function PropFirmUI({ firm, ratingBreakdown, formatCurrency }: PropFirmUIProps) 
                     <p className="text-gray-400">No news available at the moment.</p>
                   </div>
                 </TabsContent>
-                {/* Then in the Reviews tab content section, replace: */}
                 <TabsContent value="reviews">
                   <div className="bg-[#0f0f0f] rounded-lg p-6">
                     <ReviewSystem

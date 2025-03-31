@@ -9,6 +9,7 @@ const CompanyStatsSlider = ({ companyName }) => {
   const [loading, setLoading] = useState(true)
   const [isHovered, setIsHovered] = useState(false)
   const [statsData, setStatsData] = useState(null)
+  const [error, setError] = useState(null)
 
   // Array of headings for each slide
   const slideHeadings = ["Last 24 Hours", "Last 7 Days", "Last 30 Days", "All Time"]
@@ -20,6 +21,9 @@ const CompanyStatsSlider = ({ companyName }) => {
 
       try {
         setLoading(true)
+        setError(null)
+        console.log(`Fetching stats for company: ${companyName}`)
+
         const response = await fetch(`/api/getCompanyAllStats?company=${encodeURIComponent(companyName)}`)
 
         if (!response.ok) {
@@ -27,6 +31,7 @@ const CompanyStatsSlider = ({ companyName }) => {
         }
 
         const data = await response.json()
+        console.log("Received company stats data:", data)
 
         // Transform API response to match expected format
         const transformedData = {
@@ -38,9 +43,10 @@ const CompanyStatsSlider = ({ companyName }) => {
 
         setStatsData(transformedData)
         // Add a small delay to show loading animation
-        setTimeout(() => setLoading(false), 1000)
+        setTimeout(() => setLoading(false), 500)
       } catch (error) {
         console.error("Error fetching company stats:", error)
+        setError(error.message)
         setLoading(false)
       }
     }
@@ -57,7 +63,7 @@ const CompanyStatsSlider = ({ companyName }) => {
   useEffect(() => {
     const interval = setInterval(() => {
       if (!loading && !isHovered && slides.length > 0) handleNext()
-    }, 2000)
+    }, 3000)
     return () => clearInterval(interval)
   }, [currentSlide, loading, isHovered, slides.length])
 
@@ -76,19 +82,23 @@ const CompanyStatsSlider = ({ companyName }) => {
     )
   }
 
+  if (error) {
+    return (
+      <div className="relative w-full bg-[#0f0f0f] rounded-lg p-6 mb-[50px]">
+        <div className="text-center py-6">
+          <p className="text-red-500 mb-4">Error loading stats: {error}</p>
+          <p className="text-gray-400">We're working on getting the latest stats for {companyName}.</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div
       className="relative w-full bg-[#0f0f0f] rounded-lg p-6 mb-[50px]"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Company Name Header */}
-      <div className="mb-4">
-        <h1 className="text-2xl text-white font-bold">
-          <span className="text-[#edb900]">{companyName}</span> Stats
-        </h1>
-      </div>
-
       {/* Loading Indicator */}
       {loading ? (
         <div className="flex flex-col items-center justify-center py-10">
