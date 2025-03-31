@@ -33,7 +33,7 @@ const CompanyCombinedPaymentChart = ({ companyName }: CompanyCombinedPaymentChar
     const fetchData = async () => {
       try {
         console.log(`Fetching data for company: ${companyName}`)
-        const response = await fetch(`/api/company-stats?company=${encodeURIComponent(companyName)}&dataType=monthly`)
+        const response = await fetch(`/api/getCompanyAllStats?company=${encodeURIComponent(companyName)}&dataType=monthly`)
         const data = await response.json()
         console.log("API response:", data)
         setMonthlyStats(data.monthly || [])
