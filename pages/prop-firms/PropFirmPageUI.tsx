@@ -40,6 +40,11 @@ import Offers from "../../components/Offers"
 import Footer from "../../components/Footer"
 import CommentSection from "../../components/comment-section"
 import ReviewSystem from "../../components/review-system"
+// Import the stats components
+import useFetchStats from "../../webhooks/useFetchStats"
+import IndustryStatsSlider from "../../components/industry-stats-page/IndustryStatsSlider"
+import StatsTabs from "../../components/industry-stats-page/StatsTabs"
+import StatsTabContent from "../../components/industry-stats-page/StatsTabContent"
 
 // Import the NoiseProvider
 import { useNoise } from "../../components/providers/noise-provider"
@@ -103,6 +108,10 @@ function PropFirmUI({ firm, ratingBreakdown, formatCurrency }: PropFirmUIProps) 
   const highlightReviewId = searchParams.get("highlight")
   const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "overview")
 
+  // Add stats related state
+  const { stats, loading } = useFetchStats()
+  const [statsActiveTab, setStatsActiveTab] = useState("stats")
+
   // Add this useEffect to update the active tab when the URL changes
   useEffect(() => {
     const tab = searchParams.get("tab") || "overview"
@@ -134,6 +143,57 @@ function PropFirmUI({ firm, ratingBreakdown, formatCurrency }: PropFirmUIProps) 
   const { setShowLoginModal } = modalContext || {
     setShowLoginModal: () => console.error("setShowLoginModal not available"),
   }
+
+  // Prepare stats data for the slider
+  const statsData = stats
+    ? {
+        last24Hours: {
+          totalAmount: stats?.transactions24h?.[0]?.totalamount || 0,
+          totalAmountChange: stats?.transactions24h?.[0]?.totalamountchange || "0%",
+          totalTransactions: stats?.transactions24h?.[0]?.totaltransactions || 0,
+          totalTransactionsChange: stats?.transactions24h?.[0]?.totaltransactionschange || "0%",
+          uniqueTraders: stats?.transactions24h?.[0]?.uniquetraders || 0,
+          uniqueTradersChange: stats?.transactions24h?.[0]?.uniquetraderschange || "0%",
+          averagePayout: stats?.transactions24h?.[0]?.averagepayout || 0,
+          largestPayout: stats?.transactions24h?.[0]?.largestpayout || 0,
+          avgTransactionsPerTrader: stats?.transactions24h?.[0]?.avgtransactionspertrader || 0,
+          timeSinceLastTransaction: stats?.transactions24h?.[0]?.timesincelasttransaction || "N/A",
+        },
+        last7Days: {
+          totalAmount: stats?.transactions7d?.[0]?.totalamount || 0,
+          totalAmountChange: stats?.transactions7d?.[0]?.totalamountchange || "0%",
+          totalTransactions: stats?.transactions7d?.[0]?.totaltransactions || 0,
+          totalTransactionsChange: stats?.transactions7d?.[0]?.totaltransactionschange || "0%",
+          uniqueTraders: stats?.transactions7d?.[0]?.uniquetraders || 0,
+          uniqueTradersChange: stats?.transactions7d?.[0]?.uniquetraderschange || "0%",
+          averagePayout: stats?.transactions7d?.[0]?.averagepayout || 0,
+          largestPayout: stats?.transactions7d?.[0]?.largestpayout || 0,
+          avgTransactionsPerTrader: stats?.transactions7d?.[0]?.avgtransactionspertrader || 0,
+          timeSinceLastTransaction: stats?.transactions7d?.[0]?.timesincelasttransaction || "N/A",
+        },
+        last30Days: {
+          totalAmount: stats?.transactions30d?.[0]?.totalamount || 0,
+          totalAmountChange: stats?.transactions30d?.[0]?.totalamountchange || "0%",
+          totalTransactions: stats?.transactions30d?.[0]?.totaltransactions || 0,
+          totalTransactionsChange: stats?.transactions30d?.[0]?.totaltransactionschange || "0%",
+          uniqueTraders: stats?.transactions30d?.[0]?.uniquetraders || 0,
+          uniqueTradersChange: stats?.transactions30d?.[0]?.uniquetraderschange || "0%",
+          averagePayout: stats?.transactions30d?.[0]?.averagepayout || 0,
+          largestPayout: stats?.transactions30d?.[0]?.largestpayout || 0,
+          avgTransactionsPerTrader: stats?.transactions30d?.[0]?.avgtransactionspertrader || 0,
+          timeSinceLastTransaction: stats?.transactions30d?.[0]?.timesincelasttransaction || "N/A",
+        },
+        sinceStart: {
+          totalAmount: stats?.allTransactions?.[0]?.totalamount || 0,
+          totalTransactions: stats?.allTransactions?.[0]?.totaltransactions || 0,
+          uniqueTraders: stats?.allTransactions?.[0]?.uniquetraders || 0,
+          averagePayout: stats?.allTransactions?.[0]?.averagepayout || 0,
+          largestPayout: stats?.allTransactions?.[0]?.largestpayout || 0,
+          avgTransactionsPerTrader: stats?.allTransactions?.[0]?.avgtransactionspertrader || 0,
+          timeSinceLastTransaction: stats?.allTransactions?.[0]?.timesincelasttransaction || "N/A",
+        },
+      }
+    : null
 
   // Memoize the firmId to prevent it from changing on every render
   const firmId = firm?.id || null
@@ -708,7 +768,27 @@ function PropFirmUI({ firm, ratingBreakdown, formatCurrency }: PropFirmUIProps) 
                 <TabsContent value="stats" className="mt-0">
                   <div className="bg-[#0f0f0f] rounded-lg p-6">
                     <h2 className="text-xl font-bold mb-4">Payout Stats</h2>
-                    <p className="text-gray-400">No data available at the moment.</p>
+
+                    {/* Add the industry stats components here */}
+                    <div className="w-full flex justify-center items-center flex-col">
+                      {statsData && <IndustryStatsSlider statsData={statsData} />}
+
+                      {!loading && (
+                        <div className="w-full mt-8">
+                          <div className="flex justify-left mx-auto">
+                            <StatsTabs activeTab={statsActiveTab} onTabChange={setStatsActiveTab} />
+                          </div>
+                          {/* Tab content */}
+                          <StatsTabContent activeTab={statsActiveTab} stats={stats} />
+                        </div>
+                      )}
+
+                      {loading && (
+                        <div className="flex justify-center py-10">
+                          <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-[#edb900]"></div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </TabsContent>
 

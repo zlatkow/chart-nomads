@@ -892,7 +892,7 @@ export default function ReviewList({
 
             {showAuthMessage && (
               <div className="absolute top-full left-0 w-[700px] mt-2 bg-[#edb900] text-[#0f0f0f] p-4 rounded-lg z-10">
-                <h3 className="font-bold text-xl mb-2">Action required!</h3>
+                <h3 className="font-bold text-2xl mb-2">Action required!</h3>
                 <p className="mb-4">
                   We take reviews on our platform very seriously, ensuring they are authentic and trustworthy. To
                   maintain this standard, only registered users can leave reviews.
