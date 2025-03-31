@@ -774,13 +774,6 @@ function PropFirmUI({ firm, ratingBreakdown, formatCurrency }: PropFirmUIProps) 
                     <div className="w-full mb-12">
                       {firm && firm.propfirm_name ? (
                         <>
-                          <div className="flex items-center mb-6">
-                            <div className="w-1 h-8 bg-[#edb900] mr-3"></div>
-                            <h3 className="text-2xl text-white font-bold">
-                              {firm.propfirm_name} <span className="text-[#edb900]">Stats</span>
-                            </h3>
-                          </div>
-
                           {/* Use the CompanyStatsSlider component */}
                           <CompanyStatsSlider companyName={firm.propfirm_name} />
                         </>
