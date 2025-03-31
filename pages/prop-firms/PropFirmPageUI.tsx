@@ -50,8 +50,8 @@ import StatsTabContent from "../../components/industry-stats-page/StatsTabConten
 import { useNoise } from "../../components/providers/noise-provider"
 import { ModalContext } from "../../pages/_app"
 
-// Find the import section and add:
-import CompanyStatsDisplay from "../../components/company-stats-display"
+// Import the company stats slider component
+import CompanyStatsSlider from "../../components/company-stats-slider"
 
 // Define types for the firm and rating data
 interface Firm {
@@ -782,7 +782,7 @@ function PropFirmUI({ firm, ratingBreakdown, formatCurrency }: PropFirmUIProps) 
                           </div>
 
                           {/* Use the CompanyStatsSlider component */}
-                          <CompanyStatsDisplay companyName={firm.propfirm_name} />
+                          <CompanyStatsSlider companyName={firm.propfirm_name} />
                         </>
                       ) : (
                         <div className="text-center py-10">
@@ -793,12 +793,6 @@ function PropFirmUI({ firm, ratingBreakdown, formatCurrency }: PropFirmUIProps) 
 
                     {/* Industry-wide stats section */}
                     <div className="w-full mt-12 pt-8 border-t border-gray-800">
-                      <div className="flex items-center mb-6">
-                        <div className="w-1 h-8 bg-[#edb900] mr-3"></div>
-                        <h3 className="text-2xl text-white font-bold">
-                          Industry-Wide <span className="text-[#edb900]">Stats</span>
-                        </h3>
-                      </div>
 
                       {statsData && <IndustryStatsSlider statsData={statsData} />}
 
