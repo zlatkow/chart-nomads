@@ -111,7 +111,6 @@ export default function HighEarnersLeaderboard({ companyName }) {
 
   return (
     <div className="w-full py-6">
-      <h1 className="text-2xl font-bold text-white mb-4">Top Traders for {companyName}</h1>
       {/* Custom styles for Tippy tooltips */}
       <style jsx global>{`
         .tippy-box[data-theme~='dark'] {
@@ -130,7 +129,7 @@ export default function HighEarnersLeaderboard({ companyName }) {
         {["top_by_payouts", "top_by_amount"].map((key, categoryIndex) => {
           const title = key === "top_by_payouts" ? "High Earners by Payout Count" : "High Earners by Total Amount"
           const subtitle =
-            key === "top_by_payouts" ? "Top 50 High Earners by Payout Count" : "Top 50 High Earners by Total Amount"
+            key === "top_by_payouts" ? "Top 10 High Earners by Payout Count" : "Top 10 High Earners by Total Amount"
           const timeRange = key === "top_by_payouts" ? timeRangePayouts : timeRangeAmount
           const setTimeRange = key === "top_by_payouts" ? setTimeRangePayouts : setTimeRangeAmount
 

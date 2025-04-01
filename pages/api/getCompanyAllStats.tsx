@@ -320,34 +320,52 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         })
       }
     } else if (dataType === "topTraders") {
-        try {
-          console.log(`[API] Fetching top traders for company: ${company || "all"}, timeFilter: ${timeFilter}`)
-    
-          const { data, error } = await supabase.rpc("fetch_top_10_traders", {
-            timefilter: timeFilter,
-            companynameparam: company || "all",
-          })
-    
-          if (error) {
-            console.error("[API] Error fetching top traders:", error)
-            return res.status(500).json({
-              error: "Error fetching top traders",
-              details: error,
-            })
-          }
-    
-          return res.status(200).json({
-            topByPayouts: data?.top_by_payouts || [],
-            topByAmount: data?.top_by_amount || [],
-          })
-        } catch (error) {
-          console.error("[API] Unexpected error in topTraders:", error)
+      try {
+        console.log(`[API] Fetching top traders for company: ${company || "all"}, timeFilter: ${timeFilter}`)
+
+        const { data, error } = await supabase.rpc("fetch_top_10_traders", {
+          timeFilter: timeFilter, // Match the exact parameter name from your SQL function
+          companyNameParam: company || "all", // Match the exact parameter name from your SQL function
+        })
+
+        if (error) {
+          console.error("[API] Error fetching top traders:", error)
           return res.status(500).json({
-            error: "Unexpected error processing top traders",
-            details: error instanceof Error ? error.message : String(error),
+            error: "Error fetching top traders",
+            details: error,
           })
         }
-      } else {
+
+        console.log("[API] Raw top traders data:", data)
+
+        // The data returned by the function is a single row with two JSONB columns
+        if (!data || data.length === 0) {
+          console.log("[API] No data returned from top traders RPC")
+          return res.status(200).json({
+            topByPayouts: [],
+            topByAmount: [],
+          })
+        }
+
+        // Extract the arrays from the JSONB columns
+        const topByPayouts = data[0].top_by_payouts || []
+        const topByAmount = data[0].top_by_amount || []
+
+        console.log("[API] Extracted topByPayouts count:", topByPayouts.length)
+        console.log("[API] Extracted topByAmount count:", topByAmount.length)
+
+        return res.status(200).json({
+          topByPayouts,
+          topByAmount,
+        })
+      } catch (error) {
+        console.error("[API] Unexpected error in topTraders:", error)
+        return res.status(500).json({
+          error: "Unexpected error processing top traders",
+          details: error instanceof Error ? error.message : String(error),
+        })
+      }
+    } else {
       // Original functionality for regular stats
       const [stats24h, stats7d, stats30d, statsAll] = await Promise.all([
         supabase.rpc("get_transaction_stats_by_company", {
