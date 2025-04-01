@@ -337,8 +337,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           }
     
           return res.status(200).json({
-            topByPayouts: data?.top_by_payouts || [],
-            topByAmount: data?.top_by_amount || [],
+            topByPayouts: data?.[0]?.top_by_payouts || [],
+            topByAmount: data?.[0]?.top_by_amount || [],          
           })
         } catch (error) {
           console.error("[API] Unexpected error in topTraders:", error)
