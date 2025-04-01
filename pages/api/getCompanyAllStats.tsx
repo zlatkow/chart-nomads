@@ -324,8 +324,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           console.log(`[API] Fetching top traders for company: ${company || "all"}, timeFilter: ${timeFilter}`)
     
           const { data, error } = await supabase.rpc("fetch_top_10_traders", {
-            timeFilter: timeFilter,
-            companyNameParam: company || "all",
+            timefilter: timeFilter,
+            companynameparam: company || "all",
           })
     
           if (error) {
