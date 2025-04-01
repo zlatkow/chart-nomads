@@ -1,17 +1,7 @@
 "use client"
 
-import type React from "react"
-
 import { useState, useEffect } from "react"
-import {
-  ArrowDownIcon,
-  ArrowUpIcon,
-  ArrowUpDown,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  Search,
-  ArrowRightLeft,
-} from "lucide-react"
+import { ArrowDownIcon, ArrowUpIcon, ArrowUpDown, ChevronLeftIcon, ChevronRightIcon, Search, ArrowRightLeft } from 'lucide-react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -29,7 +19,12 @@ type Transaction = {
   logo_url?: string
 }
 
-export default function AllTransactions({ transactions: initialTransactions }: { transactions?: Transaction[] }) {
+interface CompanyAllTransactionsProps {
+  transactions?: Transaction[]
+  companyName?: string
+}
+
+export default function CompanyAllTransactions({ transactions: initialTransactions, companyName }: CompanyAllTransactionsProps) {
   // State variables
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [loading, setLoading] = useState(false)
@@ -71,8 +66,11 @@ export default function AllTransactions({ transactions: initialTransactions }: {
 
       // Keep fetching until we get all transactions
       while (!allFetched) {
+        // If companyName is provided, include it in the API request
+        const companyParam = companyName ? `&companyName=${encodeURIComponent(companyName)}` : ''
+        
         const res = await fetch(
-          `/api/getCompanyAllStats?limitRows=1000&offsetRows=${offset}&timeFilter=last_7_days&searchQuery=${encodeURIComponent(searchQuery)}`,
+          `/api/getCompanyAllStats?limitRows=1000&offsetRows=${offset}&timeFilter=last_7_days&searchQuery=${encodeURIComponent(searchQuery)}${companyParam}`,
         )
 
         if (!res.ok) throw new Error("Failed to fetch transactions")
@@ -108,14 +106,16 @@ export default function AllTransactions({ transactions: initialTransactions }: {
   // Initial data fetch
   useEffect(() => {
     fetchAllTransactions()
-  }, []) // Empty dependency array means this only runs once on mount
+  }, [companyName]) // Refetch when companyName changes
 
   // Apply search filter and sorting
   useEffect(() => {
     // Filter transactions by search query
     let filtered = [...transactions]
     if (searchQuery.trim() !== "") {
-      filtered = filtered.filter((tx) => tx.company.toLowerCase().includes(searchQuery.toLowerCase()))
+      filtered = filtered.filter((tx) => 
+        tx.company.toLowerCase().includes(searchQuery.toLowerCase())
+      )
     }
 
     // Sort filtered transactions
@@ -125,9 +125,13 @@ export default function AllTransactions({ transactions: initialTransactions }: {
           ? new Date(a.transaction_timestamp).getTime() - new Date(b.transaction_timestamp).getTime()
           : new Date(b.transaction_timestamp).getTime() - new Date(a.transaction_timestamp).getTime()
       } else if (sortField === "company") {
-        return sortDirection === "asc" ? a.company.localeCompare(b.company) : b.company.localeCompare(a.company)
+        return sortDirection === "asc" 
+          ? a.company.localeCompare(b.company) 
+          : b.company.localeCompare(a.company)
       } else if (sortField === "payout_amount") {
-        return sortDirection === "asc" ? a.payout_amount - b.payout_amount : b.payout_amount - a.payout_amount
+        return sortDirection === "asc" 
+          ? a.payout_amount - b.payout_amount 
+          : b.payout_amount - a.payout_amount
       }
       return 0
     })
@@ -156,10 +160,12 @@ export default function AllTransactions({ transactions: initialTransactions }: {
           <div>
             <div className="flex">
               <ArrowRightLeft className="h-5 w-5 mr-2 mt-2 text-[#edb900]" />
-              <h2 className="text-3xl font-[balboa] text-white">Recent transactions</h2>
+              <h2 className="text-3xl font-[balboa] text-white">
+                {companyName ? `${companyName} Transactions` : "Recent transactions"}
+              </h2>
             </div>
             <div>
-              <p className="text-[#666666]">Browse through most recent payouts in the industry</p>
+              <p className="text-[#666666]">Browse through most recent payouts {companyName ? `for ${companyName}` : "in the industry"}</p>
             </div>
           </div>
           <div className="w-[300px]">
@@ -360,20 +366,20 @@ export default function AllTransactions({ transactions: initialTransactions }: {
             </Button>
             <div className="flex items-center gap-1">
               {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                let pageNumber
+                let pageNumber;
 
                 if (totalPages <= 5) {
                   // If we have 5 or fewer pages, show all page numbers
-                  pageNumber = i + 1
+                  pageNumber = i + 1;
                 } else if (page <= 3) {
                   // If we're near the start, show pages 1-5
-                  pageNumber = i + 1
+                  pageNumber = i + 1;
                 } else if (page >= totalPages - 2) {
                   // If we're near the end, show the last 5 pages
-                  pageNumber = totalPages - 4 + i
+                  pageNumber = totalPages - 4 + i;
                 } else {
                   // Otherwise show 2 pages before and 2 pages after the current page
-                  pageNumber = page - 2 + i
+                  pageNumber = page - 2 + i;
                 }
 
                 return (
@@ -390,7 +396,7 @@ export default function AllTransactions({ transactions: initialTransactions }: {
                   >
                     {pageNumber}
                   </Button>
-                )
+                );
               })}
             </div>
             <Button
@@ -409,4 +415,3 @@ export default function AllTransactions({ transactions: initialTransactions }: {
     </Card>
   )
 }
-
