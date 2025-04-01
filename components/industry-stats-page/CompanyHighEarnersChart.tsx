@@ -168,19 +168,6 @@ export default function PayoutStatsChart({ companyName }: PayoutStatsChartProps)
   }
 
   return (
-    <div className="bg-[#0f0f0f] text-white rounded-lg border-[1px] border-[#666666] mb-[50px] p-6">
-      <div className="flex justify-between items-center mb-6 border-b-[1px] border-[#666666] pb-6">
-        <div>
-          <div className="flex">
-            <DollarSign className="h-5 w-5 mr-2 mt-1 text-[#edb900]" />
-            <h2 className="text-2xl font-[balboa]">{companyName} - High Earner Distribution</h2>
-          </div>
-          <div>
-            <p className="text-[#666666]">Distribution of traders by earnings for {companyName}</p>
-          </div>
-        </div>
-      </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full mt-8">
         {/* 🔶 High Earning Unique Traders (Amount) */}
         <Card className="bg-[#0f0f0f] font-[balboa] shadow-lg border border-[#666666]">
@@ -284,7 +271,6 @@ export default function PayoutStatsChart({ companyName }: PayoutStatsChartProps)
           </CardContent>
         </Card>
       </div>
-    </div>
   )
 }
 
