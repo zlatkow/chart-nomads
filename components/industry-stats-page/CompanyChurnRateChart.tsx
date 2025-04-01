@@ -193,7 +193,7 @@ const ChurnRateChart = ({ companyName, apiPath = "/api/getCompanyAllStats" }) =>
         <div>
           <div className="flex">
             <UserX className="h-5 w-5 mr-2 mt-1 text-[#edb900]" />
-            <h2 className="text-2xl font-[balboa]">{companyName} Churn Rate</h2>
+            <h2 className="text-2xl font-[balboa]">Churn Rate</h2>
           </div>
           <div>
             <p className="text-[#666666]">Historical paid traders churn rate for {companyName}</p>

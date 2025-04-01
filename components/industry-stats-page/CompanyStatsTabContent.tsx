@@ -55,7 +55,7 @@ const CompanyStatsTabContent = ({ activeTab, stats, companyName }: StatsTabConte
         <>
           <CompanyMonthlyTransactionChart companyName={companyName} />
           <CompanyTopPayouts companyName={companyName} />
-          {/* {stats.transactions && <AllTransactions transactions={stats.transactions} />} */}
+          {stats.transactions && <AllTransactions transactions={stats.transactions} />}
         </>
       )}
 

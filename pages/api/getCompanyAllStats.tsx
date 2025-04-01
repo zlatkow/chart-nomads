@@ -20,15 +20,66 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const company = req.query.company as string
     const dataType = (req.query.dataType as string) || "stats" // Default to "stats" if not specified
     const timeFilter = (req.query.timeFilter as string) || "all" // Default to "all" if not specified
+    const page = Number.parseInt(req.query.page as string) || 1
+    const limit = Number.parseInt(req.query.limit as string) || 10
 
-    if (!company) {
+    if (dataType === "transactions") {
+      try {
+        console.log(
+          `[API] Fetching transactions with timeFilter: ${timeFilter}, page: ${page}, limit: ${limit}, company: ${company || "all"}`,
+        )
+
+        // Calculate offset based on page and limit
+        const offset = (page - 1) * limit
+
+        // Call the SQL function using Supabase
+        const { data: transactions, error } = await supabase.rpc("fetch_transactions_by_timeframe", {
+          timefilter: timeFilter,
+          limitrows: limit,
+          offsetrows: offset,
+          companyfilter: company || null,
+        })
+
+        if (error) {
+          console.error("[API] Error fetching transactions:", error)
+          return res.status(500).json({
+            error: "Error fetching transaction data",
+            details: error,
+          })
+        }
+
+        // Extract pagination info from the first result (if available)
+        const pagination =
+          transactions && transactions.length > 0
+            ? {
+                total: transactions[0].total_count,
+                pages: transactions[0].page_count,
+                currentPage: page,
+                limit: limit,
+              }
+            : {
+                total: 0,
+                pages: 0,
+                currentPage: page,
+                limit: limit,
+              }
+
+        console.log(`[API] Found ${transactions?.length || 0} transactions, total: ${pagination.total}`)
+
+        return res.status(200).json({
+          transactions: transactions || [],
+          pagination,
+        })
+      } catch (error) {
+        console.error("[API] Unexpected error in transactions:", error)
+        return res.status(500).json({
+          error: "Unexpected error processing transactions",
+          details: error instanceof Error ? error.message : String(error),
+        })
+      }
+    } else if (!company) {
       return res.status(400).json({ error: "Missing 'company' query parameter" })
-    }
-
-    console.log(`[API] Fetching ${dataType} for company: ${company}, timeFilter: ${timeFilter}`)
-
-    // Handle different data types
-    if (dataType === "monthly") {
+    } else if (dataType === "monthly") {
       // Call the monthly stats function
       const { data: monthlyStats, error: monthlyError } = await supabase.rpc(
         "get_monthly_combined_transaction_stats_by_firm",
