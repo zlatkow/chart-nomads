@@ -2,333 +2,280 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Cell, Pie, PieChart, ResponsiveContainer, Sector } from "recharts"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Users, DollarSign } from "lucide-react"
+import {
+  Line,
+  ComposedChart,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  ReferenceLine,
+  Area,
+} from "recharts"
+import { UserX, Loader2 } from "lucide-react"
 
-interface PayoutStatsChartProps {
-  companyName: string
+// Function to format month-year as MM/YYYY
+const formatMonthYear = (monthYear) => {
+  if (!monthYear) return "??/????"
+
+  const parts = monthYear.trim().split(/\s+/)
+  if (parts.length !== 2) return "??/????"
+
+  const [monthName, year] = parts
+  const monthMap = {
+    January: "01",
+    February: "02",
+    March: "03",
+    April: "04",
+    May: "05",
+    June: "06",
+    July: "07",
+    August: "08",
+    September: "09",
+    October: "10",
+    November: "11",
+    December: "12",
+  }
+
+  return `${monthMap[monthName] || "??"}/${year}`
 }
 
-export default function PayoutStatsChart({ companyName }: PayoutStatsChartProps) {
-  const [activeIndexAmount, setActiveIndexAmount] = useState(null)
-  const [activeIndexCount, setActiveIndexCount] = useState(null)
-  const [donutStats, setDonutStats] = useState(null)
+const ChurnRateChart = ({ companyName, apiPath = "/api" }) => {
+  const [chartData, setChartData] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
   // Fetch data from the API
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        console.log(`Fetching donut stats for company: ${companyName}`)
-        const apiUrl = `/api/getCompanyAllStats?company=${encodeURIComponent(companyName)}&dataType=donutStats`
-        console.log(`API URL: ${apiUrl}`)
+    const fetchChurnRateData = async () => {
+      if (!companyName) {
+        setError("Company name is required")
+        setLoading(false)
+        return
+      }
 
-        const response = await fetch(apiUrl)
+      try {
+        setLoading(true)
+        setError(null)
+
+        // Log the API request for debugging
+        const url = `${apiPath}?company=${encodeURIComponent(companyName)}&dataType=churnRate`
+        console.log(`Fetching churn rate data from: ${url}`)
+
+        const response = await fetch(url)
+
+        // Log the response status for debugging
         console.log(`API response status: ${response.status}`)
 
         if (!response.ok) {
-          throw new Error(`API returned status ${response.status}`)
+          throw new Error(`API error: ${response.status}`)
         }
 
         const data = await response.json()
+
+        // Log the response data for debugging
         console.log("API response data:", data)
 
-        if (data.error) {
-          throw new Error(data.error)
+        if (!data.churnRate || !Array.isArray(data.churnRate) || data.churnRate.length === 0) {
+          setError("No churn rate data available for this company")
+          setLoading(false)
+          return
         }
 
-        setDonutStats(data.donutStats || null)
-        console.log(`Received donut stats data:`, data.donutStats)
-      } catch (error) {
-        console.error("Error fetching donut stats data:", error)
-        setError(error.message)
-      } finally {
+        // Process the data
+        const transformedData = data.churnRate
+          .map((entry) => ({
+            month: formatMonthYear(entry.month_year),
+            churnRate: Number.parseFloat(entry.churn_rate) || 0,
+            churnRateChange: Number.parseFloat(entry.churn_rate_change) || null,
+            activeUsers: entry.total_users_last_year,
+            activeUsersLast6Months: entry.active_users_last_6_months,
+          }))
+          .sort((a, b) => {
+            // Sorting oldest to newest - MM/YYYY format
+            const [aMonth, aYear] = a.month.split("/")
+            const [bMonth, bYear] = b.month.split("/")
+
+            // Create date objects (using the first day of each month)
+            return new Date(`${aYear}-${aMonth}-01`).getTime() - new Date(`${bYear}-${bMonth}-01`).getTime()
+          })
+
+        setChartData(transformedData)
+        setLoading(false)
+      } catch (err) {
+        console.error("Error fetching churn rate data:", err)
+        setError(`Failed to load churn rate data: ${err.message}`)
         setLoading(false)
       }
     }
 
-    if (companyName) {
-      fetchData()
-    } else {
-      console.warn("No company name provided")
-      setLoading(false)
-    }
-  }, [companyName])
+    // Call the function immediately
+    fetchChurnRateData()
+  }, [companyName, apiPath]) // Re-run when companyName or apiPath changes
 
-  // Handle loading state
+  // Calculate Average Churn Rate
+  const averageChurnRate = chartData.length
+    ? (chartData.reduce((sum, item) => sum + item.churnRate, 0) / chartData.length).toFixed(2)
+    : 0
+
+  // Tooltip Logic
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (!active || !payload || payload.length === 0) return null
+
+    const data = payload[0].payload
+    const churnRate = data.churnRate.toFixed(2)
+    const churnChange = data.churnRateChange
+    const activeUsers = data.activeUsers
+    const activeUsersLast6Months = data.activeUsersLast6Months
+
+    const formatPercent = (value) => {
+      if (value === null || isNaN(value)) return "—"
+      return (
+        <span className={`${value < 0 ? "text-green-400" : "text-red-400"}`}>
+          {value < 0 ? "▼" : "▲"} {Math.abs(value).toFixed(2)}%
+        </span>
+      )
+    }
+
+    return (
+      <div className="bg-black border border-[#666666] px-4 py-3 rounded shadow-lg">
+        <p className="text-white font-[balboa] mb-1">{label}</p>
+        <p className="text-white text-sm font-medium flex items-center">
+          <span className="text-[#e9e9e9]">Churn Rate:</span> {churnRate}%&nbsp;
+          {formatPercent(churnChange)}
+        </p>
+        <p className="text-white text-xs">
+          <span className="text-[#e9e9e9]">Active Users:</span> {activeUsers}
+        </p>
+        <p className="text-white text-xs">
+          <span className="text-[#e9e9e9]">Active Users (Last 6M):</span> {activeUsersLast6Months}
+        </p>
+      </div>
+    )
+  }
+
+  // Render loading state
   if (loading) {
     return (
-      <div className="bg-[#0f0f0f] text-white rounded-lg border-[1px] border-[#666666] mb-[50px] p-6 flex justify-center items-center h-[400px]">
-        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-[#edb900]"></div>
+      <div
+        className="bg-[#0f0f0f] text-white p-6 rounded-lg mb-[50px] border-[1px] border-[#666666] mt-[50px] flex flex-col items-center justify-center"
+        style={{ minHeight: "500px" }}
+      >
+        <Loader2 className="h-8 w-8 animate-spin text-[#edb900] mb-4" />
+        <p>Loading churn rate data...</p>
       </div>
     )
   }
 
-  // Handle error state
+  // Render error state
   if (error) {
     return (
-      <div className="bg-[#0f0f0f] text-white rounded-lg border-[1px] border-[#666666] mb-[50px] p-6 flex justify-center items-center h-[400px]">
-        <div className="text-center">
-          <DollarSign className="h-10 w-10 mx-auto mb-4 text-red-500" />
-          <p className="text-xl font-[balboa]">Error loading donut stats for {companyName}</p>
-          <p className="text-[#666666] mt-2">{error}</p>
-        </div>
+      <div
+        className="bg-[#0f0f0f] text-white p-6 rounded-lg mb-[50px] border-[1px] border-[#666666] mt-[50px] flex flex-col items-center justify-center"
+        style={{ minHeight: "500px" }}
+      >
+        <UserX className="h-8 w-8 text-red-500 mb-4" />
+        <p className="text-red-400">{error}</p>
       </div>
     )
   }
 
-  // Handle empty state
-  if (!donutStats || (!donutStats.payoutCount?.length && !donutStats.paidAmount?.length)) {
+  // If no data after loading
+  if (chartData.length === 0) {
     return (
-      <div className="bg-[#0f0f0f] text-white rounded-lg border-[1px] border-[#666666] mb-[50px] p-6 flex justify-center items-center h-[400px]">
-        <div className="text-center">
-          <DollarSign className="h-10 w-10 mx-auto mb-4 text-[#edb900]" />
-          <p className="text-xl font-[balboa]">No high earner stats available for {companyName}</p>
-          <p className="text-[#666666] mt-2">We'll update this chart when data becomes available.</p>
-        </div>
+      <div
+        className="bg-[#0f0f0f] text-white p-6 rounded-lg mb-[50px] border-[1px] border-[#666666] mt-[50px] flex flex-col items-center justify-center"
+        style={{ minHeight: "500px" }}
+      >
+        <UserX className="h-8 w-8 text-[#edb900] mb-4" />
+        <p>❌ No churn rate data available for {companyName}</p>
       </div>
     )
   }
 
-  // ✅ Extract data arrays
-  const payoutAmountData = Array.isArray(donutStats.paidAmount) ? donutStats.paidAmount : []
-  const payoutCountData = Array.isArray(donutStats.payoutCount) ? donutStats.payoutCount : []
-
-  // ✅ Extract unique paid traders safely (should be the same in both datasets)
-  const uniquePaidTraders =
-    (payoutAmountData.length > 0 && payoutAmountData[0]?.total_unique_traders) ||
-    (payoutCountData.length > 0 && payoutCountData[0]?.total_unique_traders) ||
-    0
-
-  // Define the category order
-  const categoryOrder = [
-    "< $10,000",
-    "$10,000+",
-    "$50,000+",
-    "$100,000+",
-    "< 10 Payouts",
-    "10+ Payouts",
-    "20+ Payouts",
-    "30+ Payouts",
-  ]
-
-  // Sort function to maintain consistent category order
-  const sortByCategory = (data) => {
-    return [...data].sort((a, b) => {
-      const indexA = categoryOrder.indexOf(a.name)
-      const indexB = categoryOrder.indexOf(b.name)
-
-      // If both categories are in our predefined order, sort by that order
-      if (indexA !== -1 && indexB !== -1) {
-        return indexA - indexB
-      }
-
-      // If only one category is in our list, prioritize it
-      if (indexA !== -1) return -1
-      if (indexB !== -1) return 1
-
-      // For any categories not in our list, sort alphabetically
-      return a.name.localeCompare(b.name)
-    })
-  }
-
-  // ✅ Generate Color Shades Separately for Each Chart
-  const generateColorShades = (data) => {
-    if (!Array.isArray(data) || data.length === 0) return []
-
-    // Sort data by count to identify the largest segment
-    const sortedData = [...data].sort((a, b) => b.count - a.count)
-
-    // Create a mapping of original indices to sorted positions
-    const positionMap = new Map()
-    sortedData.forEach((item, index) => {
-      const originalIndex = data.findIndex((d) => d.category === item.category && d.count === item.count)
-      positionMap.set(originalIndex, index)
-    })
-
-    // Use the same gold color as the reference code
-    const baseColor = [237, 185, 0] // RGB for Gold
-
-    // Create colors for each segment based on its size rank
-    return data.map((_, index) => {
-      const position = positionMap.get(index)
-
-      // First position (largest) gets the brightest color
-      if (position === 0) {
-        return `rgb(${baseColor[0]}, ${baseColor[1]}, ${baseColor[2]})`
-      }
-
-      // Other segments get progressively darker based on their size rank
-      const darkFactor = 0.25
-      const factor = 1 - position * darkFactor
-      return `rgb(${Math.round(baseColor[0] * factor)}, ${Math.round(baseColor[1] * factor)}, ${Math.round(baseColor[2] * factor)})`
-    })
-  }
-
-  // ✅ Generate Separate Colors for Each Dataset
-  const COLORS_AMOUNT = generateColorShades(payoutAmountData)
-  const COLORS_COUNT = generateColorShades(payoutCountData)
-
-  // ✅ Format Data for Charts
-  let formattedAmountData = payoutAmountData
-    .map((item, index) => ({
-      name: item.category || "Unknown",
-      count: item.count ?? 0, // 🔥 Ensure count exists
-      percentage: item.percentage ?? 0,
-      color: COLORS_AMOUNT[index],
-    }))
-    .filter((item) => item.count > 0) // 🔥 Ensure we only keep items with valid count
-
-  let formattedCountData = payoutCountData
-    .map((item, index) => ({
-      name: item.category || "Unknown",
-      count: item.count ?? 0,
-      percentage: item.percentage ?? 0,
-      color: COLORS_COUNT[index],
-    }))
-    .filter((item) => item.count > 0) // 🔥 Ensure we only keep items with valid count
-
-  // Apply sorting
-  formattedAmountData = sortByCategory(formattedAmountData)
-  formattedCountData = sortByCategory(formattedCountData)
-
-  // ✅ Active Sector Styling
-  const renderActiveShape = (props) => {
-    const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill, payload, percent, value } = props
-
-    return (
-      <g>
-        <Sector
-          cx={cx}
-          cy={cy}
-          innerRadius={innerRadius}
-          outerRadius={outerRadius + 6}
-          startAngle={startAngle}
-          endAngle={endAngle}
-          fill={fill}
-          stroke="white"
-          strokeWidth={2}
-        />
-        <text x={cx} y={cy - 30} dy={8} textAnchor="middle" fill="white" className="text-lg">
-          {payload.name}
-        </text>
-        <text x={cx} y={cy + 10} dy={8} textAnchor="middle" fill="white" className="text-3xl">
-          {value.toLocaleString()}
-        </text>
-        <text x={cx} y={cy + 30} dy={8} textAnchor="middle" fill="white" className="text-md opacity-70">
-          {(percent * 100).toFixed(1)}%
-        </text>
-      </g>
-    )
-  }
+  // Get the latest month from the data
+  const latestMonth = chartData.length ? chartData[chartData.length - 1].month : "??/??"
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full mt-8">
-      {/* 🔶 High Earning Unique Traders (Amount) */}
-      <Card className="bg-[#0f0f0f] font-[balboa] shadow-lg border border-[#666666]">
-        <CardHeader className="pb-5 mb-5 border-b-[1px] border-[#666666]">
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-2xl font-[balboa] flex items-center gap-2 text-white">
-                <Users className="h-5 w-5 text-[#edb900]" />
-                Unique Traders
-              </CardTitle>
-              <CardDescription className="text-gray-400">Based on total received amount</CardDescription>
-            </div>
-            <Badge className="text-2xl text-[#edb900] font-[balboa] border-[#666666]">
-              {uniquePaidTraders.toLocaleString()}
-            </Badge>
+    <div className="bg-[#0f0f0f] text-white pb-6 rounded-lg mb-[50px] border-[1px] border-[#666666] mt-[50px]">
+      <div className="flex justify-between items-center mb-6 border-b-[1px] border-[#666666] p-6">
+        <div>
+          <div className="flex">
+            <UserX className="h-5 w-5 mr-2 mt-1 text-[#edb900]" />
+            <h2 className="text-2xl font-[balboa]">{companyName} Churn Rate</h2>
           </div>
-        </CardHeader>
-        <CardContent>
-          <div className="h-[400px] w-full">
-            {formattedAmountData.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    activeIndex={activeIndexAmount}
-                    activeShape={renderActiveShape}
-                    data={formattedAmountData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={100}
-                    outerRadius={180}
-                    stroke="#0f0f0f"
-                    strokeWidth={1}
-                    paddingAngle={1}
-                    dataKey="count"
-                    onMouseEnter={(_, index) => setActiveIndexAmount(index)}
-                    onMouseLeave={() => setActiveIndexAmount(null)}
-                  >
-                    {formattedAmountData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="flex items-center justify-center h-full">
-                <p className="text-gray-400">No data available</p>
-              </div>
-            )}
+          <div>
+            <p className="text-[#666666]">Historical paid traders churn rate for {companyName}</p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      {/* 🔷 High Earning Unique Traders (Count) */}
-      <Card className="bg-[#0f0f0f] shadow-lg font-[balboa] border border-[#666666]">
-        <CardHeader className="pb-5 mb-5 border-b-[1px] border-[#666666]">
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-2xl font-[balboa] flex items-center gap-2 text-white">
-                <Users className="h-5 w-5 text-[#edb900]" />
-                Unique Traders
-              </CardTitle>
-              <CardDescription className="text-gray-400">Based on total payouts count</CardDescription>
-            </div>
-            <Badge className="text-2xl text-[#edb900] font-[balboa] border-[#666666]">
-              {uniquePaidTraders.toLocaleString()}
-            </Badge>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="h-[400px] w-full">
-            {formattedCountData.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    activeIndex={activeIndexCount}
-                    activeShape={renderActiveShape}
-                    data={formattedCountData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={100}
-                    outerRadius={180}
-                    stroke="#0f0f0f"
-                    strokeWidth={1}
-                    paddingAngle={1}
-                    dataKey="count"
-                    onMouseEnter={(_, index) => setActiveIndexCount(index)}
-                    onMouseLeave={() => setActiveIndexCount(null)}
-                  >
-                    {formattedCountData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="flex items-center justify-center h-full">
-                <p className="text-gray-400">No data available</p>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+      <ResponsiveContainer width="100%" height={500}>
+        <ComposedChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+          {/* Gradient Definition for Churn Rate */}
+          <defs>
+            <linearGradient id="churnRateGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#5a3e00" stopOpacity={0.3} />
+              <stop offset="100%" stopColor="#5a3e00" stopOpacity={0} />
+            </linearGradient>
+          </defs>
+
+          <CartesianGrid strokeDasharray="3 3" stroke="#1F1F1F" vertical={true} horizontal={true} />
+
+          <XAxis
+            dataKey="month"
+            angle={-45}
+            textAnchor="end"
+            tick={{ fill: "#666666", fontSize: 14, fontFamily: "Balboa" }}
+            tickMargin={10}
+            stroke="#444"
+          />
+
+          <YAxis
+            tickFormatter={(value) => `${value.toFixed(2)}%`}
+            tick={{ fill: "#666666", fontSize: 14, fontFamily: "Balboa" }}
+          />
+
+          {/* Churn Rate Area with Gradient */}
+          <Area dataKey="churnRate" stroke="none" fill="url(#churnRateGradient)" />
+
+          <ReferenceLine
+            y={averageChurnRate}
+            stroke="#5a3e00"
+            strokeDasharray="5 5"
+            strokeWidth={3}
+            label={{
+              value: "AVG",
+              position: "right",
+              fill: "#5a3e00",
+              fontSize: 14,
+              fontFamily: "Balboa",
+            }}
+          />
+
+          <Tooltip content={CustomTooltip} />
+
+          <Line
+            dataKey="churnRate"
+            stroke="#ffb700"
+            strokeWidth={3}
+            dot={{ fill: "#ffb700", r: 5 }}
+            activeDot={{ r: 8 }}
+            type="monotone"
+          />
+        </ComposedChart>
+      </ResponsiveContainer>
+
+      <div className="mt-4 px-6 text-white text-xs">
+        <p>
+          Showing data from {chartData.length ? chartData[0].month : "??/??"} to {latestMonth}
+        </p>
+        <p>Average monthly churn rate: {averageChurnRate}%</p>
+      </div>
     </div>
   )
 }
+
+export default ChurnRateChart
 
