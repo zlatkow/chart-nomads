@@ -84,7 +84,7 @@ export default function CompanyAllTransactions({
         const companyParam = companyName ? `&company=${encodeURIComponent(companyName)}` : ""
 
         // Fix: Change companyName to company in the URL parameter to match API expectations
-        const url = `/api/AllStats?dataType=transactions&timeFilter=last_7_days&page=${offset + 1}&limit=1000${companyParam}`
+        const url = `/api/getCompanyAllStats?dataType=transactions&timeFilter=last_7_days&page=${offset + 1}&limit=1000${companyParam}`
         console.log("Fetching transactions from:", url)
 
         const res = await fetch(url)
