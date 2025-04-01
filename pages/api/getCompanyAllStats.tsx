@@ -51,9 +51,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     } else if (dataType === "topPayouts") {
       // Call the new top payouts function for a specific company
       const { data: topPayouts, error: topPayoutsError } = await supabase.rpc(
-        "call_top_10_payouts",
-        [company, timeFilter] // ✅ this matches your TEXT, TEXT signature
-      )      
+        "get_top_10_payouts_for_company", // 👈 Use the actual function name
+        {
+          companyNameParam: company,
+          timeFilter: timeFilter,
+        }
+      )
+      
 
       if (topPayoutsError) {
         console.error("[API] Error fetching top payouts:", topPayoutsError)
