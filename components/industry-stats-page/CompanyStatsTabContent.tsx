@@ -8,7 +8,7 @@ import CompanyChurnRateChart from "./CompanyChurnRateChart"
 import CompanyHighEarnersChart from "./CompanyHighEarnersChart"
 import CompanyTopPayouts from "./CompanyTopPayouts"
 import CompanyAllTransactions from "./CompanyAllTransactions"
-import HighEarnersLeaderboard from "./HighEarnersLeaderboard"
+import CompanyHighEarnersLeaderboard from "./CompanyHighEarnersLeaderboard"
 
 // Define type based on your screenshot
 interface PayoutStat {
@@ -58,8 +58,8 @@ const CompanyStatsTabContent = ({ activeTab, stats, companyName }: StatsTabConte
         </>
       )}
 
-      {activeTab === "high-earners" && stats && stats.topTraders && (
-        <HighEarnersLeaderboard topTraders={stats.topTraders} />
+      {activeTab === "high-earners" && (
+        <CompanyHighEarnersLeaderboard companyName={companyName} />
       )}
     </div>
   )

@@ -319,7 +319,35 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           details: error instanceof Error ? error.message : String(error),
         })
       }
-    } else {
+    } else if (dataType === "topTraders") {
+        try {
+          console.log(`[API] Fetching top traders for company: ${company || "all"}, timeFilter: ${timeFilter}`)
+    
+          const { data, error } = await supabase.rpc("fetch_top_10_traders", {
+            timefilter: timeFilter,
+            companynameparam: company || "all",
+          })
+    
+          if (error) {
+            console.error("[API] Error fetching top traders:", error)
+            return res.status(500).json({
+              error: "Error fetching top traders",
+              details: error,
+            })
+          }
+    
+          return res.status(200).json({
+            topByPayouts: data?.top_by_payouts || [],
+            topByAmount: data?.top_by_amount || [],
+          })
+        } catch (error) {
+          console.error("[API] Unexpected error in topTraders:", error)
+          return res.status(500).json({
+            error: "Unexpected error processing top traders",
+            details: error instanceof Error ? error.message : String(error),
+          })
+        }
+      } else {
       // Original functionality for regular stats
       const [stats24h, stats7d, stats30d, statsAll] = await Promise.all([
         supabase.rpc("get_transaction_stats_by_company", {
