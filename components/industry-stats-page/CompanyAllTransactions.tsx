@@ -181,7 +181,7 @@ export default function CompanyAllTransactions({
             <div className="flex">
               <ArrowRightLeft className="h-5 w-5 mr-2 mt-2 text-[#edb900]" />
               <h2 className="text-3xl font-[balboa] text-white">
-                {companyName ? `${companyName} Transactions` : "Recent transactions"}
+                Recent transactions
               </h2>
             </div>
             <div>
@@ -189,40 +189,6 @@ export default function CompanyAllTransactions({
                 Browse through most recent payouts {companyName ? `for ${companyName}` : "in the industry"}
               </p>
             </div>
-          </div>
-          <div className="w-[300px]">
-            <Search className="relative left-2.5 top-6 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="Search by company.."
-              className="searchDark w-full pl-8 bg-[#333333] border-[#333333] focus-visible:ring-[#edb900]"
-              value={searchQuery}
-              onChange={handleSearch}
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => {
-                  setSearchQuery("")
-                  setPage(1)
-                }}
-                className="relative right-[-275px] top-[-27px] h-4 w-4 text-[#edb900] hover:text-[#edb900]/80"
-                aria-label="Clear search"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-4 w-4"
-                >
-                  <path d="M18 6L6 18M6 6l12 12" />
-                </svg>
-              </button>
-            )}
           </div>
         </div>
 
