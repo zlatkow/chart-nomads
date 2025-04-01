@@ -46,12 +46,10 @@ const CompanyStatsTabContent = ({ activeTab, stats, companyName }: StatsTabConte
           <CompanyCombinedPaymentChart companyName={companyName} />
           <CompanyMonthlyUniquePaidTradersChart companyName={companyName} />
           <CompanyMonthlyUniqueTradersChart companyName={companyName} />
+          {/* <HighEarnersChart companyName={companyName} /> */}
           {/* Only render these if stats is available */}
           {stats && (
             <>
-              {Array.isArray(stats.payoutStats) && stats.payoutStats.length > 0 && (
-                <HighEarnersChart payoutStats={stats.payoutStats} />
-              )}
               {stats.churnRate && <ChurnRateChart companyStats={stats.churnRate} />}
             </>
           )}

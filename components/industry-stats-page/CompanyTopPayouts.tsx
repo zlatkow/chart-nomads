@@ -192,6 +192,7 @@ export default function CompanyTopPayouts({ companyName }: CompanyTopPayoutsProp
               <SelectItem value="last_3_months">Last 3 Months</SelectItem>
               <SelectItem value="2023">2023</SelectItem>
               <SelectItem value="2024">2024</SelectItem>
+              <SelectItem value="2024">2025</SelectItem>
             </SelectContent>
           </Select>
         </div>

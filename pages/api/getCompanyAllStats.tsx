@@ -145,6 +145,57 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           details: error instanceof Error ? error.message : String(error),
         })
       }
+    } else if (dataType === "donutStats") {
+      try {
+        console.log(`[API] Fetching donut chart stats for company: ${company}`)
+
+        // Fetch donut chart stats
+        const { data: stats, error } = await supabase
+          .from("donutchart_company_highearners_stats")
+          .select(`
+            company_id,
+            category,
+            count,
+            percentage,
+            total_unique_traders,
+            category_type,
+            created_at,
+            prop_firms (
+              id,
+              propfirm_name
+            )
+          `)
+          .eq("prop_firms.propfirm_name", company)
+
+        if (error) {
+          console.error("[API] Error fetching donut stats:", error)
+          return res.status(500).json({
+            error: "Error fetching donut chart data",
+            details: error,
+          })
+        }
+
+        console.log(`[API] Found ${stats?.length || 0} donut chart stats for ${company}`)
+
+        // Organize into category_type groups
+        const grouped = {
+          payoutCount: stats.filter((d) => d.category_type === "Payout Count"),
+          paidAmount: stats.filter((d) => d.category_type === "Paid Amount"),
+        }
+
+        console.log("[API] Grouped donut stats:", {
+          payoutCount: grouped.payoutCount.length,
+          paidAmount: grouped.paidAmount.length,
+        })
+
+        return res.status(200).json({ donutStats: grouped })
+      } catch (error) {
+        console.error("[API] Unexpected error in donutStats:", error)
+        return res.status(500).json({
+          error: "Unexpected error processing donut stats",
+          details: error instanceof Error ? error.message : String(error),
+        })
+      }
     } else {
       // Original functionality for regular stats
       const [stats24h, stats7d, stats30d, statsAll] = await Promise.all([
