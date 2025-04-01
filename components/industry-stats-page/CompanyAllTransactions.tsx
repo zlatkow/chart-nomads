@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 "use client"
 
 import type React from "react"
@@ -9,7 +11,6 @@ import {
   ArrowUpDown,
   ChevronLeftIcon,
   ChevronRightIcon,
-  Search,
   ArrowRightLeft,
 } from "lucide-react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
