@@ -106,10 +106,19 @@ export default function PayoutStatsChart({ companyName }: PayoutStatsChartProps)
   // ✅ Generate Color Shades Separately for Each Chart
   const generateColorShades = (data) => {
     if (!Array.isArray(data) || data.length === 0) return []
-    const baseColor = [237, 185, 0] // RGB for Gold
-    const darkFactor = 0.25
+
+    // Use a brighter base color - this is closer to the bright yellow in the first image
+    const baseColor = [255, 191, 0] // Bright gold/yellow RGB
+
+    // Create colors for each segment
     return data.map((_, index) => {
-      const factor = 1 - index * darkFactor
+      // First segment (usually the largest) gets the brightest color
+      if (index === 0) {
+        return `rgb(${baseColor[0]}, ${baseColor[1]}, ${baseColor[2]})`
+      }
+
+      // Other segments get progressively darker
+      const factor = 0.7 - index * 0.1 // Less dramatic darkening
       return `rgb(${Math.round(baseColor[0] * factor)}, ${Math.round(baseColor[1] * factor)}, ${Math.round(baseColor[2] * factor)})`
     })
   }
@@ -168,109 +177,113 @@ export default function PayoutStatsChart({ companyName }: PayoutStatsChartProps)
   }
 
   return (
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full mt-8">
-        {/* 🔶 High Earning Unique Traders (Amount) */}
-        <Card className="bg-[#0f0f0f] font-[balboa] shadow-lg border border-[#666666]">
-          <CardHeader className="pb-5 mb-5 border-b-[1px] border-[#666666]">
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-2xl font-[balboa] flex items-center gap-2 text-white">
-                  <Users className="h-5 w-5 text-[#edb900]" />
-                  Unique Traders
-                </CardTitle>
-                <CardDescription className="text-gray-400">Based on total received amount</CardDescription>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full mt-8">
+      {/* 🔶 High Earning Unique Traders (Amount) */}
+      <Card className="bg-[#0f0f0f] font-[balboa] shadow-lg border border-[#666666]">
+        <CardHeader className="pb-5 mb-5 border-b-[1px] border-[#666666]">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-2xl font-[balboa] flex items-center gap-2 text-white">
+                <Users className="h-5 w-5 text-[#edb900]" />
+                Unique Traders
+              </CardTitle>
+              <CardDescription className="text-gray-400">Based on total received amount</CardDescription>
+            </div>
+            <Badge className="text-2xl text-[#edb900] font-[balboa] border-[#666666]">
+              {uniquePaidTraders.toLocaleString()}
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[400px] w-full">
+            {formattedAmountData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    activeIndex={activeIndexAmount}
+                    activeShape={renderActiveShape}
+                    data={formattedAmountData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={100}
+                    outerRadius={180}
+                    stroke="#0f0f0f"
+                    strokeWidth={1}
+                    paddingAngle={1}
+                    dataKey="count"
+                    onMouseEnter={(_, index) => setActiveIndexAmount(index)}
+                    onMouseLeave={() => setActiveIndexAmount(null)}
+                    startAngle={90}
+                    endAngle={-270}
+                  >
+                    {formattedAmountData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex items-center justify-center h-full">
+                <p className="text-gray-400">No data available</p>
               </div>
-              <Badge className="text-2xl text-[#edb900] font-[balboa] border-[#666666]">
-                {uniquePaidTraders.toLocaleString()}
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[400px] w-full">
-              {formattedAmountData.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      activeIndex={activeIndexAmount}
-                      activeShape={renderActiveShape}
-                      data={formattedAmountData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={100}
-                      outerRadius={180}
-                      stroke="#0f0f0f"
-                      strokeWidth={1}
-                      paddingAngle={1}
-                      dataKey="count"
-                      onMouseEnter={(_, index) => setActiveIndexAmount(index)}
-                      onMouseLeave={() => setActiveIndexAmount(null)}
-                    >
-                      {formattedAmountData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                  </PieChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="flex items-center justify-center h-full">
-                  <p className="text-gray-400">No data available</p>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
-        {/* 🔷 High Earning Unique Traders (Count) */}
-        <Card className="bg-[#0f0f0f] shadow-lg font-[balboa] border border-[#666666]">
-          <CardHeader className="pb-5 mb-5 border-b-[1px] border-[#666666]">
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-2xl font-[balboa] flex items-center gap-2 text-white">
-                  <Users className="h-5 w-5 text-[#edb900]" />
-                  Unique Traders
-                </CardTitle>
-                <CardDescription className="text-gray-400">Based on total payouts count</CardDescription>
+      {/* 🔷 High Earning Unique Traders (Count) */}
+      <Card className="bg-[#0f0f0f] shadow-lg font-[balboa] border border-[#666666]">
+        <CardHeader className="pb-5 mb-5 border-b-[1px] border-[#666666]">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-2xl font-[balboa] flex items-center gap-2 text-white">
+                <Users className="h-5 w-5 text-[#edb900]" />
+                Unique Traders
+              </CardTitle>
+              <CardDescription className="text-gray-400">Based on total payouts count</CardDescription>
+            </div>
+            <Badge className="text-2xl text-[#edb900] font-[balboa] border-[#666666]">
+              {uniquePaidTraders.toLocaleString()}
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[400px] w-full">
+            {formattedCountData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    activeIndex={activeIndexCount}
+                    activeShape={renderActiveShape}
+                    data={formattedCountData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={100}
+                    outerRadius={180}
+                    stroke="#0f0f0f"
+                    strokeWidth={1}
+                    paddingAngle={1}
+                    dataKey="count"
+                    onMouseEnter={(_, index) => setActiveIndexCount(index)}
+                    onMouseLeave={() => setActiveIndexCount(null)}
+                    startAngle={90}
+                    endAngle={-270}
+                  >
+                    {formattedCountData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex items-center justify-center h-full">
+                <p className="text-gray-400">No data available</p>
               </div>
-              <Badge className="text-2xl text-[#edb900] font-[balboa] border-[#666666]">
-                {uniquePaidTraders.toLocaleString()}
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[400px] w-full">
-              {formattedCountData.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      activeIndex={activeIndexCount}
-                      activeShape={renderActiveShape}
-                      data={formattedCountData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={100}
-                      outerRadius={180}
-                      stroke="#0f0f0f"
-                      strokeWidth={1}
-                      paddingAngle={1}
-                      dataKey="count"
-                      onMouseEnter={(_, index) => setActiveIndexCount(index)}
-                      onMouseLeave={() => setActiveIndexCount(null)}
-                    >
-                      {formattedCountData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                  </PieChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="flex items-center justify-center h-full">
-                  <p className="text-gray-400">No data available</p>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   )
 }
 
