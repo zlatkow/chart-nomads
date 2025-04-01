@@ -169,7 +169,7 @@ export default function CompanyTopPayouts({ companyName }: CompanyTopPayoutsProp
           <div>
             <div className="flex">
               <DollarSign className="h-5 w-5 mr-2 mt-1 text-[#edb900]" />
-              <h2 className="text-2xl font-[balboa]">{companyName} - Top 10 Payouts</h2>
+              <h2 className="text-2xl font-[balboa]">Top 10 Payouts</h2>
             </div>
             <div>
               <p className="text-[#666666]">Highest payouts made by {companyName}</p>

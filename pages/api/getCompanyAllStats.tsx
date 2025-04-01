@@ -107,7 +107,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         // Get the company details from prop_firms table
         const { data: companyDetails, error: companyDetailsError } = await supabase
           .from("prop_firms")
-          .select("propfirm_name, logo_url, rating")
+          .select("propfirm_name, logo_url, rating, brand_colour")
           .eq("id", propFirmId)
           .single()
 
@@ -127,8 +127,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           companyName: company,
           companyname: company,
           // Use some default values if company details are not available
-          brandColour: "#edb900", // Default gold color
-          brandcolour: "#edb900",
+          brandColour: companyDetails?.brand_colour, // Default gold color
+          brandcolour: companyDetails?.brand_colour,
           logoUrl: companyDetails?.logo_url || null,
           logourl: companyDetails?.logo_url || null,
           timeFrame: row.time_frame,
