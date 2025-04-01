@@ -52,20 +52,33 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       try {
         console.log(`[API] Fetching top payouts for company: ${company}, timeFilter: ${timeFilter}`)
 
-        // First, let's query without the nested select to see the raw data structure
-        const { data: rawData, error: rawDataError } = await supabase
-          .from("company_top_payouts")
-          .select("*")
-          .eq("time_frame", timeFilter)
-          .limit(1)
+        // First, get the prop_firm_id for the company name
+        const { data: propFirmData, error: propFirmError } = await supabase
+          .from("prop_firms")
+          .select("id")
+          .eq("propfirm_name", company)
+          .single()
 
-        if (rawDataError) {
-          console.error("[API] Error fetching raw top payouts data:", rawDataError)
-        } else {
-          console.log("[API] Raw top payouts data sample:", rawData)
+        if (propFirmError) {
+          console.error("[API] Error fetching prop_firm_id:", propFirmError)
+          return res.status(500).json({
+            error: "Error finding company in database",
+            details: propFirmError,
+          })
         }
 
-        // Now perform the actual query with proper field names based on the database structure
+        if (!propFirmData || !propFirmData.id) {
+          console.error(`[API] Company not found: ${company}`)
+          return res.status(404).json({
+            error: "Company not found",
+            details: `No company found with name: ${company}`,
+          })
+        }
+
+        const propFirmId = propFirmData.id
+        console.log(`[API] Found prop_firm_id: ${propFirmId} for company: ${company}`)
+
+        // Now fetch the top payouts for this prop_firm_id
         const { data: topPayouts, error: topPayoutsError } = await supabase
           .from("company_top_payouts")
           .select(`
@@ -74,13 +87,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             payout_amount,
             transaction_date,
             time_frame,
-            prop_firm_id,
-            company_name,
-            brand_color,
-            logo_url
+            prop_firm_id
           `)
+          .eq("prop_firm_id", propFirmId)
           .eq("time_frame", timeFilter)
-          .eq("company_name", company)
           .order("rank", { ascending: true })
           .limit(10)
 
@@ -93,7 +103,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
 
         console.log(`[API] Found ${topPayouts?.length || 0} top payouts for ${company}`)
-        console.log("[API] Top payouts data sample:", topPayouts?.[0])
+
+        // Get the company details from prop_firms table
+        const { data: companyDetails, error: companyDetailsError } = await supabase
+          .from("prop_firms")
+          .select("propfirm_name, logo_url, rating")
+          .eq("id", propFirmId)
+          .single()
+
+        if (companyDetailsError) {
+          console.error("[API] Error fetching company details:", companyDetailsError)
+        }
 
         // Format the data for the frontend with both camelCase and snake_case for compatibility
         const formatted = topPayouts.map((row) => ({
@@ -104,12 +124,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           payoutamount: row.payout_amount,
           transactionDate: row.transaction_date,
           transactiondate: row.transaction_date,
-          companyName: row.company_name,
-          companyname: row.company_name,
-          brandColour: row.brand_color,
-          brandcolour: row.brand_color,
-          logoUrl: row.logo_url,
-          logourl: row.logo_url,
+          companyName: company,
+          companyname: company,
+          // Use some default values if company details are not available
+          brandColour: "#edb900", // Default gold color
+          brandcolour: "#edb900",
+          logoUrl: companyDetails?.logo_url || null,
+          logourl: companyDetails?.logo_url || null,
           timeFrame: row.time_frame,
           timeframe: row.time_frame,
         }))
