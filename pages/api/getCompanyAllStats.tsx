@@ -324,8 +324,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         console.log(`[API] Fetching top traders for company: ${company || "all"}, timeFilter: ${timeFilter}`)
 
         const { data, error } = await supabase.rpc("fetch_top_10_traders", {
-          timeFilter: timeFilter, // Match the exact parameter name from your SQL function
-          companyNameParam: company || "all", // Match the exact parameter name from your SQL function
+          timefilter: timeFilter, // Match the exact parameter name from your SQL function
+          companyamearam: company || "all", // Match the exact parameter name from your SQL function
         })
 
         if (error) {
