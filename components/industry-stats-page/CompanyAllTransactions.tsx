@@ -1,7 +1,17 @@
 "use client"
 
+import type React from "react"
+
 import { useState, useEffect } from "react"
-import { ArrowDownIcon, ArrowUpIcon, ArrowUpDown, ChevronLeftIcon, ChevronRightIcon, Search, ArrowRightLeft } from 'lucide-react'
+import {
+  ArrowDownIcon,
+  ArrowUpIcon,
+  ArrowUpDown,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  Search,
+  ArrowRightLeft,
+} from "lucide-react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -24,7 +34,10 @@ interface CompanyAllTransactionsProps {
   companyName?: string
 }
 
-export default function CompanyAllTransactions({ transactions: initialTransactions, companyName }: CompanyAllTransactionsProps) {
+export default function CompanyAllTransactions({
+  transactions: initialTransactions,
+  companyName,
+}: CompanyAllTransactionsProps) {
   // State variables
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [loading, setLoading] = useState(false)
@@ -51,6 +64,7 @@ export default function CompanyAllTransactions({ transactions: initialTransactio
   const fetchAllTransactions = async () => {
     // If initialTransactions is provided, use it instead of fetching
     if (initialTransactions && initialTransactions.length > 0) {
+      console.log("Using initialTransactions:", initialTransactions)
       setTransactions(initialTransactions)
       return
     }
@@ -67,28 +81,40 @@ export default function CompanyAllTransactions({ transactions: initialTransactio
       // Keep fetching until we get all transactions
       while (!allFetched) {
         // If companyName is provided, include it in the API request
-        const companyParam = companyName ? `&companyName=${encodeURIComponent(companyName)}` : ''
-        
-        const res = await fetch(
-          `/api/getCompanyAllStats?limitRows=1000&offsetRows=${offset}&timeFilter=last_7_days&searchQuery=${encodeURIComponent(searchQuery)}${companyParam}`,
-        )
+        const companyParam = companyName ? `&company=${encodeURIComponent(companyName)}` : ""
 
-        if (!res.ok) throw new Error("Failed to fetch transactions")
+        // Fix: Change companyName to company in the URL parameter to match API expectations
+        const url = `/api/getCompanyAllStats?dataType=transactions&timeFilter=last_7_days&page=${offset + 1}&limit=1000${companyParam}`
+        console.log("Fetching transactions from:", url)
+
+        const res = await fetch(url)
+
+        if (!res.ok) {
+          const errorText = await res.text()
+          console.error("API error response:", errorText)
+          throw new Error("Failed to fetch transactions")
+        }
 
         const data = await res.json()
+        console.log("API response data:", data)
 
         // Add this batch to our collection
-        allTransactions = [...allTransactions, ...data.transactions]
+        if (data.transactions && Array.isArray(data.transactions)) {
+          allTransactions = [...allTransactions, ...data.transactions]
+        } else {
+          console.error("Unexpected API response format:", data)
+        }
 
         // If we got fewer than the limit, we've reached the end
-        if (data.transactions.length < 1000) {
+        if (!data.transactions || data.transactions.length < 1000) {
           allFetched = true
         } else {
           // Otherwise, increment offset for next batch
-          offset += 1000
+          offset += 1
         }
       }
 
+      console.log("All transactions fetched:", allTransactions)
       setTransactions(allTransactions)
     } catch (error) {
       console.error("Transaction fetch error:", error)
@@ -113,9 +139,7 @@ export default function CompanyAllTransactions({ transactions: initialTransactio
     // Filter transactions by search query
     let filtered = [...transactions]
     if (searchQuery.trim() !== "") {
-      filtered = filtered.filter((tx) => 
-        tx.company.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+      filtered = filtered.filter((tx) => tx.company.toLowerCase().includes(searchQuery.toLowerCase()))
     }
 
     // Sort filtered transactions
@@ -125,13 +149,9 @@ export default function CompanyAllTransactions({ transactions: initialTransactio
           ? new Date(a.transaction_timestamp).getTime() - new Date(b.transaction_timestamp).getTime()
           : new Date(b.transaction_timestamp).getTime() - new Date(a.transaction_timestamp).getTime()
       } else if (sortField === "company") {
-        return sortDirection === "asc" 
-          ? a.company.localeCompare(b.company) 
-          : b.company.localeCompare(a.company)
+        return sortDirection === "asc" ? a.company.localeCompare(b.company) : b.company.localeCompare(a.company)
       } else if (sortField === "payout_amount") {
-        return sortDirection === "asc" 
-          ? a.payout_amount - b.payout_amount 
-          : b.payout_amount - a.payout_amount
+        return sortDirection === "asc" ? a.payout_amount - b.payout_amount : b.payout_amount - a.payout_amount
       }
       return 0
     })
@@ -165,7 +185,9 @@ export default function CompanyAllTransactions({ transactions: initialTransactio
               </h2>
             </div>
             <div>
-              <p className="text-[#666666]">Browse through most recent payouts {companyName ? `for ${companyName}` : "in the industry"}</p>
+              <p className="text-[#666666]">
+                Browse through most recent payouts {companyName ? `for ${companyName}` : "in the industry"}
+              </p>
             </div>
           </div>
           <div className="w-[300px]">
@@ -366,20 +388,20 @@ export default function CompanyAllTransactions({ transactions: initialTransactio
             </Button>
             <div className="flex items-center gap-1">
               {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                let pageNumber;
+                let pageNumber
 
                 if (totalPages <= 5) {
                   // If we have 5 or fewer pages, show all page numbers
-                  pageNumber = i + 1;
+                  pageNumber = i + 1
                 } else if (page <= 3) {
                   // If we're near the start, show pages 1-5
-                  pageNumber = i + 1;
+                  pageNumber = i + 1
                 } else if (page >= totalPages - 2) {
                   // If we're near the end, show the last 5 pages
-                  pageNumber = totalPages - 4 + i;
+                  pageNumber = totalPages - 4 + i
                 } else {
                   // Otherwise show 2 pages before and 2 pages after the current page
-                  pageNumber = page - 2 + i;
+                  pageNumber = page - 2 + i
                 }
 
                 return (
@@ -396,7 +418,7 @@ export default function CompanyAllTransactions({ transactions: initialTransactio
                   >
                     {pageNumber}
                   </Button>
-                );
+                )
               })}
             </div>
             <Button
@@ -415,3 +437,4 @@ export default function CompanyAllTransactions({ transactions: initialTransactio
     </Card>
   )
 }
+
