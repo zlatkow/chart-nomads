@@ -40,7 +40,7 @@ const formatMonthYear = (monthYear) => {
   return `${monthMap[monthName] || "??"}/${year}`
 }
 
-const ChurnRateChart = ({ companyName }) => {
+const ChurnRateChart = ({ companyName, apiPath = "/api" }) => {
   const [chartData, setChartData] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -58,13 +58,23 @@ const ChurnRateChart = ({ companyName }) => {
         setLoading(true)
         setError(null)
 
-        const response = await fetch(`/api?company=${encodeURIComponent(companyName)}&dataType=churnRate`)
+        // Log the API request for debugging
+        const url = `${apiPath}?company=${encodeURIComponent(companyName)}&dataType=churnRate`
+        console.log(`Fetching churn rate data from: ${url}`)
+
+        const response = await fetch(url)
+
+        // Log the response status for debugging
+        console.log(`API response status: ${response.status}`)
 
         if (!response.ok) {
           throw new Error(`API error: ${response.status}`)
         }
 
         const data = await response.json()
+
+        // Log the response data for debugging
+        console.log("API response data:", data)
 
         if (!data.churnRate || !Array.isArray(data.churnRate) || data.churnRate.length === 0) {
           setError("No churn rate data available for this company")
@@ -87,7 +97,6 @@ const ChurnRateChart = ({ companyName }) => {
             const [bMonth, bYear] = b.month.split("/")
 
             // Create date objects (using the first day of each month)
-            // Make sure to use proper date format: YYYY-MM-DD
             return new Date(`${aYear}-${aMonth}-01`).getTime() - new Date(`${bYear}-${bMonth}-01`).getTime()
           })
 
@@ -102,9 +111,7 @@ const ChurnRateChart = ({ companyName }) => {
 
     // Call the function immediately
     fetchChurnRateData()
-
-    // No separate function call outside the useEffect
-  }, [companyName]) // Only re-run when companyName changes
+  }, [companyName, apiPath]) // Re-run when companyName or apiPath changes
 
   // Calculate Average Churn Rate
   const averageChurnRate = chartData.length
