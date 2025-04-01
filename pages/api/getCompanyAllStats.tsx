@@ -18,8 +18,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const company = req.query.company as string
-    const dataType = req.query.dataType as string || "stats" // Default to "stats" if not specified
-    const timeFilter = req.query.timeFilter as string || "all" // Default to "all" if not specified
+    const dataType = (req.query.dataType as string) || "stats" // Default to "stats" if not specified
+    const timeFilter = (req.query.timeFilter as string) || "all" // Default to "all" if not specified
 
     if (!company) {
       return res.status(400).json({ error: "Missing 'company' query parameter" })
@@ -32,46 +32,98 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // Call the monthly stats function
       const { data: monthlyStats, error: monthlyError } = await supabase.rpc(
         "get_monthly_combined_transaction_stats_by_firm",
-        { firm_name: company }
+        { firm_name: company },
       )
 
       if (monthlyError) {
         console.error("[API] Error fetching monthly stats:", monthlyError)
         return res.status(500).json({
           error: "Error fetching monthly data",
-          details: monthlyError
+          details: monthlyError,
         })
       }
 
       console.log("[API] Monthly stats data:", monthlyStats)
-      
+
       return res.status(200).json({
-        monthly: monthlyStats || []
+        monthly: monthlyStats || [],
       })
     } else if (dataType === "topPayouts") {
-      // Call the new top payouts function for a specific company
-      const { data: topPayouts, error: topPayoutsError } = await supabase.rpc(
-        "get_top_10_payouts_for_company", // 👈 Use the actual function name
-        {
-          companyNameParam: company,
-          timeFilter: timeFilter,
-        }
-      )
-      
+      try {
+        console.log(`[API] Fetching top payouts for company: ${company}, timeFilter: ${timeFilter}`)
 
-      if (topPayoutsError) {
-        console.error("[API] Error fetching top payouts:", topPayoutsError)
+        // First, let's query without the nested select to see the raw data structure
+        const { data: rawData, error: rawDataError } = await supabase
+          .from("company_top_payouts")
+          .select("*")
+          .eq("time_frame", timeFilter)
+          .limit(1)
+
+        if (rawDataError) {
+          console.error("[API] Error fetching raw top payouts data:", rawDataError)
+        } else {
+          console.log("[API] Raw top payouts data sample:", rawData)
+        }
+
+        // Now perform the actual query with proper field names based on the database structure
+        const { data: topPayouts, error: topPayoutsError } = await supabase
+          .from("company_top_payouts")
+          .select(`
+            id,
+            rank,
+            payout_amount,
+            transaction_date,
+            time_frame,
+            prop_firm_id,
+            company_name,
+            brand_color,
+            logo_url
+          `)
+          .eq("time_frame", timeFilter)
+          .eq("company_name", company)
+          .order("rank", { ascending: true })
+          .limit(10)
+
+        if (topPayoutsError) {
+          console.error("[API] Error fetching top payouts:", topPayoutsError)
+          return res.status(500).json({
+            error: "Error fetching top payouts data",
+            details: topPayoutsError,
+          })
+        }
+
+        console.log(`[API] Found ${topPayouts?.length || 0} top payouts for ${company}`)
+        console.log("[API] Top payouts data sample:", topPayouts?.[0])
+
+        // Format the data for the frontend with both camelCase and snake_case for compatibility
+        const formatted = topPayouts.map((row) => ({
+          id: `payout-${row.rank}`,
+          rank: row.rank,
+          // Support both naming conventions for maximum compatibility
+          payoutAmount: row.payout_amount,
+          payoutamount: row.payout_amount,
+          transactionDate: row.transaction_date,
+          transactiondate: row.transaction_date,
+          companyName: row.company_name,
+          companyname: row.company_name,
+          brandColour: row.brand_color,
+          brandcolour: row.brand_color,
+          logoUrl: row.logo_url,
+          logourl: row.logo_url,
+          timeFrame: row.time_frame,
+          timeframe: row.time_frame,
+        }))
+
+        console.log("[API] Formatted top payouts sample:", formatted?.[0])
+
+        return res.status(200).json({ topPayouts: formatted })
+      } catch (error) {
+        console.error("[API] Unexpected error in topPayouts:", error)
         return res.status(500).json({
-          error: "Error fetching top payouts data",
-          details: topPayoutsError
+          error: "Unexpected error processing top payouts",
+          details: error instanceof Error ? error.message : String(error),
         })
       }
-
-      console.log("[API] Top payouts data:", topPayouts)
-      
-      return res.status(200).json({
-        topPayouts: topPayouts || []
-      })
     } else {
       // Original functionality for regular stats
       const [stats24h, stats7d, stats30d, statsAll] = await Promise.all([
@@ -159,3 +211,4 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     })
   }
 }
+
