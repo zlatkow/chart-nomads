@@ -33,7 +33,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const offset = (page - 1) * limit
 
         // Call the SQL function using Supabase
-        const { data: transactions, error } = await supabase.rpc("fetch_transactions_by_timeframe", {
+        const { data: transactions, error } = await supabase.rpc("print_all_transactions", {
           timefilter: timeFilter,
           limitrows: limit,
           offsetrows: offset,
