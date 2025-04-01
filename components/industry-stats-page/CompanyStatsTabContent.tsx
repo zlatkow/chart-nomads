@@ -7,7 +7,7 @@ import CompanyMonthlyUniquePaidTradersChart from "./CompanyMonthlyUniquePaidTrad
 import CompanyChurnRateChart from "./CompanyChurnRateChart"
 import CompanyHighEarnersChart from "./CompanyHighEarnersChart"
 import CompanyTopPayouts from "./CompanyTopPayouts"
-import AllTransactions from "./AllTransactions"
+import CompanyAllTransactions from "./CompanyAllTransactions"
 import HighEarnersLeaderboard from "./HighEarnersLeaderboard"
 
 // Define type based on your screenshot
@@ -42,7 +42,6 @@ const CompanyStatsTabContent = ({ activeTab, stats, companyName }: StatsTabConte
     <div className="w-full">
       {activeTab === "stats" && (
         <>
-          {/* Pass only the company name to the chart component */}
           <CompanyCombinedPaymentChart companyName={companyName} />
           <CompanyMonthlyUniquePaidTradersChart companyName={companyName} />
           <CompanyMonthlyUniqueTradersChart companyName={companyName} />
@@ -55,12 +54,12 @@ const CompanyStatsTabContent = ({ activeTab, stats, companyName }: StatsTabConte
         <>
           <CompanyMonthlyTransactionChart companyName={companyName} />
           <CompanyTopPayouts companyName={companyName} />
-          {stats.transactions && <AllTransactions transactions={stats.transactions} />}
+          <CompanyAllTransactions companyName={companyName} />
         </>
       )}
 
-      {activeTab === "high-earners" && stats && (
-        <>{stats.topTraders && <HighEarnersLeaderboard topTraders={stats.topTraders} />}</>
+      {activeTab === "high-earners" && stats && stats.topTraders && (
+        <HighEarnersLeaderboard topTraders={stats.topTraders} />
       )}
     </div>
   )
