@@ -149,7 +149,33 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       try {
         console.log(`[API] Fetching donut chart stats for company: ${company}`)
 
-        // Fetch donut chart stats
+        // First, get the prop_firm_id for the company name
+        const { data: propFirmData, error: propFirmError } = await supabase
+          .from("prop_firms")
+          .select("id")
+          .eq("propfirm_name", company)
+          .single()
+
+        if (propFirmError) {
+          console.error("[API] Error fetching prop_firm_id:", propFirmError)
+          return res.status(500).json({
+            error: "Error finding company in database",
+            details: propFirmError,
+          })
+        }
+
+        if (!propFirmData || !propFirmData.id) {
+          console.error(`[API] Company not found: ${company}`)
+          return res.status(404).json({
+            error: "Company not found",
+            details: `No company found with name: ${company}`,
+          })
+        }
+
+        const propFirmId = propFirmData.id
+        console.log(`[API] Found prop_firm_id: ${propFirmId} for company: ${company}`)
+
+        // Now fetch the donut chart stats for this prop_firm_id
         const { data: stats, error } = await supabase
           .from("donutchart_company_highearners_stats")
           .select(`
@@ -159,13 +185,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             percentage,
             total_unique_traders,
             category_type,
-            created_at,
-            prop_firms (
-              id,
-              propfirm_name
-            )
+            created_at
           `)
-          .eq("prop_firms.propfirm_name", company)
+          .eq("company_id", propFirmId)
 
         if (error) {
           console.error("[API] Error fetching donut stats:", error)
