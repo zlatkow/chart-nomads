@@ -52,8 +52,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // Call the new top payouts function for a specific company
       const { data: topPayouts, error: topPayoutsError } = await supabase.rpc(
         "get_top_10_payouts_for_company",
-        [company, timeFilter] // 👈 Must be in the correct order
-      )      
+        { 
+          companyNameParam: company,
+          timeFilter: timeFilter 
+        }
+      )
 
       if (topPayoutsError) {
         console.error("[API] Error fetching top payouts:", topPayoutsError)
