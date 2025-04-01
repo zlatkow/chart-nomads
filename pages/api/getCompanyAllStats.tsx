@@ -218,6 +218,56 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           details: error instanceof Error ? error.message : String(error),
         })
       }
+    } else if (dataType === "churnRate") {
+      try {
+        console.log(`[API] Fetching churn rate data for company: ${company}`)
+
+        // Step 1: Get company ID
+        const { data: companyData, error: companyError } = await supabase
+          .from("prop_firms")
+          .select("id")
+          .eq("propfirm_name", company)
+          .single()
+
+        if (companyError || !companyData?.id) {
+          console.error("[API] Error fetching company ID:", companyError)
+          return res.status(404).json({
+            error: "Company not found",
+            details: companyError?.message || "Invalid company name",
+          })
+        }
+
+        const companyId = companyData.id
+
+        // Step 2: Get churn stats
+        const { data: churnStats, error: churnError } = await supabase
+          .from("monthly_company_churn_stats")
+          .select(`
+            month_year,
+            total_users_last_year,
+            active_users_last_6_months,
+            churn_rate,
+            churn_rate_change
+          `)
+          .eq("company_id", companyId)
+          .order("created_at", { ascending: false })
+
+        if (churnError) {
+          console.error("[API] Error fetching churn data:", churnError)
+          return res.status(500).json({
+            error: "Error fetching churn data",
+            details: churnError.message,
+          })
+        }
+
+        return res.status(200).json({ churnRate: churnStats || [] })
+      } catch (error) {
+        console.error("[API] Unexpected error in churnRate:", error)
+        return res.status(500).json({
+          error: "Unexpected error processing churn rate",
+          details: error instanceof Error ? error.message : String(error),
+        })
+      }
     } else {
       // Original functionality for regular stats
       const [stats24h, stats7d, stats30d, statsAll] = await Promise.all([
