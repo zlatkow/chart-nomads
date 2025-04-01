@@ -46,7 +46,7 @@ const formatMonthYear = (monthYear) => {
   return result
 }
 
-const ChurnRateChart = ({ companyName, apiPath = "/api" }) => {
+const ChurnRateChart = ({ companyName, apiPath = "/api/getCompanyAllStats" }) => {
   const [chartData, setChartData] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
