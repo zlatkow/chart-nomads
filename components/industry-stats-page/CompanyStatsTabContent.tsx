@@ -5,7 +5,7 @@ import CompanyMonthlyTransactionChart from "./CompanyMonthlyTransactionChart"
 import CompanyMonthlyUniqueTradersChart from "./CompanyMonthlyUniqueTradersChart"
 import CompanyMonthlyUniquePaidTradersChart from "./CompanyMonthlyUniquePaidTradersChart"
 import ChurnRateChart from "./ChurnRateChart"
-import HighEarnersChart from "./HighEarnersChart"
+import CompanyHighEarnersChart from "./CompanyHighEarnersChart"
 import CompanyTopPayouts from "./CompanyTopPayouts"
 import AllTransactions from "./AllTransactions"
 import HighEarnersLeaderboard from "./HighEarnersLeaderboard"
@@ -46,7 +46,7 @@ const CompanyStatsTabContent = ({ activeTab, stats, companyName }: StatsTabConte
           <CompanyCombinedPaymentChart companyName={companyName} />
           <CompanyMonthlyUniquePaidTradersChart companyName={companyName} />
           <CompanyMonthlyUniqueTradersChart companyName={companyName} />
-          {/* <HighEarnersChart companyName={companyName} /> */}
+          <CompanyHighEarnersChart companyName={companyName} />
           {/* Only render these if stats is available */}
           {stats && (
             <>
