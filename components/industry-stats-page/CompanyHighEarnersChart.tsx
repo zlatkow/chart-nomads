@@ -103,22 +103,67 @@ export default function PayoutStatsChart({ companyName }: PayoutStatsChartProps)
     (payoutCountData.length > 0 && payoutCountData[0]?.total_unique_traders) ||
     0
 
+  // Define the category order
+  const categoryOrder = [
+    "< $10,000",
+    "$10,000+",
+    "$50,000+",
+    "$100,000+",
+    "< 10 Payouts",
+    "10+ Payouts",
+    "20+ Payouts",
+    "30+ Payouts",
+  ]
+
+  // Sort function to maintain consistent category order
+  const sortByCategory = (data) => {
+    return [...data].sort((a, b) => {
+      const indexA = categoryOrder.indexOf(a.name)
+      const indexB = categoryOrder.indexOf(b.name)
+
+      // If both categories are in our predefined order, sort by that order
+      if (indexA !== -1 && indexB !== -1) {
+        return indexA - indexB
+      }
+
+      // If only one category is in our list, prioritize it
+      if (indexA !== -1) return -1
+      if (indexB !== -1) return 1
+
+      // For any categories not in our list, sort alphabetically
+      return a.name.localeCompare(b.name)
+    })
+  }
+
   // ✅ Generate Color Shades Separately for Each Chart
   const generateColorShades = (data) => {
     if (!Array.isArray(data) || data.length === 0) return []
 
-    // Use a brighter base color - this is closer to the bright yellow in the first image
-    const baseColor = [255, 191, 0] // Bright gold/yellow RGB
+    // Sort data by count to identify the largest segment
+    const sortedData = [...data].sort((a, b) => b.count - a.count)
 
-    // Create colors for each segment
+    // Create a mapping of original indices to sorted positions
+    const positionMap = new Map()
+    sortedData.forEach((item, index) => {
+      const originalIndex = data.findIndex((d) => d.category === item.category && d.count === item.count)
+      positionMap.set(originalIndex, index)
+    })
+
+    // Use the same gold color as the reference code
+    const baseColor = [237, 185, 0] // RGB for Gold
+
+    // Create colors for each segment based on its size rank
     return data.map((_, index) => {
-      // First segment (usually the largest) gets the brightest color
-      if (index === 0) {
+      const position = positionMap.get(index)
+
+      // First position (largest) gets the brightest color
+      if (position === 0) {
         return `rgb(${baseColor[0]}, ${baseColor[1]}, ${baseColor[2]})`
       }
 
-      // Other segments get progressively darker
-      const factor = 0.7 - index * 0.1 // Less dramatic darkening
+      // Other segments get progressively darker based on their size rank
+      const darkFactor = 0.25
+      const factor = 1 - position * darkFactor
       return `rgb(${Math.round(baseColor[0] * factor)}, ${Math.round(baseColor[1] * factor)}, ${Math.round(baseColor[2] * factor)})`
     })
   }
@@ -128,7 +173,7 @@ export default function PayoutStatsChart({ companyName }: PayoutStatsChartProps)
   const COLORS_COUNT = generateColorShades(payoutCountData)
 
   // ✅ Format Data for Charts
-  const formattedAmountData = payoutAmountData
+  let formattedAmountData = payoutAmountData
     .map((item, index) => ({
       name: item.category || "Unknown",
       count: item.count ?? 0, // 🔥 Ensure count exists
@@ -137,7 +182,7 @@ export default function PayoutStatsChart({ companyName }: PayoutStatsChartProps)
     }))
     .filter((item) => item.count > 0) // 🔥 Ensure we only keep items with valid count
 
-  const formattedCountData = payoutCountData
+  let formattedCountData = payoutCountData
     .map((item, index) => ({
       name: item.category || "Unknown",
       count: item.count ?? 0,
@@ -145,6 +190,10 @@ export default function PayoutStatsChart({ companyName }: PayoutStatsChartProps)
       color: COLORS_COUNT[index],
     }))
     .filter((item) => item.count > 0) // 🔥 Ensure we only keep items with valid count
+
+  // Apply sorting
+  formattedAmountData = sortByCategory(formattedAmountData)
+  formattedCountData = sortByCategory(formattedCountData)
 
   // ✅ Active Sector Styling
   const renderActiveShape = (props) => {
@@ -213,8 +262,6 @@ export default function PayoutStatsChart({ companyName }: PayoutStatsChartProps)
                     dataKey="count"
                     onMouseEnter={(_, index) => setActiveIndexAmount(index)}
                     onMouseLeave={() => setActiveIndexAmount(null)}
-                    startAngle={90}
-                    endAngle={-270}
                   >
                     {formattedAmountData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
@@ -266,8 +313,6 @@ export default function PayoutStatsChart({ companyName }: PayoutStatsChartProps)
                     dataKey="count"
                     onMouseEnter={(_, index) => setActiveIndexCount(index)}
                     onMouseLeave={() => setActiveIndexCount(null)}
-                    startAngle={90}
-                    endAngle={-270}
                   >
                     {formattedCountData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
