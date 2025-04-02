@@ -56,11 +56,11 @@ interface Firm {
   rating?: number
   reviews_count?: number
   likes_count?: number
-  facebook_link: string
-  x_link: string
-  instagram_link: string
-  linkedin_link: string
-  youtube_link: string
+  facebook_link?: string
+  x_link?: string
+  instagram_link?: string
+  linkedin_link?: string
+  youtube_link?: string
   ceo?: string
   established?: string
   country?: string
@@ -392,9 +392,7 @@ function PropFirmUI({ firm, formatCurrency = (value: number) => `$${value}` }: P
                     ) : (
                       <div className="w-24 h-24 bg-white rounded-lg flex items-center justify-center">
                         <span className="text-[#0f0f0f] font-bold text-4xl">
-                          {firm && firm.propfirm_name
-                            ? firm.propfirm_name?.substring(0, 2).toUpperCase() || "FP"
-                            : "FP"}
+                          {firm && firm.propfirm_name ? firm.propfirm_name?.substring(0, 2).toUpperCase() : "FP"}
                         </span>
                       </div>
                     )}
@@ -467,40 +465,55 @@ function PropFirmUI({ firm, formatCurrency = (value: number) => `$${value}` }: P
                 <div className="px-6 py-4 border-t border-[#0f0f0f]/10">
                   <h3 className="font-bold mb-3">Socials</h3>
                   <div className="flex space-x-3">
+                    {firm?.facebook_link && (
                       <Link href={firm.facebook_link} className="text-[#0f0f0f] hover:opacity-80">
                         <Facebook size={18} />
                       </Link>
-                      <Link href={firm?.x_link} className="text-[#0f0f0f] hover:opacity-80">
+                    )}
+                    {firm?.x_link && (
+                      <Link href={firm.x_link} className="text-[#0f0f0f] hover:opacity-80">
                         <Twitter size={18} />
                       </Link>
+                    )}
+                    {firm?.instagram_link && (
                       <Link href={firm.instagram_link} className="text-[#0f0f0f] hover:opacity-80">
                         <Instagram size={18} />
                       </Link>
+                    )}
+                    {firm?.linkedin_link && (
                       <Link href={firm.linkedin_link} className="text-[#0f0f0f] hover:opacity-80">
                         <Linkedin size={18} />
                       </Link>
+                    )}
+                    {firm?.youtube_link && (
                       <Link href={firm.youtube_link} className="text-[#0f0f0f] hover:opacity-80">
                         <Youtube size={18} />
                       </Link>
-
-                    {/* Show default social icons if none provided */}
-                      <>
-                        <Link href="#" className="text-[#0f0f0f] hover:opacity-80">
-                          <Facebook size={18} />
-                        </Link>
-                        <Link href="#" className="text-[#0f0f0f] hover:opacity-80">
-                          <Twitter size={18} />
-                        </Link>
-                        <Link href="#" className="text-[#0f0f0f] hover:opacity-80">
-                          <Instagram size={18} />
-                        </Link>
-                        <Link href="#" className="text-[#0f0f0f] hover:opacity-80">
-                          <Linkedin size={18} />
-                        </Link>
-                        <Link href="#" className="text-[#0f0f0f] hover:opacity-80">
-                          <Youtube size={18} />
-                        </Link>
-                      </>
+                    )}
+                    {/* Show default social icons if no links provided */}
+                    {!firm?.facebook_link &&
+                      !firm?.x_link &&
+                      !firm?.instagram_link &&
+                      !firm?.linkedin_link &&
+                      !firm?.youtube_link && (
+                        <>
+                          <Link href="#" className="text-[#0f0f0f] hover:opacity-80">
+                            <Facebook size={18} />
+                          </Link>
+                          <Link href="#" className="text-[#0f0f0f] hover:opacity-80">
+                            <Twitter size={18} />
+                          </Link>
+                          <Link href="#" className="text-[#0f0f0f] hover:opacity-80">
+                            <Instagram size={18} />
+                          </Link>
+                          <Link href="#" className="text-[#0f0f0f] hover:opacity-80">
+                            <Linkedin size={18} />
+                          </Link>
+                          <Link href="#" className="text-[#0f0f0f] hover:opacity-80">
+                            <Youtube size={18} />
+                          </Link>
+                        </>
+                      )}
                   </div>
                 </div>
 
