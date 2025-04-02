@@ -10,7 +10,7 @@ import tippy from "tippy.js"
 import "tippy.js/dist/tippy.css"
 import "tippy.js/themes/light.css"
 
-// Add shimmer animation CSS
+// Add the shimmer animation CSS at the top of the file after the imports
 const shimmerAnimation = `
 @keyframes shimmer {
   0% {
@@ -116,7 +116,7 @@ export default function HighEarnersLeaderboard({ companyName }) {
     })
   }, [data]) // Re-run when data changes
 
-  // Add this after the other useEffect hooks
+  // Add a useEffect to inject the shimmer animation CSS
   useEffect(() => {
     if (typeof document !== "undefined") {
       const style = document.createElement("style")
