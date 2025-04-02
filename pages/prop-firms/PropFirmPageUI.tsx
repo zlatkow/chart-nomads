@@ -77,6 +77,14 @@ interface Firm {
   five_star_review?: number
 }
 
+interface RatingBreakdown {
+  one_star_review?: number
+  two_star_review?: number
+  three_star_review?: number
+  four_star_review?: number
+  five_star_review?: number
+}
+
 interface OffersProps {
   firmId: number | null
   supabase: SupabaseClient
@@ -87,10 +95,15 @@ interface OffersProps {
 
 interface PropFirmUIProps {
   firm: Firm | null
-  formatCurrency?: (value: number) => string
+  ratingBreakdown?: RatingBreakdown
+  formatCurrency?: (value: number, currency?: string) => string
 }
 
-function PropFirmUI({ firm, formatCurrency = (value: number) => `$${value}` }: PropFirmUIProps) {
+function PropFirmUI({
+  firm,
+  ratingBreakdown,
+  formatCurrency = (value: number, currency?: string) => `$${value}`,
+}: PropFirmUIProps) {
   console.log("PropFirmUI received firm:", firm)
 
   // Get URL search params to handle tab selection and review highlighting
@@ -436,28 +449,43 @@ function PropFirmUI({ firm, formatCurrency = (value: number) => `$${value}` }: P
                 <div className="px-6 pb-4">
                   <div className="flex items-center justify-between mb-1 text-xs">
                     <span>5-star</span>
-                    <Progress value={firm?.five_star_review || 0} className="h-2 w-40" />
-                    <span>{firm?.five_star_review || 0}%</span>
+                    <Progress
+                      value={ratingBreakdown?.five_star_review || firm?.five_star_review || 0}
+                      className="h-2 w-40"
+                    />
+                    <span>{ratingBreakdown?.five_star_review || firm?.five_star_review || 0}%</span>
                   </div>
                   <div className="flex items-center justify-between mb-1 text-xs">
                     <span>4-star</span>
-                    <Progress value={firm?.four_star_review || 0} className="h-2 w-40" />
-                    <span>{firm?.four_star_review || 0}%</span>
+                    <Progress
+                      value={ratingBreakdown?.four_star_review || firm?.four_star_review || 0}
+                      className="h-2 w-40"
+                    />
+                    <span>{ratingBreakdown?.four_star_review || firm?.four_star_review || 0}%</span>
                   </div>
                   <div className="flex items-center justify-between mb-1 text-xs">
                     <span>3-star</span>
-                    <Progress value={firm?.three_star_review || 0} className="h-2 w-40" />
-                    <span>{firm?.three_star_review || 0}%</span>
+                    <Progress
+                      value={ratingBreakdown?.three_star_review || firm?.three_star_review || 0}
+                      className="h-2 w-40"
+                    />
+                    <span>{ratingBreakdown?.three_star_review || firm?.three_star_review || 0}%</span>
                   </div>
                   <div className="flex items-center justify-between mb-1 text-xs">
                     <span>2-star</span>
-                    <Progress value={firm?.two_star_review || 0} className="h-2 w-40" />
-                    <span>{firm?.two_star_review || 0}%</span>
+                    <Progress
+                      value={ratingBreakdown?.two_star_review || firm?.two_star_review || 0}
+                      className="h-2 w-40"
+                    />
+                    <span>{ratingBreakdown?.two_star_review || firm?.two_star_review || 0}%</span>
                   </div>
                   <div className="flex items-center justify-between mb-1 text-xs">
                     <span>1-star</span>
-                    <Progress value={firm?.one_star_review || 0} className="h-2 w-40" />
-                    <span>{firm?.one_star_review || 0}%</span>
+                    <Progress
+                      value={ratingBreakdown?.one_star_review || firm?.one_star_review || 0}
+                      className="h-2 w-40"
+                    />
+                    <span>{ratingBreakdown?.one_star_review || firm?.one_star_review || 0}%</span>
                   </div>
                 </div>
 
