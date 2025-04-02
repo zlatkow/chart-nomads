@@ -70,11 +70,11 @@ interface Firm {
   platform_details?: string
   instruments?: string[]
   leverage?: Record<string, string>
-  one_star_review: number
-  two_star_review: number
-  three_star_review: number
-  four_star_review: number
-  five_star_review: number
+  one_star_review?: number
+  two_star_review?: number
+  three_star_review?: number
+  four_star_review?: number
+  five_star_review?: number
 }
 
 interface OffersProps {
@@ -436,28 +436,28 @@ function PropFirmUI({ firm, formatCurrency = (value: number) => `$${value}` }: P
                 <div className="px-6 pb-4">
                   <div className="flex items-center justify-between mb-1 text-xs">
                     <span>5-star</span>
-                    <Progress value={firm?.five_star_review} className="h-2 w-40" />
-                    <span>{firm?.five_star_review}%</span>
+                    <Progress value={firm?.five_star_review || 0} className="h-2 w-40" />
+                    <span>{firm?.five_star_review || 0}%</span>
                   </div>
                   <div className="flex items-center justify-between mb-1 text-xs">
                     <span>4-star</span>
-                    <Progress value={firm?.four_star_review} className="h-2 w-40" />
-                    <span>{firm?.four_star_review}%</span>
+                    <Progress value={firm?.four_star_review || 0} className="h-2 w-40" />
+                    <span>{firm?.four_star_review || 0}%</span>
                   </div>
                   <div className="flex items-center justify-between mb-1 text-xs">
                     <span>3-star</span>
-                    <Progress value={firm?.three_star_review} className="h-2 w-40" />
-                    <span>{firm?.three_star_review}%</span>
+                    <Progress value={firm?.three_star_review || 0} className="h-2 w-40" />
+                    <span>{firm?.three_star_review || 0}%</span>
                   </div>
                   <div className="flex items-center justify-between mb-1 text-xs">
                     <span>2-star</span>
-                    <Progress value={firm?.two_star_review} className="h-2 w-40" />
-                    <span>{firm?.two_star_review}%</span>
+                    <Progress value={firm?.two_star_review || 0} className="h-2 w-40" />
+                    <span>{firm?.two_star_review || 0}%</span>
                   </div>
                   <div className="flex items-center justify-between mb-1 text-xs">
                     <span>1-star</span>
-                    <Progress value={firm?.one_star_review} className="h-2 w-40" />
-                    <span>{firm?.one_star_review}%</span>
+                    <Progress value={firm?.one_star_review || 0} className="h-2 w-40" />
+                    <span>{firm?.one_star_review || 0}%</span>
                   </div>
                 </div>
 
