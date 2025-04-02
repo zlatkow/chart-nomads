@@ -51,6 +51,7 @@ interface Firm {
   id: number
   propfirm_name: string
   logo_url?: string
+  brand_colour?: string
   category?: string
   rating?: number
   reviews_count?: number
@@ -383,7 +384,8 @@ function PropFirmUI({ firm, ratingBreakdown, formatCurrency }: PropFirmUIProps) 
                 <div className="p-6 flex flex-col items-center">
                   <div className="relative mb-4">
                     {firm && firm.logo_url ? (
-                      <div className="w-24 h-24 p-5 bg-white rounded-lg flex items-center justify-center overflow-hidden">
+                      <div className="w-24 h-24 p-5 bg-white rounded-lg flex items-center justify-center overflow-hidden"
+                       style={{ backgroundColor: firm.brand_colour }}>
                         <Image
                           src={firm.logo_url || "/placeholder.svg"}
                           alt={`${firm?.propfirm_name || "Company"} logo`}
