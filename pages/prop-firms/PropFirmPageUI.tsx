@@ -6,7 +6,22 @@ import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { supabase } from "../../lib/supabase"
 import Image from "next/image"
-import { Facebook, Twitter, Instagram, Linkedin, Youtube, BarChart2, DollarSign, Award, FileText, MessageSquare, ExternalLink, Newspaper, ListTree, Star } from 'lucide-react'
+import {
+  Facebook,
+  Twitter,
+  Instagram,
+  Linkedin,
+  Youtube,
+  BarChart2,
+  DollarSign,
+  Award,
+  FileText,
+  MessageSquare,
+  ExternalLink,
+  Newspaper,
+  ListTree,
+  Star,
+} from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -36,17 +51,16 @@ interface Firm {
   id: number
   propfirm_name: string
   logo_url?: string
+  brand_colour?: string
   category?: string
   rating?: number
   reviews_count?: number
   likes_count?: number
-  social_links?: {
-    facebook?: string
-    twitter?: string
-    instagram?: string
-    linkedin?: string
-    youtube?: string
-  }
+  facebook_link: string
+  x_link: string
+  instagram_link: string
+  linkedin_link: string
+  youtube_link: string
   ceo?: string
   established?: string
   country?: string
@@ -56,21 +70,14 @@ interface Firm {
   platform_details?: string
   instruments?: string[]
   leverage?: Record<string, string>
+  one_star_review: number
+  two_star_review: number
+  three_star_review: number
+  four_star_review: number
+  five_star_review: number
 }
 
-interface RatingBreakdown {
-  five_star: number
-  four_star: number
-  three_star: number
-  two_star: number
-  one_star: number
-}
 
-interface PropFirmUIProps {
-  firm: Firm | null
-  ratingBreakdown: RatingBreakdown | null
-  formatCurrency: (amount: number, currency?: string) => string
-}
 
 interface OffersProps {
   firmId: number | null
@@ -80,9 +87,8 @@ interface OffersProps {
   showTabs: boolean
 }
 
-function PropFirmUI({ firm, ratingBreakdown, formatCurrency }: PropFirmUIProps) {
+function PropFirmUI({ firm, formatCurrency }: ) {
   console.log("PropFirmUI received firm:", firm)
-  console.log("PropFirmUI received ratingBreakdown:", ratingBreakdown)
 
   // Get URL search params to handle tab selection and review highlighting
   const searchParams = useSearchParams()
@@ -108,16 +114,6 @@ function PropFirmUI({ firm, ratingBreakdown, formatCurrency }: PropFirmUIProps) 
   const [rulesActiveTab, setRulesActiveTab] = useState("main-rules")
   const [rulesLoading, setRulesLoading] = useState(true)
   const [bannedCountries, setBannedCountries] = useState(null)
-  
-  // Add state for rating bar animations
-  const [animateRatings, setAnimateRatings] = useState(true)
-  const [ratingBarWidths, setRatingBarWidths] = useState({
-    five_star: 0,
-    four_star: 0,
-    three_star: 0,
-    two_star: 0,
-    one_star: 0
-  })
 
   // Get the noise context
   const { isNoiseVisible } = useNoise()
@@ -261,40 +257,6 @@ function PropFirmUI({ firm, ratingBreakdown, formatCurrency }: PropFirmUIProps) 
     fetchRules()
   }, [firmId])
 
-  // Add effect for rating bar animations
-  useEffect(() => {
-    // Start with zero width
-    setRatingBarWidths({
-      five_star: 0,
-      four_star: 0,
-      three_star: 0,
-      two_star: 0,
-      one_star: 0
-    })
-
-    // Animate to actual percentages after a short delay
-    const timer = setTimeout(() => {
-      if (ratingBreakdown) {
-        setRatingBarWidths({
-          five_star: ratingBreakdown.five_star || 0,
-          four_star: ratingBreakdown.four_star || 0,
-          three_star: ratingBreakdown.three_star || 0,
-          two_star: ratingBreakdown.two_star || 0,
-          one_star: ratingBreakdown.one_star || 0
-        })
-      }
-
-      // Disable animation after it completes
-      const disableTimer = setTimeout(() => {
-        setAnimateRatings(false)
-      }, 1000)
-
-      return () => clearTimeout(disableTimer)
-    }, 300)
-
-    return () => clearTimeout(timer)
-  }, [ratingBreakdown])
-
   const handleLike = () => {
     if (liked) {
       setLikeCount(likeCount - 1)
@@ -412,7 +374,8 @@ function PropFirmUI({ firm, ratingBreakdown, formatCurrency }: PropFirmUIProps) 
                 <div className="p-6 flex flex-col items-center">
                   <div className="relative mb-4">
                     {firm && firm.logo_url ? (
-                      <div className="w-24 h-24 p-5 bg-white rounded-lg flex items-center justify-center overflow-hidden">
+                      <div className="w-24 h-24 p-5 bg-white rounded-lg flex items-center justify-center overflow-hidden"
+                       style={{ backgroundColor: firm.brand_colour }}>
                         <Image
                           src={firm.logo_url || "/placeholder.svg"}
                           alt={`${firm?.propfirm_name || "Company"} logo`}
@@ -466,57 +429,32 @@ function PropFirmUI({ firm, ratingBreakdown, formatCurrency }: PropFirmUIProps) 
                   </div>
                 </div>
 
-                {/* Rating Breakdown - Updated to match the image */}
+                {/* Rating Breakdown - Static data */}
                 <div className="px-6 pb-4">
                   <div className="flex items-center justify-between mb-1 text-xs">
                     <span>5-star</span>
-                    <div className="w-40 h-2 bg-[#0f0f0f]/20 rounded-full overflow-hidden">
-                      <div 
-                        className={`h-full bg-[#0f0f0f] ${animateRatings ? 'transition-all duration-1000 ease-out' : ''}`} 
-                        style={{ width: `${ratingBarWidths.five_star}%` }}
-                      ></div>
-                    </div>
-                    <span>{ratingBreakdown?.five_star || 58}%</span>
+                    <Progress value={firm?.five_star_review} className="h-2 w-40" />
+                    <span>{firm?.five_star_review}%</span>
                   </div>
                   <div className="flex items-center justify-between mb-1 text-xs">
                     <span>4-star</span>
-                    <div className="w-40 h-2 bg-[#0f0f0f]/20 rounded-full overflow-hidden">
-                      <div 
-                        className={`h-full bg-[#0f0f0f] ${animateRatings ? 'transition-all duration-1000 ease-out' : ''}`} 
-                        style={{ width: `${ratingBarWidths.four_star}%` }}
-                      ></div>
-                    </div>
-                    <span>{ratingBreakdown?.four_star || 30}%</span>
+                    <Progress value={firm?.four_star_review} className="h-2 w-40" />
+                    <span>{firm?.four_star_review}%</span>
                   </div>
                   <div className="flex items-center justify-between mb-1 text-xs">
                     <span>3-star</span>
-                    <div className="w-40 h-2 bg-[#0f0f0f]/20 rounded-full overflow-hidden">
-                      <div 
-                        className={`h-full bg-[#0f0f0f] ${animateRatings ? 'transition-all duration-1000 ease-out' : ''}`} 
-                        style={{ width: `${ratingBarWidths.three_star}%` }}
-                      ></div>
-                    </div>
-                    <span>{ratingBreakdown?.three_star || 7}%</span>
+                    <Progress value={firm?.three_star_review} className="h-2 w-40" />
+                    <span>{firm?.three_star_review}%</span>
                   </div>
                   <div className="flex items-center justify-between mb-1 text-xs">
                     <span>2-star</span>
-                    <div className="w-40 h-2 bg-[#0f0f0f]/20 rounded-full overflow-hidden">
-                      <div 
-                        className={`h-full bg-[#0f0f0f] ${animateRatings ? 'transition-all duration-1000 ease-out' : ''}`} 
-                        style={{ width: `${ratingBarWidths.two_star}%` }}
-                      ></div>
-                    </div>
-                    <span>{ratingBreakdown?.two_star || 3}%</span>
+                    <Progress value={firm?.two_star_review} className="h-2 w-40" />
+                    <span>{firm?.two_star_review}%</span>
                   </div>
                   <div className="flex items-center justify-between mb-1 text-xs">
                     <span>1-star</span>
-                    <div className="w-40 h-2 bg-[#0f0f0f]/20 rounded-full overflow-hidden">
-                      <div 
-                        className={`h-full bg-[#0f0f0f] ${animateRatings ? 'transition-all duration-1000 ease-out' : ''}`} 
-                        style={{ width: `${ratingBarWidths.one_star}%` }}
-                      ></div>
-                    </div>
-                    <span>{ratingBreakdown?.one_star || 2}%</span>
+                    <Progress value={firm?.one_star_review} className="h-2 w-40" />
+                    <span>{firm?.one_star_review}%</span>
                   </div>
                 </div>
 
@@ -986,3 +924,4 @@ function PropFirmUI({ firm, ratingBreakdown, formatCurrency }: PropFirmUIProps) 
 }
 
 export default PropFirmUI
+
