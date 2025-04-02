@@ -10,6 +10,42 @@ import tippy from "tippy.js"
 import "tippy.js/dist/tippy.css"
 import "tippy.js/themes/light.css"
 
+// Add shimmer animation CSS
+const shimmerAnimation = `
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.animate-pulse {
+  position: relative;
+  overflow: hidden;
+}
+
+.animate-pulse::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0,
+    rgba(255, 255, 255, 0.05) 20%,
+    rgba(255, 255, 255, 0.1) 60%,
+    rgba(255, 255, 255, 0)
+  );
+  animation: shimmer 2s infinite;
+  pointer-events: none;
+}
+`
+
 export default function HighEarnersLeaderboard({ companyName }) {
   const [data, setData] = useState({ top_by_payouts: [], top_by_amount: [] })
   const [loading, setLoading] = useState({ top_by_payouts: true, top_by_amount: true })
@@ -79,6 +115,19 @@ export default function HighEarnersLeaderboard({ companyName }) {
       duration: 200,
     })
   }, [data]) // Re-run when data changes
+
+  // Add this after the other useEffect hooks
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      const style = document.createElement("style")
+      style.textContent = shimmerAnimation
+      document.head.appendChild(style)
+
+      return () => {
+        document.head.removeChild(style)
+      }
+    }
+  }, [])
 
   if (error) return <p className="text-center text-red-500 py-4">{error}</p>
 
@@ -168,8 +217,36 @@ export default function HighEarnersLeaderboard({ companyName }) {
                 </Select>
               </div>
               {loading[key] ? (
-                <div className="flex items-center justify-center h-[500px]">
-                  <div className="w-8 h-8 border-4 border-[#edb900] border-t-transparent rounded-full animate-spin"></div>
+                <div className="flex flex-col space-y-4 h-[500px] overflow-hidden">
+                  {Array(5)
+                    .fill(0)
+                    .map((_, index) => (
+                      <div
+                        key={`skeleton-${index}`}
+                        className="flex items-center justify-between p-4 bg-zinc-800/20 rounded-lg animate-pulse"
+                      >
+                        <div className="flex items-center gap-4">
+                          {/* Ranking skeleton */}
+                          <div className="w-7 h-7 rounded-full bg-[rgba(237,185,0,0.1)]"></div>
+
+                          {/* Avatar skeleton */}
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800"></div>
+
+                          {/* Text content skeleton */}
+                          <div>
+                            <div className="h-5 w-32 bg-[rgba(237,185,0,0.1)] rounded mb-2"></div>
+                            <div className="flex items-center gap-1 mt-1">
+                              <div className="h-4 w-16 bg-[rgba(255,255,255,0.05)] rounded"></div>
+                              <div className="flex gap-1">
+                                {[1, 2].map((i) => (
+                                  <div key={i} className="w-6 h-6 rounded bg-[rgba(255,255,255,0.05)]"></div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                 </div>
               ) : (
                 <div className="divide-y divide-zinc-800 max-h-[600px] overflow-y-auto">
