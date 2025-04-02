@@ -77,8 +77,6 @@ interface Firm {
   five_star_review: number
 }
 
-
-
 interface OffersProps {
   firmId: number | null
   supabase: SupabaseClient
@@ -87,7 +85,12 @@ interface OffersProps {
   showTabs: boolean
 }
 
-function PropFirmUI({ firm, formatCurrency }: ) {
+interface PropFirmUIProps {
+  firm: Firm | null
+  formatCurrency?: (value: number) => string
+}
+
+function PropFirmUI({ firm, formatCurrency = (value: number) => `$${value}` }: PropFirmUIProps) {
   console.log("PropFirmUI received firm:", firm)
 
   // Get URL search params to handle tab selection and review highlighting
@@ -374,8 +377,10 @@ function PropFirmUI({ firm, formatCurrency }: ) {
                 <div className="p-6 flex flex-col items-center">
                   <div className="relative mb-4">
                     {firm && firm.logo_url ? (
-                      <div className="w-24 h-24 p-5 bg-white rounded-lg flex items-center justify-center overflow-hidden"
-                       style={{ backgroundColor: firm.brand_colour }}>
+                      <div
+                        className="w-24 h-24 p-5 bg-white rounded-lg flex items-center justify-center overflow-hidden"
+                        style={{ backgroundColor: firm.brand_colour }}
+                      >
                         <Image
                           src={firm.logo_url || "/placeholder.svg"}
                           alt={`${firm?.propfirm_name || "Company"} logo`}
@@ -462,33 +467,23 @@ function PropFirmUI({ firm, formatCurrency }: ) {
                 <div className="px-6 py-4 border-t border-[#0f0f0f]/10">
                   <h3 className="font-bold mb-3">Socials</h3>
                   <div className="flex space-x-3">
-                    {firm?.social_links?.facebook && (
-                      <Link href={firm.social_links.facebook} className="text-[#0f0f0f] hover:opacity-80">
+                      <Link href={firm.facebook_link} className="text-[#0f0f0f] hover:opacity-80">
                         <Facebook size={18} />
                       </Link>
-                    )}
-                    {firm?.social_links?.twitter && (
-                      <Link href={firm.social_links.twitter} className="text-[#0f0f0f] hover:opacity-80">
+                      <Link href={firm?.x_link} className="text-[#0f0f0f] hover:opacity-80">
                         <Twitter size={18} />
                       </Link>
-                    )}
-                    {firm?.social_links?.instagram && (
-                      <Link href={firm.social_links.instagram} className="text-[#0f0f0f] hover:opacity-80">
+                      <Link href={firm.instagram_link} className="text-[#0f0f0f] hover:opacity-80">
                         <Instagram size={18} />
                       </Link>
-                    )}
-                    {firm?.social_links?.linkedin && (
-                      <Link href={firm.social_links.linkedin} className="text-[#0f0f0f] hover:opacity-80">
+                      <Link href={firm.linkedin_link} className="text-[#0f0f0f] hover:opacity-80">
                         <Linkedin size={18} />
                       </Link>
-                    )}
-                    {firm?.social_links?.youtube && (
-                      <Link href={firm.social_links.youtube} className="text-[#0f0f0f] hover:opacity-80">
+                      <Link href={firm.youtube_link} className="text-[#0f0f0f] hover:opacity-80">
                         <Youtube size={18} />
                       </Link>
-                    )}
+
                     {/* Show default social icons if none provided */}
-                    {!firm?.social_links && (
                       <>
                         <Link href="#" className="text-[#0f0f0f] hover:opacity-80">
                           <Facebook size={18} />
@@ -506,7 +501,6 @@ function PropFirmUI({ firm, formatCurrency }: ) {
                           <Youtube size={18} />
                         </Link>
                       </>
-                    )}
                   </div>
                 </div>
 
