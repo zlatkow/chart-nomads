@@ -65,7 +65,7 @@ interface Firm {
   discord_link?: string
   ceo?: string
   established?: string
-  years_in_business?: string
+  years_in_operations?: string
   country?: string
   website_link?: string
   broker?: string
@@ -545,7 +545,7 @@ function PropFirmUI({
                   </div>
                   <div>
                     <h3 className="font-bold mb-2">Years In Operations</h3>
-                    <p className="text-sm">{firm?.years_in_business}</p>
+                    <p className="text-sm">{firm?.years_in_operations}</p>
                   </div>
                   {firm?.website_link && (
                     <div>
