@@ -132,19 +132,57 @@ interface OffersProps {
 }
 
 interface PropFirmUIProps {
-  firm: Firm | null
+  slug: string
   ratingBreakdown?: RatingBreakdown
   formatCurrency?: (value: number, currency?: string) => string
-  isLoading?: boolean // Add isLoading prop
+  isLoading?: boolean
 }
 
 function PropFirmUI({
-  firm,
+  slug,
   ratingBreakdown,
   formatCurrency = (value: number, currency?: string) => `$${value}`,
-  isLoading = false, // Default to false
+  isLoading: initialLoading = false,
 }: PropFirmUIProps) {
-  console.log("PropFirmUI received firm:", firm)
+  const [firm, setFirm] = useState<Firm | null>(null)
+  const [loading, setLoading] = useState(initialLoading || !slug)
+
+  // Fetch firm data when slug changes
+  useEffect(() => {
+    async function fetchFirmData() {
+      if (!slug) {
+        setLoading(false)
+        return
+      }
+
+      setLoading(true)
+      try {
+        // Fetch the firm data
+        const { data: firmData, error: firmError } = await supabase
+          .from("prop_firms")
+          .select("*")
+          .eq("slug", slug)
+          .single()
+
+        if (firmError) {
+          console.error("Error fetching firm data:", firmError)
+          setFirm(null)
+        } else {
+          console.log("Fetched firm data:", firmData)
+          setFirm(firmData)
+        }
+      } catch (error) {
+        console.error("Error in fetchFirmData:", error)
+        setFirm(null)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchFirmData()
+  }, [slug])
+
+  console.log("PropFirmUI received slug:", slug, "firm:", firm)
 
   // Get URL search params to handle tab selection and review highlighting
   const searchParams = useSearchParams()
@@ -153,7 +191,6 @@ function PropFirmUI({
 
   // Add stats related state
   const [statsActiveTab, setStatsActiveTab] = useState("stats")
-  const [loading, setLoading] = useState(isLoading || !firm) // Use prop or derive from firm
 
   // Add this useEffect to update the active tab when the URL changes
   useEffect(() => {
@@ -174,10 +211,10 @@ function PropFirmUI({
     }
   }, [])
 
-  // Update loading state when firm data changes
-  useEffect(() => {
-    setLoading(isLoading || !firm)
-  }, [isLoading, firm])
+  // Remove this useEffect since we're now managing loading state in the fetchFirmData function
+  // useEffect(() => {
+  //   setLoading(isLoading || !firm)
+  // }, [isLoading, firm])
 
   const [liked, setLiked] = useState(false)
   const [likeCount, setLikeCount] = useState(0)
@@ -369,7 +406,7 @@ function PropFirmUI({
     }
 
     fetchCountryData()
-  }, [firm?.country, supabase])
+  }, [firm, firm?.country, supabase])
 
   // Update likeCount when firm data changes
   useEffect(() => {
