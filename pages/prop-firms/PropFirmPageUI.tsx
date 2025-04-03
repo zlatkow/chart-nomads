@@ -145,17 +145,21 @@ function PropFirmUI({
   isLoading: initialLoading = false,
 }: PropFirmUIProps) {
   const [firm, setFirm] = useState<Firm | null>(null)
-  const [loading, setLoading] = useState(initialLoading || !slug)
+  const [loading, setLoading] = useState(true) // Always start with loading=true
 
   // Fetch firm data when slug changes
   useEffect(() => {
+    let isMounted = true // Flag to prevent state updates after unmount
+
     async function fetchFirmData() {
+      // Always start in loading state when slug changes
+      setLoading(true)
+
       if (!slug) {
-        setLoading(false)
+        if (isMounted) setLoading(false)
         return
       }
 
-      setLoading(true)
       try {
         // Fetch the firm data
         const { data: firmData, error: firmError } = await supabase
@@ -166,17 +170,22 @@ function PropFirmUI({
 
         if (firmError) {
           console.error("Error fetching firm data:", firmError)
-          setFirm(null)
-          setLoading(false) // Set loading to false on error
+          if (isMounted) {
+            setFirm(null)
+            setLoading(false)
+          }
           return
         }
 
         console.log("Fetched firm data:", firmData)
-        setFirm(firmData)
 
-        // If there's no country ID, we can finish loading
+        // If there's no country ID, we can finish loading with just the firm data
         if (!firmData?.country) {
-          setLoading(false)
+          if (isMounted) {
+            setFirm(firmData)
+            setCountryData(null)
+            setLoading(false)
+          }
           return
         }
 
@@ -189,25 +198,42 @@ function PropFirmUI({
             .eq("id", firmData.country)
             .single()
 
-          if (countryError) {
-            console.error("Error fetching country data:", countryError)
-          } else if (countryData) {
-            console.log("Successfully fetched country data:", countryData)
-            setCountryData(countryData)
+          if (isMounted) {
+            if (countryError) {
+              console.error("Error fetching country data:", countryError)
+              setCountryData(null)
+            } else if (countryData) {
+              console.log("Successfully fetched country data:", countryData)
+              setCountryData(countryData)
+            }
+
+            // Set firm data and finish loading
+            setFirm(firmData)
+            setLoading(false)
           }
         } catch (countryErr) {
           console.error("Error fetching country data:", countryErr)
+          if (isMounted) {
+            setFirm(firmData)
+            setCountryData(null)
+            setLoading(false)
+          }
         }
       } catch (error) {
         console.error("Error in fetchFirmData:", error)
-        setFirm(null)
-      } finally {
-        // Set loading to false after both firm and country data are fetched
-        setLoading(false)
+        if (isMounted) {
+          setFirm(null)
+          setLoading(false)
+        }
       }
     }
 
     fetchFirmData()
+
+    // Cleanup function to prevent state updates after unmount
+    return () => {
+      isMounted = false
+    }
   }, [slug])
 
   console.log("PropFirmUI received slug:", slug, "firm:", firm)
@@ -622,7 +648,7 @@ function PropFirmUI({
                       ) : (
                         <div className="w-24 h-24 bg-white rounded-lg flex items-center justify-center">
                           <span className="text-[#0f0f0f] font-bold text-4xl">
-                            {firm && firm.propfirm_name ? firm.propfirm_name?.substring(0, 2).toUpperCase() : "FP"}
+                            {firm && firm.propfirm_name ? firm.propfirm_name?.substring(0, 2).toUpperCase() : "NaN"}
                           </span>
                         </div>
                       )}
