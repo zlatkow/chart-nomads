@@ -8,7 +8,6 @@ import { supabase } from "../../lib/supabase"
 import Image from "next/image"
 import {
   Facebook,
-  Twitter,
   Instagram,
   Linkedin,
   Youtube,
@@ -21,6 +20,8 @@ import {
   Newspaper,
   ListTree,
   Star,
+  X,
+  MessageCircle,
 } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
@@ -61,6 +62,8 @@ interface Firm {
   instagram_link?: string
   linkedin_link?: string
   youtube_link?: string
+  tiktok_link?: string
+  discord_link?: string
   ceo?: string
   established?: string
   country?: string
@@ -480,7 +483,7 @@ function PropFirmUI({
                     )}
                     {firm?.x_link && (
                       <Link href={firm.x_link} className="text-[#0f0f0f] hover:opacity-80">
-                        <Twitter size={18} />
+                        <X size={18} />
                       </Link>
                     )}
                     {firm?.instagram_link && (
@@ -498,18 +501,46 @@ function PropFirmUI({
                         <Youtube size={18} />
                       </Link>
                     )}
+                    {firm?.tiktok_link && (
+                      <Link href={firm.tiktok_link} className="text-[#0f0f0f] hover:opacity-80">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M9 12a4 4 0 1 0 0 8 4 4 0 0 0 0-8z" />
+                          <path d="M16 8v8" />
+                          <path d="M12 16v4" />
+                          <path d="M20 12V8h-4" />
+                          <path d="M16 4v4" />
+                        </svg>
+                      </Link>
+                    )}
+                    {firm?.discord_link && (
+                      <Link href={firm.discord_link} className="text-[#0f0f0f] hover:opacity-80">
+                        <MessageCircle size={18} />
+                      </Link>
+                    )}
                     {/* Show default social icons if no links provided */}
                     {!firm?.facebook_link &&
                       !firm?.x_link &&
                       !firm?.instagram_link &&
                       !firm?.linkedin_link &&
-                      !firm?.youtube_link && (
+                      !firm?.youtube_link &&
+                      !firm?.tiktok_link &&
+                      !firm?.discord_link && (
                         <>
                           <Link href="#" className="text-[#0f0f0f] hover:opacity-80">
                             <Facebook size={18} />
                           </Link>
                           <Link href="#" className="text-[#0f0f0f] hover:opacity-80">
-                            <Twitter size={18} />
+                            <X size={18} />
                           </Link>
                           <Link href="#" className="text-[#0f0f0f] hover:opacity-80">
                             <Instagram size={18} />
@@ -519,6 +550,28 @@ function PropFirmUI({
                           </Link>
                           <Link href="#" className="text-[#0f0f0f] hover:opacity-80">
                             <Youtube size={18} />
+                          </Link>
+                          <Link href="#" className="text-[#0f0f0f] hover:opacity-80">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="18"
+                              height="18"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <path d="M9 12a4 4 0 1 0 0 8 4 4 0 0 0 0-8z" />
+                              <path d="M16 8v8" />
+                              <path d="M12 16v4" />
+                              <path d="M20 12V8h-4" />
+                              <path d="M16 4v4" />
+                            </svg>
+                          </Link>
+                          <Link href="#" className="text-[#0f0f0f] hover:opacity-80">
+                            <MessageCircle size={18} />
                           </Link>
                         </>
                       )}
@@ -532,12 +585,12 @@ function PropFirmUI({
                     <p className="text-sm">{firm?.ceo}</p>
                   </div>
                   <div>
-                    <h3 className="font-bold mb-2">Established</h3>
-                    <p className="text-sm">{firm?.established}</p>
-                  </div>
-                  <div>
                     <h3 className="font-bold mb-2">Country</h3>
                     <p className="text-sm">{firm?.country}</p>
+                  </div>
+                  <div>
+                    <h3 className="font-bold mb-2">Established</h3>
+                    <p className="text-sm">{firm?.established}</p>
                   </div>
                   {firm?.website && (
                     <div>
@@ -569,80 +622,6 @@ function PropFirmUI({
                       <p className="text-xs">{firm.platform_details}</p>
                     </div>
                   )}
-                  <div>
-                    <h3 className="font-bold mb-2">Rating</h3>
-                    <p className="text-sm">{firm?.rating}</p>
-                  </div>
-                </div>
-
-                {/* Instruments & Leverage */}
-                <div className="grid grid-cols-2 gap-4 px-6 py-4 border-t border-[#0f0f0f]/10">
-                  <div>
-                    <h3 className="font-bold mb-3">Instruments</h3>
-                    <ul className="text-xs space-y-1">
-                      {firm?.instruments && Array.isArray(firm.instruments) ? (
-                        firm.instruments.map((instrument, index) => (
-                          <li key={index} className="flex items-center">
-                            <span className="mr-2">•</span>
-                            <span>{instrument}</span>
-                          </li>
-                        ))
-                      ) : (
-                        <>
-                          <li className="flex items-center">
-                            <span className="mr-2">•</span>
-                            <span>Forex</span>
-                          </li>
-                          <li className="flex items-center">
-                            <span className="mr-2">•</span>
-                            <span>Crypto</span>
-                          </li>
-                          <li className="flex items-center">
-                            <span className="mr-2">•</span>
-                            <span>Indices</span>
-                          </li>
-                          <li className="flex items-center">
-                            <span className="mr-2">•</span>
-                            <span>Metals & Energies</span>
-                          </li>
-                        </>
-                      )}
-                    </ul>
-                  </div>
-                  <div>
-                    <h3 className="font-bold mb-3">Leverage</h3>
-                    <ul className="text-xs space-y-1">
-                      {firm?.leverage && typeof firm.leverage === "object" ? (
-                        Object.entries<string>(firm.leverage as Record<string, string>).map(([key, value], index) => (
-                          <li key={index} className="flex items-center">
-                            <span className="mr-2">•</span>
-                            <span>
-                              {key} - {value}
-                            </span>
-                          </li>
-                        ))
-                      ) : (
-                        <>
-                          <li className="flex items-center">
-                            <span className="mr-2">•</span>
-                            <span>Forex - 1:100</span>
-                          </li>
-                          <li className="flex items-center">
-                            <span className="mr-2">•</span>
-                            <span>Metals & Energies - 1:50</span>
-                          </li>
-                          <li className="flex items-center">
-                            <span className="mr-2">•</span>
-                            <span>Indices - 1:30</span>
-                          </li>
-                          <li className="flex items-center">
-                            <span className="mr-2">•</span>
-                            <span>Crypto - 1:2</span>
-                          </li>
-                        </>
-                      )}
-                    </ul>
-                  </div>
                 </div>
               </div>
             </div>
