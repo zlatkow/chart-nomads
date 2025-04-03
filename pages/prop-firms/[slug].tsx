@@ -256,24 +256,16 @@ export default function PropFirmPage() {
 
   // Fetch firm data when component mounts or slug changes
   useEffect(() => {
-    // Use a ref to track if we've already started fetching for this slug
-    const fetchInProgress = useRef(false)
     let isMounted = true
 
-    async function fetchData() {
-      // Prevent duplicate fetches for the same slug
-      if (fetchInProgress.current) {
-        console.log("Fetch already in progress for slug:", slug)
-        return
-      }
-
+    async function fetchFirmData() {
       if (!slug) {
         if (isMounted) setLoading(false)
         return
       }
 
-      // Set fetch in progress flag
-      fetchInProgress.current = true
+      // Always start with loading state when slug changes
+      if (isMounted) setLoading(true)
 
       try {
         console.log("Fetching firm data for slug:", slug)
@@ -292,7 +284,6 @@ export default function PropFirmPage() {
             setCountryData(null)
             setLoading(false)
           }
-          fetchInProgress.current = false
           return
         }
 
@@ -341,22 +332,16 @@ export default function PropFirmPage() {
           setLoading(false)
         }
       } catch (error) {
-        console.error("Error in fetchData:", error)
+        console.error("Error in fetchFirmData:", error)
         if (isMounted) {
           setFirm(null)
           setCountryData(null)
           setLoading(false)
         }
-      } finally {
-        fetchInProgress.current = false
       }
     }
 
-    // Only fetch if we have a slug and aren't already loading
-    if (slug && !fetchInProgress.current) {
-      setLoading(true)
-      fetchData()
-    }
+    fetchFirmData()
 
     // Cleanup function to prevent state updates after unmount
     return () => {
@@ -409,45 +394,43 @@ export default function PropFirmPage() {
   const fetchLikesInProgress = useRef(false) // Move useRef here
 
   useEffect(() => {
+    let isMounted = true
+
     async function fetchLikedFirms() {
-      // Prevent duplicate fetches
-      if (fetchLikesInProgress.current) return
-      fetchLikesInProgress.current = true
+      if (!user) {
+        console.warn("🚨 No user found! Skipping fetch for liked companies.")
+        if (isMounted) setLoadingLikes(false)
+        return
+      }
 
       try {
-        if (!user) {
-          console.warn("🚨 No user found! Skipping fetch for liked companies.")
-          setLoadingLikes(false)
-          return
-        }
-
         console.log("🟡 Fetching liked companies for user:", user.id)
         const { data, error } = await supabase.from("user_likes").select("firm_id").eq("user_id", user.id)
 
         if (error) {
           console.error("❌ Error fetching liked firms:", error)
-          setLoadingLikes(false)
+          if (isMounted) setLoadingLikes(false)
           return
         }
 
         console.log("✅ Fetched liked firms:", data)
-        const likedFirmIds = new Set(data.map((entry) => Number(entry.firm_id)))
-        setUserLikedFirms(likedFirmIds)
+        if (isMounted) {
+          const likedFirmIds = new Set(data.map((entry) => Number(entry.firm_id)))
+          setUserLikedFirms(likedFirmIds)
+          setLoadingLikes(false)
+        }
       } catch (error) {
         console.error("Error fetching liked firms:", error)
-      } finally {
-        setLoadingLikes(false)
-        fetchLikesInProgress.current = false
+        if (isMounted) setLoadingLikes(false)
       }
     }
 
-    // Only fetch likes if we have a user and aren't already loading
-    if (user && !fetchLikesInProgress.current) {
-      fetchLikedFirms()
-    } else if (!user) {
-      setLoadingLikes(false)
+    fetchLikedFirms()
+
+    return () => {
+      isMounted = false
     }
-  }, [user])
+  }, [user]) // Only depend on user
 
   // Fetch company-specific rules and change logs
 
