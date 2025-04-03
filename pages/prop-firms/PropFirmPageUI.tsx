@@ -6,23 +6,8 @@ import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { supabase } from "../../lib/supabase"
 import Image from "next/image"
-import {
-  Facebook,
-  Instagram,
-  Linkedin,
-  Youtube,
-  BarChart2,
-  DollarSign,
-  Award,
-  FileText,
-  MessageSquare,
-  ExternalLink,
-  Newspaper,
-  ListTree,
-  Star,
-  X,
-  MessageCircle,
-} from "lucide-react"
+import { Facebook, Instagram, Linkedin, Youtube, BarChart2, DollarSign, Award, FileText, MessageSquare, ExternalLink, Newspaper, ListTree, Star, X } from 'lucide-react'
+import { FaTiktok, FaDiscord } from "react-icons/fa"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -503,28 +488,12 @@ function PropFirmUI({
                     )}
                     {firm?.tiktok_link && (
                       <Link href={firm.tiktok_link} className="text-[#0f0f0f] hover:opacity-80">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="18"
-                          height="18"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <path d="M9 12a4 4 0 1 0 0 8 4 4 0 0 0 0-8z" />
-                          <path d="M16 8v8" />
-                          <path d="M12 16v4" />
-                          <path d="M20 12V8h-4" />
-                          <path d="M16 4v4" />
-                        </svg>
+                        <FaTiktok size={18} />
                       </Link>
                     )}
                     {firm?.discord_link && (
                       <Link href={firm.discord_link} className="text-[#0f0f0f] hover:opacity-80">
-                        <MessageCircle size={18} />
+                        <FaDiscord size={18} />
                       </Link>
                     )}
                     {/* Show default social icons if no links provided */}
@@ -552,26 +521,10 @@ function PropFirmUI({
                             <Youtube size={18} />
                           </Link>
                           <Link href="#" className="text-[#0f0f0f] hover:opacity-80">
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="18"
-                              height="18"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            >
-                              <path d="M9 12a4 4 0 1 0 0 8 4 4 0 0 0 0-8z" />
-                              <path d="M16 8v8" />
-                              <path d="M12 16v4" />
-                              <path d="M20 12V8h-4" />
-                              <path d="M16 4v4" />
-                            </svg>
+                            <FaTiktok size={18} />
                           </Link>
                           <Link href="#" className="text-[#0f0f0f] hover:opacity-80">
-                            <MessageCircle size={18} />
+                            <FaDiscord size={18} />
                           </Link>
                         </>
                       )}
@@ -918,4 +871,3 @@ function PropFirmUI({
 }
 
 export default PropFirmUI
-
