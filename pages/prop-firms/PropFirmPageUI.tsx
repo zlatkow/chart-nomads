@@ -101,7 +101,12 @@ interface Firm {
   ceo?: string
   established?: string
   years_in_operations?: string
-  country?: string
+  country?: number // Changed from string to number
+  country_data?: {
+    id: number
+    name: string
+    flag: string
+  }
   referral_link?: string
   broker?: string
   platform?: string
@@ -184,6 +189,8 @@ function PropFirmUI({
   const [rulesActiveTab, setRulesActiveTab] = useState("main-rules")
   const [rulesLoading, setRulesLoading] = useState(true)
   const [bannedCountries, setBannedCountries] = useState(null)
+  // Add a new state for country data
+  const [countryData, setCountryData] = useState(null)
 
   // Get the noise context
   const { isNoiseVisible } = useNoise()
@@ -327,6 +334,39 @@ function PropFirmUI({
     fetchRules()
   }, [firmId])
 
+  // Fetch country data when firm changes
+  useEffect(() => {
+    const fetchCountryData = async () => {
+      if (firm && firm.country && typeof firm.country === "number") {
+        try {
+          const { data, error } = await supabase
+            .from("countries")
+            .select("id, name, flag")
+            .eq("id", firm.country)
+            .single()
+
+          if (error) {
+            console.error("Error fetching country data:", error)
+            setCountryData(null)
+            return
+          }
+
+          if (data) {
+            setCountryData(data)
+            console.log("Fetched country data:", data)
+          }
+        } catch (err) {
+          console.error("Unexpected error fetching country data:", err)
+          setCountryData(null)
+        }
+      } else {
+        setCountryData(null)
+      }
+    }
+
+    fetchCountryData()
+  }, [firm, firm?.country])
+
   // Update likeCount when firm data changes
   useEffect(() => {
     if (firm && firm.likes !== undefined) {
@@ -454,12 +494,25 @@ function PropFirmUI({
 
           {/* Company Info */}
           <div className="grid grid-cols-2 gap-4 px-6 py-4 border-t border-[#0f0f0f]/10">
-            {["CEO", "Country", "Established", "Years In Operations"].map((label, i) => (
-              <div key={i}>
-                <h3 className="font-bold mb-2">{label}</h3>
-                <p className="text-sm bg-[rgba(15,15,15,0.1)] w-20 h-5 rounded"></p>
+            <div>
+              <h3 className="font-bold mb-2">CEO</h3>
+              <p className="text-sm bg-[rgba(15,15,15,0.1)] w-20 h-5 rounded"></p>
+            </div>
+            <div>
+              <h3 className="font-bold mb-2">Country</h3>
+              <div className="flex items-center gap-2">
+                <div className="bg-[rgba(15,15,15,0.1)] w-5 h-4 rounded"></div>
+                <div className="bg-[rgba(15,15,15,0.1)] w-20 h-5 rounded"></div>
               </div>
-            ))}
+            </div>
+            <div>
+              <h3 className="font-bold mb-2">Established</h3>
+              <p className="text-sm bg-[rgba(15,15,15,0.1)] w-20 h-5 rounded"></p>
+            </div>
+            <div>
+              <h3 className="font-bold mb-2">Years In Operations</h3>
+              <p className="text-sm bg-[rgba(15,15,15,0.1)] w-20 h-5 rounded"></p>
+            </div>
           </div>
 
           {/* Broker & Platform */}
@@ -673,7 +726,18 @@ function PropFirmUI({
                     </div>
                     <div>
                       <h3 className="font-bold mb-2">Country</h3>
-                      <p className="text-sm">{firm?.country}</p>
+                      {countryData ? (
+                        <div className="flex items-center gap-2">
+                          <img
+                            src={countryData.flag || "/placeholder.svg"}
+                            alt={`${countryData.name} flag`}
+                            className="w-5 h-4 object-cover rounded-sm"
+                          />
+                          <p className="text-sm">{countryData.name}</p>
+                        </div>
+                      ) : (
+                        <p className="text-sm">Unknown</p>
+                      )}
                     </div>
                     <div>
                       <h3 className="font-bold mb-2">Established</h3>
