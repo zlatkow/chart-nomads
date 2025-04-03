@@ -6,6 +6,42 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { DollarSign, AlertTriangle, Code } from "lucide-react"
 
+// Add shimmer animation CSS
+const shimmerAnimation = `
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.animate-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.animate-shimmer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0,
+    rgba(255, 255, 255, 0.05) 20%,
+    rgba(255, 255, 255, 0.1) 60%,
+    rgba(255, 255, 255, 0)
+  );
+  animation: shimmer 2s infinite;
+  pointer-events: none;
+}
+`
+
 interface CompanyTopPayoutsProps {
   companyName: string
 }
@@ -17,6 +53,19 @@ export default function CompanyTopPayouts({ companyName }: CompanyTopPayoutsProp
   const [error, setError] = useState(null)
   const [apiStatus, setApiStatus] = useState(null)
   const [errorDetails, setErrorDetails] = useState(null)
+
+  // Add shimmer animation to document
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      const style = document.createElement("style")
+      style.textContent = shimmerAnimation
+      document.head.appendChild(style)
+
+      return () => {
+        document.head.removeChild(style)
+      }
+    }
+  }, [])
 
   // Fetch data from the API whenever filter changes
   useEffect(() => {
@@ -176,33 +225,35 @@ export default function CompanyTopPayouts({ companyName }: CompanyTopPayoutsProp
             </div>
           </div>
           {/* Filter Dropdown */}
-          <Select
-            value={selectedFilter}
-            onValueChange={(value) => {
-              setSelectedFilter(value)
-            }}
-          >
-            <SelectTrigger className="w-[170px] bg-[#1A1A1A] px-4 py-1 rounded-md cursor-pointer border border-[#333333] text-gray-300">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-[#1A1A1A] border-[#333333] text-white">
-              <SelectItem value="all">All Time</SelectItem>
-              <SelectItem value="last_12_months">Last 12 Months</SelectItem>
-              <SelectItem value="last_6_months">Last 6 Months</SelectItem>
-              <SelectItem value="last_3_months">Last 3 Months</SelectItem>
-              <SelectItem value="2023">2023</SelectItem>
-              <SelectItem value="2024">2024</SelectItem>
-              <SelectItem value="2025">2025</SelectItem>
-            </SelectContent>
-          </Select>
+          {loading ? (
+            <div className="w-[170px] h-8 bg-[rgba(255,255,255,0.05)] rounded"></div>
+          ) : (
+            <Select
+              value={selectedFilter}
+              onValueChange={(value) => {
+                setSelectedFilter(value)
+              }}
+            >
+              <SelectTrigger className="w-[170px] bg-[#1A1A1A] px-4 py-1 rounded-md cursor-pointer border border-[#333333] text-gray-300">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-[#1A1A1A] border-[#333333] text-white">
+                <SelectItem value="all">All Time</SelectItem>
+                <SelectItem value="last_12_months">Last 12 Months</SelectItem>
+                <SelectItem value="last_6_months">Last 6 Months</SelectItem>
+                <SelectItem value="last_3_months">Last 3 Months</SelectItem>
+                <SelectItem value="2023">2023</SelectItem>
+                <SelectItem value="2024">2024</SelectItem>
+                <SelectItem value="2025">2025</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
         </div>
 
         <Card className="w-full bg-[#0F0F0F] border-[#0f0f0f] overflow-hidden">
           <CardContent className="p-0">
             {loading ? (
-              <div className="flex items-center justify-center h-[300px]">
-                <div className="w-8 h-8 border-4 border-[#FFD700] border-t-transparent rounded-full animate-spin"></div>
-              </div>
+              <div className="h-[400px] bg-[#1a1a1a] animate-shimmer"></div>
             ) : error ? (
               <div className="flex items-center justify-center h-[200px] text-[#999999]">{renderErrorMessage()}</div>
             ) : payoutData.length > 0 ? (
