@@ -16,7 +16,6 @@ import {
   Award,
   FileText,
   MessageSquare,
-  ExternalLink,
   Newspaper,
   ListTree,
   Star,
@@ -46,6 +45,42 @@ import { ModalContext } from "../../pages/_app"
 import CompanyStatsSlider from "../../components/company-stats-slider"
 import { RiTwitterXFill, RiDiscordLine, RiTiktokLine } from "react-icons/ri"
 
+// Add shimmer animation CSS
+const shimmerAnimation = `
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.animate-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.animate-shimmer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0,
+    rgba(255, 255, 255, 0.05) 20%,
+    rgba(255, 255, 255, 0.1) 60%,
+    rgba(255, 255, 255, 0)
+  );
+  animation: shimmer 2s infinite;
+  pointer-events: none;
+}
+`
+
 // Define types for the firm and rating data
 interface Firm {
   id: number
@@ -67,7 +102,7 @@ interface Firm {
   established?: string
   years_in_operations?: string
   country?: string
-  website_link?: string
+  referral_link?: string
   broker?: string
   platform?: string
   platform_details?: string
@@ -95,12 +130,14 @@ interface PropFirmUIProps {
   firm: Firm | null
   ratingBreakdown?: RatingBreakdown
   formatCurrency?: (value: number, currency?: string) => string
+  isLoading?: boolean // Add isLoading prop
 }
 
 function PropFirmUI({
   firm,
   ratingBreakdown,
   formatCurrency = (value: number, currency?: string) => `$${value}`,
+  isLoading = false, // Default to false
 }: PropFirmUIProps) {
   console.log("PropFirmUI received firm:", firm)
 
@@ -111,12 +148,31 @@ function PropFirmUI({
 
   // Add stats related state
   const [statsActiveTab, setStatsActiveTab] = useState("stats")
+  const [loading, setLoading] = useState(isLoading || !firm) // Use prop or derive from firm
 
   // Add this useEffect to update the active tab when the URL changes
   useEffect(() => {
     const tab = searchParams.get("tab") || "overview"
     setActiveTab(tab)
   }, [searchParams])
+
+  // Add the shimmer animation to the document
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      const style = document.createElement("style")
+      style.textContent = shimmerAnimation
+      document.head.appendChild(style)
+
+      return () => {
+        document.head.removeChild(style)
+      }
+    }
+  }, [])
+
+  // Update loading state when firm data changes
+  useEffect(() => {
+    setLoading(isLoading || !firm)
+  }, [isLoading, firm])
 
   const [liked, setLiked] = useState(false)
   const [likeCount, setLikeCount] = useState(0)
@@ -348,6 +404,80 @@ function PropFirmUI({
     }
   }
 
+  // Render loading skeleton with shimmer effect
+  const renderSkeleton = () => {
+    return (
+      <div className="lg:col-span-3">
+        <div className="bg-[#edb900] text-[#0f0f0f] rounded-lg overflow-hidden animate-shimmer">
+          {/* Header with likes */}
+          <div className="flex justify-end w-full pr-3 pt-3">
+            <div className="text-xs pt-2 pr-2 bg-[rgba(15,15,15,0.1)] w-16 h-6 rounded"></div>
+            <div className="relative top-1 right-50 w-6 h-6 bg-[rgba(15,15,15,0.1)] rounded-full"></div>
+          </div>
+
+          {/* Firm Logo and Rating */}
+          <div className="p-6 flex flex-col items-center">
+            <div className="relative mb-4">
+              <div className="w-24 h-24 bg-[rgba(255,255,255,0.1)] rounded-lg flex items-center justify-center"></div>
+              <span className="absolute top-1 left-1 px-[5px] border text-xs rounded-[10px] bg-[rgba(15,15,15,0.1)] w-12 h-5"></span>
+            </div>
+            <div className="flex items-center mb-1">
+              <span className="text-xl font-bold bg-[rgba(15,15,15,0.1)] w-32 h-8 rounded"></span>
+            </div>
+            <div className="flex items-center mb-2">
+              <div className="text-lg mr-1 bg-[rgba(15,15,15,0.1)] w-5 h-5 rounded-full"></div>
+              <span className="font-bold bg-[rgba(15,15,15,0.1)] w-10 h-6 rounded"></span>
+              <span className="text-xs ml-1 bg-[rgba(15,15,15,0.1)] w-20 h-4 rounded"></span>
+            </div>
+          </div>
+
+          {/* Rating Breakdown */}
+          <div className="px-6 pb-4">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <div key={star} className="flex items-center justify-between mb-1 text-xs">
+                <span className="bg-[rgba(15,15,15,0.1)] w-12 h-4 rounded"></span>
+                <div className="h-2 w-40 bg-[rgba(15,15,15,0.1)] rounded"></div>
+                <span className="bg-[rgba(15,15,15,0.1)] w-8 h-4 rounded"></span>
+              </div>
+            ))}
+          </div>
+
+          {/* Social Links */}
+          <div className="px-6 py-4 border-t border-[#0f0f0f]/10">
+            <h3 className="font-bold mb-3 bg-[rgba(15,15,15,0.1)] w-16 h-6 rounded"></h3>
+            <div className="flex space-x-3">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="w-6 h-6 bg-[rgba(15,15,15,0.1)] rounded-full"></div>
+              ))}
+            </div>
+          </div>
+
+          {/* Company Info */}
+          <div className="grid grid-cols-2 gap-4 px-6 py-4 border-t border-[#0f0f0f]/10">
+            {["CEO", "Country", "Established", "Years In Operations"].map((label, i) => (
+              <div key={i}>
+                <h3 className="font-bold mb-2">{label}</h3>
+                <p className="text-sm bg-[rgba(15,15,15,0.1)] w-20 h-5 rounded"></p>
+              </div>
+            ))}
+          </div>
+
+          {/* Broker & Platform */}
+          <div className="grid grid-cols-1 gap-4 px-6 py-4 border-t border-[#0f0f0f]/10">
+            <div>
+              <h3 className="font-bold mb-2">Broker</h3>
+              <p className="text-sm bg-[rgba(15,15,15,0.1)] w-24 h-5 rounded"></p>
+            </div>
+            <div>
+              <h3 className="font-bold mb-2">Platform</h3>
+              <p className="text-sm bg-[rgba(15,15,15,0.1)] w-24 h-5 rounded"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-[#0f0f0f] text-white">
       <Navbar />
@@ -355,231 +485,225 @@ function PropFirmUI({
       <div className="w-full border-b border-[#edb900]">
         <div className="relative container mx-auto px-4 pt-[200px] mb-[200px] z-50">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            {/* Sidebar */}
-            <div className="lg:col-span-3">
-              <div className="bg-[#edb900] text-[#0f0f0f] rounded-lg overflow-hidden">
-                <div className="flex justify-end w-full pr-3 pt-3">
-                  <div className="text-xs pt-2 pr-2">{likeCount} likes</div>
-                  <SignedOut>
-                    <button
-                      onClick={() => {
-                        console.log("Opening login modal from heart button")
-                        handleLoginModalOpen()
-                      }}
-                      className="relative top-1 right-50 hover:animate-[heartbeat_1.5s_infinite_ease-in-out] z-60"
-                      style={{ color: "#0f0f0f" }}
-                    >
-                      <FontAwesomeIcon icon={regularHeart} style={{ fontSize: "25px" }} />
-                    </button>
-                  </SignedOut>
+            {/* Sidebar - Show skeleton when loading */}
+            {loading ? (
+              renderSkeleton()
+            ) : (
+              <div className="lg:col-span-3">
+                <div className="bg-[#edb900] text-[#0f0f0f] rounded-lg overflow-hidden">
+                  <div className="flex justify-end w-full pr-3 pt-3">
+                    <div className="text-xs pt-2 pr-2">{likeCount} likes</div>
+                    <SignedOut>
+                      <button
+                        onClick={() => {
+                          console.log("Opening login modal from heart button")
+                          handleLoginModalOpen()
+                        }}
+                        className="relative top-1 right-50 hover:animate-[heartbeat_1.5s_infinite_ease-in-out] z-60"
+                        style={{ color: "#0f0f0f" }}
+                      >
+                        <FontAwesomeIcon icon={regularHeart} style={{ fontSize: "25px" }} />
+                      </button>
+                    </SignedOut>
 
-                  <SignedIn>
-                    <button
-                      onClick={() => handleLikeToggle(firmId)}
-                      className={`relative transition-all duration-200 ${
-                        userLikedFirms.has(firmId)
-                          ? "text-[#0f0f0f] scale-105 hover:animate-[heartbeat_1.5s_infinite_ease-in-out]"
-                          : "text-[#0f0f0f] hover:text-[#0f0f0f] hover:animate-[heartbeat_1.5s_infinite_ease-in-out]"
-                      }`}
-                    >
-                      <FontAwesomeIcon
-                        icon={isLiked ? solidHeart : regularHeart}
-                        className={`transition-all duration-200 text-[25px] ${
-                          isLiked ? "text-[#0f0f0f] scale-105" : "text-[#0f0f0f] hover:text-[#0f0f0f]"
+                    <SignedIn>
+                      <button
+                        onClick={() => handleLikeToggle(firmId)}
+                        className={`relative transition-all duration-200 ${
+                          userLikedFirms.has(firmId)
+                            ? "text-[#0f0f0f] scale-105 hover:animate-[heartbeat_1.5s_infinite_ease-in-out]"
+                            : "text-[#0f0f0f] hover:text-[#0f0f0f] hover:animate-[heartbeat_1.5s_infinite_ease-in-out]"
                         }`}
-                      />
-                    </button>
-                  </SignedIn>
-                </div>
-
-                {/* Firm Logo and Rating */}
-                <div className="p-6 flex flex-col items-center">
-                  <div className="relative mb-4">
-                    {firm && firm.logo_url ? (
-                      <div
-                        className="w-24 h-24 p-5 bg-white rounded-lg flex items-center justify-center overflow-hidden"
-                        style={{ backgroundColor: firm.brand_colour }}
                       >
-                        <Image
-                          src={firm.logo_url || "/placeholder.svg"}
-                          alt={`${firm?.propfirm_name || "Company"} logo`}
-                          width={96}
-                          height={96}
-                          className="object-contain"
+                        <FontAwesomeIcon
+                          icon={isLiked ? solidHeart : regularHeart}
+                          className={`transition-all duration-200 text-[25px] ${
+                            isLiked ? "text-[#0f0f0f] scale-105" : "text-[#0f0f0f] hover:text-[#0f0f0f]"
+                          }`}
                         />
-                      </div>
-                    ) : (
-                      <div className="w-24 h-24 bg-white rounded-lg flex items-center justify-center">
-                        <span className="text-[#0f0f0f] font-bold text-4xl">
-                          {firm && firm.propfirm_name ? firm.propfirm_name?.substring(0, 2).toUpperCase() : "FP"}
-                        </span>
-                      </div>
-                    )}
+                      </button>
+                    </SignedIn>
+                  </div>
 
-                    <Tippy
-                      content={
-                        <span className="font-[balboa]">
-                          We use AI to categorize all the companies. You can learn more on our Evaluation process page.
-                        </span>
-                      }
-                      placement="top"
-                      delay={[100, 0]}
-                      className="z-50"
-                      theme="custom" // Apply the custom theme
-                    >
-                      <span
-                        className={`absolute top-1 left-1 px-[5px] border text-xs rounded-[10px] font-[balboa] 
-                          ${firm?.category === "Gold" ? "text-[#efbf04] border-[#efbf04]" : ""}
-                          ${firm?.category === "Platinum" ? "text-[#D9D9D9] border-[#D9D9D9]" : ""}
-                          ${firm?.category === "Diamond" ? "text-[#c8bfe7] border-[#c8bfe7]" : ""}
-                          ${firm?.category === "Silver" ? "text-[#c4c4c4] border-[#c4c4c4]" : ""}
-                          ${firm?.category === "Copper" ? "text-[#c68346] border-[#c68346]" : ""}`}
+                  {/* Firm Logo and Rating */}
+                  <div className="p-6 flex flex-col items-center">
+                    <div className="relative mb-4">
+                      {firm && firm.logo_url ? (
+                        <div
+                          className="w-24 h-24 p-5 bg-white rounded-lg flex items-center justify-center overflow-hidden"
+                          style={{ backgroundColor: firm.brand_colour }}
+                        >
+                          <Image
+                            src={firm.logo_url || "/placeholder.svg"}
+                            alt={`${firm?.propfirm_name || "Company"} logo`}
+                            width={96}
+                            height={96}
+                            className="object-contain"
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-24 h-24 bg-white rounded-lg flex items-center justify-center">
+                          <span className="text-[#0f0f0f] font-bold text-4xl">
+                            {firm && firm.propfirm_name ? firm.propfirm_name?.substring(0, 2).toUpperCase() : "FP"}
+                          </span>
+                        </div>
+                      )}
+
+                      <Tippy
+                        content={
+                          <span className="font-[balboa]">
+                            We use AI to categorize all the companies. You can learn more on our Evaluation process
+                            page.
+                          </span>
+                        }
+                        placement="top"
+                        delay={[100, 0]}
+                        className="z-50"
+                        theme="custom" // Apply the custom theme
                       >
-                        {firm?.category || "Unrated"}
+                        <span
+                          className={`absolute top-1 left-1 px-[5px] border text-xs rounded-[10px] font-[balboa] 
+                            ${firm?.category === "Gold" ? "text-[#efbf04] border-[#efbf04]" : ""}
+                            ${firm?.category === "Platinum" ? "text-[#D9D9D9] border-[#D9D9D9]" : ""}
+                            ${firm?.category === "Diamond" ? "text-[#c8bfe7] border-[#c8bfe7]" : ""}
+                            ${firm?.category === "Silver" ? "text-[#c4c4c4] border-[#c4c4c4]" : ""}
+                            ${firm?.category === "Copper" ? "text-[#c68346] border-[#c68346]" : ""}`}
+                        >
+                          {firm?.category || "Unrated"}
+                        </span>
+                      </Tippy>
+                    </div>
+                    <div className="flex items-center mb-1">
+                      <span className="text-xl font-bold">
+                        {firm && firm.propfirm_name ? firm.propfirm_name : "Company Name"}
                       </span>
-                    </Tippy>
-                  </div>
-                  <div className="flex items-center mb-1">
-                    <span className="text-xl font-bold">
-                      {firm && firm.propfirm_name ? firm.propfirm_name : "Company Name"}
-                    </span>
-                  </div>
-                  <div className="flex items-center mb-2">
-                    <FontAwesomeIcon icon={solidStar} className="text-lg mr-1 text-[#0f0f0f]" />
-                    <span className="font-bold">{firm?.rating?.toFixed(2)}</span>
-                    <span className="text-xs ml-1">• {firm?.reviews_count} reviews</span>
-                  </div>
-                </div>
-
-                {/* Rating Breakdown */}
-                <div className="px-6 pb-4">
-                  <div className="flex items-center justify-between mb-1 text-xs">
-                    <span>5-star</span>
-                    <Progress value={firm?.["5_star_reviews"] || 0} className="h-2 w-40" />
-                    <span>{firm?.["5_star_reviews"] || 0}%</span>
-                  </div>
-                  <div className="flex items-center justify-between mb-1 text-xs">
-                    <span>4-star</span>
-                    <Progress value={firm?.["4_star_reviews"] || 0} className="h-2 w-40" />
-                    <span>{firm?.["4_star_reviews"] || 0}%</span>
-                  </div>
-                  <div className="flex items-center justify-between mb-1 text-xs">
-                    <span>3-star</span>
-                    <Progress value={firm?.["3_star_reviews"] || 0} className="h-2 w-40" />
-                    <span>{firm?.["3_star_reviews"] || 0}%</span>
-                  </div>
-                  <div className="flex items-center justify-between mb-1 text-xs">
-                    <span>2-star</span>
-                    <Progress value={firm?.["2_star_reviews"] || 0} className="h-2 w-40" />
-                    <span>{firm?.["2_star_reviews"] || 0}%</span>
-                  </div>
-                  <div className="flex items-center justify-between mb-1 text-xs">
-                    <span>1-star</span>
-                    <Progress value={firm?.["1_star_reviews"] || 0} className="h-2 w-40" />
-                    <span>{firm?.["1_star_reviews"] || 0}%</span>
-                  </div>
-                </div>
-
-                {/* Social Links */}
-                <div className="px-6 py-4 border-t border-[#0f0f0f]/10">
-                  <h3 className="font-bold mb-3">Socials</h3>
-                  <div className="flex space-x-3">
-                    {firm?.facebook_link && (
-                      <Link href={firm.facebook_link} className="text-[#0f0f0f] hover:opacity-80">
-                        <Facebook size={18} />
-                      </Link>
-                    )}
-                    {firm?.x_link && (
-                      <Link href={firm.x_link} className="text-[#0f0f0f] hover:opacity-80">
-                        <RiTwitterXFill size={18} />
-                      </Link>
-                    )}
-                    {firm?.instagram_link && (
-                      <Link href={firm.instagram_link} className="text-[#0f0f0f] hover:opacity-80">
-                        <Instagram size={18} />
-                      </Link>
-                    )}
-                    {firm?.linkedin_link && (
-                      <Link href={firm.linkedin_link} className="text-[#0f0f0f] hover:opacity-80">
-                        <Linkedin size={18} />
-                      </Link>
-                    )}
-                    {firm?.youtube_link && (
-                      <Link href={firm.youtube_link} className="text-[#0f0f0f] hover:opacity-80">
-                        <Youtube size={18} />
-                      </Link>
-                    )}
-                    {firm?.tiktok_link && (
-                      <Link href={firm.tiktok_link} className="text-[#0f0f0f] hover:opacity-80">
-                        <RiTiktokLine size={18} />
-                      </Link>
-                    )}
-                    {firm?.discord_link && (
-                      <Link href={firm.discord_link} className="text-[#0f0f0f] hover:opacity-80">
-                        <RiDiscordLine size={18} />
-                      </Link>
-                    )}
-                    {!firm?.facebook_link &&
-                      !firm?.x_link &&
-                      !firm?.instagram_link &&
-                      !firm?.linkedin_link &&
-                      !firm?.youtube_link &&
-                      !firm?.tiktok_link &&
-                      !firm?.discord_link && <span className="text-xs text-[#0f0f0f]">No social links available</span>}
-                  </div>
-                </div>
-
-                {/* Company Info */}
-                <div className="grid grid-cols-2 gap-4 px-6 py-4 border-t border-[#0f0f0f]/10">
-                  <div>
-                    <h3 className="font-bold mb-2">CEO</h3>
-                    <p className="text-sm">{firm?.ceo}</p>
-                  </div>
-                  <div>
-                    <h3 className="font-bold mb-2">Country</h3>
-                    <p className="text-sm">{firm?.country}</p>
-                  </div>
-                  <div>
-                    <h3 className="font-bold mb-2">Established</h3>
-                    <p className="text-sm">{firm?.established}</p>
-                  </div>
-                  <div>
-                    <h3 className="font-bold mb-2">Years In Operations</h3>
-                    <p className="text-sm">{firm?.years_in_operations}</p>
-                  </div>
-                  {firm?.website_link && (
-                    <div>
-                      <h3 className="font-bold mb-2">Website</h3>
-                      <a
-                        href={firm.website_link}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-sm flex items-center hover:underline"
-                      >
-                        Visit <ExternalLink size={12} className="ml-1" />
-                      </a>
                     </div>
-                  )}
-                </div>
-
-                {/* Broker & Platform */}
-                <div className="grid grid-cols-1 gap-4 px-6 py-4 border-t border-[#0f0f0f]/10">
-                  <div>
-                    <h3 className="font-bold mb-2">Broker</h3>
-                    <p className="text-sm">{firm?.broker}</p>
-                  </div>
-                  <div>
-                    <h3 className="font-bold mb-2">Platform</h3>
-                    <p className="text-sm">{firm?.platform}</p>
-                  </div>
-                  {firm?.platform_details && (
-                    <div>
-                      <p className="text-xs">{firm.platform_details}</p>
+                    <div className="flex items-center mb-2">
+                      <FontAwesomeIcon icon={solidStar} className="text-lg mr-1 text-[#0f0f0f]" />
+                      <span className="font-bold">{firm?.rating?.toFixed(2)}</span>
+                      <span className="text-xs ml-1">• {firm?.reviews_count} reviews</span>
                     </div>
-                  )}
+                  </div>
+
+                  {/* Rating Breakdown */}
+                  <div className="px-6 pb-4">
+                    <div className="flex items-center justify-between mb-1 text-xs">
+                      <span>5-star</span>
+                      <Progress value={firm?.["5_star_reviews"] || 0} className="h-2 w-40" />
+                      <span>{firm?.["5_star_reviews"] || 0}%</span>
+                    </div>
+                    <div className="flex items-center justify-between mb-1 text-xs">
+                      <span>4-star</span>
+                      <Progress value={firm?.["4_star_reviews"] || 0} className="h-2 w-40" />
+                      <span>{firm?.["4_star_reviews"] || 0}%</span>
+                    </div>
+                    <div className="flex items-center justify-between mb-1 text-xs">
+                      <span>3-star</span>
+                      <Progress value={firm?.["3_star_reviews"] || 0} className="h-2 w-40" />
+                      <span>{firm?.["3_star_reviews"] || 0}%</span>
+                    </div>
+                    <div className="flex items-center justify-between mb-1 text-xs">
+                      <span>2-star</span>
+                      <Progress value={firm?.["2_star_reviews"] || 0} className="h-2 w-40" />
+                      <span>{firm?.["2_star_reviews"] || 0}%</span>
+                    </div>
+                    <div className="flex items-center justify-between mb-1 text-xs">
+                      <span>1-star</span>
+                      <Progress value={firm?.["1_star_reviews"] || 0} className="h-2 w-40" />
+                      <span>{firm?.["1_star_reviews"] || 0}%</span>
+                    </div>
+                  </div>
+
+                  {/* Social Links */}
+                  <div className="px-6 py-4 border-t border-[#0f0f0f]/10">
+                    <h3 className="font-bold mb-3">Socials</h3>
+                    <div className="flex space-x-3">
+                      {firm?.facebook_link && (
+                        <Link href={firm.facebook_link} className="text-[#0f0f0f] hover:opacity-80">
+                          <Facebook size={18} />
+                        </Link>
+                      )}
+                      {firm?.x_link && (
+                        <Link href={firm.x_link} className="text-[#0f0f0f] hover:opacity-80">
+                          <RiTwitterXFill size={18} />
+                        </Link>
+                      )}
+                      {firm?.instagram_link && (
+                        <Link href={firm.instagram_link} className="text-[#0f0f0f] hover:opacity-80">
+                          <Instagram size={18} />
+                        </Link>
+                      )}
+                      {firm?.linkedin_link && (
+                        <Link href={firm.linkedin_link} className="text-[#0f0f0f] hover:opacity-80">
+                          <Linkedin size={18} />
+                        </Link>
+                      )}
+                      {firm?.youtube_link && (
+                        <Link href={firm.youtube_link} className="text-[#0f0f0f] hover:opacity-80">
+                          <Youtube size={18} />
+                        </Link>
+                      )}
+                      {firm?.tiktok_link && (
+                        <Link href={firm.tiktok_link} className="text-[#0f0f0f] hover:opacity-80">
+                          <RiTiktokLine size={18} />
+                        </Link>
+                      )}
+                      {firm?.discord_link && (
+                        <Link href={firm.discord_link} className="text-[#0f0f0f] hover:opacity-80">
+                          <RiDiscordLine size={18} />
+                        </Link>
+                      )}
+                      {!firm?.facebook_link &&
+                        !firm?.x_link &&
+                        !firm?.instagram_link &&
+                        !firm?.linkedin_link &&
+                        !firm?.youtube_link &&
+                        !firm?.tiktok_link &&
+                        !firm?.discord_link && (
+                          <span className="text-xs text-[#0f0f0f]">No social links available</span>
+                        )}
+                    </div>
+                  </div>
+
+                  {/* Company Info */}
+                  <div className="grid grid-cols-2 gap-4 px-6 py-4 border-t border-[#0f0f0f]/10">
+                    <div>
+                      <h3 className="font-bold mb-2">CEO</h3>
+                      <p className="text-sm">{firm?.ceo}</p>
+                    </div>
+                    <div>
+                      <h3 className="font-bold mb-2">Country</h3>
+                      <p className="text-sm">{firm?.country}</p>
+                    </div>
+                    <div>
+                      <h3 className="font-bold mb-2">Established</h3>
+                      <p className="text-sm">{firm?.established}</p>
+                    </div>
+                    <div>
+                      <h3 className="font-bold mb-2">Years In Operations</h3>
+                      <p className="text-sm">{firm?.years_in_operations}</p>
+                    </div>
+                  </div>
+
+                  {/* Broker & Platform */}
+                  <div className="grid grid-cols-1 gap-4 px-6 py-4 border-t border-[#0f0f0f]/10">
+                    <div>
+                      <h3 className="font-bold mb-2">Broker</h3>
+                      <p className="text-sm">{firm?.broker}</p>
+                    </div>
+                    <div>
+                      <h3 className="font-bold mb-2">Platform</h3>
+                      <p className="text-sm">{firm?.platform}</p>
+                    </div>
+                    {firm?.platform_details && (
+                      <div>
+                        <p className="text-xs">{firm.platform_details}</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
             {/* Main Content */}
             <div className="lg:col-span-9">
