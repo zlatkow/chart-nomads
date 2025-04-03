@@ -6,8 +6,21 @@ import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { supabase } from "../../lib/supabase"
 import Image from "next/image"
-import { Facebook, Instagram, Linkedin, Youtube, BarChart2, DollarSign, Award, FileText, MessageSquare, ExternalLink, Newspaper, ListTree, Star, X } from 'lucide-react'
-import { FaTiktok, FaDiscord } from "react-icons/fa"
+import {
+  Facebook,
+  Instagram,
+  Linkedin,
+  Youtube,
+  BarChart2,
+  DollarSign,
+  Award,
+  FileText,
+  MessageSquare,
+  ExternalLink,
+  Newspaper,
+  ListTree,
+  Star,
+} from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -489,46 +502,21 @@ function PropFirmUI({
                     )}
                     {firm?.tiktok_link && (
                       <Link href={firm.tiktok_link} className="text-[#0f0f0f] hover:opacity-80">
-                        <RiTiktokLine size={18}/>
+                        <RiTiktokLine size={18} />
                       </Link>
                     )}
                     {firm?.discord_link && (
                       <Link href={firm.discord_link} className="text-[#0f0f0f] hover:opacity-80">
-                        <RiDiscordLine size={18}/>
+                        <RiDiscordLine size={18} />
                       </Link>
                     )}
-                    {/* Show default social icons if no links provided */}
                     {!firm?.facebook_link &&
                       !firm?.x_link &&
                       !firm?.instagram_link &&
                       !firm?.linkedin_link &&
                       !firm?.youtube_link &&
                       !firm?.tiktok_link &&
-                      !firm?.discord_link && (
-                        <>
-                          <Link href="#" className="text-[#0f0f0f] hover:opacity-80">
-                            <Facebook size={18} />
-                          </Link>
-                          <Link href="#" className="text-[#0f0f0f] hover:opacity-80">
-                            <X size={18} />
-                          </Link>
-                          <Link href="#" className="text-[#0f0f0f] hover:opacity-80">
-                            <Instagram size={18} />
-                          </Link>
-                          <Link href="#" className="text-[#0f0f0f] hover:opacity-80">
-                            <Linkedin size={18} />
-                          </Link>
-                          <Link href="#" className="text-[#0f0f0f] hover:opacity-80">
-                            <Youtube size={18} />
-                          </Link>
-                          <Link href="#" className="text-[#0f0f0f] hover:opacity-80">
-                            <FaTiktok size={18} />
-                          </Link>
-                          <Link href="#" className="text-[#0f0f0f] hover:opacity-80">
-                            <FaDiscord size={18} />
-                          </Link>
-                        </>
-                      )}
+                      !firm?.discord_link && <span className="text-xs text-[#0f0f0f]">No social links available</span>}
                   </div>
                 </div>
 
@@ -872,3 +860,4 @@ function PropFirmUI({
 }
 
 export default PropFirmUI
+
