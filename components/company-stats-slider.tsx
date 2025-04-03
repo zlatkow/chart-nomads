@@ -3,7 +3,43 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { DollarSign, Users, TrendingUp, BarChart2, LoaderCircle, Gem, Banknote } from "lucide-react"
+import { DollarSign, Users, TrendingUp, BarChart2, Gem, Banknote } from "lucide-react"
+
+// Add shimmer animation CSS
+const shimmerAnimation = `
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.animate-pulse {
+  position: relative;
+  overflow: hidden;
+}
+
+.animate-pulse::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0,
+    rgba(255, 255, 255, 0.05) 20%,
+    rgba(255, 255, 255, 0.1) 60%,
+    rgba(255, 255, 255, 0)
+  );
+  animation: shimmer 2s infinite;
+  pointer-events: none;
+}
+`
 
 const CompanyStatsSlider = ({ companyName }) => {
   const [currentSlide, setCurrentSlide] = useState(0)
@@ -69,6 +105,19 @@ const CompanyStatsSlider = ({ companyName }) => {
     return () => clearInterval(interval)
   }, [currentSlide, loading, isHovered, slides.length])
 
+  // Add this useEffect after the other useEffects in the component
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      const style = document.createElement("style")
+      style.textContent = shimmerAnimation
+      document.head.appendChild(style)
+
+      return () => {
+        document.head.removeChild(style)
+      }
+    }
+  }, [])
+
   const shouldShowPercentageBubble = (statTitle, currentSlideIndex) => {
     // For "All Time" slide (index 3), don't show any percentage bubbles
     if (currentSlideIndex === 3) {
@@ -125,9 +174,32 @@ const CompanyStatsSlider = ({ companyName }) => {
     >
       {/* Loading Indicator */}
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-10">
-          <LoaderCircle size={40} className="animate-spin text-[#edb900]" />
-          <p className="text-white mt-4">Loading {companyName} Stats...</p>
+        <div className="space-y-6">
+          {/* Skeleton for heading */}
+          <div className="animate-pulse h-8 w-48 bg-[rgba(237,185,0,0.1)] rounded-md"></div>
+
+          {/* Skeleton for stats grid */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-6 px-2 py-1">
+            {[...Array(6)].map((_, index) => (
+              <div
+                key={index}
+                className="relative bg-[#0f0f0f] p-6 rounded-lg shadow-sm flex flex-col items-start border-[1px] border-[#666666] animate-pulse"
+              >
+                <div className="absolute top-4 right-4 w-5 h-5 bg-[rgba(237,185,0,0.1)] rounded-full"></div>
+                <div className="h-4 w-24 bg-[rgba(255,255,255,0.05)] rounded mb-3"></div>
+                <div className="h-8 w-32 bg-[rgba(237,185,0,0.1)] rounded mb-2"></div>
+                <div className="h-4 w-28 bg-[rgba(255,255,255,0.05)] rounded"></div>
+              </div>
+            ))}
+          </div>
+
+          {/* Skeleton for time since last payout */}
+          <div className="mt-4 text-right px-10">
+            <div className="inline-flex items-center">
+              <div className="h-5 w-48 bg-[rgba(255,255,255,0.05)] rounded mr-2"></div>
+              <div className="h-6 w-32 bg-[rgba(237,185,0,0.1)] rounded"></div>
+            </div>
+          </div>
         </div>
       ) : (
         <>
