@@ -167,14 +167,42 @@ function PropFirmUI({
         if (firmError) {
           console.error("Error fetching firm data:", firmError)
           setFirm(null)
-        } else {
-          console.log("Fetched firm data:", firmData)
-          setFirm(firmData)
+          setLoading(false) // Set loading to false on error
+          return
+        }
+
+        console.log("Fetched firm data:", firmData)
+        setFirm(firmData)
+
+        // If there's no country ID, we can finish loading
+        if (!firmData?.country) {
+          setLoading(false)
+          return
+        }
+
+        // Otherwise, fetch country data before finishing loading
+        try {
+          console.log("Fetching country data for ID:", firmData.country)
+          const { data: countryData, error: countryError } = await supabase
+            .from("countries")
+            .select("id, country, flag")
+            .eq("id", firmData.country)
+            .single()
+
+          if (countryError) {
+            console.error("Error fetching country data:", countryError)
+          } else if (countryData) {
+            console.log("Successfully fetched country data:", countryData)
+            setCountryData(countryData)
+          }
+        } catch (countryErr) {
+          console.error("Error fetching country data:", countryErr)
         }
       } catch (error) {
         console.error("Error in fetchFirmData:", error)
         setFirm(null)
       } finally {
+        // Set loading to false after both firm and country data are fetched
         setLoading(false)
       }
     }
@@ -370,64 +398,64 @@ function PropFirmUI({
     fetchRules()
   }, [firmId])
 
-  // Fetch country data when firm changes
-  useEffect(() => {
-    const fetchCountryData = async () => {
-      console.log("Starting fetchCountryData function")
+  // Remove this useEffect since we're now fetching country data in fetchFirmData
+  // useEffect(() => {
+  //   const fetchCountryData = async () => {
+  //     console.log("Starting fetchCountryData function")
 
-      try {
-        if (!firm) {
-          console.log("No firm data available")
-          setCountryData(null)
-          return
-        }
+  //     try {
+  //       if (!firm) {
+  //         console.log("No firm data available")
+  //         setCountryData(null)
+  //         return
+  //       }
 
-        console.log("Firm data:", firm)
-        console.log("Country ID type:", typeof firm.country)
-        console.log("Country ID value:", firm.country)
+  //       console.log("Firm data:", firm)
+  //       console.log("Country ID type:", typeof firm.country)
+  //       console.log("Country ID value:", firm.country)
 
-        if (firm.country === undefined || firm.country === null) {
-          console.log("Country ID is undefined or null")
-          setCountryData(null)
-          return
-        }
+  //       if (firm.country === undefined || firm.country === null) {
+  //         console.log("Country ID is undefined or null")
+  //         setCountryData(null)
+  //         return
+  //       }
 
-        console.log("Fetching country data for ID:", firm.country)
+  //       console.log("Fetching country data for ID:", firm.country)
 
-        // Add a timeout to ensure we don't get stuck in a pending request
-        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Fetch timeout")), 5000))
+  //       // Add a timeout to ensure we don't get stuck in a pending request
+  //       const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Fetch timeout")), 5000))
 
-        const fetchPromise = supabase.from("countries").select("id, country, flag").eq("id", firm.country).single()
+  //       const fetchPromise = supabase.from("countries").select("id, country, flag").eq("id", firm.country).single()
 
-        // Race the fetch against the timeout
-        const { data, error } = await Promise.race([
-          fetchPromise,
-          timeoutPromise.then(() => {
-            throw new Error("Fetch timeout")
-          }),
-        ])
+  //       // Race the fetch against the timeout
+  //       const { data, error } = await Promise.race([
+  //         fetchPromise,
+  //         timeoutPromise.then(() => {
+  //           throw new Error("Fetch timeout")
+  //         }),
+  //       ])
 
-        if (error) {
-          console.error("Error fetching country data:", error)
-          setCountryData(null)
-          return
-        }
+  //       if (error) {
+  //         console.error("Error fetching country data:", error)
+  //         setCountryData(null)
+  //         return
+  //       }
 
-        if (data) {
-          console.log("Successfully fetched country data:", data)
-          setCountryData(data)
-        } else {
-          console.log("No country data found for ID:", firm.country)
-          setCountryData(null)
-        }
-      } catch (err) {
-        console.error("Unexpected error in fetchCountryData:", err)
-        setCountryData(null)
-      }
-    }
+  //       if (data) {
+  //         console.log("Successfully fetched country data:", data)
+  //         setCountryData(data)
+  //       } else {
+  //         console.log("No country data found for ID:", firm.country)
+  //         setCountryData(null)
+  //       }
+  //     } catch (err) {
+  //       console.error("Unexpected error in fetchCountryData:", err)
+  //       setCountryData(null)
+  //     }
+  //   }
 
-    fetchCountryData()
-  }, [firm])
+  //   fetchCountryData()
+  // }, [firm])
 
   // Update likeCount when firm data changes
   useEffect(() => {
