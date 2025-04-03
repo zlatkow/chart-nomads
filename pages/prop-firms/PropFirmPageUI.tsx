@@ -373,12 +373,12 @@ function PropFirmUI({
   // Fetch country data when firm changes
   useEffect(() => {
     const fetchCountryData = async () => {
-      if (firm && firm.country && typeof firm.country === "number") {
+      if (firm && firm.country !== undefined && firm.country !== null) {
         try {
           console.log("Fetching country data for ID:", firm.country)
           const { data, error } = await supabase
             .from("countries")
-            .select("id, name, flag")
+            .select("id, country, flag")
             .eq("id", firm.country)
             .single()
 
@@ -400,13 +400,13 @@ function PropFirmUI({
           setCountryData(null)
         }
       } else {
-        console.log("No country ID available to fetch data")
+        console.log("No country ID available to fetch data:", firm?.country)
         setCountryData(null)
       }
     }
 
     fetchCountryData()
-  }, [firm, firm?.country, supabase])
+  }, [firm])
 
   // Update likeCount when firm data changes
   useEffect(() => {
@@ -767,7 +767,7 @@ function PropFirmUI({
                         <div className="flex items-center gap-2">
                           <img
                             src={countryData.flag || "/placeholder.svg"}
-                            alt={`${countryData.name} flag`}
+                            alt={`${countryData.country} flag`}
                             className="w-5 h-4 object-cover rounded-sm"
                           />
                           <p className="text-sm">{countryData.country}</p>
