@@ -31,6 +31,7 @@ import CompanyStatsTabContent from "../../components/industry-stats-page/Company
 import { useNoise } from "../../components/providers/noise-provider"
 import { ModalContext } from "../../pages/_app"
 import CompanyStatsSlider from "../../components/company-stats-slider"
+import { RiTwitterXFill, RiDiscordLine, RiTiktokLine } from "react-icons/ri"
 
 // Define types for the firm and rating data
 interface Firm {
@@ -468,7 +469,7 @@ function PropFirmUI({
                     )}
                     {firm?.x_link && (
                       <Link href={firm.x_link} className="text-[#0f0f0f] hover:opacity-80">
-                        <X size={18} />
+                        <RiTwitterXFill size={18} />
                       </Link>
                     )}
                     {firm?.instagram_link && (
@@ -488,12 +489,12 @@ function PropFirmUI({
                     )}
                     {firm?.tiktok_link && (
                       <Link href={firm.tiktok_link} className="text-[#0f0f0f] hover:opacity-80">
-                        <FaTiktok size={18} />
+                        <RiTiktokLine size={18}/>
                       </Link>
                     )}
                     {firm?.discord_link && (
                       <Link href={firm.discord_link} className="text-[#0f0f0f] hover:opacity-80">
-                        <FaDiscord size={18} />
+                        <RiDiscordLine size={18}/>
                       </Link>
                     )}
                     {/* Show default social icons if no links provided */}
