@@ -118,7 +118,7 @@ function PropFirmUI({
   }, [searchParams])
 
   const [liked, setLiked] = useState(false)
-  const [likeCount, setLikeCount] = useState(firm && firm.likes_count ? firm.likes_count : 91)
+  const [likeCount, setLikeCount] = useState(firm && firm.likes ? firm.likes : 91)
   const { user } = useUser()
   const [userLikedFirms, setUserLikedFirms] = useState(new Set())
   const [loadingLikes, setLoadingLikes] = useState(true)
