@@ -118,7 +118,7 @@ function PropFirmUI({
   }, [searchParams])
 
   const [liked, setLiked] = useState(false)
-  const [likeCount, setLikeCount] = useState(firm?.likes || 0)
+  const [likeCount, setLikeCount] = useState(0)
   const { user } = useUser()
   const [userLikedFirms, setUserLikedFirms] = useState(new Set())
   const [loadingLikes, setLoadingLikes] = useState(true)
@@ -269,6 +269,14 @@ function PropFirmUI({
 
     fetchRules()
   }, [firmId])
+
+  // Update likeCount when firm data changes
+  useEffect(() => {
+    if (firm && firm.likes !== undefined) {
+      setLikeCount(firm.likes)
+      console.log("Updated like count from firm data:", firm.likes)
+    }
+  }, [firm])
 
   const handleLike = () => {
     if (liked) {
