@@ -1,6 +1,6 @@
 /* eslint-disable */
 "use client"
-import { useState, useEffect, useContext } from "react"
+import { useState, useEffect, useContext, useRef } from "react"
 import { useParams, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
@@ -256,87 +256,79 @@ export default function PropFirmPage() {
 
   // Fetch firm data when component mounts or slug changes
   useEffect(() => {
-    let isMounted = true // Flag to prevent state updates after unmount
+    // Use a ref to track if we've already started fetching for this slug
+    const fetchInProgress = useRef(false)
+    let isMounted = true
 
     async function fetchData() {
+      // Prevent duplicate fetches for the same slug
+      if (fetchInProgress.current) {
+        console.log("Fetch already in progress for slug:", slug)
+        return
+      }
+
       if (!slug) {
         if (isMounted) setLoading(false)
         return
       }
 
+      // Set fetch in progress flag
+      fetchInProgress.current = true
+
       try {
         console.log("Fetching firm data for slug:", slug)
 
-        // Start with loading state
-        if (isMounted) setLoading(true)
+        // Fetch the firm data
+        const { data: firmData, error: firmError } = await supabase
+          .from("prop_firms")
+          .select("*")
+          .eq("slug", slug)
+          .single()
 
-        // Fetch all data in parallel
-        const [firmResponse, likesResponse] = await Promise.all([
-          // Fetch the firm data
-          supabase
-            .from("prop_firms")
-            .select("*")
-            .eq("slug", slug)
-            .single(),
-
-          // Fetch user likes if user is logged in
-          user ? supabase.from("user_likes").select("firm_id").eq("user_id", user.id) : Promise.resolve({ data: [] }),
-        ])
-
-        // Handle firm data error
-        if (firmResponse.error) {
-          console.error("Error fetching firm data:", firmResponse.error)
+        if (firmError) {
+          console.error("Error fetching firm data:", firmError)
           if (isMounted) {
             setFirm(null)
             setCountryData(null)
             setLoading(false)
           }
+          fetchInProgress.current = false
           return
         }
 
-        const firmData = firmResponse.data
         console.log("Fetched firm data:", firmData)
-
-        // Process likes data
-        if (user && likesResponse.data) {
-          const likedFirmIds = new Set(likesResponse.data.map((entry) => Number(entry.firm_id)))
-          if (isMounted) {
-            setUserLikedFirms(likedFirmIds)
-            setLoadingLikes(false)
-          }
-        }
-
-        // Update like count
-        if (firmData && firmData.likes !== undefined && isMounted) {
-          setLikeCount(firmData.likes)
-        }
 
         // If there's a country ID, fetch country data
         let countryResult = null
         if (firmData?.country) {
           try {
             console.log("Fetching country data for ID:", firmData.country)
-            const countryResponse = await supabase
+            const { data: countryData, error: countryError } = await supabase
               .from("countries")
               .select("id, country, flag")
               .eq("id", firmData.country)
               .single()
 
-            if (!countryResponse.error && countryResponse.data) {
-              console.log("Successfully fetched country data:", countryResponse.data)
-              countryResult = countryResponse.data
-            } else if (countryResponse.error) {
-              console.error("Error fetching country data:", countryResponse.error)
+            if (!countryError && countryData) {
+              console.log("Successfully fetched country data:", countryData)
+              countryResult = countryData
+            } else if (countryError) {
+              console.error("Error fetching country data:", countryError)
             }
           } catch (countryErr) {
             console.error("Error in country data fetch:", countryErr)
           }
         }
 
-        // Only update state once with all data
+        // Update state only if component is still mounted
         if (isMounted) {
           setFirm(firmData)
           setCountryData(countryResult)
+
+          // Update like count
+          if (firmData && firmData.likes !== undefined) {
+            setLikeCount(firmData.likes)
+          }
 
           // Fetch rules data if we have a firm ID
           if (firmData?.id) {
@@ -345,7 +337,7 @@ export default function PropFirmPage() {
             setRulesLoading(false)
           }
 
-          // Finally set loading to false after all data is fetched
+          // Finally set loading to false
           setLoading(false)
         }
       } catch (error) {
@@ -355,17 +347,22 @@ export default function PropFirmPage() {
           setCountryData(null)
           setLoading(false)
         }
+      } finally {
+        fetchInProgress.current = false
       }
     }
 
-    // Start fetching data
-    fetchData()
+    // Only fetch if we have a slug and aren't already loading
+    if (slug && !fetchInProgress.current) {
+      setLoading(true)
+      fetchData()
+    }
 
     // Cleanup function to prevent state updates after unmount
     return () => {
       isMounted = false
     }
-  }, [slug, user])
+  }, [slug]) // Only depend on slug, not user
 
   // Then modify the handleTabChange function to:
   const handleTabChange = (value: string) => {
@@ -409,35 +406,48 @@ export default function PropFirmPage() {
     }
   }, [highlightReviewId])
 
+  const fetchLikesInProgress = useRef(false) // Move useRef here
+
   useEffect(() => {
-    if (!user) {
-      console.warn("🚨 No user found! Skipping fetch for liked companies.")
-      setLoadingLikes(false)
-      return
-    }
+    async function fetchLikedFirms() {
+      // Prevent duplicate fetches
+      if (fetchLikesInProgress.current) return
+      fetchLikesInProgress.current = true
 
-    console.log("🟡 Fetching liked companies for user:", user.id)
+      try {
+        if (!user) {
+          console.warn("🚨 No user found! Skipping fetch for liked companies.")
+          setLoadingLikes(false)
+          return
+        }
 
-    const fetchLikedFirms = async () => {
-      const { data, error } = await supabase.from("user_likes").select("firm_id").eq("user_id", user.id)
+        console.log("🟡 Fetching liked companies for user:", user.id)
+        const { data, error } = await supabase.from("user_likes").select("firm_id").eq("user_id", user.id)
 
-      if (error) {
-        console.error("❌ Error fetching liked firms:", error)
+        if (error) {
+          console.error("❌ Error fetching liked firms:", error)
+          setLoadingLikes(false)
+          return
+        }
+
+        console.log("✅ Fetched liked firms:", data)
+        const likedFirmIds = new Set(data.map((entry) => Number(entry.firm_id)))
+        setUserLikedFirms(likedFirmIds)
+      } catch (error) {
+        console.error("Error fetching liked firms:", error)
+      } finally {
         setLoadingLikes(false)
-        return
+        fetchLikesInProgress.current = false
       }
-
-      console.log("✅ Fetched liked firms:", data)
-
-      // ✅ Ensure firm IDs are stored as numbers to match the state type
-      const likedFirmIds = new Set(data.map((entry) => Number(entry.firm_id)))
-
-      setUserLikedFirms(likedFirmIds)
-      setLoadingLikes(false) // ✅ Mark loading as false
     }
 
-    fetchLikedFirms()
-  }, [user]) // ✅ Runs when user logs in or reloads
+    // Only fetch likes if we have a user and aren't already loading
+    if (user && !fetchLikesInProgress.current) {
+      fetchLikedFirms()
+    } else if (!user) {
+      setLoadingLikes(false)
+    }
+  }, [user])
 
   // Fetch company-specific rules and change logs
 
@@ -506,7 +516,7 @@ export default function PropFirmPage() {
     }
   }
 
-  const isLiked = !loadingLikes && userLikedFirms.has(Number(firmId))
+  const isLiked = !loadingLikes && firmId && userLikedFirms.has(Number(firmId))
 
   // Function to handle login modal opening
   const handleLoginModalOpen = () => {
