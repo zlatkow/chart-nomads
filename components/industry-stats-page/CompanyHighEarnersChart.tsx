@@ -7,6 +7,42 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Users, DollarSign } from "lucide-react"
 
+// Add shimmer animation CSS
+const shimmerAnimation = `
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.animate-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.animate-shimmer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0,
+    rgba(255, 255, 255, 0.05) 20%,
+    rgba(255, 255, 255, 0.1) 60%,
+    rgba(255, 255, 255, 0)
+  );
+  animation: shimmer 2s infinite;
+  pointer-events: none;
+}
+`
+
 interface PayoutStatsChartProps {
   companyName: string
 }
@@ -17,6 +53,19 @@ export default function PayoutStatsChart({ companyName }: PayoutStatsChartProps)
   const [donutStats, setDonutStats] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+
+  // Add shimmer animation to document
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      const style = document.createElement("style")
+      style.textContent = shimmerAnimation
+      document.head.appendChild(style)
+
+      return () => {
+        document.head.removeChild(style)
+      }
+    }
+  }, [])
 
   // Fetch data from the API
   useEffect(() => {
@@ -58,11 +107,87 @@ export default function PayoutStatsChart({ companyName }: PayoutStatsChartProps)
     }
   }, [companyName])
 
-  // Handle loading state
+  // Handle loading state with shimmer animation
   if (loading) {
     return (
-      <div className="bg-[#0f0f0f] text-white rounded-lg border-[1px] border-[#666666] mb-[50px] p-6 flex justify-center items-center h-[400px]">
-        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-[#edb900]"></div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full mt-8">
+        {/* Left Donut Chart Skeleton */}
+        <Card className="bg-[#0f0f0f] font-[balboa] shadow-lg border border-[#666666]">
+          <CardHeader className="pb-5 mb-5 border-b-[1px] border-[#666666]">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-2xl font-[balboa] flex items-center gap-2 text-white">
+                  <Users className="h-5 w-5 text-[#edb900]" />
+                  Unique Traders
+                </CardTitle>
+                <CardDescription className="text-gray-400">Based on total received amount</CardDescription>
+              </div>
+              <div className="h-8 w-20 bg-[rgba(255,255,255,0.05)] rounded animate-shimmer"></div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[400px] w-full flex items-center justify-center">
+              <div className="relative w-[360px] h-[360px] animate-shimmer">
+                {/* Outer circle */}
+                <div className="absolute inset-0 rounded-full border-8 border-[rgba(255,255,255,0.05)]"></div>
+
+                {/* Inner circle (donut hole) */}
+                <div className="absolute inset-[80px] rounded-full bg-[#0f0f0f]"></div>
+
+                {/* Donut segments */}
+                {[...Array(4)].map((_, i) => (
+                  <div
+                    key={`segment-left-${i}`}
+                    className="absolute inset-0 rounded-full"
+                    style={{
+                      clipPath: `polygon(50% 50%, ${50 + 50 * Math.cos((Math.PI * 2 * i) / 4)}% ${50 + 50 * Math.sin((Math.PI * 2 * i) / 4)}%, ${50 + 50 * Math.cos((Math.PI * 2 * (i + 1)) / 4)}% ${50 + 50 * Math.sin((Math.PI * 2 * (i + 1)) / 4)}%)`,
+                      background: `rgba(237, 185, 0, ${0.2 + i * 0.15})`,
+                    }}
+                  ></div>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Right Donut Chart Skeleton */}
+        <Card className="bg-[#0f0f0f] shadow-lg font-[balboa] border border-[#666666]">
+          <CardHeader className="pb-5 mb-5 border-b-[1px] border-[#666666]">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-2xl font-[balboa] flex items-center gap-2 text-white">
+                  <Users className="h-5 w-5 text-[#edb900]" />
+                  Unique Traders
+                </CardTitle>
+                <CardDescription className="text-gray-400">Based on total payouts count</CardDescription>
+              </div>
+              <div className="h-8 w-20 bg-[rgba(255,255,255,0.05)] rounded animate-shimmer"></div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[400px] w-full flex items-center justify-center">
+              <div className="relative w-[360px] h-[360px] animate-shimmer">
+                {/* Outer circle */}
+                <div className="absolute inset-0 rounded-full border-8 border-[rgba(255,255,255,0.05)]"></div>
+
+                {/* Inner circle (donut hole) */}
+                <div className="absolute inset-[80px] rounded-full bg-[#0f0f0f]"></div>
+
+                {/* Donut segments */}
+                {[...Array(4)].map((_, i) => (
+                  <div
+                    key={`segment-right-${i}`}
+                    className="absolute inset-0 rounded-full"
+                    style={{
+                      clipPath: `polygon(50% 50%, ${50 + 50 * Math.cos((Math.PI * 2 * i) / 4 + Math.PI / 6)}% ${50 + 50 * Math.sin((Math.PI * 2 * i) / 4 + Math.PI / 6)}%, ${50 + 50 * Math.cos((Math.PI * 2 * (i + 1)) / 4 + Math.PI / 6)}% ${50 + 50 * Math.sin((Math.PI * 2 * (i + 1)) / 4 + Math.PI / 6)}%)`,
+                      background: `rgba(237, 185, 0, ${0.2 + i * 0.15})`,
+                    }}
+                  ></div>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     )
   }
