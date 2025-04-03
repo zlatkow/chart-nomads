@@ -100,7 +100,8 @@ function PropFirmUI({
   formatCurrency = (value: number, currency?: string) => `$${value}`,
 }: PropFirmUIProps) {
   console.log("PropFirmUI received firm:", firm)
-  console.log("PropFirmUI received ratingBreakdown:", ratingBreakdown)
+  // Remove or comment out this line
+  // console.log("PropFirmUI received ratingBreakdown:", ratingBreakdown)
 
   // Get URL search params to handle tab selection and review highlighting
   const searchParams = useSearchParams()
@@ -340,10 +341,17 @@ function PropFirmUI({
 
   // Helper function to safely get rating values
   const getRatingValue = (key: string) => {
-    if (ratingBreakdown && ratingBreakdown[key] !== undefined) {
-      return ratingBreakdown[key]
+    // Direct mapping from key to firm property
+    if (
+      key === "one_star_review" ||
+      key === "two_star_review" ||
+      key === "three_star_review" ||
+      key === "four_star_review" ||
+      key === "five_star_review"
+    ) {
+      return firm && firm[key] !== undefined ? firm[key] : 0
     }
-    return firm && firm[key as keyof Firm] !== undefined ? firm[key as keyof Firm] : 0
+    return 0
   }
 
   return (
@@ -449,7 +457,7 @@ function PropFirmUI({
                   </div>
                 </div>
 
-                {/* Rating Breakdown - Static data */}
+                {/* Rating Breakdown */}
                 <div className="px-6 pb-4">
                   <div className="flex items-center justify-between mb-1 text-xs">
                     <span>5-star</span>
