@@ -254,100 +254,100 @@ export default function PropFirmPage() {
     }
   }
 
-  // Fetch firm data when component mounts or slug changes
-  useEffect(() => {
-    let isMounted = true
+  // // Fetch firm data when component mounts or slug changes
+  // useEffect(() => {
+  //   let isMounted = true
 
-    async function fetchFirmData() {
-      if (!slug) {
-        if (isMounted) setLoading(false)
-        return
-      }
+  //   async function fetchFirmData() {
+  //     if (!slug) {
+  //       if (isMounted) setLoading(false)
+  //       return
+  //     }
 
-      // Always start with loading state when slug changes
-      if (isMounted) setLoading(true)
+  //     // Always start with loading state when slug changes
+  //     if (isMounted) setLoading(true)
 
-      try {
-        console.log("Fetching firm data for slug:", slug)
+  //     try {
+  //       console.log("Fetching firm data for slug:", slug)
 
-        // Fetch the firm data
-        const { data: firmData, error: firmError } = await supabase
-          .from("prop_firms")
-          .select("*")
-          .eq("slug", slug)
-          .single()
+  //       // Fetch the firm data
+  //       const { data: firmData, error: firmError } = await supabase
+  //         .from("prop_firms")
+  //         .select("*")
+  //         .eq("slug", slug)
+  //         .single()
 
-        if (firmError) {
-          console.error("Error fetching firm data:", firmError)
-          if (isMounted) {
-            setFirm(null)
-            setCountryData(null)
-            setLoading(false)
-          }
-          return
-        }
+  //       if (firmError) {
+  //         console.error("Error fetching firm data:", firmError)
+  //         if (isMounted) {
+  //           setFirm(null)
+  //           setCountryData(null)
+  //           setLoading(false)
+  //         }
+  //         return
+  //       }
 
-        console.log("Fetched firm data:", firmData)
+  //       console.log("Fetched firm data:", firmData)
 
-        // If there's a country ID, fetch country data
-        let countryResult = null
-        if (firmData?.country) {
-          try {
-            console.log("Fetching country data for ID:", firmData.country)
-            const { data: countryData, error: countryError } = await supabase
-              .from("countries")
-              .select("id, country, flag")
-              .eq("id", firmData.country)
-              .single()
+  //       // If there's a country ID, fetch country data
+  //       let countryResult = null
+  //       if (firmData?.country) {
+  //         try {
+  //           console.log("Fetching country data for ID:", firmData.country)
+  //           const { data: countryData, error: countryError } = await supabase
+  //             .from("countries")
+  //             .select("id, country, flag")
+  //             .eq("id", firmData.country)
+  //             .single()
 
-            if (!countryError && countryData) {
-              console.log("Successfully fetched country data:", countryData)
-              countryResult = countryData
-            } else if (countryError) {
-              console.error("Error fetching country data:", countryError)
-            }
-          } catch (countryErr) {
-            console.error("Error in country data fetch:", countryErr)
-          }
-        }
+  //           if (!countryError && countryData) {
+  //             console.log("Successfully fetched country data:", countryData)
+  //             countryResult = countryData
+  //           } else if (countryError) {
+  //             console.error("Error fetching country data:", countryError)
+  //           }
+  //         } catch (countryErr) {
+  //           console.error("Error in country data fetch:", countryErr)
+  //         }
+  //       }
 
-        // Update state only if component is still mounted
-        if (isMounted) {
-          setFirm(firmData)
-          setCountryData(countryResult)
+  //       // Update state only if component is still mounted
+  //       if (isMounted) {
+  //         setFirm(firmData)
+  //         setCountryData(countryResult)
 
-          // Update like count
-          if (firmData && firmData.likes !== undefined) {
-            setLikeCount(firmData.likes)
-          }
+  //         // Update like count
+  //         if (firmData && firmData.likes !== undefined) {
+  //           setLikeCount(firmData.likes)
+  //         }
 
-          // Fetch rules data if we have a firm ID
-          if (firmData?.id) {
-            fetchRulesData(firmData.id)
-          } else {
-            setRulesLoading(false)
-          }
+  //         // Fetch rules data if we have a firm ID
+  //         if (firmData?.id) {
+  //           fetchRulesData(firmData.id)
+  //         } else {
+  //           setRulesLoading(false)
+  //         }
 
-          // Finally set loading to false
-          setLoading(false)
-        }
-      } catch (error) {
-        console.error("Error in fetchFirmData:", error)
-        if (isMounted) {
-          setFirm(null)
-          setCountryData(null)
-          setLoading(false)
-        }
-      }
-    }
+  //         // Finally set loading to false
+  //         setLoading(false)
+  //       }
+  //     } catch (error) {
+  //       console.error("Error in fetchFirmData:", error)
+  //       if (isMounted) {
+  //         setFirm(null)
+  //         setCountryData(null)
+  //         setLoading(false)
+  //       }
+  //     }
+  //   }
 
-    fetchFirmData()
+  //   fetchFirmData()
 
-    // Cleanup function to prevent state updates after unmount
-    return () => {
-      isMounted = false
-    }
-  }, [slug]) // Only depend on slug, not user
+  //   // Cleanup function to prevent state updates after unmount
+  //   return () => {
+  //     isMounted = false
+  //   }
+  // }, [slug]) // Only depend on slug, not user
 
   // Then modify the handleTabChange function to:
   const handleTabChange = (value: string) => {
