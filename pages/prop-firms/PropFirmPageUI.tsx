@@ -70,11 +70,11 @@ interface Firm {
   platform_details?: string
   instruments?: string[]
   leverage?: Record<string, string>
-  one_star_review?: number
-  two_star_review?: number
-  three_star_review?: number
-  four_star_review?: number
-  five_star_review?: number
+  "1_star_reviews"?: number
+  "2_star_reviews"?: number
+  "3_star_reviews"?: number
+  "4_star_reviews"?: number
+  "5_star_reviews"?: number
 }
 
 // Import the RatingBreakdown type from the parent component or use any to avoid conflicts
@@ -100,8 +100,6 @@ function PropFirmUI({
   formatCurrency = (value: number, currency?: string) => `$${value}`,
 }: PropFirmUIProps) {
   console.log("PropFirmUI received firm:", firm)
-  // Remove or comment out this line
-  // console.log("PropFirmUI received ratingBreakdown:", ratingBreakdown)
 
   // Get URL search params to handle tab selection and review highlighting
   const searchParams = useSearchParams()
@@ -339,21 +337,6 @@ function PropFirmUI({
     }
   }
 
-  // Helper function to safely get rating values
-  const getRatingValue = (key: string) => {
-    // Direct mapping from key to firm property
-    if (
-      key === "one_star_review" ||
-      key === "two_star_review" ||
-      key === "three_star_review" ||
-      key === "four_star_review" ||
-      key === "five_star_review"
-    ) {
-      return firm && firm[key] !== undefined ? firm[key] : 0
-    }
-    return 0
-  }
-
   return (
     <div className="min-h-screen bg-[#0f0f0f] text-white">
       <Navbar />
@@ -461,28 +444,28 @@ function PropFirmUI({
                 <div className="px-6 pb-4">
                   <div className="flex items-center justify-between mb-1 text-xs">
                     <span>5-star</span>
-                    <Progress value={getRatingValue("five_star_review")} className="h-2 w-40" />
-                    <span>{getRatingValue("five_star_review")}%</span>
+                    <Progress value={firm?.["5_star_reviews"] || 0} className="h-2 w-40" />
+                    <span>{firm?.["5_star_reviews"] || 0}%</span>
                   </div>
                   <div className="flex items-center justify-between mb-1 text-xs">
                     <span>4-star</span>
-                    <Progress value={getRatingValue("four_star_review")} className="h-2 w-40" />
-                    <span>{getRatingValue("four_star_review")}%</span>
+                    <Progress value={firm?.["4_star_reviews"] || 0} className="h-2 w-40" />
+                    <span>{firm?.["4_star_reviews"] || 0}%</span>
                   </div>
                   <div className="flex items-center justify-between mb-1 text-xs">
                     <span>3-star</span>
-                    <Progress value={getRatingValue("three_star_review")} className="h-2 w-40" />
-                    <span>{getRatingValue("three_star_review")}%</span>
+                    <Progress value={firm?.["3_star_reviews"] || 0} className="h-2 w-40" />
+                    <span>{firm?.["3_star_reviews"] || 0}%</span>
                   </div>
                   <div className="flex items-center justify-between mb-1 text-xs">
                     <span>2-star</span>
-                    <Progress value={getRatingValue("two_star_review")} className="h-2 w-40" />
-                    <span>{getRatingValue("two_star_review")}%</span>
+                    <Progress value={firm?.["2_star_reviews"] || 0} className="h-2 w-40" />
+                    <span>{firm?.["2_star_reviews"] || 0}%</span>
                   </div>
                   <div className="flex items-center justify-between mb-1 text-xs">
                     <span>1-star</span>
-                    <Progress value={getRatingValue("one_star_review")} className="h-2 w-40" />
-                    <span>{getRatingValue("one_star_review")}%</span>
+                    <Progress value={firm?.["1_star_reviews"] || 0} className="h-2 w-40" />
+                    <span>{firm?.["1_star_reviews"] || 0}%</span>
                   </div>
                 </div>
 
