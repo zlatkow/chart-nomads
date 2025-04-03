@@ -22,27 +22,38 @@ export default async function Home({
 
   // Fetch blogs based on category filter
   let blogs: Blog[] = []
-  if (category === "all") {
-    blogs = await getAllBlogs()
-  } else {
-    blogs = await getBlogsByCategory(category)
+  try {
+    if (category === "all") {
+      blogs = await getAllBlogs()
+    } else {
+      blogs = await getBlogsByCategory(category)
+    }
+  } catch (error) {
+    console.error("Error fetching blogs:", error)
+    // Continue with empty blogs array
   }
 
   // Sort blogs based on sort parameter
-  if (sort === "oldest") {
-    blogs = blogs.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
-  } else if (sort === "popular") {
-    // For this example, we'll just use read_time as a proxy for popularity
-    // In a real app, you might have a view count or likes field
-    blogs = blogs.sort((a, b) => b.read_time - a.read_time)
+  if (blogs.length > 0) {
+    if (sort === "oldest") {
+      blogs = [...blogs].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+    } else if (sort === "popular") {
+      // For this example, we'll just use read_time as a proxy for popularity
+      blogs = [...blogs].sort((a, b) => b.read_time - a.read_time)
+    }
   }
 
   // Get featured blog for hero section
-  const featuredBlogs = await getFeaturedBlogs()
-  const featuredBlog = featuredBlogs.length > 0 ? featuredBlogs[0] : null
+  let featuredBlog: Blog | null = null
+  try {
+    const featuredBlogs = await getFeaturedBlogs()
+    featuredBlog = featuredBlogs.length > 0 ? featuredBlogs[0] : null
+  } catch (error) {
+    console.error("Error fetching featured blog:", error)
+  }
 
   // Get unique categories for filter
-  const categories = Array.from(new Set(blogs.map((blog) => blog.category)))
+  const categories = Array.from(new Set(blogs.filter((blog) => blog && blog.category).map((blog) => blog.category)))
 
   return (
     <div className="min-h-screen bg-background">
@@ -178,7 +189,7 @@ export default async function Home({
                 <BlogPostCard
                   key={blog.id}
                   blog={blog}
-                  className={`bg-gradient-to-br from-${getCategoryColor(blog.category)}-900/20 to-black`}
+                  className={`bg-gradient-to-br from-${getCategoryColor(blog.category || "default")}-900/20 to-black`}
                 />
               ))
             ) : (
@@ -455,8 +466,9 @@ function getCategoryColor(category: string): string {
     Basics: "purple",
     Strategy: "orange",
     "New Trends": "yellow",
+    default: "gray",
   }
 
-  return colorMap[category] || "yellow"
+  return colorMap[category] || "gray"
 }
 
