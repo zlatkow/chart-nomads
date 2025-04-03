@@ -104,7 +104,7 @@ interface Firm {
   country?: number // Changed from string to number
   country_data?: {
     id: number
-    name: string
+    country: string
     flag: string
   }
   referral_link?: string
@@ -770,7 +770,7 @@ function PropFirmUI({
                             alt={`${countryData.name} flag`}
                             className="w-5 h-4 object-cover rounded-sm"
                           />
-                          <p className="text-sm">{countryData.name}</p>
+                          <p className="text-sm">{countryData.country}</p>
                         </div>
                       ) : (
                         <p className="text-sm">Unknown</p>
