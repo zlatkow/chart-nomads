@@ -373,34 +373,55 @@ function PropFirmUI({
   // Fetch country data when firm changes
   useEffect(() => {
     const fetchCountryData = async () => {
-      if (firm && firm.country !== undefined && firm.country !== null) {
-        try {
-          console.log("Fetching country data for ID:", firm.country)
-          const { data, error } = await supabase
-            .from("countries")
-            .select("id, country, flag")
-            .eq("id", firm.country)
-            .single()
+      console.log("Starting fetchCountryData function")
 
-          if (error) {
-            console.error("Error fetching country data:", error)
-            setCountryData(null)
-            return
-          }
+      try {
+        if (!firm) {
+          console.log("No firm data available")
+          setCountryData(null)
+          return
+        }
 
-          if (data) {
-            console.log("Successfully fetched country data:", data)
-            setCountryData(data)
-          } else {
-            console.log("No country data found for ID:", firm.country)
-            setCountryData(null)
-          }
-        } catch (err) {
-          console.error("Unexpected error fetching country data:", err)
+        console.log("Firm data:", firm)
+        console.log("Country ID type:", typeof firm.country)
+        console.log("Country ID value:", firm.country)
+
+        if (firm.country === undefined || firm.country === null) {
+          console.log("Country ID is undefined or null")
+          setCountryData(null)
+          return
+        }
+
+        console.log("Fetching country data for ID:", firm.country)
+
+        // Add a timeout to ensure we don't get stuck in a pending request
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Fetch timeout")), 5000))
+
+        const fetchPromise = supabase.from("countries").select("id, country, flag").eq("id", firm.country).single()
+
+        // Race the fetch against the timeout
+        const { data, error } = await Promise.race([
+          fetchPromise,
+          timeoutPromise.then(() => {
+            throw new Error("Fetch timeout")
+          }),
+        ])
+
+        if (error) {
+          console.error("Error fetching country data:", error)
+          setCountryData(null)
+          return
+        }
+
+        if (data) {
+          console.log("Successfully fetched country data:", data)
+          setCountryData(data)
+        } else {
+          console.log("No country data found for ID:", firm.country)
           setCountryData(null)
         }
-      } else {
-        console.log("No country ID available to fetch data:", firm?.country)
+      } catch (err) {
+        console.error("Unexpected error in fetchCountryData:", err)
         setCountryData(null)
       }
     }
