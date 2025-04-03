@@ -120,6 +120,13 @@ interface Firm {
   "5_star_reviews"?: number
 }
 
+// Define a type for country data
+interface CountryData {
+  id: number
+  country: string
+  flag: string
+}
+
 // Import the RatingBreakdown type from the parent component or use any to avoid conflicts
 type RatingBreakdown = any
 
@@ -136,6 +143,20 @@ interface PropFirmUIProps {
   ratingBreakdown?: RatingBreakdown
   formatCurrency?: (value: number, currency?: string) => string
   isLoading?: boolean
+}
+
+// Hardcoded country data as fallback
+const countryMap: Record<number, CountryData> = {
+  1: {
+    id: 1,
+    country: "United Kingdom",
+    flag: "https://upload.wikimedia.org/wikipedia/en/a/ae/Flag_of_the_United_Kingdom.svg",
+  },
+  2: {
+    id: 2,
+    country: "United States",
+    flag: "https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg",
+  },
 }
 
 function PropFirmUI({
@@ -170,6 +191,11 @@ function PropFirmUI({
         } else {
           console.log("Fetched firm data:", firmData)
           setFirm(firmData)
+
+          // Immediately try to fetch country data if we have a country ID
+          if (firmData && firmData.country) {
+            fetchCountryDataDirectly(firmData.country)
+          }
         }
       } catch (error) {
         console.error("Error in fetchFirmData:", error)
@@ -226,7 +252,7 @@ function PropFirmUI({
   const [rulesActiveTab, setRulesActiveTab] = useState("main-rules")
   const [rulesLoading, setRulesLoading] = useState(true)
   const [bannedCountries, setBannedCountries] = useState(null)
-  const [countryData, setCountryData] = useState(null)
+  const [countryData, setCountryData] = useState<CountryData | null>(null)
 
   // Get the noise context
   const { isNoiseVisible } = useNoise()
@@ -245,6 +271,42 @@ function PropFirmUI({
 
   // Memoize the firmId to prevent it from changing on every render
   const firmId = firm?.id || null
+
+  // Direct function to fetch country data
+  async function fetchCountryDataDirectly(countryId: number) {
+    console.log("DIRECT FETCH: Fetching country data for ID:", countryId)
+
+    try {
+      // First try to get from hardcoded map as fallback
+      if (countryMap[countryId]) {
+        console.log("DIRECT FETCH: Found country in hardcoded map:", countryMap[countryId])
+        setCountryData(countryMap[countryId])
+        return
+      }
+
+      // Otherwise try to fetch from database
+      const { data, error } = await supabase.from("countries").select("id, country, flag").eq("id", countryId).single()
+
+      console.log("DIRECT FETCH: Supabase response:", { data, error })
+
+      if (error) {
+        console.error("DIRECT FETCH: Error fetching country data:", error)
+        setCountryData(null)
+        return
+      }
+
+      if (data) {
+        console.log("DIRECT FETCH: Successfully fetched country data:", data)
+        setCountryData(data)
+      } else {
+        console.log("DIRECT FETCH: No country data found for ID:", countryId)
+        setCountryData(null)
+      }
+    } catch (err) {
+      console.error("DIRECT FETCH: Unexpected error:", err)
+      setCountryData(null)
+    }
+  }
 
   // Then modify the handleTabChange function to:
   const handleTabChange = (value: string) => {
@@ -369,65 +431,6 @@ function PropFirmUI({
 
     fetchRules()
   }, [firmId])
-
-  // Fetch country data when firm changes
-  useEffect(() => {
-    const fetchCountryData = async () => {
-      console.log("Starting fetchCountryData function")
-
-      try {
-        if (!firm) {
-          console.log("No firm data available")
-          setCountryData(null)
-          return
-        }
-
-        console.log("Firm data:", firm)
-        console.log("Country ID type:", typeof firm.country)
-        console.log("Country ID value:", firm.country)
-
-        if (firm.country === undefined || firm.country === null) {
-          console.log("Country ID is undefined or null")
-          setCountryData(null)
-          return
-        }
-
-        console.log("Fetching country data for ID:", firm.country)
-
-        // Add a timeout to ensure we don't get stuck in a pending request
-        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Fetch timeout")), 5000))
-
-        const fetchPromise = supabase.from("countries").select("id, country, flag").eq("id", firm.country).single()
-
-        // Race the fetch against the timeout
-        const { data, error } = await Promise.race([
-          fetchPromise,
-          timeoutPromise.then(() => {
-            throw new Error("Fetch timeout")
-          }),
-        ])
-
-        if (error) {
-          console.error("Error fetching country data:", error)
-          setCountryData(null)
-          return
-        }
-
-        if (data) {
-          console.log("Successfully fetched country data:", data)
-          setCountryData(data)
-        } else {
-          console.log("No country data found for ID:", firm.country)
-          setCountryData(null)
-        }
-      } catch (err) {
-        console.error("Unexpected error in fetchCountryData:", err)
-        setCountryData(null)
-      }
-    }
-
-    fetchCountryData()
-  }, [firm])
 
   // Update likeCount when firm data changes
   useEffect(() => {
@@ -586,6 +589,13 @@ function PropFirmUI({
       </div>
     )
   }
+
+  // If we have a firm with a country ID but no country data yet, try to fetch it
+  useEffect(() => {
+    if (firm && firm.country && !countryData) {
+      fetchCountryDataDirectly(firm.country)
+    }
+  }, [firm, countryData])
 
   return (
     <div className="min-h-screen bg-[#0f0f0f] text-white">
