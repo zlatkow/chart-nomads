@@ -140,102 +140,24 @@ export default function PropFirmPage() {
   const [loading, setLoading] = useState(true) // Always start with loading=true
   const [countryData, setCountryData] = useState(null)
 
-  // Fetch firm data when component mounts or slug changes
-  useEffect(() => {
-    let isMounted = true // Flag to prevent state updates after unmount
+  // Add stats related state
+  const [statsActiveTab, setStatsActiveTab] = useState("stats")
 
-    async function fetchData() {
-      if (!slug) {
-        if (isMounted) setLoading(false)
-        return
-      }
-
-      try {
-        console.log("Fetching firm data for slug:", slug)
-        // Fetch the firm data
-        const { data: firmData, error: firmError } = await supabase
-          .from("prop_firms")
-          .select("*")
-          .eq("slug", slug)
-          .single()
-
-        if (firmError) {
-          console.error("Error fetching firm data:", firmError)
-          if (isMounted) {
-            setFirm(null)
-            setLoading(false)
-          }
-          return
-        }
-
-        console.log("Fetched firm data:", firmData)
-
-        // If there's no country ID, we can finish loading with just the firm data
-        if (!firmData?.country) {
-          if (isMounted) {
-            setFirm(firmData)
-            setCountryData(null)
-            setLoading(false)
-          }
-          return
-        }
-
-        // Otherwise, fetch country data before finishing loading
-        try {
-          console.log("Fetching country data for ID:", firmData.country)
-          const { data: countryData, error: countryError } = await supabase
-            .from("countries")
-            .select("id, country, flag")
-            .eq("id", firmData.country)
-            .single()
-
-          if (isMounted) {
-            if (countryError) {
-              console.error("Error fetching country data:", countryError)
-              setCountryData(null)
-            } else if (countryData) {
-              console.log("Successfully fetched country data:", countryData)
-              setCountryData(countryData)
-            }
-
-            // Set firm data and finish loading
-            setFirm(firmData)
-            setLoading(false)
-          }
-        } catch (countryErr) {
-          console.error("Error fetching country data:", countryErr)
-          if (isMounted) {
-            setFirm(firmData)
-            setCountryData(null)
-            setLoading(false)
-          }
-        }
-      } catch (error) {
-        console.error("Error in fetchData:", error)
-        if (isMounted) {
-          setFirm(null)
-          setLoading(false)
-        }
-      }
-    }
-
-    // Start loading and fetch data
-    setLoading(true)
-    fetchData()
-
-    // Cleanup function to prevent state updates after unmount
-    return () => {
-      isMounted = false
-    }
-  }, [slug])
+  const [liked, setLiked] = useState(false)
+  const [likeCount, setLikeCount] = useState(0)
+  const { user } = useUser()
+  const [userLikedFirms, setUserLikedFirms] = useState(new Set())
+  const [loadingLikes, setLoadingLikes] = useState(true)
+  const [mainRules, setMainRules] = useState(null)
+  const [changeLogs, setChangeLogs] = useState([])
+  const [rulesActiveTab, setRulesActiveTab] = useState("main-rules")
+  const [rulesLoading, setRulesLoading] = useState(true)
+  const [bannedCountries, setBannedCountries] = useState(null)
 
   // Get URL search params to handle tab selection and review highlighting
   const searchParams = useSearchParams()
   const highlightReviewId = searchParams.get("highlight")
   const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "overview")
-
-  // Add stats related state
-  const [statsActiveTab, setStatsActiveTab] = useState("stats")
 
   // Add this useEffect to update the active tab when the URL changes
   useEffect(() => {
@@ -256,17 +178,6 @@ export default function PropFirmPage() {
     }
   }, [])
 
-  const [liked, setLiked] = useState(false)
-  const [likeCount, setLikeCount] = useState(0)
-  const { user } = useUser()
-  const [userLikedFirms, setUserLikedFirms] = useState(new Set())
-  const [loadingLikes, setLoadingLikes] = useState(true)
-  const [mainRules, setMainRules] = useState(null)
-  const [changeLogs, setChangeLogs] = useState([])
-  const [rulesActiveTab, setRulesActiveTab] = useState("main-rules")
-  const [rulesLoading, setRulesLoading] = useState(true)
-  const [bannedCountries, setBannedCountries] = useState(null)
-
   // Get the noise context
   const { isNoiseVisible } = useNoise()
 
@@ -284,6 +195,177 @@ export default function PropFirmPage() {
 
   // Memoize the firmId to prevent it from changing on every render
   const firmId = firm?.id || null
+
+  // Add this new function to fetch rules data
+  const fetchRulesData = async (firmId) => {
+    if (!firmId) return
+
+    setRulesLoading(true)
+
+    try {
+      // Fetch all rules data in parallel
+      const [mainRulesResponse, changeLogsResponse, bannedCountriesResponse] = await Promise.all([
+        // Fetch main rules
+        supabase
+          .from("prop_firm_main_rules")
+          .select("id, last_updated, main_rules")
+          .eq("prop_firm", firmId)
+          .single(),
+
+        // Fetch change logs
+        supabase
+          .from("prop_firm_rules_change_logs")
+          .select("id, last_updated, change_log")
+          .eq("prop_firm", firmId)
+          .order("last_updated", { ascending: false }),
+
+        // Fetch banned countries
+        supabase
+          .from("banned_countries")
+          .select("id, last_updated, banned_countries_list")
+          .eq("prop_firm", firmId)
+          .single(),
+      ])
+
+      // Process main rules
+      if (!mainRulesResponse.error || mainRulesResponse.error.code === "PGRST116") {
+        setMainRules(mainRulesResponse.data || null)
+      } else {
+        console.error("Error fetching main rules:", mainRulesResponse.error)
+      }
+
+      // Process change logs
+      if (!changeLogsResponse.error) {
+        setChangeLogs(changeLogsResponse.data || [])
+      } else {
+        console.error("Error fetching change logs:", changeLogsResponse.error)
+      }
+
+      // Process banned countries
+      if (!bannedCountriesResponse.error || bannedCountriesResponse.error.code === "PGRST116") {
+        setBannedCountries(bannedCountriesResponse.data || null)
+      } else {
+        console.error("Error fetching banned countries:", bannedCountriesResponse.error)
+      }
+    } catch (error) {
+      console.error("Error fetching rules data:", error)
+    } finally {
+      setRulesLoading(false)
+    }
+  }
+
+  // Fetch firm data when component mounts or slug changes
+  useEffect(() => {
+    let isMounted = true // Flag to prevent state updates after unmount
+
+    async function fetchData() {
+      if (!slug) {
+        if (isMounted) setLoading(false)
+        return
+      }
+
+      try {
+        console.log("Fetching firm data for slug:", slug)
+
+        // Start with loading state
+        if (isMounted) setLoading(true)
+
+        // Fetch all data in parallel
+        const [firmResponse, likesResponse] = await Promise.all([
+          // Fetch the firm data
+          supabase
+            .from("prop_firms")
+            .select("*")
+            .eq("slug", slug)
+            .single(),
+
+          // Fetch user likes if user is logged in
+          user ? supabase.from("user_likes").select("firm_id").eq("user_id", user.id) : Promise.resolve({ data: [] }),
+        ])
+
+        // Handle firm data error
+        if (firmResponse.error) {
+          console.error("Error fetching firm data:", firmResponse.error)
+          if (isMounted) {
+            setFirm(null)
+            setCountryData(null)
+            setLoading(false)
+          }
+          return
+        }
+
+        const firmData = firmResponse.data
+        console.log("Fetched firm data:", firmData)
+
+        // Process likes data
+        if (user && likesResponse.data) {
+          const likedFirmIds = new Set(likesResponse.data.map((entry) => Number(entry.firm_id)))
+          if (isMounted) {
+            setUserLikedFirms(likedFirmIds)
+            setLoadingLikes(false)
+          }
+        }
+
+        // Update like count
+        if (firmData && firmData.likes !== undefined && isMounted) {
+          setLikeCount(firmData.likes)
+        }
+
+        // If there's a country ID, fetch country data
+        let countryResult = null
+        if (firmData?.country) {
+          try {
+            console.log("Fetching country data for ID:", firmData.country)
+            const countryResponse = await supabase
+              .from("countries")
+              .select("id, country, flag")
+              .eq("id", firmData.country)
+              .single()
+
+            if (!countryResponse.error && countryResponse.data) {
+              console.log("Successfully fetched country data:", countryResponse.data)
+              countryResult = countryResponse.data
+            } else if (countryResponse.error) {
+              console.error("Error fetching country data:", countryResponse.error)
+            }
+          } catch (countryErr) {
+            console.error("Error in country data fetch:", countryErr)
+          }
+        }
+
+        // Only update state once with all data
+        if (isMounted) {
+          setFirm(firmData)
+          setCountryData(countryResult)
+
+          // Fetch rules data if we have a firm ID
+          if (firmData?.id) {
+            fetchRulesData(firmData.id)
+          } else {
+            setRulesLoading(false)
+          }
+
+          // Finally set loading to false after all data is fetched
+          setLoading(false)
+        }
+      } catch (error) {
+        console.error("Error in fetchData:", error)
+        if (isMounted) {
+          setFirm(null)
+          setCountryData(null)
+          setLoading(false)
+        }
+      }
+    }
+
+    // Start fetching data
+    fetchData()
+
+    // Cleanup function to prevent state updates after unmount
+    return () => {
+      isMounted = false
+    }
+  }, [slug, user])
 
   // Then modify the handleTabChange function to:
   const handleTabChange = (value: string) => {
@@ -358,56 +440,6 @@ export default function PropFirmPage() {
   }, [user]) // ✅ Runs when user logs in or reloads
 
   // Fetch company-specific rules and change logs
-  useEffect(() => {
-    const fetchRules = async () => {
-      if (!firmId) return
-
-      setRulesLoading(true)
-
-      // Fetch main rules for this specific prop firm
-      const { data: mainRulesData, error: mainRulesError } = await supabase
-        .from("prop_firm_main_rules")
-        .select("id, last_updated, main_rules")
-        .eq("prop_firm", firmId)
-        .single()
-
-      if (mainRulesError && mainRulesError.code !== "PGRST116") {
-        console.error("Error fetching main rules:", mainRulesError)
-      } else if (mainRulesData) {
-        setMainRules(mainRulesData)
-      }
-
-      // Fetch change logs for this specific prop firm
-      const { data: changeLogsData, error: changeLogsError } = await supabase
-        .from("prop_firm_rules_change_logs")
-        .select("id, last_updated, change_log")
-        .eq("prop_firm", firmId)
-        .order("last_updated", { ascending: false })
-
-      if (changeLogsError) {
-        console.error("Error fetching change logs:", changeLogsError)
-      } else {
-        setChangeLogs(changeLogsData || [])
-      }
-
-      // Fetch banned countries for this specific prop firm
-      const { data: bannedCountriesData, error: bannedCountriesError } = await supabase
-        .from("banned_countries")
-        .select("id, last_updated, banned_countries_list")
-        .eq("prop_firm", firmId)
-        .single()
-
-      if (bannedCountriesError && bannedCountriesError.code !== "PGRST116") {
-        console.error("Error fetching banned countries:", bannedCountriesError)
-      } else if (bannedCountriesData) {
-        setBannedCountries(bannedCountriesData)
-      }
-
-      setRulesLoading(false)
-    }
-
-    fetchRules()
-  }, [firmId])
 
   // Update likeCount when firm data changes
   useEffect(() => {
