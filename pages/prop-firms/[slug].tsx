@@ -196,7 +196,7 @@ export default function PropFirmPage() {
   // Memoize the firmId to prevent it from changing on every render
   const firmId = firm?.id || null
 
- // Add this new function to fetch rules data
+// Add this new function to fetch rules data
 const fetchRulesData = async (firmId) => {
   if (!firmId) return
 
@@ -251,8 +251,8 @@ const fetchRulesData = async (firmId) => {
     console.error("Error fetching rules data:", error)
   } finally {
     setRulesLoading(false)
-    // Now that ALL data is loaded, we can set the main loading state to false
-    setLoading(false)
+    // REMOVED: Don't set main loading state here
+    // setLoading(false)
   }
 }
 
@@ -323,14 +323,15 @@ useEffect(() => {
           setLikeCount(firmData.likes)
         }
 
-        // Fetch rules data if we have a firm ID
+        // IMPORTANT: Set loading to false here after main data is fetched
+        setLoading(false)
+
+        // Fetch rules data if we have a firm ID, but don't wait for it
         if (firmData?.id) {
-          // IMPORTANT: Don't set loading to false here
-          // Instead, let fetchRulesData handle it when it's done
-          await fetchRulesData(firmData.id)
+          // Don't await this - let it load in the background
+          fetchRulesData(firmData.id)
         } else {
           setRulesLoading(false)
-          setLoading(false) // Only set loading to false if we don't need to fetch rules
         }
       }
     } catch (error) {
