@@ -196,158 +196,160 @@ export default function PropFirmPage() {
   // Memoize the firmId to prevent it from changing on every render
   const firmId = firm?.id || null
 
-  // Add this new function to fetch rules data
-  const fetchRulesData = async (firmId) => {
-    if (!firmId) return
+ // Add this new function to fetch rules data
+const fetchRulesData = async (firmId) => {
+  if (!firmId) return
 
-    setRulesLoading(true)
+  setRulesLoading(true)
+
+  try {
+    // Fetch all rules data in parallel
+    const [mainRulesResponse, changeLogsResponse, bannedCountriesResponse] = await Promise.all([
+      // Fetch main rules
+      supabase
+        .from("prop_firm_main_rules")
+        .select("id, last_updated, main_rules")
+        .eq("prop_firm", firmId)
+        .single(),
+
+      // Fetch change logs
+      supabase
+        .from("prop_firm_rules_change_logs")
+        .select("id, last_updated, change_log")
+        .eq("prop_firm", firmId)
+        .order("last_updated", { ascending: false }),
+
+      // Fetch banned countries
+      supabase
+        .from("banned_countries")
+        .select("id, last_updated, banned_countries_list")
+        .eq("prop_firm", firmId)
+        .single(),
+    ])
+
+    // Process main rules
+    if (!mainRulesResponse.error || mainRulesResponse.error.code === "PGRST116") {
+      setMainRules(mainRulesResponse.data || null)
+    } else {
+      console.error("Error fetching main rules:", mainRulesResponse.error)
+    }
+
+    // Process change logs
+    if (!changeLogsResponse.error) {
+      setChangeLogs(changeLogsResponse.data || [])
+    } else {
+      console.error("Error fetching change logs:", changeLogsResponse.error)
+    }
+
+    // Process banned countries
+    if (!bannedCountriesResponse.error || bannedCountriesResponse.error.code === "PGRST116") {
+      setBannedCountries(bannedCountriesResponse.data || null)
+    } else {
+      console.error("Error fetching banned countries:", bannedCountriesResponse.error)
+    }
+  } catch (error) {
+    console.error("Error fetching rules data:", error)
+  } finally {
+    setRulesLoading(false)
+    // Now that ALL data is loaded, we can set the main loading state to false
+    setLoading(false)
+  }
+}
+
+// Fetch firm data when component mounts or slug changes
+useEffect(() => {
+  let isMounted = true
+
+  async function fetchFirmData() {
+    if (!slug) {
+      if (isMounted) setLoading(false)
+      return
+    }
+
+    // Always start with loading state when slug changes
+    if (isMounted) setLoading(true)
 
     try {
-      // Fetch all rules data in parallel
-      const [mainRulesResponse, changeLogsResponse, bannedCountriesResponse] = await Promise.all([
-        // Fetch main rules
-        supabase
-          .from("prop_firm_main_rules")
-          .select("id, last_updated, main_rules")
-          .eq("prop_firm", firmId)
-          .single(),
+      console.log("Fetching firm data for slug:", slug)
 
-        // Fetch change logs
-        supabase
-          .from("prop_firm_rules_change_logs")
-          .select("id, last_updated, change_log")
-          .eq("prop_firm", firmId)
-          .order("last_updated", { ascending: false }),
+      // Fetch the firm data
+      const { data: firmData, error: firmError } = await supabase
+        .from("prop_firms")
+        .select("*")
+        .eq("slug", slug)
+        .single()
 
-        // Fetch banned countries
-        supabase
-          .from("banned_countries")
-          .select("id, last_updated, banned_countries_list")
-          .eq("prop_firm", firmId)
-          .single(),
-      ])
-
-      // Process main rules
-      if (!mainRulesResponse.error || mainRulesResponse.error.code === "PGRST116") {
-        setMainRules(mainRulesResponse.data || null)
-      } else {
-        console.error("Error fetching main rules:", mainRulesResponse.error)
+      if (firmError) {
+        console.error("Error fetching firm data:", firmError)
+        if (isMounted) {
+          setFirm(null)
+          setCountryData(null)
+          setLoading(false)
+        }
+        return
       }
 
-      // Process change logs
-      if (!changeLogsResponse.error) {
-        setChangeLogs(changeLogsResponse.data || [])
-      } else {
-        console.error("Error fetching change logs:", changeLogsResponse.error)
+      console.log("Fetched firm data:", firmData)
+
+      // If there's a country ID, fetch country data
+      let countryResult = null
+      if (firmData?.country) {
+        try {
+          console.log("Fetching country data for ID:", firmData.country)
+          const { data: countryData, error: countryError } = await supabase
+            .from("countries")
+            .select("id, country, flag")
+            .eq("id", firmData.country)
+            .single()
+
+          if (!countryError && countryData) {
+            console.log("Successfully fetched country data:", countryData)
+            countryResult = countryData
+          } else if (countryError) {
+            console.error("Error fetching country data:", countryError)
+          }
+        } catch (countryErr) {
+          console.error("Error in country data fetch:", countryErr)
+        }
       }
 
-      // Process banned countries
-      if (!bannedCountriesResponse.error || bannedCountriesResponse.error.code === "PGRST116") {
-        setBannedCountries(bannedCountriesResponse.data || null)
-      } else {
-        console.error("Error fetching banned countries:", bannedCountriesResponse.error)
+      // Update state only if component is still mounted
+      if (isMounted) {
+        setFirm(firmData)
+        setCountryData(countryResult)
+
+        // Update like count
+        if (firmData && firmData.likes !== undefined) {
+          setLikeCount(firmData.likes)
+        }
+
+        // Fetch rules data if we have a firm ID
+        if (firmData?.id) {
+          // IMPORTANT: Don't set loading to false here
+          // Instead, let fetchRulesData handle it when it's done
+          await fetchRulesData(firmData.id)
+        } else {
+          setRulesLoading(false)
+          setLoading(false) // Only set loading to false if we don't need to fetch rules
+        }
       }
     } catch (error) {
-      console.error("Error fetching rules data:", error)
-    } finally {
-      setRulesLoading(false)
+      console.error("Error in fetchFirmData:", error)
+      if (isMounted) {
+        setFirm(null)
+        setCountryData(null)
+        setLoading(false)
+      }
     }
   }
 
-  // // Fetch firm data when component mounts or slug changes
-  // useEffect(() => {
-  //   let isMounted = true
+  fetchFirmData()
 
-  //   async function fetchFirmData() {
-  //     if (!slug) {
-  //       if (isMounted) setLoading(false)
-  //       return
-  //     }
-
-  //     // Always start with loading state when slug changes
-  //     if (isMounted) setLoading(true)
-
-  //     try {
-  //       console.log("Fetching firm data for slug:", slug)
-
-  //       // Fetch the firm data
-  //       const { data: firmData, error: firmError } = await supabase
-  //         .from("prop_firms")
-  //         .select("*")
-  //         .eq("slug", slug)
-  //         .single()
-
-  //       if (firmError) {
-  //         console.error("Error fetching firm data:", firmError)
-  //         if (isMounted) {
-  //           setFirm(null)
-  //           setCountryData(null)
-  //           setLoading(false)
-  //         }
-  //         return
-  //       }
-
-  //       console.log("Fetched firm data:", firmData)
-
-  //       // If there's a country ID, fetch country data
-  //       let countryResult = null
-  //       if (firmData?.country) {
-  //         try {
-  //           console.log("Fetching country data for ID:", firmData.country)
-  //           const { data: countryData, error: countryError } = await supabase
-  //             .from("countries")
-  //             .select("id, country, flag")
-  //             .eq("id", firmData.country)
-  //             .single()
-
-  //           if (!countryError && countryData) {
-  //             console.log("Successfully fetched country data:", countryData)
-  //             countryResult = countryData
-  //           } else if (countryError) {
-  //             console.error("Error fetching country data:", countryError)
-  //           }
-  //         } catch (countryErr) {
-  //           console.error("Error in country data fetch:", countryErr)
-  //         }
-  //       }
-
-  //       // Update state only if component is still mounted
-  //       if (isMounted) {
-  //         setFirm(firmData)
-  //         setCountryData(countryResult)
-
-  //         // Update like count
-  //         if (firmData && firmData.likes !== undefined) {
-  //           setLikeCount(firmData.likes)
-  //         }
-
-  //         // Fetch rules data if we have a firm ID
-  //         if (firmData?.id) {
-  //           fetchRulesData(firmData.id)
-  //         } else {
-  //           setRulesLoading(false)
-  //         }
-
-  //         // Finally set loading to false
-  //         setLoading(false)
-  //       }
-  //     } catch (error) {
-  //       console.error("Error in fetchFirmData:", error)
-  //       if (isMounted) {
-  //         setFirm(null)
-  //         setCountryData(null)
-  //         setLoading(false)
-  //       }
-  //     }
-  //   }
-
-  //   fetchFirmData()
-
-  //   // Cleanup function to prevent state updates after unmount
-  //   return () => {
-  //     isMounted = false
-  //   }
-  // }, [slug]) // Only depend on slug, not user
+  // Cleanup function to prevent state updates after unmount
+  return () => {
+    isMounted = false
+  }
+}, [slug]) // Only depend on slug, not user
 
   // Then modify the handleTabChange function to:
   const handleTabChange = (value: string) => {
