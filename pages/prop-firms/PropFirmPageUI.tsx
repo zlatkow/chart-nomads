@@ -189,7 +189,6 @@ function PropFirmUI({
   const [rulesActiveTab, setRulesActiveTab] = useState("main-rules")
   const [rulesLoading, setRulesLoading] = useState(true)
   const [bannedCountries, setBannedCountries] = useState(null)
-  // Add a new state for country data
   const [countryData, setCountryData] = useState(null)
 
   // Get the noise context
@@ -339,6 +338,7 @@ function PropFirmUI({
     const fetchCountryData = async () => {
       if (firm && firm.country && typeof firm.country === "number") {
         try {
+          console.log("Fetching country data for ID:", firm.country)
           const { data, error } = await supabase
             .from("countries")
             .select("id, name, flag")
@@ -352,20 +352,24 @@ function PropFirmUI({
           }
 
           if (data) {
+            console.log("Successfully fetched country data:", data)
             setCountryData(data)
-            console.log("Fetched country data:", data)
+          } else {
+            console.log("No country data found for ID:", firm.country)
+            setCountryData(null)
           }
         } catch (err) {
           console.error("Unexpected error fetching country data:", err)
           setCountryData(null)
         }
       } else {
+        console.log("No country ID available to fetch data")
         setCountryData(null)
       }
     }
 
     fetchCountryData()
-  }, [firm, firm?.country])
+  }, [firm?.country, supabase])
 
   // Update likeCount when firm data changes
   useEffect(() => {
@@ -494,24 +498,18 @@ function PropFirmUI({
 
           {/* Company Info */}
           <div className="grid grid-cols-2 gap-4 px-6 py-4 border-t border-[#0f0f0f]/10">
-            <div>
-              <h3 className="font-bold mb-2">CEO</h3>
-              <p className="text-sm bg-[rgba(15,15,15,0.1)] w-20 h-5 rounded"></p>
-            </div>
+            {["CEO", "Established", "Years In Operations"].map((label, i) => (
+              <div key={i}>
+                <h3 className="font-bold mb-2">{label}</h3>
+                <p className="text-sm bg-[rgba(15,15,15,0.1)] w-20 h-5 rounded"></p>
+              </div>
+            ))}
             <div>
               <h3 className="font-bold mb-2">Country</h3>
               <div className="flex items-center gap-2">
                 <div className="bg-[rgba(15,15,15,0.1)] w-5 h-4 rounded"></div>
                 <div className="bg-[rgba(15,15,15,0.1)] w-20 h-5 rounded"></div>
               </div>
-            </div>
-            <div>
-              <h3 className="font-bold mb-2">Established</h3>
-              <p className="text-sm bg-[rgba(15,15,15,0.1)] w-20 h-5 rounded"></p>
-            </div>
-            <div>
-              <h3 className="font-bold mb-2">Years In Operations</h3>
-              <p className="text-sm bg-[rgba(15,15,15,0.1)] w-20 h-5 rounded"></p>
             </div>
           </div>
 
@@ -726,7 +724,9 @@ function PropFirmUI({
                     </div>
                     <div>
                       <h3 className="font-bold mb-2">Country</h3>
-                      {countryData ? (
+                      {loading ? (
+                        <p className="text-sm bg-[rgba(15,15,15,0.1)] w-20 h-5 rounded"></p>
+                      ) : countryData ? (
                         <div className="flex items-center gap-2">
                           <img
                             src={countryData.flag || "/placeholder.svg"}
