@@ -196,65 +196,65 @@ export default function PropFirmPage() {
   // Memoize the firmId to prevent it from changing on every render
   const firmId = firm?.id || null
 
-// // Add this new function to fetch rules data
-// const fetchRulesData = async (firmId) => {
-//   if (!firmId) return
+// Add this new function to fetch rules data
+const fetchRulesData = async (firmId) => {
+  if (!firmId) return
 
-//   setRulesLoading(true)
+  setRulesLoading(true)
 
-//   try {
-//     // Fetch all rules data in parallel
-//     const [mainRulesResponse, changeLogsResponse, bannedCountriesResponse] = await Promise.all([
-//       // Fetch main rules
-//       supabase
-//         .from("prop_firm_main_rules")
-//         .select("id, last_updated, main_rules")
-//         .eq("prop_firm", firmId)
-//         .single(),
+  try {
+    // Fetch all rules data in parallel
+    const [mainRulesResponse, changeLogsResponse, bannedCountriesResponse] = await Promise.all([
+      // Fetch main rules
+      supabase
+        .from("prop_firm_main_rules")
+        .select("id, last_updated, main_rules")
+        .eq("prop_firm", firmId)
+        .single(),
 
-//       // Fetch change logs
-//       supabase
-//         .from("prop_firm_rules_change_logs")
-//         .select("id, last_updated, change_log")
-//         .eq("prop_firm", firmId)
-//         .order("last_updated", { ascending: false }),
+      // Fetch change logs
+      supabase
+        .from("prop_firm_rules_change_logs")
+        .select("id, last_updated, change_log")
+        .eq("prop_firm", firmId)
+        .order("last_updated", { ascending: false }),
 
-//       // Fetch banned countries
-//       supabase
-//         .from("banned_countries")
-//         .select("id, last_updated, banned_countries_list")
-//         .eq("prop_firm", firmId)
-//         .single(),
-//     ])
+      // Fetch banned countries
+      supabase
+        .from("banned_countries")
+        .select("id, last_updated, banned_countries_list")
+        .eq("prop_firm", firmId)
+        .single(),
+    ])
 
-//     // Process main rules
-//     if (!mainRulesResponse.error || mainRulesResponse.error.code === "PGRST116") {
-//       setMainRules(mainRulesResponse.data || null)
-//     } else {
-//       console.error("Error fetching main rules:", mainRulesResponse.error)
-//     }
+    // Process main rules
+    if (!mainRulesResponse.error || mainRulesResponse.error.code === "PGRST116") {
+      setMainRules(mainRulesResponse.data || null)
+    } else {
+      console.error("Error fetching main rules:", mainRulesResponse.error)
+    }
 
-//     // Process change logs
-//     if (!changeLogsResponse.error) {
-//       setChangeLogs(changeLogsResponse.data || [])
-//     } else {
-//       console.error("Error fetching change logs:", changeLogsResponse.error)
-//     }
+    // Process change logs
+    if (!changeLogsResponse.error) {
+      setChangeLogs(changeLogsResponse.data || [])
+    } else {
+      console.error("Error fetching change logs:", changeLogsResponse.error)
+    }
 
-//     // Process banned countries
-//     if (!bannedCountriesResponse.error || bannedCountriesResponse.error.code === "PGRST116") {
-//       setBannedCountries(bannedCountriesResponse.data || null)
-//     } else {
-//       console.error("Error fetching banned countries:", bannedCountriesResponse.error)
-//     }
-//   } catch (error) {
-//     console.error("Error fetching rules data:", error)
-//   } finally {
-//     setRulesLoading(false)
-//     // REMOVED: Don't set main loading state here
-//     // setLoading(false)
-//   }
-// }
+    // Process banned countries
+    if (!bannedCountriesResponse.error || bannedCountriesResponse.error.code === "PGRST116") {
+      setBannedCountries(bannedCountriesResponse.data || null)
+    } else {
+      console.error("Error fetching banned countries:", bannedCountriesResponse.error)
+    }
+  } catch (error) {
+    console.error("Error fetching rules data:", error)
+  } finally {
+    setRulesLoading(false)
+    // REMOVED: Don't set main loading state here
+    // setLoading(false)
+  }
+}
 
 // Fetch firm data when component mounts or slug changes
 useEffect(() => {
@@ -262,7 +262,7 @@ useEffect(() => {
 
   async function fetchFirmData() {
     if (!slug) {
-      if (isMounted) setLoading(false)
+      if (isMounted) setLoading(true)
       return
     }
 
@@ -326,13 +326,13 @@ useEffect(() => {
         // IMPORTANT: Set loading to false here after main data is fetched
         setLoading(false)
 
-        // // Fetch rules data if we have a firm ID, but don't wait for it
-        // if (firmData?.id) {
-        //   // Don't await this - let it load in the background
-        //   fetchRulesData(firmData.id)
-        // } else {
-        //   setRulesLoading(false)
-        // }
+        // Fetch rules data if we have a firm ID, but don't wait for it
+        if (firmData?.id) {
+          // Don't await this - let it load in the background
+          fetchRulesData(firmData.id)
+        } else {
+          setRulesLoading(false)
+        }
       }
     } catch (error) {
       console.error("Error in fetchFirmData:", error)
