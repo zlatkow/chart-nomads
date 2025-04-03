@@ -17,6 +17,42 @@ import {
 import { BarChart2 } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
+// Add shimmer animation CSS
+const shimmerAnimation = `
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.animate-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.animate-shimmer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0,
+    rgba(255, 255, 255, 0.05) 20%,
+    rgba(255, 255, 255, 0.1) 60%,
+    rgba(255, 255, 255, 0)
+  );
+  animation: shimmer 2s infinite;
+  pointer-events: none;
+}
+`
+
 interface CompanyMonthlyTransactionChartProps {
   companyName: string
 }
@@ -28,6 +64,19 @@ const CompanyMonthlyTransactionChart = ({ companyName }: CompanyMonthlyTransacti
   const [loading, setLoading] = useState(true)
   const [monthlyStats, setMonthlyStats] = useState([])
   const [error, setError] = useState(null)
+
+  // Add shimmer animation to document
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      const style = document.createElement("style")
+      style.textContent = shimmerAnimation
+      document.head.appendChild(style)
+
+      return () => {
+        document.head.removeChild(style)
+      }
+    }
+  }, [])
 
   // Fetch data from the API
   useEffect(() => {
@@ -199,8 +248,73 @@ const CompanyMonthlyTransactionChart = ({ companyName }: CompanyMonthlyTransacti
 
   if (loading) {
     return (
-      <div className="bg-[#0f0f0f] text-white rounded-lg border-[1px] border-[#666666] mb-[50px] p-6 flex justify-center items-center h-[400px]">
-        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-[#edb900]"></div>
+      <div className="bg-[#0f0f0f] text-white rounded-lg border-[1px] border-[#666666] mb-[50px] pb-6">
+        <div className="flex justify-between items-center mb-6 border-b-[1px] border-[#666666] p-6">
+          <div>
+            <div className="flex">
+              <BarChart2 className="h-5 w-5 mr-2 mt-1 text-[#edb900]" />
+              <h2 className="text-2xl font-[balboa]">Monthly & Cumulative Transactions</h2>
+            </div>
+            <div>
+              <p className="text-[#666666]">Historical monthly & cumulative payout transactions for {companyName}</p>
+            </div>
+          </div>
+
+          <div className="relative">
+            <div className="w-[170px] h-8 bg-[rgba(255,255,255,0.05)] rounded animate-shimmer"></div>
+          </div>
+        </div>
+
+        {/* Shimmer loading skeleton for the chart */}
+        <div className="w-full h-[500px] px-4 animate-shimmer">
+          <div className="w-full h-full bg-[rgba(255,255,255,0.03)] rounded-lg relative overflow-hidden">
+            {/* X-axis skeleton */}
+            <div className="absolute bottom-0 left-0 right-0 h-10 flex justify-between px-10">
+              {[...Array(6)].map((_, i) => (
+                <div key={`x-${i}`} className="w-10 h-4 bg-[rgba(255,255,255,0.05)] rounded" />
+              ))}
+            </div>
+
+            {/* Y-axis skeleton */}
+            <div className="absolute top-10 bottom-10 left-0 w-10 flex flex-col justify-between">
+              {[...Array(5)].map((_, i) => (
+                <div key={`y-${i}`} className="h-4 w-16 bg-[rgba(255,255,255,0.05)] rounded" />
+              ))}
+            </div>
+
+            {/* Chart bars skeleton */}
+            <div className="absolute left-20 right-20 bottom-20 top-20 flex items-end justify-between">
+              {[...Array(12)].map((_, i) => (
+                <div
+                  key={`bar-${i}`}
+                  className="w-8 bg-[rgba(237,185,0,0.2)] rounded-t-lg"
+                  style={{ height: `${20 + Math.random() * 60}%` }}
+                />
+              ))}
+            </div>
+
+            {/* Area chart line skeleton */}
+            <div
+              className="absolute left-20 right-20 bottom-20 h-1 bg-[rgba(255,191,0,0.3)]"
+              style={{
+                clipPath:
+                  "polygon(0 0, 15% 30%, 30% 10%, 45% 50%, 60% 30%, 75% 80%, 90% 40%, 100% 20%, 100% 100%, 0 100%)",
+              }}
+            >
+              <div className="absolute top-0 left-0 right-0 bottom-0 bg-[rgba(255,191,0,0.1)]"></div>
+            </div>
+
+            {/* Reference line skeleton */}
+            <div className="absolute left-20 right-20 h-[1px] bg-[#5a3e00] border-dashed" style={{ bottom: "45%" }}>
+              <div className="absolute right-0 -top-3 bg-[#5a3e00] text-[#5a3e00] px-2 rounded text-xs">AVG</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-4 px-6 text-white text-xs">
+          <p className="h-4 w-48 bg-[rgba(255,255,255,0.05)] rounded animate-shimmer mb-1"></p>
+          <p className="h-4 w-36 bg-[rgba(255,255,255,0.05)] rounded animate-shimmer"></p>
+        </div>
       </div>
     )
   }
