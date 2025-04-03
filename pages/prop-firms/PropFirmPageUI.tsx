@@ -55,7 +55,7 @@ interface Firm {
   category?: string
   rating?: number
   reviews_count?: number
-  likes_count?: number
+  likes?: number
   facebook_link?: string
   x_link?: string
   instagram_link?: string
