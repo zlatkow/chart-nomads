@@ -15,7 +15,6 @@ import {
 } from "lucide-react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import Image from "next/image"
@@ -174,6 +173,53 @@ export default function CompanyAllTransactions({
     setPage(1) // Reset to page 1 when searching
   }
 
+  const shimmerAnimation = `
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.animate-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.animate-shimmer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0,
+    rgba(255, 255, 255, 0.05) 20%,
+    rgba(255, 255, 255, 0.1) 60%,
+    rgba(255, 255, 255, 0)
+  );
+  animation: shimmer 2s infinite;
+  pointer-events: none;
+}
+`
+
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      const style = document.createElement("style")
+      style.textContent = shimmerAnimation
+      document.head.appendChild(style)
+
+      return () => {
+        document.head.removeChild(style)
+      }
+    }
+  }, [])
+
   return (
     <Card className="border-[#666666] bg-[#0f0f0f]">
       <CardContent className="p-0">
@@ -181,9 +227,7 @@ export default function CompanyAllTransactions({
           <div>
             <div className="flex">
               <ArrowRightLeft className="h-5 w-5 mr-2 mt-2 text-[#edb900]" />
-              <h2 className="text-3xl font-[balboa] text-white">
-                Recent transactions
-              </h2>
+              <h2 className="text-3xl font-[balboa] text-white">Recent transactions</h2>
             </div>
             <div>
               <p className="text-[#666666]">
@@ -253,11 +297,25 @@ export default function CompanyAllTransactions({
               </TableHeader>
               <TableBody>
                 {loading ? (
-                  <TableRow className="border-[#333333]">
-                    <TableCell colSpan={3} className="h-24 text-center">
-                      Loading transactions...
-                    </TableCell>
-                  </TableRow>
+                  // Skeleton loading UI with shimmer effect
+                  Array(limitRows)
+                    .fill(0)
+                    .map((_, index) => (
+                      <TableRow key={`skeleton-${index}`} className="border-[#333333]">
+                        <TableCell className="pl-7">
+                          <div className="h-5 w-24 bg-[rgba(255,255,255,0.05)] rounded animate-shimmer"></div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            <div className="w-6 h-6 rounded-[5px] bg-[rgba(255,255,255,0.05)] animate-shimmer"></div>
+                            <div className="h-5 w-32 bg-[rgba(255,255,255,0.05)] rounded animate-shimmer"></div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="pr-10 text-right">
+                          <div className="h-5 w-20 bg-[rgba(255,255,255,0.05)] rounded animate-shimmer ml-auto"></div>
+                        </TableCell>
+                      </TableRow>
+                    ))
                 ) : displayTransactions.length > 0 ? (
                   displayTransactions.map((tx) => (
                     <TableRow
