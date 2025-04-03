@@ -5,56 +5,11 @@ import { Search, Mail } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { getAllBlogs, getFeaturedBlogs, getBlogsByCategory, type Blog } from "@/lib/supabase"
-import BlogPostCard from "@/components/blog-post-card"
-import FeaturedPost from "@/components/featured-post"
 
-export default async function Home({
-  searchParams,
-}: {
-  searchParams: { category?: string; sort?: string }
-}) {
-  // Get category and sort parameters from URL
-  const category = searchParams.category || "all"
-  const sort = searchParams.sort || "newest"
-
-  // Fetch blogs based on category filter
-  let blogs: Blog[] = []
-  try {
-    if (category === "all") {
-      blogs = await getAllBlogs()
-    } else {
-      blogs = await getBlogsByCategory(category)
-    }
-  } catch (error) {
-    console.error("Error fetching blogs:", error)
-    // Continue with empty blogs array
-  }
-
-  // Sort blogs based on sort parameter
-  if (blogs.length > 0) {
-    if (sort === "oldest") {
-      blogs = [...blogs].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
-    } else if (sort === "popular") {
-      // For this example, we'll just use read_time as a proxy for popularity
-      blogs = [...blogs].sort((a, b) => b.read_time - a.read_time)
-    }
-  }
-
-  // Get featured blog for hero section
-  let featuredBlog: Blog | null = null
-  try {
-    const featuredBlogs = await getFeaturedBlogs()
-    featuredBlog = featuredBlogs.length > 0 ? featuredBlogs[0] : null
-  } catch (error) {
-    console.error("Error fetching featured blog:", error)
-  }
-
-  // Get unique categories for filter
-  const categories = Array.from(new Set(blogs.filter((blog) => blog && blog.category).map((blog) => blog.category)))
-
+export default function Home() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -118,13 +73,38 @@ export default async function Home({
 
         {/* Featured Post */}
         <section className="mb-16">
-          {featuredBlog ? (
-            <FeaturedPost blog={featuredBlog} />
-          ) : (
-            <div className="rounded-xl border bg-card p-8 text-center">
-              <p>No featured posts available.</p>
+          <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
+            <div className="relative">
+              <Image
+                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-zaQvWR36TxcBW5kTQmgLprxKF4gPO8.png"
+                alt="The Evolution of Prop Trading"
+                width={1200}
+                height={600}
+                className="aspect-[2/1] w-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+              <div className="absolute bottom-0 left-0 p-6 sm:p-8">
+                <Badge className="mb-3 bg-primary text-primary-foreground">New Trends</Badge>
+                <h2 className="mb-2 text-2xl font-bold text-white sm:text-3xl">
+                  The Evolution of Prop Trading: Trends to Watch in 2025
+                </h2>
+                <p className="mb-4 max-w-2xl text-white/90">
+                  Prop trading is evolving rapidly. Learn about AI in trading, retail prop trends, regulations, and
+                  predictions for 2025. Stay ahead with these insights.
+                </p>
+                <div className="flex items-center gap-3">
+                  <Avatar className="border-2 border-white">
+                    <AvatarImage src="/placeholder.svg?height=40&width=40" alt="Author" />
+                    <AvatarFallback>MJ</AvatarFallback>
+                  </Avatar>
+                  <div className="text-sm text-white">
+                    <p className="font-medium">Myles Jordan</p>
+                    <p>January 25, 2025 • 4 min read</p>
+                  </div>
+                </div>
+              </div>
             </div>
-          )}
+          </div>
         </section>
 
         {/* Post Filters */}
@@ -133,48 +113,27 @@ export default async function Home({
             <div className="space-y-2">
               <h2 className="text-sm font-medium">Categories:</h2>
               <div className="flex flex-wrap gap-2">
-                <Link href="/">
-                  <Badge
-                    variant={category === "all" ? "secondary" : "outline"}
-                    className="cursor-pointer hover:bg-secondary/80"
-                  >
-                    All Posts
-                  </Badge>
-                </Link>
-                {categories.map((cat) => (
-                  <Link key={cat} href={`/?category=${cat}`}>
-                    <Badge
-                      variant={category === cat ? "secondary" : "outline"}
-                      className="cursor-pointer hover:bg-secondary/80"
-                    >
-                      {cat}
-                    </Badge>
-                  </Link>
-                ))}
+                <Badge variant="secondary" className="cursor-pointer hover:bg-secondary/80">
+                  All Posts
+                </Badge>
+                <Badge variant="outline" className="cursor-pointer hover:bg-secondary/80">
+                  Prop Trading
+                </Badge>
+                <Badge variant="outline" className="cursor-pointer hover:bg-secondary/80">
+                  Guides
+                </Badge>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-sm">Sort by:</span>
-              <Select defaultValue={sort}>
+              <Select defaultValue="newest">
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="newest">
-                    <Link href={`/?category=${category}&sort=newest`} className="block w-full">
-                      Date (newest)
-                    </Link>
-                  </SelectItem>
-                  <SelectItem value="oldest">
-                    <Link href={`/?category=${category}&sort=oldest`} className="block w-full">
-                      Date (oldest)
-                    </Link>
-                  </SelectItem>
-                  <SelectItem value="popular">
-                    <Link href={`/?category=${category}&sort=popular`} className="block w-full">
-                      Most popular
-                    </Link>
-                  </SelectItem>
+                  <SelectItem value="newest">Date (newest)</SelectItem>
+                  <SelectItem value="oldest">Date (oldest)</SelectItem>
+                  <SelectItem value="popular">Most popular</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -184,19 +143,77 @@ export default async function Home({
         {/* Blog Posts Grid */}
         <section className="mb-16">
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {blogs.length > 0 ? (
-              blogs.map((blog) => (
-                <BlogPostCard
-                  key={blog.id}
-                  blog={blog}
-                  className={`bg-gradient-to-br from-${getCategoryColor(blog.category || "default")}-900/20 to-black`}
-                />
-              ))
-            ) : (
-              <div className="col-span-3 rounded-xl border bg-card p-8 text-center">
-                <p>No blog posts found.</p>
-              </div>
-            )}
+            {/* Post 1 */}
+            <BlogPostCard
+              image="/placeholder.svg?height=400&width=600"
+              badge="Prop Trading"
+              title="5 Red Flags in Prop Trading Firms to Avoid"
+              description="Discover 6 warning signs in prop trading firms: from hidden rules to unrealistic targets. Stay informed and protect your investment."
+              author="Myles Jordan"
+              date="January 23, 2025"
+              readTime="4 min read"
+              className="bg-gradient-to-br from-red-900/20 to-black"
+            />
+
+            {/* Post 2 */}
+            <BlogPostCard
+              image="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-zaQvWR36TxcBW5kTQmgLprxKF4gPO8.png"
+              badge="New Trends"
+              title="The Evolution of Prop Trading: Trends to Watch in 2025"
+              description="Prop trading is evolving rapidly. Learn about AI in trading, retail prop trends, regulations, and predictions for 2025. Stay ahead with these insights."
+              author="Myles Jordan"
+              date="January 25, 2025"
+              readTime="4 min read"
+              className="bg-gradient-to-br from-yellow-900/20 to-black"
+            />
+
+            {/* Post 3 */}
+            <BlogPostCard
+              image="/placeholder.svg?height=400&width=600"
+              badge="Tips"
+              title="What Are Prop Trading Challenges? Tips to Pass Your First Challenge"
+              description="Learn about prop trading challenges, their rules, and how to pass them. Boost your trading career with practical strategies for beginners."
+              author="Sarah Taylor"
+              date="January 21, 2025"
+              readTime="6 min read"
+              className="bg-gradient-to-br from-blue-900/20 to-black"
+            />
+
+            {/* Post 4 */}
+            <BlogPostCard
+              image="/placeholder.svg?height=400&width=600"
+              badge="Guide"
+              title="How to Become a Day Trader - A Step-by-Step Guide"
+              description="Learn how to become a day trader with this ultimate guide: from equipment and strategy to mindset. We cover everything you need to know about day trading."
+              author="Myles Jordan"
+              date="January 17, 2025"
+              readTime="8 min read"
+              className="bg-gradient-to-br from-green-900/20 to-black"
+            />
+
+            {/* Post 5 */}
+            <BlogPostCard
+              image="/placeholder.svg?height=400&width=600"
+              badge="Basics"
+              title="What is Prop Trading? A Comprehensive Guide for Aspiring Traders"
+              description="Learn everything about prop trading, from how it works to the top firms. Master the basics and take your trading career the right way with our guide."
+              author="Myles Jordan"
+              date="January 15, 2025"
+              readTime="5 min read"
+              className="bg-gradient-to-br from-purple-900/20 to-black"
+            />
+
+            {/* Post 6 */}
+            <BlogPostCard
+              image="/placeholder.svg?height=400&width=600"
+              badge="Strategy"
+              title="7 Proven Prop Trading Strategies for Consistent Profits"
+              description="Discover battle-tested prop trading strategies that deliver consistent results. From scalping to swing trading, find what works for your style."
+              author="Sarah Taylor"
+              date="January 10, 2025"
+              readTime="7 min read"
+              className="bg-gradient-to-br from-orange-900/20 to-black"
+            />
           </div>
         </section>
 
@@ -457,18 +474,49 @@ export default async function Home({
   )
 }
 
-// Helper function to get color based on category
-function getCategoryColor(category: string): string {
-  const colorMap: Record<string, string> = {
-    "Prop Trading": "yellow",
-    Tips: "blue",
-    Guide: "green",
-    Basics: "purple",
-    Strategy: "orange",
-    "New Trends": "yellow",
-    default: "gray",
-  }
+interface BlogPostCardProps {
+  image: string
+  badge: string
+  title: string
+  description: string
+  author: string
+  date: string
+  readTime: string
+  className?: string
+}
 
-  return colorMap[category] || "gray"
+function BlogPostCard({ image, badge, title, description, author, date, readTime, className }: BlogPostCardProps) {
+  return (
+    <Card className={`overflow-hidden border-0 shadow-md transition-all hover:shadow-lg ${className}`}>
+      <div className="relative aspect-[4/3]">
+        <Image src={image || "/placeholder.svg"} alt={title} fill className="object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent"></div>
+        <div className="absolute bottom-0 left-0 p-4">
+          <Badge className="bg-primary text-primary-foreground">{badge}</Badge>
+        </div>
+      </div>
+      <CardContent className="p-4">
+        <h3 className="mb-2 line-clamp-2 text-xl font-bold">{title}</h3>
+        <p className="line-clamp-3 text-sm text-muted-foreground">{description}</p>
+      </CardContent>
+      <CardFooter className="flex items-center gap-3 border-t p-4">
+        <Avatar className="h-8 w-8">
+          <AvatarImage src="/placeholder.svg?height=32&width=32" alt={author} />
+          <AvatarFallback>
+            {author
+              .split(" ")
+              .map((n) => n[0])
+              .join("")}
+          </AvatarFallback>
+        </Avatar>
+        <div className="text-xs">
+          <p className="font-medium">{author}</p>
+          <p className="text-muted-foreground">
+            {date} • {readTime}
+          </p>
+        </div>
+      </CardFooter>
+    </Card>
+  )
 }
 
