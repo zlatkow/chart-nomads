@@ -62,7 +62,7 @@ const shimmerAnimation = `
 }
 
 .animate-shimmer::after {
-  content: "";
+  content = "";
   position: absolute;
   top: 0;
   right: 0;
@@ -138,6 +138,7 @@ export default function PropFirmPage() {
 
   const [firm, setFirm] = useState<Firm | null>(null)
   const [loading, setLoading] = useState(true) // Always start with loading=true
+  const [isDataReady, setIsDataReady] = useState(false) // Add this line to track when all data is ready
   const [countryData, setCountryData] = useState(null)
 
   // Add stats related state
@@ -251,6 +252,15 @@ export default function PropFirmPage() {
       console.error("Error fetching rules data:", error)
     } finally {
       setRulesLoading(false)
+      // Now that rules are loaded, we can consider all data ready
+      const isMounted = true
+      if (isMounted) {
+        setLoading(false)
+        // Small delay to ensure smooth transition
+        setTimeout(() => {
+          setIsDataReady(true)
+        }, 100)
+      }
     }
   }
 
@@ -313,6 +323,7 @@ export default function PropFirmPage() {
 
         // Update state only if component is still mounted
         if (isMounted) {
+          // Set all data at once to prevent flickering
           setFirm(firmData)
           setCountryData(countryResult)
 
@@ -324,11 +335,10 @@ export default function PropFirmPage() {
           // Fetch rules data if we have a firm ID
           if (firmData?.id) {
             fetchRulesData(firmData.id)
-          } else {
-            setRulesLoading(false)
           }
 
-          // Finally set loading to false
+          // Only set loading to false after all main data is set
+          // This prevents the brief flash of content without data
           setLoading(false)
         }
       } catch (error) {
@@ -514,77 +524,79 @@ export default function PropFirmPage() {
   // Render loading skeleton with shimmer effect
   const renderSkeleton = () => {
     return (
-      <div className="lg:col-span-3">
-        <div className="bg-[#edb900] text-[#0f0f0f] rounded-lg overflow-hidden animate-shimmer">
-          {/* Header with likes */}
-          <div className="flex justify-end w-full pr-3 pt-3">
-            <div className="text-xs pt-2 pr-2 bg-[rgba(15,15,15,0.1)] w-16 h-6 rounded"></div>
-            <div className="relative top-1 right-50 w-6 h-6 bg-[rgba(15,15,15,0.1)] rounded-full"></div>
-          </div>
+      <div>
+        <div className="lg:col-span-3">
+          <div className="bg-[#edb900] text-[#0f0f0f] rounded-lg overflow-hidden animate-shimmer">
+            {/* Header with likes */}
+            <div className="flex justify-end w-full pr-3 pt-3">
+              <div className="text-xs pt-2 pr-2 bg-[rgba(15,15,15,0.1)] w-16 h-6 rounded"></div>
+              <div className="relative top-1 right-50 w-6 h-6 bg-[rgba(15,15,15,0.1)] rounded-full"></div>
+            </div>
 
-          {/* Firm Logo and Rating */}
-          <div className="p-6 flex flex-col items-center">
-            <div className="relative mb-4">
-              <div className="w-24 h-24 bg-[rgba(255,255,255,0.1)] rounded-lg flex items-center justify-center"></div>
-              <span className="absolute top-1 left-1 px-[5px] border text-xs rounded-[10px] bg-[rgba(15,15,15,0.1)] w-12 h-5"></span>
-            </div>
-            <div className="flex items-center mb-1">
-              <span className="text-xl font-bold bg-[rgba(15,15,15,0.1)] w-32 h-8 rounded"></span>
-            </div>
-            <div className="flex items-center mb-2">
-              <div className="text-lg mr-1 bg-[rgba(15,15,15,0.1)] w-5 h-5 rounded-full"></div>
-              <span className="font-bold bg-[rgba(15,15,15,0.1)] w-10 h-6 rounded"></span>
-              <span className="text-xs ml-1 bg-[rgba(15,15,15,0.1)] w-20 h-4 rounded"></span>
-            </div>
-          </div>
-
-          {/* Rating Breakdown */}
-          <div className="px-6 pb-4">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <div key={star} className="flex items-center justify-between mb-1 text-xs">
-                <span className="bg-[rgba(15,15,15,0.1)] w-12 h-4 rounded"></span>
-                <div className="h-2 w-40 bg-[rgba(15,15,15,0.1)] rounded"></div>
-                <span className="bg-[rgba(15,15,15,0.1)] w-8 h-4 rounded"></span>
+            {/* Firm Logo and Rating */}
+            <div className="p-6 flex flex-col items-center">
+              <div className="relative mb-4">
+                <div className="w-24 h-24 bg-[rgba(255,255,255,0.1)] rounded-lg flex items-center justify-center"></div>
+                <span className="absolute top-1 left-1 px-[5px] border text-xs rounded-[10px] bg-[rgba(15,15,15,0.1)] w-12 h-5"></span>
               </div>
-            ))}
-          </div>
+              <div className="flex items-center mb-1">
+                <span className="text-xl font-bold bg-[rgba(15,15,15,0.1)] w-32 h-8 rounded"></span>
+              </div>
+              <div className="flex items-center mb-2">
+                <div className="text-lg mr-1 bg-[rgba(15,15,15,0.1)] w-5 h-5 rounded-full"></div>
+                <span className="font-bold bg-[rgba(15,15,15,0.1)] w-10 h-6 rounded"></span>
+                <span className="text-xs ml-1 bg-[rgba(15,15,15,0.1)] w-20 h-4 rounded"></span>
+              </div>
+            </div>
 
-          {/* Social Links */}
-          <div className="px-6 py-4 border-t border-[#0f0f0f]/10">
-            <h3 className="font-bold mb-3 bg-[rgba(15,15,15,0.1)] w-16 h-6 rounded"></h3>
-            <div className="flex space-x-3">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="w-6 h-6 bg-[rgba(15,15,15,0.1)] rounded-full"></div>
+            {/* Rating Breakdown */}
+            <div className="px-6 pb-4">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <div key={star} className="flex items-center justify-between mb-1 text-xs">
+                  <span className="bg-[rgba(15,15,15,0.1)] w-12 h-4 rounded"></span>
+                  <div className="h-2 w-40 bg-[rgba(15,15,15,0.1)] rounded"></div>
+                  <span className="bg-[rgba(15,15,15,0.1)] w-8 h-4 rounded"></span>
+                </div>
               ))}
             </div>
-          </div>
 
-          {/* Company Info */}
-          <div className="grid grid-cols-2 gap-4 px-6 py-4 border-t border-[#0f0f0f]/10">
-            {["CEO", "Established", "Years In Operations"].map((label, i) => (
-              <div key={i}>
-                <h3 className="font-bold mb-2">{label}</h3>
-                <p className="text-sm bg-[rgba(15,15,15,0.1)] w-20 h-5 rounded"></p>
-              </div>
-            ))}
-            <div>
-              <h3 className="font-bold mb-2">Country</h3>
-              <div className="flex items-center gap-2">
-                <div className="bg-[rgba(15,15,15,0.1)] w-5 h-4 rounded"></div>
-                <div className="bg-[rgba(15,15,15,0.1)] w-20 h-5 rounded"></div>
+            {/* Social Links */}
+            <div className="px-6 py-4 border-t border-[#0f0f0f]/10">
+              <h3 className="font-bold mb-3 bg-[rgba(15,15,15,0.1)] w-16 h-6 rounded"></h3>
+              <div className="flex space-x-3">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div key={i} className="w-6 h-6 bg-[rgba(15,15,15,0.1)] rounded-full"></div>
+                ))}
               </div>
             </div>
-          </div>
 
-          {/* Broker & Platform */}
-          <div className="grid grid-cols-1 gap-4 px-6 py-4 border-t border-[#0f0f0f]/10">
-            <div>
-              <h3 className="font-bold mb-2">Broker</h3>
-              <p className="text-sm bg-[rgba(15,15,15,0.1)] w-24 h-5 rounded"></p>
+            {/* Company Info */}
+            <div className="grid grid-cols-2 gap-4 px-6 py-4 border-t border-[#0f0f0f]/10">
+              {["CEO", "Established", "Years In Operations"].map((label, i) => (
+                <div key={i}>
+                  <h3 className="font-bold mb-2">{label}</h3>
+                  <p className="text-sm bg-[rgba(15,15,15,0.1)] w-20 h-5 rounded"></p>
+                </div>
+              ))}
+              <div>
+                <h3 className="font-bold mb-2">Country</h3>
+                <div className="flex items-center gap-2">
+                  <div className="bg-[rgba(15,15,15,0.1)] w-5 h-4 rounded"></div>
+                  <div className="bg-[rgba(15,15,15,0.1)] w-20 h-5 rounded"></div>
+                </div>
+              </div>
             </div>
-            <div>
-              <h3 className="font-bold mb-2">Platform</h3>
-              <p className="text-sm bg-[rgba(15,15,15,0.1)] w-24 h-5 rounded"></p>
+
+            {/* Broker & Platform */}
+            <div className="grid grid-cols-1 gap-4 px-6 py-4 border-t border-[#0f0f0f]/10">
+              <div>
+                <h3 className="font-bold mb-2">Broker</h3>
+                <p className="text-sm bg-[rgba(15,15,15,0.1)] w-24 h-5 rounded"></p>
+              </div>
+              <div>
+                <h3 className="font-bold mb-2">Platform</h3>
+                <p className="text-sm bg-[rgba(15,15,15,0.1)] w-24 h-5 rounded"></p>
+              </div>
             </div>
           </div>
         </div>
@@ -599,7 +611,7 @@ export default function PropFirmPage() {
       <div className="w-full border-b border-[#edb900]">
         <div className="relative container mx-auto px-4 pt-[200px] mb-[200px] z-50">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            {/* Sidebar - Show skeleton when loading */}
+            {/* Sidebar - Show skeleton when loading or data is not ready */}
             {loading ? (
               renderSkeleton()
             ) : (
