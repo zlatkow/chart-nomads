@@ -249,59 +249,18 @@ const CompanyMonthlyUniquePaidTradersChart = ({ companyName }: CompanyMonthlyUni
           </div>
 
           <div className="relative">
-            <div className="w-[170px] h-8 bg-[rgba(255,255,255,0.05)] rounded animate-shimmer"></div>
+            <div className="w-[170px] h-8 bg-[rgba(255,255,255,0.05)] rounded"></div>
           </div>
         </div>
 
-        {/* Shimmer loading skeleton for the chart */}
-        <div className="w-full h-[500px] px-4 animate-shimmer">
-          <div className="w-full h-full bg-[rgba(255,255,255,0.03)] rounded-lg relative overflow-hidden">
-            {/* X-axis skeleton */}
-            <div className="absolute bottom-0 left-0 right-0 h-10 flex justify-between px-10">
-              {[...Array(8)].map((_, i) => (
-                <div key={`x-${i}`} className="w-10 h-4 bg-[rgba(255,255,255,0.05)] rounded" />
-              ))}
-            </div>
-
-            {/* Y-axis skeleton */}
-            <div className="absolute top-10 bottom-10 left-0 w-10 flex flex-col justify-between">
-              {[...Array(5)].map((_, i) => (
-                <div key={`y-${i}`} className="h-4 w-16 bg-[rgba(255,255,255,0.05)] rounded" />
-              ))}
-            </div>
-
-            {/* Line chart path skeleton */}
-            <div className="absolute left-20 right-20 top-20 bottom-20">
-              <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
-                <path
-                  d="M0,50 C10,40 20,60 30,50 C40,40 50,70 60,50 C70,30 80,50 90,40 L90,100 L0,100 Z"
-                  fill="rgba(255,191,0,0.1)"
-                  stroke="#ffb700"
-                  strokeWidth="1"
-                />
-                <path
-                  d="M0,50 C10,40 20,60 30,50 C40,40 50,70 60,50 C70,30 80,50 90,40"
-                  fill="none"
-                  stroke="#ffb700"
-                  strokeWidth="3"
-                />
-                {/* Dots on the line */}
-                {[0, 30, 60, 90].map((x, i) => (
-                  <circle key={i} cx={x} cy={i % 2 === 0 ? 50 : 40} r="4" fill="#ffb700" />
-                ))}
-              </svg>
-            </div>
-
-            {/* Reference line skeleton */}
-            <div className="absolute left-20 right-20 h-[1px] bg-[#5a3e00] border-dashed" style={{ bottom: "45%" }}>
-              <div className="absolute right-0 -top-3 bg-[#5a3e00] text-[#5a3e00] px-2 rounded text-xs">AVG</div>
-            </div>
-          </div>
+        {/* Simple loading container with shimmer effect */}
+        <div className="w-full h-[500px] px-4">
+          <div className="w-full h-full bg-[#1a1a1a] rounded-lg animate-shimmer"></div>
         </div>
 
         <div className="mt-4 px-6 text-white text-xs">
-          <p className="h-4 w-48 bg-[rgba(255,255,255,0.05)] rounded animate-shimmer mb-1"></p>
-          <p className="h-4 w-36 bg-[rgba(255,255,255,0.05)] rounded animate-shimmer"></p>
+          <div className="h-4 w-48 bg-[rgba(255,255,255,0.05)] rounded mb-1"></div>
+          <div className="h-4 w-36 bg-[rgba(255,255,255,0.05)] rounded"></div>
         </div>
       </div>
     )
