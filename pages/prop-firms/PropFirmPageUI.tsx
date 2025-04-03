@@ -65,8 +65,9 @@ interface Firm {
   discord_link?: string
   ceo?: string
   established?: string
+  years_in_business?: string
   country?: string
-  website?: string
+  website_link?: string
   broker?: string
   platform?: string
   platform_details?: string
@@ -542,11 +543,15 @@ function PropFirmUI({
                     <h3 className="font-bold mb-2">Established</h3>
                     <p className="text-sm">{firm?.established}</p>
                   </div>
-                  {firm?.website && (
+                  <div>
+                    <h3 className="font-bold mb-2">Years In Operations</h3>
+                    <p className="text-sm">{firm?.years_in_business}</p>
+                  </div>
+                  {firm?.website_link && (
                     <div>
                       <h3 className="font-bold mb-2">Website</h3>
                       <a
-                        href={firm.website}
+                        href={firm.website_link}
                         target="_blank"
                         rel="noreferrer"
                         className="text-sm flex items-center hover:underline"
