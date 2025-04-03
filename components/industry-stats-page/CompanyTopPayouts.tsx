@@ -211,6 +211,44 @@ export default function CompanyTopPayouts({ companyName }: CompanyTopPayoutsProp
     }
   }, [payoutData])
 
+  // Render skeleton loading rows
+  const renderSkeletonRows = () => {
+    return Array(10)
+      .fill(0)
+      .map((_, index) => (
+        <div
+          key={`skeleton-${index}`}
+          className="flex items-center justify-between p-4 border-b border-[#222222] px-6 animate-shimmer"
+        >
+          <div className="flex items-center gap-4">
+            {/* Rank Badge Skeleton */}
+            <div className="w-8 text-center">
+              {index < 3 ? (
+                <div
+                  className="flex items-center justify-center w-8 h-8 rounded-full"
+                  style={{ backgroundColor: `rgba(255,255,255,${0.1 - index * 0.02})` }}
+                ></div>
+              ) : (
+                <div className="w-4 h-4 mx-auto bg-[rgba(255,255,255,0.05)] rounded"></div>
+              )}
+            </div>
+
+            {/* Company Logo/Info Skeleton */}
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-[rgba(255,255,255,0.05)] rounded-md"></div>
+              <div>
+                <div className="h-4 w-32 bg-[rgba(255,255,255,0.08)] rounded mb-2"></div>
+                <div className="h-3 w-20 bg-[rgba(255,255,255,0.05)] rounded"></div>
+              </div>
+            </div>
+          </div>
+
+          {/* Payout Amount Skeleton */}
+          <div className="h-6 w-24 bg-[rgba(255,255,255,0.08)] rounded"></div>
+        </div>
+      ))
+  }
+
   return (
     <div className="w-full bg-[#0f0f0f] rounded-[10px] border-[1px] border-[#666666] mb-[50px]">
       <div className="w-full">
@@ -253,7 +291,7 @@ export default function CompanyTopPayouts({ companyName }: CompanyTopPayoutsProp
         <Card className="w-full bg-[#0F0F0F] border-[#0f0f0f] overflow-hidden">
           <CardContent className="p-0">
             {loading ? (
-              <div className="h-[400px] bg-[#1a1a1a] animate-shimmer"></div>
+              <div>{renderSkeletonRows()}</div>
             ) : error ? (
               <div className="flex items-center justify-center h-[200px] text-[#999999]">{renderErrorMessage()}</div>
             ) : payoutData.length > 0 ? (
