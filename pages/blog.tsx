@@ -175,10 +175,10 @@ export default function Home() {
             />
           </div>
         </section>
-        <Community />
-        <Newsletter />
-        <Footer />
       </main>
+      <Community />
+      <Newsletter />
+      <Footer />
     </div>
   )
 }
