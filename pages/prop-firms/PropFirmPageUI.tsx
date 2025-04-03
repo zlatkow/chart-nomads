@@ -398,65 +398,6 @@ function PropFirmUI({
     fetchRules()
   }, [firmId])
 
-  // Remove this useEffect since we're now fetching country data in fetchFirmData
-  // useEffect(() => {
-  //   const fetchCountryData = async () => {
-  //     console.log("Starting fetchCountryData function")
-
-  //     try {
-  //       if (!firm) {
-  //         console.log("No firm data available")
-  //         setCountryData(null)
-  //         return
-  //       }
-
-  //       console.log("Firm data:", firm)
-  //       console.log("Country ID type:", typeof firm.country)
-  //       console.log("Country ID value:", firm.country)
-
-  //       if (firm.country === undefined || firm.country === null) {
-  //         console.log("Country ID is undefined or null")
-  //         setCountryData(null)
-  //         return
-  //       }
-
-  //       console.log("Fetching country data for ID:", firm.country)
-
-  //       // Add a timeout to ensure we don't get stuck in a pending request
-  //       const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Fetch timeout")), 5000))
-
-  //       const fetchPromise = supabase.from("countries").select("id, country, flag").eq("id", firm.country).single()
-
-  //       // Race the fetch against the timeout
-  //       const { data, error } = await Promise.race([
-  //         fetchPromise,
-  //         timeoutPromise.then(() => {
-  //           throw new Error("Fetch timeout")
-  //         }),
-  //       ])
-
-  //       if (error) {
-  //         console.error("Error fetching country data:", error)
-  //         setCountryData(null)
-  //         return
-  //       }
-
-  //       if (data) {
-  //         console.log("Successfully fetched country data:", data)
-  //         setCountryData(data)
-  //       } else {
-  //         console.log("No country data found for ID:", firm.country)
-  //         setCountryData(null)
-  //       }
-  //     } catch (err) {
-  //       console.error("Unexpected error in fetchCountryData:", err)
-  //       setCountryData(null)
-  //     }
-  //   }
-
-  //   fetchCountryData()
-  // }, [firm])
-
   // Update likeCount when firm data changes
   useEffect(() => {
     if (firm && firm.likes !== undefined) {
