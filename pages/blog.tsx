@@ -154,7 +154,7 @@ export default function Home() {
                       alt={featuredBlog.name}
                       width={1200}
                       height={600}
-                      className="aspect-[2/1] w-full object-cover"
+                      className="aspect-[2/1] w-full object-contain bg-black/20"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
                     <div className="absolute bottom-0 left-0 p-6 sm:p-8">
