@@ -71,8 +71,8 @@ export function TableOfContents({ articleId }: TableOfContentsProps) {
   }
 
   return (
-    <div className="space-y-2 mt-[100px]">
-      <h3 className="font-semibold text-lg text-white">Table of Contents</h3>
+    <div className="space-y-2">
+      <h3 className="text-lg text-white">Table of Contents</h3>
       <nav className="space-y-1">
         {headings.map((heading) => (
           <button
