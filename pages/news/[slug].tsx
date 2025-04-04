@@ -310,7 +310,7 @@ export default function NewsArticlePage() {
                 <div>
                   <h4 className="font-medium text-lg text-white">{authorData?.name || "Unknown Author"}</h4>
                   <p className="text-gray-300">
-                    {article.author_bio || `Author of articles about ${article.category}.`}
+                    {authorData?.author_bio || `Author of articles about ${article.category}.`}
                   </p>
                   {authorData && (
                     <div className="flex gap-3 mt-2">
