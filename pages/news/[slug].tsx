@@ -205,7 +205,7 @@ export default function NewsArticlePage() {
       <Navbar />
       <ReadingProgress />
       <Noise />
-      <div className="relative z-20 container mt-[200px] mb-[100px] mx-auto px-4 py-8 text-white">
+      <div className="relative z-20 max-w-[1280px] container mt-[200px] mb-[100px] mx-auto px-4 py-8 text-white">
         <div className="mb-8">
           <Button variant="ghost" size="sm" asChild className="mb-4 text-gray-300 hover:text-white hover:bg-[#1a1a1a]">
             <Link href="/news">
@@ -287,7 +287,7 @@ export default function NewsArticlePage() {
             {articleTags.length > 0 && (
               <div className="mt-8 pt-6 border-t border-[#222]">
                 <div className="flex">
-                    <Tag className="text-white mt-3 mr-1 h-3 w-3" />
+                    <Tag className="text-white mt-3 mr-1 h-4 w-4" />
                     <h3 className="text-lg mb-2 text-white">Tags:</h3>
                 </div>
                 
