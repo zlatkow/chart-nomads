@@ -3,7 +3,16 @@ import Image from "next/image"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { CalendarIcon, Clock } from "lucide-react"
+import { CalendarIcon, Clock } from 'lucide-react'
+
+interface Author {
+  id: number
+  name: string
+  profile_pic: string
+  x_link?: string
+  instagram_link?: string
+  linkedin_link?: string
+}
 
 interface Article {
   id: string
@@ -12,8 +21,8 @@ interface Article {
   slug: string
   category: string
   date: string
-  author: string
-  authorImage: string
+  author: string | Author // Can be either a string (name) or an Author object
+  authorImage?: string // Optional now as we might use author.profile_pic
   image: string
   readTime: string
 }
@@ -25,6 +34,15 @@ interface NewsCardProps {
 export function NewsCard({ article }: NewsCardProps) {
   // Ensure the slug is properly formatted
   const formattedSlug = article.slug?.trim() || article.id
+
+  // Handle author data which can be either a string or an Author object
+  const authorName = typeof article.author === 'string' ? article.author : article.author?.name || 'Unknown Author'
+  const authorImage = typeof article.author === 'string' 
+    ? article.authorImage || "/placeholder.svg?height=40&width=40" 
+    : article.author?.profile_pic || "/placeholder.svg?height=40&width=40"
+  
+  // Get first letter for avatar fallback
+  const authorInitial = authorName.charAt(0) || 'A'
 
   return (
     <Link href={`/news/${formattedSlug}`} className="block h-full group">
@@ -51,11 +69,11 @@ export function NewsCard({ article }: NewsCardProps) {
         <CardFooter className="p-4 pt-4 border-t border-[#222] flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Avatar className="h-8 w-8 flex-shrink-0">
-              <AvatarImage src={article.authorImage} alt={article.author} />
-              <AvatarFallback>{article.author.charAt(0)}</AvatarFallback>
+              <AvatarImage src={authorImage} alt={authorName} />
+              <AvatarFallback>{authorInitial}</AvatarFallback>
             </Avatar>
             <div className="flex flex-col justify-center">
-              <span className="text-sm font-medium text-gray-200 leading-tight">{article.author}</span>
+              <span className="text-sm font-medium text-gray-200 leading-tight">{authorName}</span>
             </div>
           </div>
           <div className="flex items-center">

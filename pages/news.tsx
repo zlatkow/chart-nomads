@@ -36,12 +36,23 @@ interface News {
   read_time: number
   featured: boolean
   category: string
-  author: string
+  author: number // Changed from string to number (ID reference to authors table)
   image_url: string
+}
+
+// Define Author type based on database schema
+interface Author {
+  id: number
+  name: string
+  profile_pic: string
+  x_link?: string
+  instagram_link?: string
+  linkedin_link?: string
 }
 
 export default function NewsPage() {
   const [news, setNews] = useState<News[]>([])
+  const [authors, setAuthors] = useState<Record<number, Author>>({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [activeCategory, setActiveCategory] = useState("All")
@@ -68,6 +79,28 @@ export default function NewsPage() {
 
         if (data) {
           setNews(data as News[])
+          
+          // Get unique author IDs
+          const authorIds = Array.from(new Set(data.map(item => item.author)))
+          
+          // Fetch all authors in one query
+          if (authorIds.length > 0) {
+            const { data: authorsData, error: authorsError } = await supabase
+              .from("authors")
+              .select("*")
+              .in("id", authorIds)
+            
+            if (authorsError) {
+              console.error("Error fetching authors:", authorsError)
+            } else if (authorsData) {
+              // Create a map of author id to author data
+              const authorsMap: Record<number, Author> = {}
+              authorsData.forEach(author => {
+                authorsMap[author.id] = author
+              })
+              setAuthors(authorsMap)
+            }
+          }
         }
         setLoading(false)
       } catch (err) {
@@ -131,8 +164,8 @@ export default function NewsPage() {
               category: featuredArticle.category,
               slug: featuredArticle.slug,
               date: new Date(featuredArticle.created_at).toLocaleDateString(),
-              author: featuredArticle.author,
-              authorImage: "/placeholder.svg?height=40&width=40",
+              author: authors[featuredArticle.author]?.name || "Unknown Author",
+              authorImage: authors[featuredArticle.author]?.profile_pic || "/placeholder.svg?height=40&width=40",
               image: featuredArticle.image_url || "/placeholder.svg?height=600&width=1200",
               readTime: `${featuredArticle.read_time} min read`,
             }}
@@ -170,8 +203,8 @@ export default function NewsPage() {
                           slug: item.slug,
                           category: item.category,
                           date: new Date(item.created_at).toLocaleDateString(),
-                          author: item.author,
-                          authorImage: "/placeholder.svg?height=40&width=40",
+                          author: authors[item.author]?.name || "Unknown Author",
+                          authorImage: authors[item.author]?.profile_pic || "/placeholder.svg?height=40&width=40",
                           image: item.image_url || "/placeholder.svg?height=400&width=600",
                           readTime: `${item.read_time} min read`,
                         }}
@@ -233,4 +266,3 @@ export default function NewsPage() {
     </div>
   )
 }
-

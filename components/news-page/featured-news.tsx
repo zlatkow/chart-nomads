@@ -5,6 +5,15 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { CalendarIcon, Clock } from "lucide-react"
 
+interface Author {
+  id: number
+  name: string
+  profile_pic: string
+  x_link?: string
+  instagram_link?: string
+  linkedin_link?: string
+}
+
 interface FeaturedArticle {
   id: string
   title: string
@@ -12,8 +21,8 @@ interface FeaturedArticle {
   excerpt: string
   category: string
   date: string
-  author: string
-  authorImage: string
+  author: string | Author // Can be either a string (name) or an Author object
+  authorImage?: string // Optional now as we might use author.profile_pic
   image: string
   readTime: string
 }
@@ -25,6 +34,16 @@ interface FeaturedNewsProps {
 export function FeaturedNews({ article }: FeaturedNewsProps) {
   // Ensure the slug is properly formatted
   const formattedSlug = article.slug?.trim() || article.id
+
+  // Handle author data which can be either a string or an Author object
+  const authorName = typeof article.author === "string" ? article.author : article.author?.name || "Unknown Author"
+  const authorImage =
+    typeof article.author === "string"
+      ? article.authorImage || "/placeholder.svg?height=40&width=40"
+      : article.author?.profile_pic || "/placeholder.svg?height=40&width=40"
+
+  // Get first letter for avatar fallback
+  const authorInitial = authorName.charAt(0) || "A"
 
   return (
     <Link href={`/news/${formattedSlug}`} className="block group">
@@ -53,11 +72,11 @@ export function FeaturedNews({ article }: FeaturedNewsProps) {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Avatar>
-                    <AvatarImage src={article.authorImage} alt={article.author} />
-                    <AvatarFallback>{article.author.charAt(0)}</AvatarFallback>
+                    <AvatarImage src={authorImage} alt={authorName} />
+                    <AvatarFallback>{authorInitial}</AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="text-sm font-medium text-gray-200">{article.author}</p>
+                    <p className="text-sm font-medium text-gray-200">{authorName}</p>
                     <p className="text-xs text-gray-400 flex items-center gap-1">
                       <Clock className="h-3 w-3" /> {article.readTime}
                     </p>
