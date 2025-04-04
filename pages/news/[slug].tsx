@@ -204,7 +204,7 @@ export default function NewsArticlePage() {
     <div>
       <Navbar />
       <Noise />
-      <div className="article relative z-20 container mt-[200px] mb-[100px] mx-auto px-4 py-8 text-white">
+      <div className="relative z-20 container mt-[200px] mb-[100px] mx-auto px-4 py-8 text-white">
         <ReadingProgress />
         <div className="mb-8">
           <Button variant="ghost" size="sm" asChild className="mb-4 text-gray-300 hover:text-white hover:bg-[#1a1a1a]">
@@ -281,7 +281,7 @@ export default function NewsArticlePage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-12">
           <div>
-            <article className="prose prose-lg prose-invert max-w-none" id={`article-${article.id}`}>
+            <article className="article prose prose-lg prose-invert max-w-none" id={`article-${article.id}`}>
               <div dangerouslySetInnerHTML={{ __html: article.news_post_body }} />
             </article>
 
