@@ -30,8 +30,8 @@ export function ReadingProgress() {
         style={{ width: `${readingProgress}%` }}
         role="progressbar"
         aria-valuenow={readingProgress}
-        aria-valuemin={10}
-        aria-valuemax={80}
+        aria-valuemin={20}
+        aria-valuemax={60}
       />
     </div>
   )
