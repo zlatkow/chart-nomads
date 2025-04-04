@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { CalendarIcon, Clock, ArrowLeft, Share2, Bookmark, Tag } from "lucide-react"
 import { ReadingProgress } from "@/components/news-page/reading-progress"
 import { TableOfContents } from "@/components/news-page/table-of-contents"
+import { NewsletterSignup } from "@/components/news-page/newsletter-signup"
 import CommentSection from "@/components/comment-section"
 import { createClient } from "@supabase/supabase-js"
 import { useRouter } from "next/router"
@@ -438,6 +439,12 @@ export default function NewsArticlePage() {
                 ) : (
                   <p className="text-gray-400 text-sm">No related articles found.</p>
                 )}
+              </div>
+
+              {/* Newsletter Signup */}
+              <div className="mt-8 pt-6 border-t border-[#222]">
+                <h3 className="text-lg font-semibold mb-4 text-white">Newsletter</h3>
+                <NewsletterSignup />
               </div>
             </div>
           </aside>
