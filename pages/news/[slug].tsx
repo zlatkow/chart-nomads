@@ -89,7 +89,10 @@ export default function NewsArticlePage() {
   const handleLoginModalOpen = () => {
     console.log("Opening login modal from NewsArticlePage")
     if (setShowLoginModal) {
-      setShowLoginModal(true)
+      // Use setTimeout to ensure this runs after the current event cycle
+      setTimeout(() => {
+        setShowLoginModal(true)
+      }, 0)
     } else {
       console.error("setShowLoginModal is not available")
     }
@@ -373,6 +376,7 @@ export default function NewsArticlePage() {
                   className="border-[#222] bg-[#1a1a1a] text-gray-300 hover:text-white hover:bg-[#222]"
                   onClick={(e) => {
                     e.preventDefault()
+                    e.stopPropagation()
                     handleLoginModalOpen()
                   }}
                 >
@@ -390,6 +394,7 @@ export default function NewsArticlePage() {
                   } hover:text-white hover:bg-[#222]`}
                   onClick={(e) => {
                     e.preventDefault()
+                    e.stopPropagation()
                     handleBookmarkToggle()
                   }}
                   disabled={loadingBookmarks}
