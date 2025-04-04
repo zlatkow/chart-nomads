@@ -1,9 +1,10 @@
 /* eslint-disable */
+
 "use client"
 
 import Link from "next/link"
 import Image from "next/image"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { notFound } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -21,49 +22,67 @@ interface ArticlePageProps {
 
 export default function ArticlePage({ params }: ArticlePageProps) {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
+  const [article, setArticle] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
 
-  // In a real application, you would fetch this data from an API or database
-  // based on the ID from params
-  const article = {
-    id: params.id,
-    title: "The Future of Algorithmic Trading in Prop Firms",
-    // Note: I've added explicit IDs to all headings to ensure they work with the Table of Contents
-    content: `
-      <p>Algorithmic trading is rapidly transforming the landscape of proprietary trading firms, offering unprecedented opportunities for efficiency, speed, and profitability. As we move further into the digital age, understanding the implications of algorithmic trading adoption has become crucial for traders and prop firms alike.</p>
-      
-      <h2 id="current-state">The Current State of Algorithmic Trading</h2>
-      
-      <p>Today's algorithmic trading applications range from simple automated execution strategies to complex machine learning systems. Proprietary trading firms are increasingly leveraging these algorithms to analyze vast amounts of market data, identify patterns, and execute trades with greater accuracy and speed than ever before.</p>
-      
-      <p>According to recent industry reports, over 70% of trading volume in major markets now comes from algorithmic trading systems. This shift has led to increased investment in trading technology across prop firms of all sizes, from boutique operations to large institutional players.</p>
-      
-      <h2 id="transforming-operations">Transforming Trading Operations</h2>
-      
-      <p>One of the most significant impacts of algorithmic trading is on operational efficiency. Automated systems can monitor multiple markets simultaneously and execute trades in milliseconds, allowing traders to capitalize on opportunities that would be impossible to capture manually.</p>
-      
-      <p>In risk management, algorithmic systems are revolutionizing how prop firms control exposure. Advanced risk models can continuously evaluate positions, adjust hedges, and implement stop-loss mechanisms with precision and consistency that human traders cannot match.</p>
-      
-      <h2 id="challenges">Challenges and Considerations</h2>
-      
-      <p>Despite its benefits, algorithmic trading implementation comes with challenges. Technical infrastructure requirements, data quality concerns, and regulatory compliance are significant hurdles for many prop firms. Additionally, there's the ongoing challenge of developing algorithms that can adapt to changing market conditions.</p>
-      
-      <p>Successful algorithmic trading requires a strategic approach that considers these factors alongside the potential benefits. Firms must invest not only in technology but also in talent, research, and creating a culture that balances innovation with risk management.</p>
-      
-      <h2 id="future">Looking Ahead: The Future of Algorithmic Trading</h2>
-      
-      <p>As technology continues to evolve, algorithmic trading will become even more sophisticated. We can expect to see increased adoption of machine learning and artificial intelligence, enabling systems that can learn from market behavior and adapt strategies in real-time.</p>
-      
-      <p>The prop firms that will thrive in this new landscape are those that view algorithmic trading not just as a tool but as a transformative force that can reshape their entire business model. By embracing technology's potential while addressing its challenges thoughtfully, proprietary trading firms can position themselves for success in an increasingly algorithm-driven market.</p>
-    `,
-    category: "Prop Firms",
-    date: "March 10, 2025",
-    author: "Jane Smith",
-    authorBio:
-      "Jane Smith is a quantitative analyst specializing in algorithmic trading systems. She has over 15 years of experience in the financial industry, working with both institutional and proprietary trading firms.",
-    authorImage: "/placeholder.svg?height=80&width=80",
-    image: "/placeholder.svg?height=600&width=1200",
-    readTime: "8 min read",
-    tags: ["Algorithmic Trading", "Prop Firms", "Machine Learning", "Trading Technology", "Risk Management"],
+  // Use useEffect to load the article data after component mounts
+  useEffect(() => {
+    // In a real application, you would fetch this data from an API or database
+    // For now, we'll use mock data
+    const mockArticle = {
+      id: params.id,
+      title: "The Future of Algorithmic Trading in Prop Firms",
+      content: `
+        <p>Algorithmic trading is rapidly transforming the landscape of proprietary trading firms, offering unprecedented opportunities for efficiency, speed, and profitability. As we move further into the digital age, understanding the implications of algorithmic trading adoption has become crucial for traders and prop firms alike.</p>
+        
+        <h2 id="current-state">The Current State of Algorithmic Trading</h2>
+        
+        <p>Today's algorithmic trading applications range from simple automated execution strategies to complex machine learning systems. Proprietary trading firms are increasingly leveraging these algorithms to analyze vast amounts of market data, identify patterns, and execute trades with greater accuracy and speed than ever before.</p>
+        
+        <p>According to recent industry reports, over 70% of trading volume in major markets now comes from algorithmic trading systems. This shift has led to increased investment in trading technology across prop firms of all sizes, from boutique operations to large institutional players.</p>
+        
+        <h2 id="transforming-operations">Transforming Trading Operations</h2>
+        
+        <p>One of the most significant impacts of algorithmic trading is on operational efficiency. Automated systems can monitor multiple markets simultaneously and execute trades in milliseconds, allowing traders to capitalize on opportunities that would be impossible to capture manually.</p>
+        
+        <p>In risk management, algorithmic systems are revolutionizing how prop firms control exposure. Advanced risk models can continuously evaluate positions, adjust hedges, and implement stop-loss mechanisms with precision and consistency that human traders cannot match.</p>
+        
+        <h2 id="challenges">Challenges and Considerations</h2>
+        
+        <p>Despite its benefits, algorithmic trading implementation comes with challenges. Technical infrastructure requirements, data quality concerns, and regulatory compliance are significant hurdles for many prop firms. Additionally, there's the ongoing challenge of developing algorithms that can adapt to changing market conditions.</p>
+        
+        <p>Successful algorithmic trading requires a strategic approach that considers these factors alongside the potential benefits. Firms must invest not only in technology but also in talent, research, and creating a culture that balances innovation with risk management.</p>
+        
+        <h2 id="future">Looking Ahead: The Future of Algorithmic Trading</h2>
+        
+        <p>As technology continues to evolve, algorithmic trading will become even more sophisticated. We can expect to see increased adoption of machine learning and artificial intelligence, enabling systems that can learn from market behavior and adapt strategies in real-time.</p>
+        
+        <p>The prop firms that will thrive in this new landscape are those that view algorithmic trading not just as a tool but as a transformative force that can reshape their entire business model. By embracing technology's potential while addressing its challenges thoughtfully, proprietary trading firms can position themselves for success in an increasingly algorithm-driven market.</p>
+      `,
+      category: "Prop Firms",
+      date: "March 10, 2025",
+      author: "Jane Smith",
+      authorBio:
+        "Jane Smith is a quantitative analyst specializing in algorithmic trading systems. She has over 15 years of experience in the financial industry, working with both institutional and proprietary trading firms.",
+      authorImage: "/placeholder.svg?height=80&width=80",
+      image: "/placeholder.svg?height=600&width=1200",
+      readTime: "8 min read",
+      tags: ["Algorithmic Trading", "Prop Firms", "Machine Learning", "Trading Technology", "Risk Management"],
+    }
+
+    setArticle(mockArticle)
+    setLoading(false)
+  }, [params.id])
+
+  // Show loading state while article is being fetched
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8 bg-[#0f0f0f] text-white">
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#edb900]"></div>
+        </div>
+      </div>
+    )
   }
 
   // If article doesn't exist (in a real app, this would check if the fetch returned data)
@@ -147,7 +166,7 @@ export default function ArticlePage({ params }: ArticlePageProps) {
           <div className="mt-8 pt-6 border-t border-[#222]">
             <h3 className="text-lg font-semibold mb-2 text-white">Tags:</h3>
             <div className="flex flex-wrap gap-2">
-              {article.tags.map((tag) => (
+              {article.tags.map((tag: string) => (
                 <Badge key={tag} variant="outline" className="border-[#222] text-gray-300 hover:text-white">
                   {tag}
                 </Badge>
