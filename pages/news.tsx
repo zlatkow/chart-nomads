@@ -1,3 +1,6 @@
+"use client"
+
+import { useEffect, useState } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs_news"
 import {
   Pagination,
@@ -15,182 +18,215 @@ import Noise from "../components/Noise"
 import Community from "../components/Community"
 import Newsletter from "../components/Newsletter"
 import Footer from "../components/Footer"
+import { createClient } from "@supabase/supabase-js"
+
+// Initialize Supabase client
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
+
+// Define News type based on database schema
+interface News {
+  id: number
+  created_at: string
+  name: string
+  slug: string
+  summary: string
+  news_post_body: string
+  read_time: number
+  featured: boolean
+  category: string
+  author: string
+  image_url: string
+}
 
 export default function NewsPage() {
-  // Updated categories for financial/trading focus
-  const categories = ["All", "Prop Firms", "Brokers", "Economic", "Macro", "Forex", "Stocks", "Crypto"]
+  const [news, setNews] = useState<News[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [activeCategory, setActiveCategory] = useState("All")
 
-  const featuredArticle = {
-    id: "1",
-    title: "The Future of Algorithmic Trading in Prop Firms",
-    excerpt:
-      "Exploring how AI and machine learning are transforming proprietary trading firms and creating new opportunities for traders.",
-    category: "Prop Firms",
-    date: "March 10, 2025",
-    author: "Jane Smith",
-    authorImage: "/placeholder.svg?height=40&width=40",
-    image: "/placeholder.svg?height=600&width=1200",
-    readTime: "8 min read",
+  // Fetch news from Supabase
+  useEffect(() => {
+    async function fetchNews() {
+      try {
+        if (!supabaseUrl || !supabaseAnonKey) {
+          setError("Supabase credentials are missing")
+          setLoading(false)
+          return
+        }
+
+        const supabase = createClient(supabaseUrl, supabaseAnonKey)
+        const { data, error: supabaseError } = await supabase.from("news").select("*")
+
+        if (supabaseError) {
+          console.error("Error fetching news:", supabaseError)
+          setError("Failed to fetch news posts")
+          setLoading(false)
+          return
+        }
+
+        if (data) {
+          setNews(data as News[])
+        }
+        setLoading(false)
+      } catch (err) {
+        console.error("Error in news data fetching:", err)
+        setError("An unexpected error occurred")
+        setLoading(false)
+      }
+    }
+
+    fetchNews()
+  }, [])
+
+  // Get featured news
+  const featuredArticle = news.length > 0 ? news.find((item) => item && item.featured) || news[0] : null
+
+  // Get unique categories from fetched news
+  const categories = [
+    "All",
+    ...Array.from(new Set(news.filter((item) => item && item.category).map((item) => item.category))),
+  ]
+
+  // Filter news by category
+  const getFilteredNews = () => {
+    if (activeCategory === "All") {
+      return news
+    }
+    return news.filter((item) => item.category === activeCategory)
   }
 
-  const articles = [
-    {
-      id: "2",
-      title: "Top 5 Forex Brokers for Algorithmic Trading in 2025",
-      excerpt:
-        "A comprehensive review of the best brokers offering advanced API access and low-latency execution for algo traders.",
-      category: "Brokers",
-      date: "March 8, 2025",
-      author: "Michael Johnson",
-      authorImage: "/placeholder.svg?height=40&width=40",
-      image: "/placeholder.svg?height=400&width=600",
-      readTime: "5 min read",
-    },
-    {
-      id: "3",
-      title: "Federal Reserve Policy Shift: Impact on Global Markets",
-      excerpt:
-        "Analysis of the latest Fed decisions and their implications for interest rates, inflation, and investment strategies.",
-      category: "Economic",
-      date: "March 7, 2025",
-      author: "Sarah Williams",
-      authorImage: "/placeholder.svg?height=40&width=40",
-      image: "/placeholder.svg?height=400&width=600",
-      readTime: "6 min read",
-    },
-    {
-      id: "4",
-      title: "Macro Trends Reshaping Global Financial Markets",
-      excerpt:
-        "From geopolitical tensions to technological disruption, these macro factors are driving market movements in unexpected ways.",
-      category: "Macro",
-      date: "March 5, 2025",
-      author: "Robert Chen",
-      authorImage: "/placeholder.svg?height=40&width=40",
-      image: "/placeholder.svg?height=400&width=600",
-      readTime: "4 min read",
-    },
-    {
-      id: "5",
-      title: "EUR/USD Technical Analysis: Key Levels to Watch",
-      excerpt:
-        "A detailed breakdown of support and resistance zones for the world's most traded currency pair in the coming weeks.",
-      category: "Forex",
-      date: "March 3, 2025",
-      author: "Emily Rodriguez",
-      authorImage: "/placeholder.svg?height=40&width=40",
-      image: "/placeholder.svg?height=400&width=600",
-      readTime: "7 min read",
-    },
-    {
-      id: "6",
-      title: "Emerging Tech Stocks Poised for Growth in Q2",
-      excerpt:
-        "These innovative companies are showing strong fundamentals and technical setups as we enter the second quarter.",
-      category: "Stocks",
-      date: "March 1, 2025",
-      author: "David Kim",
-      authorImage: "/placeholder.svg?height=40&width=40",
-      image: "/placeholder.svg?height=400&width=600",
-      readTime: "5 min read",
-    },
-    {
-      id: "7",
-      title: "Bitcoin Halving: Historical Impact and 2025 Predictions",
-      excerpt:
-        "Analyzing previous halving events and what they might tell us about the upcoming cycle in the cryptocurrency market.",
-      category: "Crypto",
-      date: "February 28, 2025",
-      author: "Alex Thompson",
-      authorImage: "/placeholder.svg?height=40&width=40",
-      image: "/placeholder.svg?height=400&width=600",
-      readTime: "9 min read",
-    },
-  ]
+  const filteredNews = getFilteredNews()
 
   return (
     <div>
-        <Navbar />
-        <Noise />
-            <div className="relative z-50 container mx-auto px-4 py-8 text-white mt-[200px] mb-[100px]">
-            <div className="flex flex-col gap-2 mb-8">
-                <h1 className="text-4xl tracking-tight text-white">Latest News</h1>
-                <p className="text-gray-400">Stay updated with the latest developments in financial markets</p>
-            </div>
-        <FeaturedNews article={featuredArticle} />
+      <Navbar />
+      <Noise />
+      <div className="relative z-50 container mx-auto px-4 py-8 text-white mt-[200px] mb-[100px]">
+        <div className="flex flex-col gap-2 mb-8">
+          <h1 className="text-4xl tracking-tight text-white">Latest News</h1>
+          <p className="text-gray-400">Stay updated with the latest developments in financial markets</p>
+        </div>
+
+        {/* Loading and Error States */}
+        {loading && (
+          <div className="rounded-xl border border-white/10 bg-[#0f0f0f] p-8 text-center text-white mb-16">
+            <p>Loading news posts...</p>
+          </div>
+        )}
+
+        {error && (
+          <div className="rounded-xl border border-red-500/20 bg-[#0f0f0f] p-8 text-center text-red-500 mb-16">
+            <p>{error}</p>
+          </div>
+        )}
+
+        {!loading && !error && featuredArticle && (
+          <FeaturedNews
+            article={{
+              id: featuredArticle.id.toString(),
+              title: featuredArticle.name,
+              excerpt: featuredArticle.summary,
+              category: featuredArticle.category,
+              date: new Date(featuredArticle.created_at).toLocaleDateString(),
+              author: featuredArticle.author,
+              authorImage: "/placeholder.svg?height=40&width=40",
+              image: featuredArticle.image_url || "/placeholder.svg?height=600&width=1200",
+              readTime: `${featuredArticle.read_time} min read`,
+            }}
+          />
+        )}
+
         <div className="my-12">
-            <Tabs defaultValue="All" className="w-full">
+          <Tabs defaultValue="All" className="w-full" value={activeCategory} onValueChange={setActiveCategory}>
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-                <h2 className="text-2xl text-white">Recent Articles</h2>
-                <TabsList className="bg-[#1a1a1a] overflow-x-auto flex-wrap">
+              <h2 className="text-2xl text-white">Recent Articles</h2>
+              <TabsList className="bg-[#1a1a1a] overflow-x-auto flex-wrap">
                 {categories.map((category) => (
-                    <TabsTrigger
+                  <TabsTrigger
                     key={category}
                     value={category}
                     className="data-[state=active]:bg-[#edb900] data-[state=active]:text-[#0f0f0f] transition-colors duration-300 ease-in-out hover:text-[#edb900]"
-                    >
+                  >
                     {category}
-                    </TabsTrigger>
+                  </TabsTrigger>
                 ))}
-                </TabsList>
+              </TabsList>
             </div>
 
             {categories.map((category) => (
-                <TabsContent key={category} value={category} className="mt-0">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {articles
-                    .filter((article) => category === "All" || article.category === category)
-                    .map((article) => (
-                        <NewsCard key={article.id} article={article} />
+              <TabsContent key={category} value={category} className="mt-0">
+                {!loading && !error && filteredNews.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filteredNews.map((item) => (
+                      <NewsCard
+                        key={item.id}
+                        article={{
+                          id: item.id.toString(),
+                          title: item.name,
+                          excerpt: item.summary,
+                          category: item.category,
+                          date: new Date(item.created_at).toLocaleDateString(),
+                          author: item.author,
+                          authorImage: "/placeholder.svg?height=40&width=40",
+                          image: item.image_url || "/placeholder.svg?height=400&width=600",
+                          readTime: `${item.read_time} min read`,
+                        }}
+                      />
                     ))}
-                </div>
-                </TabsContent>
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-white/70">
+                    {loading ? "Loading..." : error ? "Error loading news" : "No news articles found"}
+                  </div>
+                )}
+              </TabsContent>
             ))}
-            </Tabs>
+          </Tabs>
         </div>
 
         <Pagination className="my-8">
-            <PaginationContent>
+          <PaginationContent>
             <PaginationItem>
-                <PaginationPrevious
+              <PaginationPrevious
                 href="#"
                 className="bg-[#0f0f0f] border border-[#222] text-white hover:bg-[#1a1a1a] hover:text-white w-24 justify-center"
-                />
+              />
             </PaginationItem>
             <PaginationItem>
-                <PaginationLink
+              <PaginationLink
                 href="#"
                 isActive
                 className="bg-[#edb900] text-[#0f0f0f] border-[#edb900] hover:bg-[#edb900]/90"
-                >
+              >
                 1
-                </PaginationLink>
+              </PaginationLink>
             </PaginationItem>
             <PaginationItem>
-                <PaginationLink href="#" className="bg-[#0f0f0f] border border-[#222] text-white hover:bg-[#1a1a1a]">
+              <PaginationLink href="#" className="bg-[#0f0f0f] border border-[#222] text-white hover:bg-[#1a1a1a]">
                 2
-                </PaginationLink>
+              </PaginationLink>
             </PaginationItem>
             <PaginationItem>
-                <PaginationLink href="#" className="bg-[#0f0f0f] border border-[#222] text-white hover:bg-[#1a1a1a]">
+              <PaginationLink href="#" className="bg-[#0f0f0f] border border-[#222] text-white hover:bg-[#1a1a1a]">
                 3
-                </PaginationLink>
+              </PaginationLink>
             </PaginationItem>
             <PaginationItem>
-                <PaginationEllipsis className="bg-[#0f0f0f] border border-[#222] text-white rounded-md h-9 w-9 flex items-center justify-center" />
+              <PaginationEllipsis className="bg-[#0f0f0f] border border-[#222] text-white rounded-md h-9 w-9 flex items-center justify-center" />
             </PaginationItem>
             <PaginationItem>
-                <PaginationNext
+              <PaginationNext
                 href="#"
                 className="bg-[#0f0f0f] border border-[#222] text-white hover:bg-[#1a1a1a] hover:text-white w-24 justify-center"
-                />
+              />
             </PaginationItem>
-            </PaginationContent>
+          </PaginationContent>
         </Pagination>
-        </div>
-        <Community />
-        <Newsletter />
-        <Footer />
+      </div>
+      <Community />
+      <Newsletter />
+      <Footer />
     </div>
   )
 }
