@@ -214,7 +214,7 @@ export default function NewsArticlePage() {
             </Link>
           </Button>
 
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4 text-white">{article.name}</h1>
+          <h1 className="text-4xl md:text-5xl tracking-tight mb-4 text-white">{article.name}</h1>
 
           <div className="flex flex-wrap items-center gap-4 text-gray-400 mb-6">
             <div className="flex items-center gap-1">
@@ -227,7 +227,6 @@ export default function NewsArticlePage() {
             </div>
             <div className="flex items-center">
               <Badge className="bg-[#edb900] text-[#0f0f0f] hover:bg-[#edb900]/90 hover:text-[#0f0f0f] flex items-center gap-1">
-                <Tag className="h-3 w-3" />
                 {article.category}
               </Badge>
             </div>
@@ -287,7 +286,11 @@ export default function NewsArticlePage() {
 
             {articleTags.length > 0 && (
               <div className="mt-8 pt-6 border-t border-[#222]">
-                <h3 className="text-lg mb-2 text-white">Tags:</h3>
+                <div className="flex">
+                    <Tag className="h-3 w-3" />
+                    <h3 className="text-lg mb-2 text-white">Tags:</h3>
+                </div>
+                
                 <div className="flex flex-wrap gap-2">
                   {articleTags.map((tag: string) => (
                     <Badge key={tag} variant="outline" className="border-[#222] text-gray-300 hover:text-white">
