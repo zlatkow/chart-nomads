@@ -11,14 +11,21 @@ export function ReadingProgress() {
       const scrollHeight = document.body.scrollHeight - window.innerHeight
 
       if (scrollHeight) {
-        setReadingProgress(Number((currentPosition / scrollHeight).toFixed(2)) * 100)
+        const rawProgress = Number((currentPosition / scrollHeight).toFixed(2)) * 100
+
+        // Clamp progress between 10% and 80%
+        const clampedProgress = Math.min(Math.max(rawProgress, 10), 80)
+
+        // Normalize it to 0–100% range for visual width (between 20–60% scroll = 0–100% width)
+        const normalized = ((clampedProgress - 10) / (10 - 80)) * 100
+
+        setReadingProgress(normalized)
       }
     }
 
     window.addEventListener("scroll", updateReadingProgress)
 
-    // Initialize on mount
-    updateReadingProgress()
+    updateReadingProgress() // initialize
 
     return () => window.removeEventListener("scroll", updateReadingProgress)
   }, [])
@@ -30,10 +37,9 @@ export function ReadingProgress() {
         style={{ width: `${readingProgress}%` }}
         role="progressbar"
         aria-valuenow={readingProgress}
-        aria-valuemin={20}
-        aria-valuemax={60}
+        aria-valuemin={0}
+        aria-valuemax={100}
       />
     </div>
   )
 }
-
