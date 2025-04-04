@@ -13,7 +13,7 @@ export function NewsletterSignup() {
       </CardHeader>
       <CardContent>
         <form className="flex flex-col sm:flex-row max-w-md mx-auto">
-            <div className="text-sm mt-6 flex bg-white rounded-lg overflow-hidden w-full max-w-md">
+            <div className="text-sm mt-2 flex bg-white rounded-lg overflow-hidden w-full max-w-md">
                 <input 
                     id="footerNewsletter"
                     type="email" 
