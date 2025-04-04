@@ -1,6 +1,6 @@
-/* eslint-disable */
 "use client"
 
+/* eslint-disable */
 import Link from "next/link"
 import Image from "next/image"
 import { useState, useEffect } from "react"
@@ -12,6 +12,7 @@ import { ReadingProgress } from "@/components/news-page/reading-progress"
 import { TableOfContents } from "@/components/news-page/table-of-contents"
 import CommentSection from "@/components/comment-section"
 import { createClient } from "@supabase/supabase-js"
+import { useRouter } from "next/router"
 
 // Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
@@ -35,7 +36,10 @@ interface News {
   tags?: string[]
 }
 
-export default function Page({ params }: { params: { slug: string } }) {
+export default function NewsArticlePage() {
+  const router = useRouter()
+  const { slug } = router.query
+
   const [article, setArticle] = useState<News | null>(null)
   const [relatedArticles, setRelatedArticles] = useState<News[]>([])
   const [loading, setLoading] = useState(true)
@@ -43,6 +47,9 @@ export default function Page({ params }: { params: { slug: string } }) {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
 
   useEffect(() => {
+    // Only fetch when slug is available from router
+    if (!slug) return
+
     async function fetchArticle() {
       try {
         if (!supabaseUrl || !supabaseAnonKey) {
@@ -57,7 +64,7 @@ export default function Page({ params }: { params: { slug: string } }) {
         const { data: articleData, error: articleError } = await supabase
           .from("news")
           .select("*")
-          .eq("slug", params.slug)
+          .eq("slug", slug)
           .single()
 
         if (articleError) {
@@ -80,7 +87,7 @@ export default function Page({ params }: { params: { slug: string } }) {
           .from("news")
           .select("*")
           .eq("category", articleData.category)
-          .neq("slug", params.slug) // Exclude current article
+          .neq("slug", slug) // Exclude current article
           .order("created_at", { ascending: false })
           .limit(3)
 
@@ -99,7 +106,7 @@ export default function Page({ params }: { params: { slug: string } }) {
     }
 
     fetchArticle()
-  }, [params.slug])
+  }, [slug]) // Add slug as a dependency
 
   // Show loading state while article is being fetched
   if (loading) {
