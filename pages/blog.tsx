@@ -14,7 +14,7 @@ export default function Home() {
     <div className="min-h-screen bg-[#0f0f0f]">
     <Navbar />
     <Noise />
-      <main className="container py-8 mt-[200px] mx-auto mb-[100px] z-50">
+      <main className="relative container py-8 mt-[200px] mx-auto mb-[100px] z-50">
         {/* Hero Section */}
         <section className="mb-12">
           <div className="space-y-2">
