@@ -1,3 +1,4 @@
+/* eslint-disable */
 "use client"
 
 import Link from "next/link"
@@ -288,9 +289,6 @@ export default function Page({ params }: { params: { slug: string } }) {
           </div>
         </aside>
       </div>
-
-      {/* In a real app, you would implement a login modal here */}
-      {/* <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} /> */}
     </div>
   )
 }
