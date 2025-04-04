@@ -149,13 +149,15 @@ export default function Home() {
               <Link href={`/blog/${featuredBlog.slug}`}>
                 <div className="overflow-hidden rounded-xl border border-white/10 bg-[#0f0f0f] shadow-sm">
                   <div className="relative">
-                    <Image
-                      src={featuredBlog.image_url || "/placeholder.svg?height=600&width=1200"}
-                      alt={featuredBlog.name}
-                      width={1200}
-                      height={600}
-                      className="aspect-[2/1] w-full object-contain bg-black/20"
-                    />
+                    <div className="w-full aspect-[21/9] relative">
+                      <Image
+                        src={featuredBlog.image_url || "/placeholder.svg?height=600&width=1200"}
+                        alt={featuredBlog.name}
+                        fill
+                        className="object-cover"
+                        priority
+                      />
+                    </div>
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
                     <div className="absolute bottom-0 left-0 p-6 sm:p-8">
                       <Badge className="mb-3 bg-[#edb900] text-[#0f0f0f] hover:bg-[#edb900]/90">
