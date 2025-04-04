@@ -1,30 +1,25 @@
-/* eslint-disable */
 import Image from "next/image"
-import Link from "next/link"
-import { Search, Mail } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import Navbar from "../components/Navbar";
-import Community from "../components/Community";
-import Newsletter from "../components/Newsletter";
-import Footer from "../components/Footer";
+import Navbar from "../components/Navbar"
 import Noise from "../components/Noise"
+import Community from "../components/Community"
+import Newsletter from "../components/Newsletter"
+import Footer from "../components/Footer"
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-[#0f0f0f]">
-      <Navbar />
-      <Noise />
-      <main className="container py-8 mx-auto mt-[200px] z-50 mb-[100px]">
+      <main className="container py-8 mt-[200px] mx-auto mb-[100px] z-50">
+        <Navbar />
+        <Noise />
         {/* Hero Section */}
         <section className="mb-12">
           <div className="space-y-2">
-            <p className="text-sm font-medium text-muted-foreground">Blog</p>
-            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
+            <p className="text-sm font-medium text-white/70">Blog</p>
+            <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl md:text-5xl">
               All valuable resources in one place
             </h1>
           </div>
@@ -32,7 +27,7 @@ export default function Home() {
 
         {/* Featured Post */}
         <section className="mb-16">
-          <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
+          <div className="overflow-hidden rounded-xl border border-white/10 bg-black/20 shadow-sm">
             <div className="relative">
               <Image
                 src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-zaQvWR36TxcBW5kTQmgLprxKF4gPO8.png"
@@ -43,7 +38,7 @@ export default function Home() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
               <div className="absolute bottom-0 left-0 p-6 sm:p-8">
-                <Badge className="mb-3 bg-primary text-primary-foreground">New Trends</Badge>
+                <Badge className="mb-3 bg-[#edb900] text-[#0f0f0f] hover:bg-[#edb900]/90">New Trends</Badge>
                 <h2 className="mb-2 text-2xl font-bold text-white sm:text-3xl">
                   The Evolution of Prop Trading: Trends to Watch in 2025
                 </h2>
@@ -70,26 +65,26 @@ export default function Home() {
         <section className="mb-8">
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
             <div className="space-y-2">
-              <h2 className="text-sm font-medium">Categories:</h2>
+              <h2 className="text-sm font-medium text-white">Categories:</h2>
               <div className="flex flex-wrap gap-2">
-                <Badge variant="secondary" className="cursor-pointer hover:bg-secondary/80">
+                <Badge variant="secondary" className="cursor-pointer bg-[#edb900] text-[#0f0f0f] hover:bg-[#edb900]/90">
                   All Posts
                 </Badge>
-                <Badge variant="outline" className="cursor-pointer hover:bg-secondary/80">
+                <Badge variant="outline" className="cursor-pointer text-white hover:bg-white/10">
                   Prop Trading
                 </Badge>
-                <Badge variant="outline" className="cursor-pointer hover:bg-secondary/80">
+                <Badge variant="outline" className="cursor-pointer text-white hover:bg-white/10">
                   Guides
                 </Badge>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-sm">Sort by:</span>
+              <span className="text-sm text-white">Sort by:</span>
               <Select defaultValue="newest">
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-[180px] border-white/20 bg-black/20 text-white">
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-[#0f0f0f] text-white">
                   <SelectItem value="newest">Date (newest)</SelectItem>
                   <SelectItem value="oldest">Date (oldest)</SelectItem>
                   <SelectItem value="popular">Most popular</SelectItem>
@@ -111,7 +106,7 @@ export default function Home() {
               author="Myles Jordan"
               date="January 23, 2025"
               readTime="4 min read"
-              className="bg-gradient-to-br from-red-900/20 to-black"
+              className="bg-black/20"
             />
 
             {/* Post 2 */}
@@ -123,7 +118,7 @@ export default function Home() {
               author="Myles Jordan"
               date="January 25, 2025"
               readTime="4 min read"
-              className="bg-gradient-to-br from-yellow-900/20 to-black"
+              className="bg-black/20"
             />
 
             {/* Post 3 */}
@@ -135,7 +130,7 @@ export default function Home() {
               author="Sarah Taylor"
               date="January 21, 2025"
               readTime="6 min read"
-              className="bg-gradient-to-br from-blue-900/20 to-black"
+              className="bg-black/20"
             />
 
             {/* Post 4 */}
@@ -147,7 +142,7 @@ export default function Home() {
               author="Myles Jordan"
               date="January 17, 2025"
               readTime="8 min read"
-              className="bg-gradient-to-br from-green-900/20 to-black"
+              className="bg-black/20"
             />
 
             {/* Post 5 */}
@@ -159,7 +154,7 @@ export default function Home() {
               author="Myles Jordan"
               date="January 15, 2025"
               readTime="5 min read"
-              className="bg-gradient-to-br from-purple-900/20 to-black"
+              className="bg-black/20"
             />
 
             {/* Post 6 */}
@@ -171,7 +166,7 @@ export default function Home() {
               author="Sarah Taylor"
               date="January 10, 2025"
               readTime="7 min read"
-              className="bg-gradient-to-br from-orange-900/20 to-black"
+              className="bg-black/20"
             />
           </div>
         </section>
@@ -196,19 +191,19 @@ interface BlogPostCardProps {
 
 function BlogPostCard({ image, badge, title, description, author, date, readTime, className }: BlogPostCardProps) {
   return (
-    <Card className={`overflow-hidden border-0 shadow-md transition-all hover:shadow-lg ${className}`}>
+    <Card className={`overflow-hidden border-0 border-white/10 shadow-md transition-all hover:shadow-lg ${className}`}>
       <div className="relative aspect-[4/3]">
         <Image src={image || "/placeholder.svg"} alt={title} fill className="object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent"></div>
         <div className="absolute bottom-0 left-0 p-4">
-          <Badge className="bg-primary text-primary-foreground">{badge}</Badge>
+          <Badge className="bg-[#edb900] text-[#0f0f0f] hover:bg-[#edb900]/90">{badge}</Badge>
         </div>
       </div>
       <CardContent className="p-4">
-        <h3 className="mb-2 line-clamp-2 text-xl font-bold">{title}</h3>
-        <p className="line-clamp-3 text-sm text-muted-foreground">{description}</p>
+        <h3 className="mb-2 line-clamp-2 text-xl font-bold text-white">{title}</h3>
+        <p className="line-clamp-3 text-sm text-white/70">{description}</p>
       </CardContent>
-      <CardFooter className="flex items-center gap-3 border-t p-4">
+      <CardFooter className="flex items-center gap-3 border-t border-white/10 p-4">
         <Avatar className="h-8 w-8">
           <AvatarImage src="/placeholder.svg?height=32&width=32" alt={author} />
           <AvatarFallback>
@@ -218,9 +213,9 @@ function BlogPostCard({ image, badge, title, description, author, date, readTime
               .join("")}
           </AvatarFallback>
         </Avatar>
-        <div className="text-xs">
+        <div className="text-xs text-white">
           <p className="font-medium">{author}</p>
-          <p className="text-muted-foreground">
+          <p>
             {date} • {readTime}
           </p>
         </div>
