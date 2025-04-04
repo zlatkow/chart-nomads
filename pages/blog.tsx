@@ -106,7 +106,7 @@ export default function Home() {
               author="Myles Jordan"
               date="January 23, 2025"
               readTime="4 min read"
-              className="bg-black/20"
+              className="bg-[0f0f0f]"
             />
 
             {/* Post 2 */}
@@ -118,7 +118,7 @@ export default function Home() {
               author="Myles Jordan"
               date="January 25, 2025"
               readTime="4 min read"
-              className="bg-black/20"
+              className="bg-[0f0f0f]"
             />
 
             {/* Post 3 */}
@@ -130,7 +130,7 @@ export default function Home() {
               author="Sarah Taylor"
               date="January 21, 2025"
               readTime="6 min read"
-              className="bg-black/20"
+              className="bg-[0f0f0f]"
             />
 
             {/* Post 4 */}
@@ -142,7 +142,7 @@ export default function Home() {
               author="Myles Jordan"
               date="January 17, 2025"
               readTime="8 min read"
-              className="bg-black/20"
+              className="bg-[0f0f0f]"
             />
 
             {/* Post 5 */}
@@ -154,7 +154,7 @@ export default function Home() {
               author="Myles Jordan"
               date="January 15, 2025"
               readTime="5 min read"
-              className="bg-black/20"
+              className="bg-[0f0f0f]"
             />
 
             {/* Post 6 */}
@@ -166,7 +166,7 @@ export default function Home() {
               author="Sarah Taylor"
               date="January 10, 2025"
               readTime="7 min read"
-              className="bg-black/20"
+              className="bg-[0f0f0f]"
             />
           </div>
         </section>
@@ -191,7 +191,7 @@ interface BlogPostCardProps {
 
 function BlogPostCard({ image, badge, title, description, author, date, readTime, className }: BlogPostCardProps) {
   return (
-    <Card className={`overflow-hidden border-0 border-white/10 shadow-md transition-all hover:shadow-lg ${className}`}>
+    <Card className={`overflow-hidden border-0 border-white/10 bg-[0f0f0f] shadow-md transition-all hover:shadow-lg ${className}`}>
       <div className="relative aspect-[4/3]">
         <Image src={image || "/placeholder.svg"} alt={title} fill className="object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent"></div>
@@ -200,7 +200,7 @@ function BlogPostCard({ image, badge, title, description, author, date, readTime
         </div>
       </div>
       <CardContent className="p-4">
-        <h3 className="mb-2 line-clamp-2 text-xl font-bold text-white">{title}</h3>
+        <h3 className="mb-2 line-clamp-2 text-xl text-white">{title}</h3>
         <p className="line-clamp-3 text-sm text-white/70">{description}</p>
       </CardContent>
       <CardFooter className="flex items-center gap-3 border-t border-white/10 p-4">
