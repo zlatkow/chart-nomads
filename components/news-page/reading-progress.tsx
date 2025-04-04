@@ -11,7 +11,7 @@ export function ReadingProgress() {
       const totalScrollHeight = document.body.scrollHeight - window.innerHeight
       
       // Calculate the target scroll height (80% of total)
-      const targetScrollHeight = totalScrollHeight * 0.8
+      const targetScrollHeight = totalScrollHeight * 0.7
       
       if (targetScrollHeight) {
         // Calculate progress based on the target height

@@ -1,6 +1,6 @@
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 
 export function NewsletterSignup() {
   return (
@@ -13,15 +13,15 @@ export function NewsletterSignup() {
       </CardHeader>
       <CardContent>
         <form className="flex flex-col sm:flex-row gap-2 max-w-md mx-auto">
-          <Input
-            type="email"
-            placeholder="Enter your email"
-            className="flex-1 bg-[#0f0f0f] border-[#222] text-white"
-            required
-          />
-          <Button type="submit" className="bg-[#edb900] text-[#0f0f0f] hover:bg-[#edb900]/90">
-            Subscribe
-          </Button>
+            <input 
+              id="footerNewsletter"
+              type="email" 
+              placeholder="No spam, just value" 
+              className="w-full px-4 py-3 text-black outline-none"
+            />
+            <button className="bg-[#EDB900] px-5 flex items-center justify-center hover:bg-[#b38b00] transition">
+                <FontAwesomeIcon icon={faArrowRight} className="text-black text-lg" />
+            </button>
         </form>
       </CardContent>
     </Card>
