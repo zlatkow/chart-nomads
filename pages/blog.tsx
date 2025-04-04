@@ -12,7 +12,7 @@ import Newsletter from "../components/Newsletter"
 import Footer from "../components/Footer"
 import { createClient } from "@supabase/supabase-js"
 
-// Initialize Supabase client with fallback to empty strings
+// Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
 
@@ -31,94 +31,6 @@ interface Blog {
   image_url: string
 }
 
-// Mock data for development or when Supabase is not available
-const mockBlogs: Blog[] = [
-  {
-    id: 1,
-    created_at: "2025-01-25T00:00:00Z",
-    name: "The Evolution of Prop Trading: Trends to Watch in 2025",
-    slug: "evolution-of-prop-trading",
-    summary:
-      "Prop trading is evolving rapidly. Learn about AI in trading, retail prop trends, regulations, and predictions for 2025. Stay ahead with these insights.",
-    blog_post_body: "<p>This is a sample blog post about prop trading trends.</p>",
-    read_time: 4,
-    featured: true,
-    category: "New Trends",
-    author: "Myles Jordan",
-    image_url: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-zaQvWR36TxcBW5kTQmgLprxKF4gPO8.png",
-  },
-  {
-    id: 2,
-    created_at: "2025-01-23T00:00:00Z",
-    name: "5 Red Flags in Prop Trading Firms to Avoid",
-    slug: "red-flags-in-prop-trading",
-    summary:
-      "Discover 6 warning signs in prop trading firms: from hidden rules to unrealistic targets. Stay informed and protect your investment.",
-    blog_post_body: "<p>This is a sample blog post about prop trading red flags.</p>",
-    read_time: 4,
-    featured: false,
-    category: "Prop Trading",
-    author: "Myles Jordan",
-    image_url: "/placeholder.svg?height=400&width=600",
-  },
-  {
-    id: 3,
-    created_at: "2025-01-21T00:00:00Z",
-    name: "What Are Prop Trading Challenges? Tips to Pass Your First Challenge",
-    slug: "prop-trading-challenges",
-    summary:
-      "Learn about prop trading challenges, their rules, and how to pass them. Boost your trading career with practical strategies for beginners.",
-    blog_post_body: "<p>This is a sample blog post about prop trading challenges.</p>",
-    read_time: 6,
-    featured: false,
-    category: "Tips",
-    author: "Sarah Taylor",
-    image_url: "/placeholder.svg?height=400&width=600",
-  },
-  {
-    id: 4,
-    created_at: "2025-01-17T00:00:00Z",
-    name: "How to Become a Day Trader - A Step-by-Step Guide",
-    slug: "become-day-trader-guide",
-    summary:
-      "Learn how to become a day trader with this ultimate guide: from equipment and strategy to mindset. We cover everything you need to know about day trading.",
-    blog_post_body: "<p>This is a sample blog post about becoming a day trader.</p>",
-    read_time: 8,
-    featured: false,
-    category: "Guide",
-    author: "Myles Jordan",
-    image_url: "/placeholder.svg?height=400&width=600",
-  },
-  {
-    id: 5,
-    created_at: "2025-01-15T00:00:00Z",
-    name: "What is Prop Trading? A Comprehensive Guide for Aspiring Traders",
-    slug: "what-is-prop-trading",
-    summary:
-      "Learn everything about prop trading, from how it works to the top firms. Master the basics and take your trading career the right way with our guide.",
-    blog_post_body: "<p>This is a sample blog post about prop trading basics.</p>",
-    read_time: 5,
-    featured: false,
-    category: "Basics",
-    author: "Myles Jordan",
-    image_url: "/placeholder.svg?height=400&width=600",
-  },
-  {
-    id: 6,
-    created_at: "2025-01-10T00:00:00Z",
-    name: "7 Proven Prop Trading Strategies for Consistent Profits",
-    slug: "prop-trading-strategies",
-    summary:
-      "Discover battle-tested prop trading strategies that deliver consistent results. From scalping to swing trading, find what works for your style.",
-    blog_post_body: "<p>This is a sample blog post about prop trading strategies.</p>",
-    read_time: 7,
-    featured: false,
-    category: "Strategy",
-    author: "Sarah Taylor",
-    image_url: "/placeholder.svg?height=400&width=600",
-  },
-]
-
 export default async function Home({
   searchParams,
 }: {
@@ -127,7 +39,7 @@ export default async function Home({
   const category = searchParams.category || "all"
   const sort = searchParams.sort || "newest"
 
-  // Fetch blogs from Supabase or use mock data
+  // Fetch blogs from Supabase
   let blogs: Blog[] = []
 
   try {
@@ -137,23 +49,20 @@ export default async function Home({
 
       if (error) {
         console.error("Error fetching blogs:", error)
-        blogs = mockBlogs
-      } else {
+      } else if (data) {
         blogs = data as Blog[]
       }
     } else {
-      console.log("Using mock blog data")
-      blogs = mockBlogs
+      console.error("Supabase credentials are missing")
     }
   } catch (error) {
     console.error("Error in blog data fetching:", error)
-    blogs = mockBlogs
   }
 
   // Filter by category if specified
   let filteredBlogs = [...blogs]
   if (category !== "all" && category) {
-    filteredBlogs = filteredBlogs.filter((blog) => blog && blog.category === category)
+    filteredBlogs = filteredBlogs.filter((blog) => blog.category === category)
   }
 
   // Sort blogs based on sort parameter
@@ -166,10 +75,10 @@ export default async function Home({
   }
 
   // Get featured blog for hero section
-  const featuredBlog = blogs.length > 0 ? filteredBlogs.find((blog) => blog && blog.featured) || filteredBlogs[0] : null
+  const featuredBlog = blogs.length > 0 ? filteredBlogs.find((blog) => blog.featured) || filteredBlogs[0] : null
 
   // Get unique categories for filter
-  const categories = Array.from(new Set(blogs.filter((blog) => blog && blog.category).map((blog) => blog.category)))
+  const categories = Array.from(new Set(blogs.map((blog) => blog.category)))
 
   return (
     <div className="min-h-screen bg-[#0f0f0f]">
