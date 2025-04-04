@@ -154,7 +154,13 @@ export default function ArticlePage({ params }: ArticlePageProps) {
       </div>
 
       <div className="relative w-full h-[400px] md:h-[500px] mb-8 rounded-lg overflow-hidden">
-        <Image src={article.image || "/placeholder.svg"} alt={article.title} fill className="object-cover" priority />
+        <Image
+          src={article.image || "/placeholder.svg?height=500&width=1200"}
+          alt={article.title}
+          fill
+          className="object-cover"
+          priority
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-12">
