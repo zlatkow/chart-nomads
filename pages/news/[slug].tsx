@@ -405,7 +405,7 @@ export default function NewsArticlePage() {
           </div>
 
           <aside className="space-y-8">
-            <div className="sticky top-8 mt-[100px]">
+            <div className="sticky top-[200px]">
               <div className="bg-[#0f0f0f] p-4 rounded-lg border border-[#222] mb-8 hover:bg-[#1a1a1a] transition-colors duration-200">
                 <TableOfContents articleId={article.id.toString()} />
               </div>
