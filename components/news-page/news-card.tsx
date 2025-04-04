@@ -37,14 +37,14 @@ export function NewsCard({ article }: NewsCardProps) {
               <CalendarIcon className="h-3 w-3" /> {article.date}
             </span>
           </div>
-          <h3 className="font-semibold text-xl line-clamp-2 text-white group-hover:text-[#edb900] transition-colors">
+          <h3 className="text-xl line-clamp-2 text-white group-hover:text-[#edb900] transition-colors">
             {article.title}
           </h3>
         </CardHeader>
         <CardContent className="p-4 pt-0 flex-grow">
           <p className="text-gray-300 line-clamp-3">{article.excerpt}</p>
         </CardContent>
-        <CardFooter className="p-4 pt-0 border-t border-[#222] flex items-center justify-between">
+        <CardFooter className="p-4 pt-4 border-t border-[#222] flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Avatar className="h-8 w-8 flex-shrink-0">
               <AvatarImage src={article.authorImage} alt={article.author} />

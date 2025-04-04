@@ -40,7 +40,7 @@ export function FeaturedNews({ article }: FeaturedNewsProps) {
                     <CalendarIcon className="h-3 w-3" /> {article.date}
                   </span>
                 </div>
-                <h2 className="text-3xl font-bold tracking-tight text-white group-hover:text-[#edb900] transition-colors">
+                <h2 className="text-3xl tracking-tight text-white group-hover:text-[#edb900] transition-colors">
                   {article.title}
                 </h2>
                 <p className="text-gray-300">{article.excerpt}</p>

@@ -10,6 +10,11 @@ import {
 } from "@/components/ui/pagination"
 import { NewsCard } from "@/components/news-page/news-card"
 import { FeaturedNews } from "@/components/news-page/featured-news"
+import Navbar from "../components/Navbar"
+import Noise from "../components/Noise"
+import Community from "../components/Community"
+import Newsletter from "../components/Newsletter"
+import Footer from "../components/Footer"
 
 export default function NewsPage() {
   // Updated categories for financial/trading focus
@@ -104,83 +109,88 @@ export default function NewsPage() {
   ]
 
   return (
-    <div className="container mx-auto px-4 py-8 bg-[#0f0f0f] text-white">
-      <div className="flex flex-col gap-2 mb-8">
-        <h1 className="text-4xl font-bold tracking-tight text-white">Latest News</h1>
-        <p className="text-gray-400">Stay updated with the latest developments in financial markets</p>
-      </div>
+    <div>
+        <Navbar />
+        <Noise />
+            <div className="container mx-auto px-4 py-8 bg-[#0f0f0f] text-white">
+            <div className="flex flex-col gap-2 mb-8">
+                <h1 className="text-4xl tracking-tight text-white">Latest News</h1>
+                <p className="text-gray-400">Stay updated with the latest developments in financial markets</p>
+            </div>
+        <FeaturedNews article={featuredArticle} />
+        <div className="my-12">
+            <Tabs defaultValue="All" className="w-full">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+                <h2 className="text-2xl text-white">Recent Articles</h2>
+                <TabsList className="bg-[#1a1a1a] overflow-x-auto flex-wrap">
+                {categories.map((category) => (
+                    <TabsTrigger
+                    key={category}
+                    value={category}
+                    className="data-[state=active]:bg-[#edb900] data-[state=active]:text-[#0f0f0f] transition-colors duration-300 ease-in-out hover:text-[#edb900]"
+                    >
+                    {category}
+                    </TabsTrigger>
+                ))}
+                </TabsList>
+            </div>
 
-      <FeaturedNews article={featuredArticle} />
+            {categories.map((category) => (
+                <TabsContent key={category} value={category} className="mt-0">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {articles
+                    .filter((article) => category === "All" || article.category === category)
+                    .map((article) => (
+                        <NewsCard key={article.id} article={article} />
+                    ))}
+                </div>
+                </TabsContent>
+            ))}
+            </Tabs>
+        </div>
 
-      <div className="my-12">
-        <Tabs defaultValue="All" className="w-full">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-            <h2 className="text-2xl font-semibold text-white">Recent Articles</h2>
-            <TabsList className="bg-[#1a1a1a] overflow-x-auto flex-wrap">
-              {categories.map((category) => (
-                <TabsTrigger
-                  key={category}
-                  value={category}
-                  className="data-[state=active]:bg-[#edb900] data-[state=active]:text-[#0f0f0f] transition-colors duration-300 ease-in-out hover:text-[#edb900]"
+        <Pagination className="my-8">
+            <PaginationContent>
+            <PaginationItem>
+                <PaginationPrevious
+                href="#"
+                className="bg-[#0f0f0f] border border-[#222] text-white hover:bg-[#1a1a1a] hover:text-white w-24 justify-center"
+                />
+            </PaginationItem>
+            <PaginationItem>
+                <PaginationLink
+                href="#"
+                isActive
+                className="bg-[#edb900] text-[#0f0f0f] border-[#edb900] hover:bg-[#edb900]/90"
                 >
-                  {category}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </div>
-
-          {categories.map((category) => (
-            <TabsContent key={category} value={category} className="mt-0">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {articles
-                  .filter((article) => category === "All" || article.category === category)
-                  .map((article) => (
-                    <NewsCard key={article.id} article={article} />
-                  ))}
-              </div>
-            </TabsContent>
-          ))}
-        </Tabs>
-      </div>
-
-      <Pagination className="my-8">
-        <PaginationContent>
-          <PaginationItem>
-            <PaginationPrevious
-              href="#"
-              className="bg-[#0f0f0f] border border-[#222] text-white hover:bg-[#1a1a1a] hover:text-white w-24 justify-center"
-            />
-          </PaginationItem>
-          <PaginationItem>
-            <PaginationLink
-              href="#"
-              isActive
-              className="bg-[#edb900] text-[#0f0f0f] border-[#edb900] hover:bg-[#edb900]/90"
-            >
-              1
-            </PaginationLink>
-          </PaginationItem>
-          <PaginationItem>
-            <PaginationLink href="#" className="bg-[#0f0f0f] border border-[#222] text-white hover:bg-[#1a1a1a]">
-              2
-            </PaginationLink>
-          </PaginationItem>
-          <PaginationItem>
-            <PaginationLink href="#" className="bg-[#0f0f0f] border border-[#222] text-white hover:bg-[#1a1a1a]">
-              3
-            </PaginationLink>
-          </PaginationItem>
-          <PaginationItem>
-            <PaginationEllipsis className="bg-[#0f0f0f] border border-[#222] text-white rounded-md h-9 w-9 flex items-center justify-center" />
-          </PaginationItem>
-          <PaginationItem>
-            <PaginationNext
-              href="#"
-              className="bg-[#0f0f0f] border border-[#222] text-white hover:bg-[#1a1a1a] hover:text-white w-24 justify-center"
-            />
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
+                1
+                </PaginationLink>
+            </PaginationItem>
+            <PaginationItem>
+                <PaginationLink href="#" className="bg-[#0f0f0f] border border-[#222] text-white hover:bg-[#1a1a1a]">
+                2
+                </PaginationLink>
+            </PaginationItem>
+            <PaginationItem>
+                <PaginationLink href="#" className="bg-[#0f0f0f] border border-[#222] text-white hover:bg-[#1a1a1a]">
+                3
+                </PaginationLink>
+            </PaginationItem>
+            <PaginationItem>
+                <PaginationEllipsis className="bg-[#0f0f0f] border border-[#222] text-white rounded-md h-9 w-9 flex items-center justify-center" />
+            </PaginationItem>
+            <PaginationItem>
+                <PaginationNext
+                href="#"
+                className="bg-[#0f0f0f] border border-[#222] text-white hover:bg-[#1a1a1a] hover:text-white w-24 justify-center"
+                />
+            </PaginationItem>
+            </PaginationContent>
+        </Pagination>
+        </div>
+        <Community />
+        <Newsletter />
+        <Footer />
     </div>
   )
 }
