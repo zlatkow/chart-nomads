@@ -204,7 +204,7 @@ export default function NewsArticlePage() {
     <div>
       <Navbar />
       <Noise />
-      <div className="relative z-20 container mt-[200px] mb-[100px] mx-auto px-4 py-8 text-white">
+      <div className="article relative z-20 container mt-[200px] mb-[100px] mx-auto px-4 py-8 text-white">
         <ReadingProgress />
         <div className="mb-8">
           <Button variant="ghost" size="sm" asChild className="mb-4 text-gray-300 hover:text-white hover:bg-[#1a1a1a]">
