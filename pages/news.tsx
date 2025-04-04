@@ -112,7 +112,7 @@ export default function NewsPage() {
     <div>
         <Navbar />
         <Noise />
-            <div className="relative z-50 container mx-auto px-4 py-8 bg-[#0f0f0f] text-white">
+            <div className="relative z-50 container mx-auto px-4 py-8 text-white mt-[200px] mb-[100px]">
             <div className="flex flex-col gap-2 mb-8">
                 <h1 className="text-4xl tracking-tight text-white">Latest News</h1>
                 <p className="text-gray-400">Stay updated with the latest developments in financial markets</p>
