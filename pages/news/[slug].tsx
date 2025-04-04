@@ -3,11 +3,11 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useContext } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { CalendarIcon, Clock, ArrowLeft, Share2, Bookmark, Tag } from "lucide-react"
+import { CalendarIcon, Clock, ArrowLeft, Share2, Bookmark, Tag } from 'lucide-react'
 import { ReadingProgress } from "@/components/news-page/reading-progress"
 import { TableOfContents } from "@/components/news-page/table-of-contents"
 import { NewsletterSignup } from "@/components/news-page/newsletter-signup"
@@ -19,6 +19,7 @@ import Noise from "../../components/Noise"
 import Community from "../../components/Community"
 import Newsletter from "../../components/Newsletter"
 import Footer from "../../components/Footer"
+import { ModalContext } from "../../pages/_app"
 
 // Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
@@ -65,6 +66,28 @@ export default function NewsArticlePage() {
   const [error, setError] = useState<string | null>(null)
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
   const [debugInfo, setDebugInfo] = useState<string | null>(null)
+
+  // Get the modal context
+  const modalContext = useContext(ModalContext)
+
+  // Check if the context is available
+  if (!modalContext) {
+    console.error("ModalContext is not available in NewsArticlePage")
+  }
+
+  const { setShowLoginModal } = modalContext || {
+    setShowLoginModal: () => console.error("setShowLoginModal not available"),
+  }
+
+  // Function to handle login modal opening
+  const handleLoginModalOpen = () => {
+    console.log("Opening login modal from NewsArticlePage")
+    if (setShowLoginModal) {
+      setShowLoginModal(true)
+    } else {
+      console.error("setShowLoginModal is not available")
+    }
+  }
 
   useEffect(() => {
     // Only fetch when slug is available from router
@@ -402,7 +425,7 @@ export default function NewsArticlePage() {
               <CommentSection
                 type="news"
                 itemId={article.id.toString()}
-                onLoginModalOpen={() => setIsLoginModalOpen(true)}
+                onLoginModalOpen={handleLoginModalOpen}
               />
             </div>
           </div>
@@ -456,7 +479,6 @@ export default function NewsArticlePage() {
       <Community />
       <Newsletter />
       <Footer />
-    </div>
+</div>
   )
 }
-
