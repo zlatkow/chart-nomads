@@ -8,24 +8,22 @@ export function ReadingProgress() {
   useEffect(() => {
     const updateReadingProgress = () => {
       const currentPosition = window.scrollY
-      const scrollHeight = document.body.scrollHeight - window.innerHeight
-
-      if (scrollHeight) {
-        const rawProgress = Number((currentPosition / scrollHeight).toFixed(2)) * 100
-
-        // Clamp progress between 10% and 80%
-        const clampedProgress = Math.min(Math.max(rawProgress, 10), 80)
-
-        // Normalize it to 0–100% range for visual width (between 20–60% scroll = 0–100% width)
-        const normalized = ((clampedProgress - 10) / (10 - 80)) * 100
-
-        setReadingProgress(normalized)
+      const totalScrollHeight = document.body.scrollHeight - window.innerHeight
+      
+      // Calculate the target scroll height (80% of total)
+      const targetScrollHeight = totalScrollHeight * 0.8
+      
+      if (targetScrollHeight) {
+        // Calculate progress based on the target height
+        const progress = Math.min(100, (currentPosition / targetScrollHeight) * 100)
+        setReadingProgress(Number(progress.toFixed(2)))
       }
     }
 
     window.addEventListener("scroll", updateReadingProgress)
 
-    updateReadingProgress() // initialize
+    // Initialize on mount
+    updateReadingProgress()
 
     return () => window.removeEventListener("scroll", updateReadingProgress)
   }, [])
