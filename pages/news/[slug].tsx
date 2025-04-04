@@ -1,6 +1,6 @@
+/* eslint-disable */
 "use client"
 
-/* eslint-disable */
 import Link from "next/link"
 import Image from "next/image"
 import { useState, useEffect } from "react"
@@ -45,6 +45,7 @@ export default function NewsArticlePage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
+  const [debugInfo, setDebugInfo] = useState<string | null>(null)
 
   useEffect(() => {
     // Only fetch when slug is available from router
@@ -60,6 +61,9 @@ export default function NewsArticlePage() {
 
         const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
+        // Add debug info
+        console.log(`Fetching article with slug: ${slug}`)
+
         // Fetch the article by slug
         const { data: articleData, error: articleError } = await supabase
           .from("news")
@@ -69,7 +73,7 @@ export default function NewsArticlePage() {
 
         if (articleError) {
           console.error("Error fetching article:", articleError)
-          setError("Failed to fetch article")
+          setError(`Failed to fetch article: ${articleError.message}`)
           setLoading(false)
           return
         }
@@ -100,7 +104,7 @@ export default function NewsArticlePage() {
         setLoading(false)
       } catch (err) {
         console.error("Error in article data fetching:", err)
-        setError("An unexpected error occurred")
+        setError(`An unexpected error occurred: ${err instanceof Error ? err.message : String(err)}`)
         setLoading(false)
       }
     }

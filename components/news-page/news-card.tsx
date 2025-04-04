@@ -23,8 +23,11 @@ interface NewsCardProps {
 }
 
 export function NewsCard({ article }: NewsCardProps) {
+  // Ensure the slug is properly formatted
+  const formattedSlug = article.slug?.trim() || article.id
+
   return (
-    <Link href={`/news/${article.slug}`} className="block h-full group">
+    <Link href={`/news/${formattedSlug}`} className="block h-full group">
       <Card className="overflow-hidden h-full flex flex-col transition-colors duration-200 bg-[#0f0f0f] group-hover:bg-[#1a1a1a] border-[#222]">
         <div className="relative h-48 w-full">
           <Image src={article.image || "/placeholder.svg"} alt={article.title} fill className="object-cover" />
