@@ -287,7 +287,7 @@ export default function NewsArticlePage() {
 
             {articleTags.length > 0 && (
               <div className="mt-8 pt-6 border-t border-[#222]">
-                <h3 className="text-lg font-semibold mb-2 text-white">Tags:</h3>
+                <h3 className="text-lg mb-2 text-white">Tags:</h3>
                 <div className="flex flex-wrap gap-2">
                   {articleTags.map((tag: string) => (
                     <Badge key={tag} variant="outline" className="border-[#222] text-gray-300 hover:text-white">
@@ -299,7 +299,7 @@ export default function NewsArticlePage() {
             )}
 
             <div className="mt-8 pt-6 border-t border-[#222]">
-              <h3 className="text-lg font-semibold mb-4 text-white">About the Author</h3>
+              <h3 className="text-lg mb-4 text-white">About the Author</h3>
               <div className="flex items-start gap-4">
                 <Avatar className="h-16 w-16">
                   <AvatarImage
@@ -411,7 +411,7 @@ export default function NewsArticlePage() {
               </div>
 
               <div className="pt-6 border-t border-[#222]">
-                <h3 className="text-lg font-semibold mb-4 text-white">Related Articles</h3>
+                <h3 className="text-lg mb-4 text-white">Related Articles</h3>
                 {relatedArticles.length > 0 ? (
                   <div className="space-y-4">
                     {relatedArticles.map((relatedArticle) => (
@@ -444,7 +444,6 @@ export default function NewsArticlePage() {
 
               {/* Newsletter Signup */}
               <div className="mt-8 pt-6 border-t border-[#222]">
-                <h3 className="text-lg font-semibold mb-4 text-white">Newsletter</h3>
                 <NewsletterSignup />
               </div>
             </div>
