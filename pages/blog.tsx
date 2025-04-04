@@ -152,7 +152,7 @@ export default async function Home({
 
   // Filter by category if specified
   let filteredBlogs = [...blogs]
-  if (category !== "all") {
+  if (category !== "all" && category) {
     filteredBlogs = filteredBlogs.filter((blog) => blog.category === category)
   }
 
@@ -166,10 +166,10 @@ export default async function Home({
   }
 
   // Get featured blog for hero section
-  const featuredBlog = filteredBlogs.find((blog) => blog.featured) || filteredBlogs[0]
+  const featuredBlog = blogs.length > 0 ? filteredBlogs.find((blog) => blog.featured) || filteredBlogs[0] : null
 
   // Get unique categories for filter
-  const categories = Array.from(new Set(blogs.map((blog) => blog.category)))
+  const categories = Array.from(new Set(blogs.filter((blog) => blog.category).map((blog) => blog.category)))
 
   return (
     <div className="min-h-screen bg-[#0f0f0f]">
