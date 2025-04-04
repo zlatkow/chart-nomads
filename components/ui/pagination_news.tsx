@@ -29,7 +29,8 @@ type PaginationLinkProps = {
   isActive?: boolean
 } & React.ComponentProps<typeof Link>
 
-const PaginationLink = ({ className, isActive, size = "icon", ...props }: PaginationLinkProps) => (
+// Fix the PaginationLink component to ensure proper styling
+const PaginationLink = ({ className, isActive, ...props }: PaginationLinkProps) => (
   <Link
     aria-current={isActive ? "page" : undefined}
     className={cn(
@@ -41,32 +42,31 @@ const PaginationLink = ({ className, isActive, size = "icon", ...props }: Pagina
 )
 PaginationLink.displayName = "PaginationLink"
 
+// Fix the PaginationPrevious component to make it larger
 const PaginationPrevious = ({ className, ...props }: React.ComponentProps<typeof PaginationLink>) => (
   <PaginationLink
     aria-label="Go to previous page"
-    size="default"
-    className={cn("gap-1 px-2 rounded-md", className)}
+    className={cn("gap-1 px-4 py-2 rounded-md", className)}
     {...props}
   >
     <ChevronLeft className="h-4 w-4" />
     <span>Previous</span>
   </PaginationLink>
 )
-PaginationPrevious.displayName = "PaginationPrevious"
 
+// Fix the PaginationNext component to make it larger
 const PaginationNext = ({ className, ...props }: React.ComponentProps<typeof PaginationLink>) => (
   <PaginationLink
     aria-label="Go to next page"
-    size="default"
-    className={cn("gap-1 px-2 rounded-md", className)}
+    className={cn("gap-1 px-4 py-2 rounded-md", className)}
     {...props}
   >
     <span>Next</span>
     <ChevronRight className="h-4 w-4" />
   </PaginationLink>
 )
-PaginationNext.displayName = "PaginationNext"
 
+// Fix the PaginationEllipsis component to ensure it's properly rounded
 const PaginationEllipsis = ({ className, ...props }: React.ComponentProps<"span">) => (
   <span aria-hidden className={cn("flex h-9 w-9 items-center justify-center rounded-md", className)} {...props}>
     <MoreHorizontal className="h-4 w-4" />
