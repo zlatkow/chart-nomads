@@ -8,6 +8,7 @@ import { CalendarIcon, Clock } from "lucide-react"
 interface FeaturedArticle {
   id: string
   title: string
+  slug: string
   excerpt: string
   category: string
   date: string
@@ -23,7 +24,7 @@ interface FeaturedNewsProps {
 
 export function FeaturedNews({ article }: FeaturedNewsProps) {
   return (
-    <Link href={`/news/${article.id}`} className="block group">
+    <Link href={`/news/${article.slug}`} className="block group">
       <Card className="overflow-hidden border-[#222] bg-[#0f0f0f] transition-colors duration-200 group-hover:bg-[#1a1a1a]">
         <CardContent className="p-0">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

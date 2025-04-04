@@ -9,6 +9,7 @@ interface Article {
   id: string
   title: string
   excerpt: string
+  slug: string
   category: string
   date: string
   author: string
@@ -23,7 +24,7 @@ interface NewsCardProps {
 
 export function NewsCard({ article }: NewsCardProps) {
   return (
-    <Link href={`/news/${article.id}`} className="block h-full group">
+    <Link href={`/news/${article.slug}`} className="block h-full group">
       <Card className="overflow-hidden h-full flex flex-col transition-colors duration-200 bg-[#0f0f0f] group-hover:bg-[#1a1a1a] border-[#222]">
         <div className="relative h-48 w-full">
           <Image src={article.image || "/placeholder.svg"} alt={article.title} fill className="object-cover" />
