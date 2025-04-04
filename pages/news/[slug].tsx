@@ -287,7 +287,7 @@ export default function NewsArticlePage() {
             {articleTags.length > 0 && (
               <div className="mt-8 pt-6 border-t border-[#222]">
                 <div className="flex">
-                    <Tag className="text-white mt-3 mr-1 h-4 w-4" />
+                    <Tag className="text-white mt-2 mr-1 h-4 w-4" />
                     <h3 className="text-lg mb-2 text-white">Tags:</h3>
                 </div>
                 
