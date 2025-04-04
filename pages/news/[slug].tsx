@@ -50,6 +50,7 @@ interface Author {
   x_link?: string
   instagram_link?: string
   linkedin_link?: string
+  author_bio?: string // Add this field
 }
 
 export default function NewsArticlePage() {
