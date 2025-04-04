@@ -3,11 +3,13 @@
 
 import Link from "next/link"
 import Image from "next/image"
+// Import SignedIn and SignedOut components from Clerk
+import { SignedIn, SignedOut, useUser } from "@clerk/nextjs"
 import { useState, useEffect, useContext } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { CalendarIcon, Clock, ArrowLeft, Share2, Bookmark, Tag } from 'lucide-react'
+import { CalendarIcon, Clock, ArrowLeft, Share2, Bookmark, Tag } from "lucide-react"
 import { ReadingProgress } from "@/components/news-page/reading-progress"
 import { TableOfContents } from "@/components/news-page/table-of-contents"
 import { NewsletterSignup } from "@/components/news-page/newsletter-signup"
@@ -54,9 +56,11 @@ interface Author {
   author_bio?: string // Add this field
 }
 
+// Add useUser hook and bookmark state
 export default function NewsArticlePage() {
   const router = useRouter()
   const { slug } = router.query
+  const { user } = useUser()
 
   const [article, setArticle] = useState<News | null>(null)
   const [authorData, setAuthorData] = useState<Author | null>(null)
@@ -66,6 +70,8 @@ export default function NewsArticlePage() {
   const [error, setError] = useState<string | null>(null)
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
   const [debugInfo, setDebugInfo] = useState<string | null>(null)
+  const [isBookmarked, setIsBookmarked] = useState(false)
+  const [loadingBookmarks, setLoadingBookmarks] = useState(true)
 
   // Get the modal context
   const modalContext = useContext(ModalContext)
@@ -86,6 +92,85 @@ export default function NewsArticlePage() {
       setShowLoginModal(true)
     } else {
       console.error("setShowLoginModal is not available")
+    }
+  }
+
+  // Check if article is bookmarked when user is available
+  useEffect(() => {
+    if (!user || !article) {
+      setLoadingBookmarks(false)
+      return
+    }
+
+    const checkBookmarkStatus = async () => {
+      try {
+        const supabase = createClient(supabaseUrl, supabaseAnonKey)
+        const { data, error } = await supabase
+          .from("user_bookmarks")
+          .select("*")
+          .eq("user_id", user.id)
+          .eq("article_id", article.id)
+          .single()
+
+        if (error && error.code !== "PGRST116") {
+          console.error("Error checking bookmark status:", error)
+        }
+
+        setIsBookmarked(!!data)
+        setLoadingBookmarks(false)
+      } catch (err) {
+        console.error("Error checking bookmark status:", err)
+        setLoadingBookmarks(false)
+      }
+    }
+
+    checkBookmarkStatus()
+  }, [user, article])
+
+  // Handle bookmark toggle
+  const handleBookmarkToggle = async () => {
+    if (!user || !article) {
+      handleLoginModalOpen()
+      return
+    }
+
+    try {
+      const supabase = createClient(supabaseUrl, supabaseAnonKey)
+
+      if (isBookmarked) {
+        // Remove bookmark
+        const { error } = await supabase
+          .from("user_bookmarks")
+          .delete()
+          .eq("user_id", user.id)
+          .eq("article_id", article.id)
+
+        if (error) {
+          console.error("Error removing bookmark:", error)
+          return
+        }
+      } else {
+        // Add bookmark
+        const { error } = await supabase.from("user_bookmarks").insert([
+          {
+            user_id: user.id,
+            article_id: article.id,
+            article_title: article.name,
+            article_image: article.image_url,
+            bookmarked_at: new Date().toISOString(),
+          },
+        ])
+
+        if (error) {
+          console.error("Error adding bookmark:", error)
+          return
+        }
+      }
+
+      // Update local state
+      setIsBookmarked(!isBookmarked)
+    } catch (err) {
+      console.error("Error toggling bookmark:", err)
     }
   }
 
@@ -279,14 +364,40 @@ export default function NewsArticlePage() {
                 <Share2 className="h-4 w-4" />
                 <span className="sr-only">Share article</span>
               </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                className="border-[#222] bg-[#1a1a1a] text-gray-300 hover:text-white hover:bg-[#222]"
-              >
-                <Bookmark className="h-4 w-4" />
-                <span className="sr-only">Save article</span>
-              </Button>
+
+              {/* Replace the bookmark button with conditional rendering based on auth state */}
+              <SignedOut>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="border-[#222] bg-[#1a1a1a] text-gray-300 hover:text-white hover:bg-[#222]"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    handleLoginModalOpen()
+                  }}
+                >
+                  <Bookmark className="h-4 w-4" />
+                  <span className="sr-only">Save article</span>
+                </Button>
+              </SignedOut>
+
+              <SignedIn>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className={`border-[#222] ${
+                    isBookmarked ? "bg-[#edb900] text-[#0f0f0f]" : "bg-[#1a1a1a] text-gray-300"
+                  } hover:text-white hover:bg-[#222]`}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    handleBookmarkToggle()
+                  }}
+                  disabled={loadingBookmarks}
+                >
+                  <Bookmark className={`h-4 w-4 ${isBookmarked ? "fill-current" : ""}`} />
+                  <span className="sr-only">{isBookmarked ? "Remove bookmark" : "Save article"}</span>
+                </Button>
+              </SignedIn>
             </div>
           </div>
         </div>
@@ -310,10 +421,10 @@ export default function NewsArticlePage() {
             {articleTags.length > 0 && (
               <div className="mt-8 pt-6 border-t border-[#222]">
                 <div className="flex">
-                    <Tag className="text-white mt-2 mr-1 h-4 w-4" />
-                    <h3 className="text-lg mb-2 text-white">Tags:</h3>
+                  <Tag className="text-white mt-2 mr-1 h-4 w-4" />
+                  <h3 className="text-lg mb-2 text-white">Tags:</h3>
                 </div>
-                
+
                 <div className="flex flex-wrap gap-2">
                   {articleTags.map((tag: string) => (
                     <Badge key={tag} variant="outline" className="border-[#222] text-gray-300 hover:text-white">
@@ -422,11 +533,7 @@ export default function NewsArticlePage() {
 
             {/* Comment Section */}
             <div className="mt-12 pt-8 border-t border-[#222]">
-              <CommentSection
-                type="news"
-                itemId={article.id.toString()}
-                onLoginModalOpen={handleLoginModalOpen}
-              />
+              <CommentSection type="news" itemId={article.id.toString()} onLoginModalOpen={handleLoginModalOpen} />
             </div>
           </div>
 
@@ -479,6 +586,7 @@ export default function NewsArticlePage() {
       <Community />
       <Newsletter />
       <Footer />
-</div>
+    </div>
   )
 }
+

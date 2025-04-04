@@ -8,7 +8,7 @@ export function NewsletterSignup() {
       <CardHeader className="text-center px-6 pt-6 pb-2 text-center">
         <CardTitle className="text-2xl font-[balboa] text-white">Subscribe to Our Newsletter</CardTitle>
         <CardDescription className="text-gray-300">
-          Get the latest news and updates delivered directly to your inbox
+            Get the latest updates straight to your inbox.
         </CardDescription>
       </CardHeader>
       <CardContent>
