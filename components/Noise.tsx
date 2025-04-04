@@ -27,7 +27,7 @@ const Noise = ({ isVisible: propIsVisible }: NoiseProps) => {
     return null
   }
 
-  return <div className="fixed inset-0 noise-overlay opacity-[0.7] z-10"></div>
+  return <div className="fixed inset-0 noise-overlay opacity-[0.7]"></div>
 }
 
 export default Noise
