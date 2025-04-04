@@ -9,7 +9,20 @@ import { useState, useEffect, useContext } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { CalendarIcon, Clock, ArrowLeft, Share2, Bookmark, Tag } from "lucide-react"
+import {
+  CalendarIcon,
+  Clock,
+  ArrowLeft,
+  Share2,
+  Bookmark,
+  Tag,
+  Facebook,
+  Twitter,
+  Linkedin,
+  Copy,
+  Check,
+} from "lucide-react"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { ReadingProgress } from "@/components/news-page/reading-progress"
 import { TableOfContents } from "@/components/news-page/table-of-contents"
 import { NewsletterSignup } from "@/components/news-page/newsletter-signup"
@@ -22,6 +35,7 @@ import Community from "../../components/Community"
 import Newsletter from "../../components/Newsletter"
 import Footer from "../../components/Footer"
 import { ModalContext } from "../../pages/_app"
+import { useToast } from "@/hooks/use-toast"
 
 // Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
@@ -61,6 +75,7 @@ export default function NewsArticlePage() {
   const router = useRouter()
   const { slug } = router.query
   const { user } = useUser()
+  const { toast } = useToast()
 
   const [article, setArticle] = useState<News | null>(null)
   const [authorData, setAuthorData] = useState<Author | null>(null)
@@ -72,6 +87,7 @@ export default function NewsArticlePage() {
   const [debugInfo, setDebugInfo] = useState<string | null>(null)
   const [isBookmarked, setIsBookmarked] = useState(false)
   const [loadingBookmarks, setLoadingBookmarks] = useState(true)
+  const [isCopied, setIsCopied] = useState(false)
 
   // Get the modal context
   const modalContext = useContext(ModalContext)
@@ -174,6 +190,56 @@ export default function NewsArticlePage() {
       setIsBookmarked(!isBookmarked)
     } catch (err) {
       console.error("Error toggling bookmark:", err)
+    }
+  }
+
+  // Handle sharing functionality
+  const handleShare = (platform: string) => {
+    if (!article) return
+
+    const currentUrl = typeof window !== "undefined" ? window.location.href : ""
+    const articleTitle = article.name
+    const articleSummary = article.summary || ""
+
+    let shareUrl = ""
+
+    switch (platform) {
+      case "facebook":
+        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentUrl)}`
+        break
+      case "twitter":
+        shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(articleTitle)}&url=${encodeURIComponent(currentUrl)}`
+        break
+      case "linkedin":
+        shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(currentUrl)}`
+        break
+      case "copy":
+        navigator.clipboard
+          .writeText(currentUrl)
+          .then(() => {
+            setIsCopied(true)
+            toast({
+              title: "Link copied!",
+              description: "The article link has been copied to your clipboard.",
+            })
+            setTimeout(() => setIsCopied(false), 2000)
+          })
+          .catch((err) => {
+            console.error("Failed to copy: ", err)
+            toast({
+              title: "Copy failed",
+              description: "Failed to copy the link. Please try again.",
+              variant: "destructive",
+            })
+          })
+        return
+      default:
+        return
+    }
+
+    // Open share URL in a new window
+    if (shareUrl) {
+      window.open(shareUrl, "_blank", "width=600,height=400")
     }
   }
 
@@ -359,16 +425,51 @@ export default function NewsArticlePage() {
             </div>
 
             <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="icon"
-                className="border-[#222] bg-[#1a1a1a] text-gray-300 hover:text-white hover:bg-[#222]"
-              >
-                <Share2 className="h-4 w-4" />
-                <span className="sr-only">Share article</span>
-              </Button>
+              {/* Share dropdown menu */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="border-[#222] bg-[#1a1a1a] text-gray-300 hover:text-white hover:bg-[#222]"
+                  >
+                    <Share2 className="h-4 w-4" />
+                    <span className="sr-only">Share article</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48 bg-[#1a1a1a] border-[#222] text-white">
+                  <DropdownMenuItem
+                    className="flex items-center gap-2 cursor-pointer hover:bg-[#222]"
+                    onClick={() => handleShare("facebook")}
+                  >
+                    <Facebook className="h-4 w-4 text-[#1877F2]" />
+                    <span>Facebook</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="flex items-center gap-2 cursor-pointer hover:bg-[#222]"
+                    onClick={() => handleShare("twitter")}
+                  >
+                    <Twitter className="h-4 w-4 text-[#1DA1F2]" />
+                    <span>Twitter</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="flex items-center gap-2 cursor-pointer hover:bg-[#222]"
+                    onClick={() => handleShare("linkedin")}
+                  >
+                    <Linkedin className="h-4 w-4 text-[#0A66C2]" />
+                    <span>LinkedIn</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="flex items-center gap-2 cursor-pointer hover:bg-[#222]"
+                    onClick={() => handleShare("copy")}
+                  >
+                    {isCopied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+                    <span>{isCopied ? "Copied!" : "Copy Link"}</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
 
-              {/* Replace the bookmark button with conditional rendering based on auth state */}
+              {/* Bookmark button with conditional rendering based on auth state */}
               <SignedOut>
                 <Button
                   variant="outline"
