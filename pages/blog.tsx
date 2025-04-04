@@ -19,7 +19,7 @@ export default function Home() {
         <section className="mb-12">
           <div className="space-y-2">
             <p className="text-sm font-medium text-white/70">Blog</p>
-            <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl md:text-5xl">
+            <h1 className="text-3xl tracking-tight text-white sm:text-4xl md:text-5xl">
               All valuable resources in one place
             </h1>
           </div>
@@ -39,7 +39,7 @@ export default function Home() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
               <div className="absolute bottom-0 left-0 p-6 sm:p-8">
                 <Badge className="mb-3 bg-[#edb900] text-[#0f0f0f] hover:bg-[#edb900]/90">New Trends</Badge>
-                <h2 className="mb-2 text-2xl font-bold text-white sm:text-3xl">
+                <h2 className="mb-2 text-2xl text-white sm:text-3xl">
                   The Evolution of Prop Trading: Trends to Watch in 2025
                 </h2>
                 <p className="mb-4 max-w-2xl text-white/90">
@@ -202,7 +202,7 @@ function BlogPostCard({ image, badge, title, description, author, date, readTime
         </div>
       </div>
       <CardContent className="p-4 bg-[#0f0f0f]">
-        <h3 className="mb-2 line-clamp-2 text-xl font-bold text-white">{title}</h3>
+        <h3 className="mb-2 line-clamp-2 text-xl text-white">{title}</h3>
         <p className="line-clamp-3 text-sm text-white/70">{description}</p>
       </CardContent>
       <CardFooter className="flex items-center gap-3 border-t border-white/10 p-4 bg-[#0f0f0f]">
