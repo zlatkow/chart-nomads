@@ -322,7 +322,7 @@ export default function BlogsArticlePage() {
 
         // Fetch the article by slug
         const { data: articleData, error: articleError } = await supabase
-          .from("news")
+          .from("blogs")
           .select("*")
           .eq("slug", slug)
           .single()
