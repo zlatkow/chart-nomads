@@ -81,7 +81,6 @@ export default function NewsPage() {
         const { data, error: supabaseError } = await supabase.from("news").select("*")
 
         if (supabaseError) {
-          console.error("Error fetching news:", supabaseError)
           setError("Failed to fetch news posts")
           setLoading(false)
           return
@@ -101,7 +100,6 @@ export default function NewsPage() {
               .in("id", authorIds)
 
             if (authorsError) {
-              console.error("Error fetching authors:", authorsError)
             } else if (authorsData) {
               // Create a map of author id to author data
               const authorsMap: Record<number, Author> = {}
@@ -114,7 +112,6 @@ export default function NewsPage() {
         }
         setLoading(false)
       } catch (err) {
-        console.error("Error in news data fetching:", err)
         setError("An unexpected error occurred")
         setLoading(false)
       }
