@@ -50,7 +50,7 @@ export function FeaturedNews({ article }: FeaturedNewsProps) {
       <Card className="overflow-hidden border-[#222] bg-[#0f0f0f] transition-colors duration-200 group-hover:bg-[#1a1a1a]">
         <CardContent className="p-0">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="relative h-64 lg:h-full min-h-[300px]">
+            <div className="relative h-64 lg:h-full min-h-[400px]">
               <Image src={article.image || "/placeholder.svg"} alt={article.title} fill className="object-cover" />
             </div>
             <div className="flex flex-col justify-center p-6 space-y-4">
