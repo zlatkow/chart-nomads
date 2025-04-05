@@ -408,7 +408,8 @@ export default function NewsArticlePage() {
       <Noise />
       <div className="relative z-20 max-w-[1280px] container mt-[200px] mb-[100px] mx-auto px-4 py-8 text-white">
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-8">
+          {/* Top navigation row with back button and share/bookmark buttons */}
+          <div className="flex items-center justify-between mb-6">
             <Button variant="ghost" size="sm" asChild className="text-gray-300 hover:text-white hover:bg-[#1a1a1a]">
               <Link href="/news">
                 <ArrowLeft className="mr-2 h-4 w-4" />
@@ -417,7 +418,7 @@ export default function NewsArticlePage() {
             </Button>
 
             <div className="flex gap-2">
-              {/* Share accordion menu */}
+              {/* Share button */}
               <div className="relative">
                 <Button
                   variant="outline"
@@ -504,8 +505,10 @@ export default function NewsArticlePage() {
             </div>
           </div>
 
+          {/* Article title */}
           <h1 className="text-4xl md:text-5xl tracking-tight mb-4 text-white">{article.name}</h1>
 
+          {/* Article metadata */}
           <div className="flex flex-wrap items-center gap-4 text-gray-400 mb-6">
             <div className="flex items-center gap-1">
               <CalendarIcon className="h-4 w-4" />
@@ -522,23 +525,23 @@ export default function NewsArticlePage() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Avatar className="h-12 w-12">
-                <AvatarImage
-                  src={authorData?.profile_pic || "/placeholder.svg?height=80&width=80"}
-                  alt={authorData?.name || "Author"}
-                />
-                <AvatarFallback>{authorData?.name?.charAt(0) || "A"}</AvatarFallback>
-              </Avatar>
-              <div>
-                <p className="font-medium text-white">{authorData?.name || "Unknown Author"}</p>
-                <p className="text-sm text-gray-400">Author</p>
-              </div>
+          {/* Author information */}
+          <div className="flex items-center gap-3 mb-8">
+            <Avatar className="h-12 w-12">
+              <AvatarImage
+                src={authorData?.profile_pic || "/placeholder.svg?height=80&width=80"}
+                alt={authorData?.name || "Author"}
+              />
+              <AvatarFallback>{authorData?.name?.charAt(0) || "A"}</AvatarFallback>
+            </Avatar>
+            <div>
+              <p className="font-medium text-white">{authorData?.name || "Unknown Author"}</p>
+              <p className="text-sm text-gray-400">Author</p>
             </div>
           </div>
         </div>
 
+        {/* Full-width article image */}
         <div className="relative w-full h-[400px] md:h-[500px] mb-8 rounded-lg overflow-hidden">
           <Image
             src={article.image_url || "/placeholder.svg?height=600&width=1200"}
