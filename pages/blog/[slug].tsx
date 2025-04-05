@@ -359,7 +359,7 @@ export default function BlogsArticlePage() {
 
         // Fetch related articles from the same category - limit to exactly 3
         const { data: relatedData, error: relatedError } = await supabase
-          .from("news")
+          .from("blogs")
           .select("*")
           .eq("category", articleData.category)
           .neq("slug", slug) // Exclude current article
