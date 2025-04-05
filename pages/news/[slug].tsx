@@ -116,6 +116,55 @@ export default function NewsArticlePage() {
     }
   }
 
+  // Add this function to manually show toast notifications
+  // Add this function right after all your state declarations
+  const showCustomToast = (message: string, type: "success" | "error") => {
+    // First try to use the built-in toast system
+    toast({
+      variant: type === "success" ? "default" : "destructive",
+      title: type === "success" ? "Success" : "Error",
+      description: message,
+    })
+
+    // Also create a fallback manual toast in case the built-in one doesn't work
+    const toastElement = document.createElement("div")
+    toastElement.className = `manual-toast ${type}-toast`
+    toastElement.style.position = "fixed"
+    toastElement.style.bottom = "20px"
+    toastElement.style.right = "20px"
+    toastElement.style.backgroundColor = type === "success" ? "#edb900" : "#ef4444"
+    toastElement.style.color = type === "success" ? "#0f0f0f" : "white"
+    toastElement.style.padding = "12px 16px"
+    toastElement.style.borderRadius = "8px"
+    toastElement.style.boxShadow = "0 4px 12px rgba(0,0,0,0.15)"
+    toastElement.style.zIndex = "9999"
+    toastElement.style.maxWidth = "300px"
+
+    toastElement.innerHTML = `
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div style="flex-shrink: 0;">
+          ${
+            type === "success"
+              ? '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>'
+              : '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>'
+          }
+        </div>
+        <div>
+          <p style="margin: 0; font-weight: 500;">${message}</p>
+        </div>
+      </div>
+    `
+
+    document.body.appendChild(toastElement)
+
+    // Remove the toast after 3 seconds
+    setTimeout(() => {
+      if (document.body.contains(toastElement)) {
+        document.body.removeChild(toastElement)
+      }
+    }, 3000)
+  }
+
   // Check if article is bookmarked when user is available
   useEffect(() => {
     if (!user || !article) {
@@ -171,9 +220,9 @@ export default function NewsArticlePage() {
         if (error) {
           console.error("Error removing bookmark:", error)
           toast({
+            variant: "destructive",
             title: "Error",
             description: "Failed to remove bookmark. Please try again.",
-            variant: "destructive",
           })
           return
         }
@@ -197,9 +246,9 @@ export default function NewsArticlePage() {
         if (error) {
           console.error("Error adding bookmark:", error)
           toast({
+            variant: "destructive",
             title: "Error",
             description: "Failed to bookmark article. Please try again.",
-            variant: "destructive",
           })
           return
         }
@@ -216,9 +265,9 @@ export default function NewsArticlePage() {
     } catch (err) {
       console.error("Error toggling bookmark:", err)
       toast({
+        variant: "destructive",
         title: "Error",
         description: "Something went wrong. Please try again.",
-        variant: "destructive",
       })
     }
   }
@@ -759,6 +808,52 @@ export default function NewsArticlePage() {
       <Community />
       <Newsletter />
       <Footer />
+
+      {/* Add this custom toast display logic */}
+      <div className="toast-container" style={{ position: "fixed", bottom: "20px", right: "20px", zIndex: 9999 }}>
+        {isBookmarked !== undefined && (
+          <div
+            className={`bookmark-toast ${isBookmarked ? "bookmark-added" : "bookmark-removed"}`}
+            style={{
+              display: "none", // This will be controlled by JavaScript
+              padding: "12px 16px",
+              background: "white",
+              borderRadius: "8px",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+              borderLeft: `4px solid ${isBookmarked ? "#edb900" : "#64748b"}`,
+              marginBottom: "8px",
+              display: "flex",
+              alignItems: "center",
+              gap: "12px",
+            }}
+          >
+            <div
+              className="toast-icon"
+              style={{
+                width: "24px",
+                height: "24px",
+                borderRadius: "50%",
+                background: isBookmarked ? "#edb900" : "#64748b",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Bookmark className="h-4 w-4" style={{ color: "#0f0f0f" }} />
+            </div>
+            <div>
+              <h4 style={{ margin: 0, color: "#0f0f0f", fontWeight: 600 }}>
+                {isBookmarked ? "Bookmark added" : "Bookmark removed"}
+              </h4>
+              <p style={{ margin: 0, color: "#64748b", fontSize: "14px" }}>
+                {isBookmarked
+                  ? "Article has been added to your bookmarks."
+                  : "Article has been removed from your bookmarks."}
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
