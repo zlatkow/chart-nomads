@@ -36,7 +36,9 @@ import Footer from "../../components/Footer"
 import { ModalContext } from "../../pages/_app"
 import { useToast } from "@/hooks/use-toast"
 import { Toaster } from "@/components/ui/toaster"
-import { BookmarkButtonWithToast } from "@/components/bookmark-button-with-toast"
+import { FiLinkedin } from "react-icons/fi";
+import { RiInstagramLine } from "react-icons/ri";
+import { RiTwitterXFill } from "react-icons/ri";
 
 // Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
@@ -172,19 +174,29 @@ export default function NewsArticlePage() {
 
         if (error) {
           console.error("Error removing bookmark:", error)
-          // Show error toast
+          // Show error toast with icon
           toast({
             variant: "destructive",
             title: "Error",
             description: "Failed to remove bookmark. Please try again.",
+            action: (
+              <div className="h-8 w-8 bg-red-100 rounded-full flex items-center justify-center mr-3">
+                <Bookmark className="h-4 w-4 text-red-500" />
+              </div>
+            ),
           })
           return
         }
 
-        // Show success toast
+        // Show success toast with icon
         toast({
           title: "Bookmark removed",
           description: "Article has been removed from your bookmarks.",
+          action: (
+            <div className="h-8 w-8 bg-gray-100 rounded-full flex items-center justify-center mr-3">
+              <Bookmark className="h-4 w-4 text-gray-500" />
+            </div>
+          ),
         })
       } else {
         // Add bookmark
@@ -199,19 +211,29 @@ export default function NewsArticlePage() {
 
         if (error) {
           console.error("Error adding bookmark:", error)
-          // Show error toast
+          // Show error toast with icon
           toast({
             variant: "destructive",
             title: "Error",
             description: "Failed to bookmark article. Please try again.",
+            action: (
+              <div className="h-8 w-8 bg-red-100 rounded-full flex items-center justify-center mr-3">
+                <Bookmark className="h-4 w-4 text-red-500" />
+              </div>
+            ),
           })
           return
         }
 
-        // Show success toast
+        // Show success toast with icon
         toast({
           title: "Bookmark added",
           description: "Article has been added to your bookmarks.",
+          action: (
+            <div className="h-8 w-8 bg-[#edb900] rounded-full flex items-center justify-center mr-3">
+              <Bookmark className="h-4 w-4 fill-current text-[#0f0f0f]" />
+            </div>
+          ),
         })
       }
 
@@ -219,11 +241,16 @@ export default function NewsArticlePage() {
       setIsBookmarked(!isBookmarked)
     } catch (err) {
       console.error("Error toggling bookmark:", err)
-      // Show error toast
+      // Show error toast with icon
       toast({
         variant: "destructive",
         title: "Error",
         description: "Something went wrong. Please try again.",
+        action: (
+          <div className="h-8 w-8 bg-red-100 rounded-full flex items-center justify-center mr-3">
+            <Bookmark className="h-4 w-4 text-red-500" />
+          </div>
+        ),
       })
     }
   }
@@ -256,6 +283,11 @@ export default function NewsArticlePage() {
             toast({
               title: "Link copied!",
               description: "The article link has been copied to your clipboard.",
+              action: (
+                <div className="h-8 w-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                  <Copy className="h-4 w-4 text-green-500" />
+                </div>
+              ),
             })
             setTimeout(() => setIsCopied(false), 2000)
           })
@@ -265,6 +297,11 @@ export default function NewsArticlePage() {
               title: "Copy failed",
               description: "Failed to copy the link. Please try again.",
               variant: "destructive",
+              action: (
+                <div className="h-8 w-8 bg-red-100 rounded-full flex items-center justify-center mr-3">
+                  <Copy className="h-4 w-4 text-red-500" />
+                </div>
+              ),
             })
           })
         return
@@ -332,7 +369,7 @@ export default function NewsArticlePage() {
           }
         }
 
-        // Fetch related articles from the same category
+        // Fetch related articles from the same category - limit to exactly 3
         const { data: relatedData, error: relatedError } = await supabase
           .from("news")
           .select("*")
@@ -344,10 +381,11 @@ export default function NewsArticlePage() {
         if (relatedError) {
           console.error("Error fetching related articles:", relatedError)
         } else if (relatedData) {
-          setRelatedArticles(relatedData)
+          // Ensure we only show a maximum of 3 related articles
+          setRelatedArticles(relatedData.slice(0, 3))
 
           // Get unique author IDs from related articles
-          const authorIds = Array.from(new Set(relatedData.map((item) => item.author)))
+          const authorIds = Array.from(new Set(relatedData.slice(0, 3).map((item) => item.author)))
 
           // Fetch all related authors in one query
           if (authorIds.length > 0) {
@@ -476,15 +514,15 @@ export default function NewsArticlePage() {
                 >
                   <div className="flex items-center whitespace-nowrap">
                     <button className="p-2 hover:bg-[#222] rounded-md" onClick={() => handleShare("facebook")}>
-                      <Facebook className="h-4 w-4 text-[#1877F2]" />
+                      <Facebook className="h-4 w-4" />
                       <span className="sr-only">Share on Facebook</span>
                     </button>
                     <button className="p-2 hover:bg-[#222] rounded-md" onClick={() => handleShare("twitter")}>
-                      <Twitter className="h-4 w-4 text-[#1DA1F2]" />
+                    <RiTwitterXFill className="h-4 w-4" />
                       <span className="sr-only">Share on Twitter</span>
                     </button>
                     <button className="p-2 hover:bg-[#222] rounded-md" onClick={() => handleShare("linkedin")}>
-                      <Linkedin className="h-4 w-4 text-[#0A66C2]" />
+                      <Linkedin className="h-4 w-4" />
                       <span className="sr-only">Share on LinkedIn</span>
                     </button>
                     <button className="p-2 hover:bg-[#222] rounded-md" onClick={() => handleShare("copy")}>
@@ -513,14 +551,24 @@ export default function NewsArticlePage() {
               </SignedOut>
 
               <SignedIn>
-                <BookmarkButtonWithToast
-                  userId={user?.id || null}
-                  postId={article.id}
-                  postType="news"
-                  isBookmarked={isBookmarked}
-                  onLoginRequired={handleLoginModalOpen}
-                  onBookmarkChange={(newState) => setIsBookmarked(newState)}
-                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className={`border-[#222] transition-all duration-200 ${
+                    isBookmarked
+                      ? "bg-[#edb900] text-[#0f0f0f] hover:bg-[#edb900]/90"
+                      : "bg-[#1a1a1a] text-gray-300 hover:text-white hover:bg-[#222]"
+                  }`}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    handleBookmarkToggle()
+                  }}
+                  disabled={loadingBookmarks}
+                >
+                  <Bookmark className={`h-4 w-4 ${isBookmarked ? "fill-current" : ""}`} />
+                  <span className="sr-only">{isBookmarked ? "Remove bookmark" : "Save article"}</span>
+                </Button>
               </SignedIn>
             </div>
           </div>
@@ -620,20 +668,7 @@ export default function NewsArticlePage() {
                             rel="noopener noreferrer"
                             className="text-gray-400 hover:text-[#edb900]"
                           >
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="16"
-                              height="16"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              className="lucide lucide-twitter"
-                            >
-                              <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" />
-                            </svg>
+                            <RiTwitterXFill className="h-4 w-4 text-[#1DA1F2]" />
                           </a>
                         )}
                         {authorData.linkedin_link && (
@@ -643,22 +678,7 @@ export default function NewsArticlePage() {
                             rel="noopener noreferrer"
                             className="text-gray-400 hover:text-[#edb900]"
                           >
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="16"
-                              height="16"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              className="lucide lucide-linkedin"
-                            >
-                              <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
-                              <rect width="4" height="12" x="2" y="9" />
-                              <circle cx="4" cy="4" r="2" />
-                            </svg>
+                            <FiLinkedin className="h-4 w-4 text-[#1DA1F2]"/>
                           </a>
                         )}
                         {authorData.instagram_link && (
@@ -668,22 +688,7 @@ export default function NewsArticlePage() {
                             rel="noopener noreferrer"
                             className="text-gray-400 hover:text-[#edb900]"
                           >
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="16"
-                              height="16"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              className="lucide lucide-instagram"
-                            >
-                              <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
-                              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-                              <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
-                            </svg>
+                            <RiInstagramLine className="h-4 w-4 text-[#1DA1F2]"/>
                           </a>
                         )}
                       </div>
