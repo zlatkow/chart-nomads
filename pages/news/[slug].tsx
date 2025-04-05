@@ -546,7 +546,7 @@ export default function NewsArticlePage() {
             </div>
 
             {/* Right column - Featured image */}
-            <div className="relative w-full h-[300px] md:h-full rounded-lg overflow-hidden">
+            <div className="relative w-full h-[400px] md:h-[500px] rounded-lg overflow-hidden">
               <Image
                 src={article.image_url || "/placeholder.svg?height=600&width=1200"}
                 alt={article.name}
@@ -557,7 +557,7 @@ export default function NewsArticlePage() {
             </div>
           </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-12 mt-12">
           <div>
             <article className="article prose prose-lg prose-invert max-w-none" id={`article-${article.id}`}>
               <div dangerouslySetInnerHTML={{ __html: article.news_post_body }} />
@@ -684,7 +684,7 @@ export default function NewsArticlePage() {
             </div>
           </div>
 
-          <aside className="space-y-8">
+          <aside className="space-y-8 lg:block">
             <div className="sticky top-[100px]">
               <div className="bg-[#0f0f0f] p-4 rounded-lg border border-[#222] mb-8 hover:bg-[#1a1a1a] transition-colors duration-200">
                 <TableOfContents articleId={article.id.toString()} />
@@ -735,5 +735,6 @@ export default function NewsArticlePage() {
       <Footer />
     </div>
     </div>
-  );
+  )
 }
+
