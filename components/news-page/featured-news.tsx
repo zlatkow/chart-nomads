@@ -53,7 +53,7 @@ export function FeaturedNews({ article }: FeaturedNewsProps) {
             <div className="relative h-64 lg:h-full min-h-[400px]">
               <Image src={article.image || "/placeholder.svg"} alt={article.title} fill className="object-cover" />
             </div>
-            <div className="flex flex-col justify-between p-6 space-y-4">
+            <div className="flex flex-col justify-between p-6 py-10 space-y-4">
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <Badge className="bg-[#edb900] text-[#0f0f0f] hover:bg-[#edb900]/90 hover:text-[#0f0f0f]">
@@ -79,12 +79,13 @@ export function FeaturedNews({ article }: FeaturedNewsProps) {
                   <div>
                     <p className="text-sm font-medium text-gray-200">{authorName}</p>
                     <div className="flex">
-                        <p className="text-xs text-gray-400 flex items-center gap-1">
-                        <Clock className="h-3 w-3" /> {article.readTime}
-                        </p>
                         <p className="text-sm text-gray-400 flex items-center gap-1">
                             <CalendarIcon className="h-3 w-3" /> {article.date}
                         </p>
+                        <p className="ml-1 text-xs text-gray-400 flex items-center gap-1">
+                            <Clock className="h-3 w-3" /> {article.readTime}
+                        </p>
+                        
                     </div>
                   </div>
                 </div>
