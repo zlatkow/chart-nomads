@@ -59,6 +59,8 @@ export default function NewsPage() {
   const [error, setError] = useState<string | null>(null)
   const [activeCategory, setActiveCategory] = useState("All")
   const [searchQuery, setSearchQuery] = useState("")
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage] = useState(9) // Assuming 9 items per page (3x3 grid)
 
   // Handle search
   const handleSearch = (e) => {
@@ -246,7 +248,7 @@ export default function NewsPage() {
               <TabsContent key={category} value={category} className="mt-0">
                 {!loading && !error && filteredNews.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredNews.map((item) => (
+                    {filteredNews.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((item) => (
                       <NewsCard
                         key={item.id}
                         article={{
@@ -274,44 +276,89 @@ export default function NewsPage() {
           </Tabs>
         </div>
 
-        <Pagination className="my-8">
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious
-                href="#"
-                className="bg-[#0f0f0f] border border-[#222] text-white hover:bg-[#1a1a1a] hover:text-white w-24 justify-center"
-              />
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink
-                href="#"
-                isActive
-                className="bg-[#edb900] text-[#0f0f0f] border-[#edb900] hover:bg-[#edb900]/90"
-              >
-                1
-              </PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink href="#" className="bg-[#0f0f0f] border border-[#222] text-white hover:bg-[#1a1a1a]">
-                2
-              </PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink href="#" className="bg-[#0f0f0f] border border-[#222] text-white hover:bg-[#1a1a1a]">
-                3
-              </PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationEllipsis className="bg-[#0f0f0f] border border-[#222] text-white rounded-md h-9 w-9 flex items-center justify-center" />
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationNext
-                href="#"
-                className="bg-[#0f0f0f] border border-[#222] text-white hover:bg-[#1a1a1a] hover:text-white w-24 justify-center"
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
+        {/* Dynamic Pagination */}
+        {filteredNews.length > itemsPerPage && (
+          <Pagination className="my-8">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    if (currentPage > 1) setCurrentPage(currentPage - 1)
+                  }}
+                  className={`bg-[#0f0f0f] border border-[#222] text-white hover:bg-[#1a1a1a] hover:text-white w-24 justify-center ${
+                    currentPage === 1 ? "opacity-50 pointer-events-none" : ""
+                  }`}
+                />
+              </PaginationItem>
+
+              {Array.from({ length: Math.min(3, Math.ceil(filteredNews.length / itemsPerPage)) }, (_, i) => {
+                const pageNumber = i + 1
+                return (
+                  <PaginationItem key={pageNumber}>
+                    <PaginationLink
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        setCurrentPage(pageNumber)
+                      }}
+                      isActive={currentPage === pageNumber}
+                      className={
+                        currentPage === pageNumber
+                          ? "bg-[#edb900] text-[#0f0f0f] border-[#edb900] hover:bg-[#edb900]/90"
+                          : "bg-[#0f0f0f] border border-[#222] text-white hover:bg-[#1a1a1a]"
+                      }
+                    >
+                      {pageNumber}
+                    </PaginationLink>
+                  </PaginationItem>
+                )
+              })}
+
+              {Math.ceil(filteredNews.length / itemsPerPage) > 3 && (
+                <PaginationItem>
+                  <PaginationEllipsis className="bg-[#0f0f0f] border border-[#222] text-white rounded-md h-9 w-9 flex items-center justify-center" />
+                </PaginationItem>
+              )}
+
+              {Math.ceil(filteredNews.length / itemsPerPage) > 3 && (
+                <PaginationItem>
+                  <PaginationLink
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      setCurrentPage(Math.ceil(filteredNews.length / itemsPerPage))
+                    }}
+                    isActive={currentPage === Math.ceil(filteredNews.length / itemsPerPage)}
+                    className={
+                      currentPage === Math.ceil(filteredNews.length / itemsPerPage)
+                        ? "bg-[#edb900] text-[#0f0f0f] border-[#edb900] hover:bg-[#edb900]/90"
+                        : "bg-[#0f0f0f] border border-[#222] text-white hover:bg-[#1a1a1a]"
+                    }
+                  >
+                    {Math.ceil(filteredNews.length / itemsPerPage)}
+                  </PaginationLink>
+                </PaginationItem>
+              )}
+
+              <PaginationItem>
+                <PaginationNext
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    if (currentPage < Math.ceil(filteredNews.length / itemsPerPage)) setCurrentPage(currentPage + 1)
+                  }}
+                  className={`bg-[#0f0f0f] border border-[#222] text-white hover:bg-[#1a1a1a] hover:text-white w-24 justify-center ${
+                    currentPage === Math.ceil(filteredNews.length / itemsPerPage)
+                      ? "opacity-50 pointer-events-none"
+                      : ""
+                  }`}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        )}
       </div>
       <Community />
       <Newsletter />
