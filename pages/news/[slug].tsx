@@ -350,8 +350,16 @@ export default function NewsArticlePage() {
       const shareMenu = document.getElementById("share-menu")
       const shareButton = event.target as Element
 
-      if (shareMenu && !shareMenu.contains(shareButton) && !shareButton.closest("button")?.contains(shareButton)) {
-        shareMenu.classList.add("hidden")
+      if (
+        shareMenu &&
+        !shareMenu.contains(shareButton) &&
+        !shareButton.closest("button")?.contains(shareButton) &&
+        !shareMenu.classList.contains("hidden")
+      ) {
+        shareMenu.classList.remove("opacity-100", "scale-100")
+        setTimeout(() => {
+          shareMenu.classList.add("hidden")
+        }, 200)
       }
     }
 
@@ -400,45 +408,13 @@ export default function NewsArticlePage() {
       <Noise />
       <div className="relative z-20 max-w-[1280px] container mt-[200px] mb-[100px] mx-auto px-4 py-8 text-white">
         <div className="mb-8">
-          <Button variant="ghost" size="sm" asChild className="mb-4 text-gray-300 hover:text-white hover:bg-[#1a1a1a]">
-            <Link href="/news">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to News
-            </Link>
-          </Button>
-
-          <h1 className="text-4xl md:text-5xl tracking-tight mb-4 text-white">{article.name}</h1>
-
-          <div className="flex flex-wrap items-center gap-4 text-gray-400 mb-6">
-            <div className="flex items-center gap-1">
-              <CalendarIcon className="h-4 w-4" />
-              <span>{new Date(article.created_at).toLocaleDateString()}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Clock className="h-4 w-4" />
-              <span>{article.read_time} min read</span>
-            </div>
-            <div className="flex items-center">
-              <Badge className="bg-[#edb900] text-[#0f0f0f] hover:bg-[#edb900]/90 hover:text-[#0f0f0f] flex items-center gap-1">
-                {article.category}
-              </Badge>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Avatar className="h-12 w-12">
-                <AvatarImage
-                  src={authorData?.profile_pic || "/placeholder.svg?height=80&width=80"}
-                  alt={authorData?.name || "Author"}
-                />
-                <AvatarFallback>{authorData?.name?.charAt(0) || "A"}</AvatarFallback>
-              </Avatar>
-              <div>
-                <p className="font-medium text-white">{authorData?.name || "Unknown Author"}</p>
-                <p className="text-sm text-gray-400">Author</p>
-              </div>
-            </div>
+          <div className="flex items-center justify-between mb-8">
+            <Button variant="ghost" size="sm" asChild className="text-gray-300 hover:text-white hover:bg-[#1a1a1a]">
+              <Link href="/news">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to News
+              </Link>
+            </Button>
 
             <div className="flex gap-2">
               {/* Share accordion menu */}
@@ -450,7 +426,17 @@ export default function NewsArticlePage() {
                   onClick={() => {
                     const shareMenu = document.getElementById("share-menu")
                     if (shareMenu) {
-                      shareMenu.classList.toggle("hidden")
+                      if (shareMenu.classList.contains("hidden")) {
+                        shareMenu.classList.remove("hidden")
+                        setTimeout(() => {
+                          shareMenu.classList.add("opacity-100", "scale-100")
+                        }, 10)
+                      } else {
+                        shareMenu.classList.remove("opacity-100", "scale-100")
+                        setTimeout(() => {
+                          shareMenu.classList.add("hidden")
+                        }, 200)
+                      }
                     }
                   }}
                 >
@@ -459,7 +445,7 @@ export default function NewsArticlePage() {
                 </Button>
                 <div
                   id="share-menu"
-                  className="hidden absolute right-full top-0 mr-2 flex items-center h-10 bg-[#1a1a1a] border border-[#222] rounded-lg px-2"
+                  className="hidden absolute right-0 top-full mt-2 flex items-center h-9 bg-[#1a1a1a] border border-[#222] rounded-lg px-2 opacity-0 transform scale-95 origin-top-right transition-all duration-200 ease-in-out"
                 >
                   <button className="p-2 hover:bg-[#222] rounded-md" onClick={() => handleShare("facebook")}>
                     <Facebook className="h-4 w-4 text-[#1877F2]" />
@@ -515,6 +501,40 @@ export default function NewsArticlePage() {
                   <span className="sr-only">{isBookmarked ? "Remove bookmark" : "Save article"}</span>
                 </Button>
               </SignedIn>
+            </div>
+          </div>
+
+          <h1 className="text-4xl md:text-5xl tracking-tight mb-4 text-white">{article.name}</h1>
+
+          <div className="flex flex-wrap items-center gap-4 text-gray-400 mb-6">
+            <div className="flex items-center gap-1">
+              <CalendarIcon className="h-4 w-4" />
+              <span>{new Date(article.created_at).toLocaleDateString()}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Clock className="h-4 w-4" />
+              <span>{article.read_time} min read</span>
+            </div>
+            <div className="flex items-center">
+              <Badge className="bg-[#edb900] text-[#0f0f0f] hover:bg-[#edb900]/90 hover:text-[#0f0f0f] flex items-center gap-1">
+                {article.category}
+              </Badge>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Avatar className="h-12 w-12">
+                <AvatarImage
+                  src={authorData?.profile_pic || "/placeholder.svg?height=80&width=80"}
+                  alt={authorData?.name || "Author"}
+                />
+                <AvatarFallback>{authorData?.name?.charAt(0) || "A"}</AvatarFallback>
+              </Avatar>
+              <div>
+                <p className="font-medium text-white">{authorData?.name || "Unknown Author"}</p>
+                <p className="text-sm text-gray-400">Author</p>
+              </div>
             </div>
           </div>
         </div>
