@@ -65,8 +65,8 @@ export function FeaturedNews({ article }: FeaturedNewsProps) {
                 </h2>
                 <p className="text-gray-300">{article.excerpt}</p>
               </div>
-              <div className="w-full flex justify-right">
-                <div className="bg-[#edb900] w-[85px] text-[#0f0f0f] hover:bg-[#edb900]/90 px-4 py-2 rounded-md font-medium">
+              <div className="w-full flex justify-end items-end">
+                <div className="bg-[#edb900] w-[125px] text-[#0f0f0f] hover:bg-[#edb900]/90 px-4 py-2 rounded-md font-medium">
                     Read More
                 </div>
               </div>
@@ -78,12 +78,14 @@ export function FeaturedNews({ article }: FeaturedNewsProps) {
                   </Avatar>
                   <div>
                     <p className="text-sm font-medium text-gray-200">{authorName}</p>
-                    <p className="text-xs text-gray-400 flex items-center gap-1">
-                      <Clock className="h-3 w-3" /> {article.readTime}
-                    </p>
-                    <p className="text-sm text-gray-400 flex items-center gap-1">
-                    <CalendarIcon className="h-3 w-3" /> {article.date}
-                    </p>
+                    <div className="flex">
+                        <p> className="text-xs text-gray-400 flex items-center gap-1">
+                        <Clock className="h-3 w-3" /> {article.readTime}
+                        </p>
+                        <p className="text-sm text-gray-400 flex items-center gap-1">
+                            <CalendarIcon className="h-3 w-3" /> {article.date}
+                        </p>
+                    </div>
                   </div>
                 </div>
               </div>
