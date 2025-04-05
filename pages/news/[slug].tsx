@@ -668,7 +668,7 @@ export default function NewsArticlePage() {
                             rel="noopener noreferrer"
                             className="text-gray-400 hover:text-[#edb900]"
                           >
-                            <RiTwitterXFill className="h-4 w-4 text-[#1DA1F2]" />
+                            <RiTwitterXFill className="h-4 w-4" />
                           </a>
                         )}
                         {authorData.linkedin_link && (
@@ -678,7 +678,7 @@ export default function NewsArticlePage() {
                             rel="noopener noreferrer"
                             className="text-gray-400 hover:text-[#edb900]"
                           >
-                            <FiLinkedin className="h-4 w-4 text-[#1DA1F2]"/>
+                            <FiLinkedin className="h-4 w-4"/>
                           </a>
                         )}
                         {authorData.instagram_link && (
@@ -688,7 +688,7 @@ export default function NewsArticlePage() {
                             rel="noopener noreferrer"
                             className="text-gray-400 hover:text-[#edb900]"
                           >
-                            <RiInstagramLine className="h-4 w-4 text-[#1DA1F2]"/>
+                            <RiInstagramLine className="h-4 w-4"/>
                           </a>
                         )}
                       </div>
