@@ -60,7 +60,7 @@ export default function NewsPage() {
   const [activeCategory, setActiveCategory] = useState("All")
   const [searchQuery, setSearchQuery] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
-  const [itemsPerPage] = useState(9) // Assuming 9 items per page (3x3 grid)
+  const [itemsPerPage] = useState(12) 
 
   // Handle search
   const handleSearch = (e) => {
