@@ -5,7 +5,7 @@ import Link from "next/link"
 import Image from "next/image"
 // Import SignedIn and SignedOut components from Clerk
 import { SignedIn, SignedOut, useUser } from "@clerk/nextjs"
-import { useState, useEffect, useContext } from "react"
+import { useState, useEffect, useContext, useRef } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -88,6 +88,8 @@ export default function NewsArticlePage() {
   const [loadingBookmarks, setLoadingBookmarks] = useState(true)
   const [isCopied, setIsCopied] = useState(false)
   const [isShareMenuOpen, setIsShareMenuOpen] = useState(false)
+  const shareMenuRef = useRef<HTMLDivElement>(null)
+  const shareButtonRef = useRef<HTMLButtonElement>(null)
 
   // Get the modal context
   const modalContext = useContext(ModalContext)
@@ -243,26 +245,6 @@ export default function NewsArticlePage() {
     }
   }
 
-  // Toggle share menu
-  const toggleShareMenu = () => {
-    const shareMenu = document.getElementById("share-menu")
-    if (shareMenu) {
-      if (!isShareMenuOpen) {
-        shareMenu.classList.remove("hidden")
-        setTimeout(() => {
-          shareMenu.classList.add("opacity-100", "translate-x-0")
-          setIsShareMenuOpen(true)
-        }, 10)
-      } else {
-        shareMenu.classList.remove("opacity-100", "translate-x-0")
-        setTimeout(() => {
-          shareMenu.classList.add("hidden")
-          setIsShareMenuOpen(false)
-        }, 200)
-      }
-    }
-  }
-
   useEffect(() => {
     // Only fetch when slug is available from router
     if (!slug) return
@@ -368,21 +350,14 @@ export default function NewsArticlePage() {
   // Close share menu when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      const shareMenu = document.getElementById("share-menu")
-      const shareButton = document.querySelector('button[aria-label="Share article"]')
-
       if (
-        shareMenu &&
-        !shareMenu.contains(event.target as Node) &&
-        shareButton !== event.target &&
-        !shareButton?.contains(event.target as Node) &&
-        !shareMenu.classList.contains("hidden")
+        shareMenuRef.current &&
+        shareButtonRef.current &&
+        !shareMenuRef.current.contains(event.target as Node) &&
+        !shareButtonRef.current.contains(event.target as Node) &&
+        isShareMenuOpen
       ) {
-        shareMenu.classList.remove("opacity-100", "translate-x-0")
-        setTimeout(() => {
-          shareMenu.classList.add("hidden")
-          setIsShareMenuOpen(false)
-        }, 200)
+        setIsShareMenuOpen(false)
       }
     }
 
@@ -390,7 +365,7 @@ export default function NewsArticlePage() {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside)
     }
-  }, [])
+  }, [isShareMenuOpen])
 
   // Show loading state while article is being fetched
   if (loading) {
@@ -444,36 +419,46 @@ export default function NewsArticlePage() {
               {/* Share button */}
               <div className="relative">
                 <Button
+                  ref={shareButtonRef}
                   variant="outline"
                   size="icon"
                   className={`border-[#222] ${isShareMenuOpen ? "bg-[#222]" : "bg-[#1a1a1a]"} text-gray-300 hover:text-white hover:bg-[#222] z-10 relative`}
-                  onClick={toggleShareMenu}
+                  onClick={() => setIsShareMenuOpen(!isShareMenuOpen)}
                   aria-label="Share article"
                 >
                   <Share2 className="h-4 w-4" />
                   <span className="sr-only">Share article</span>
                 </Button>
+
                 <div
-                  id="share-menu"
-                  className="hidden absolute right-0 top-0 flex items-center h-9 bg-[#1a1a1a] border border-[#222] rounded-l-lg px-2 opacity-0 transform translate-x-full transition-all duration-200 ease-in-out"
-                  style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0, paddingRight: "40px" }}
+                  ref={shareMenuRef}
+                  className={`absolute right-0 top-0 flex items-center h-9 bg-[#1a1a1a] border border-[#222] rounded-l-lg px-2 transition-all duration-200 ease-in-out overflow-hidden ${
+                    isShareMenuOpen ? "opacity-100 w-[160px]" : "opacity-0 w-0"
+                  }`}
+                  style={{
+                    borderTopRightRadius: 0,
+                    borderBottomRightRadius: 0,
+                    transform: "translateX(-8px)",
+                  }}
                 >
-                  <button className="p-2 hover:bg-[#222] rounded-md" onClick={() => handleShare("facebook")}>
-                    <Facebook className="h-4 w-4 text-[#1877F2]" />
-                    <span className="sr-only">Share on Facebook</span>
-                  </button>
-                  <button className="p-2 hover:bg-[#222] rounded-md" onClick={() => handleShare("twitter")}>
-                    <Twitter className="h-4 w-4 text-[#1DA1F2]" />
-                    <span className="sr-only">Share on Twitter</span>
-                  </button>
-                  <button className="p-2 hover:bg-[#222] rounded-md" onClick={() => handleShare("linkedin")}>
-                    <Linkedin className="h-4 w-4 text-[#0A66C2]" />
-                    <span className="sr-only">Share on LinkedIn</span>
-                  </button>
-                  <button className="p-2 hover:bg-[#222] rounded-md" onClick={() => handleShare("copy")}>
-                    {isCopied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
-                    <span className="sr-only">{isCopied ? "Copied!" : "Copy Link"}</span>
-                  </button>
+                  <div className="flex items-center whitespace-nowrap">
+                    <button className="p-2 hover:bg-[#222] rounded-md" onClick={() => handleShare("facebook")}>
+                      <Facebook className="h-4 w-4 text-[#1877F2]" />
+                      <span className="sr-only">Share on Facebook</span>
+                    </button>
+                    <button className="p-2 hover:bg-[#222] rounded-md" onClick={() => handleShare("twitter")}>
+                      <Twitter className="h-4 w-4 text-[#1DA1F2]" />
+                      <span className="sr-only">Share on Twitter</span>
+                    </button>
+                    <button className="p-2 hover:bg-[#222] rounded-md" onClick={() => handleShare("linkedin")}>
+                      <Linkedin className="h-4 w-4 text-[#0A66C2]" />
+                      <span className="sr-only">Share on LinkedIn</span>
+                    </button>
+                    <button className="p-2 hover:bg-[#222] rounded-md" onClick={() => handleShare("copy")}>
+                      {isCopied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+                      <span className="sr-only">{isCopied ? "Copied!" : "Copy Link"}</span>
+                    </button>
+                  </div>
                 </div>
               </div>
 
