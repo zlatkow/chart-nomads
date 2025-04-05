@@ -247,7 +247,7 @@ export default function NewsPage() {
             {categories.map((category) => (
               <TabsContent key={category} value={category} className="mt-0">
                 {!loading && !error && filteredNews.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     {filteredNews.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((item) => (
                       <NewsCard
                         key={item.id}
