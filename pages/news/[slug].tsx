@@ -87,6 +87,7 @@ export default function NewsArticlePage() {
   const [isBookmarked, setIsBookmarked] = useState(false)
   const [loadingBookmarks, setLoadingBookmarks] = useState(true)
   const [isCopied, setIsCopied] = useState(false)
+  const [isShareMenuOpen, setIsShareMenuOpen] = useState(false)
 
   // Get the modal context
   const modalContext = useContext(ModalContext)
@@ -242,6 +243,26 @@ export default function NewsArticlePage() {
     }
   }
 
+  // Toggle share menu
+  const toggleShareMenu = () => {
+    const shareMenu = document.getElementById("share-menu")
+    if (shareMenu) {
+      if (!isShareMenuOpen) {
+        shareMenu.classList.remove("hidden")
+        setTimeout(() => {
+          shareMenu.classList.add("opacity-100", "translate-x-0")
+          setIsShareMenuOpen(true)
+        }, 10)
+      } else {
+        shareMenu.classList.remove("opacity-100", "translate-x-0")
+        setTimeout(() => {
+          shareMenu.classList.add("hidden")
+          setIsShareMenuOpen(false)
+        }, 200)
+      }
+    }
+  }
+
   useEffect(() => {
     // Only fetch when slug is available from router
     if (!slug) return
@@ -348,17 +369,19 @@ export default function NewsArticlePage() {
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       const shareMenu = document.getElementById("share-menu")
-      const shareButton = event.target as Element
+      const shareButton = document.querySelector('button[aria-label="Share article"]')
 
       if (
         shareMenu &&
-        !shareMenu.contains(shareButton) &&
-        !shareButton.closest("button")?.contains(shareButton) &&
+        !shareMenu.contains(event.target as Node) &&
+        shareButton !== event.target &&
+        !shareButton?.contains(event.target as Node) &&
         !shareMenu.classList.contains("hidden")
       ) {
         shareMenu.classList.remove("opacity-100", "translate-x-0")
         setTimeout(() => {
           shareMenu.classList.add("hidden")
+          setIsShareMenuOpen(false)
         }, 200)
       }
     }
@@ -423,30 +446,17 @@ export default function NewsArticlePage() {
                 <Button
                   variant="outline"
                   size="icon"
-                  className="border-[#222] bg-[#1a1a1a] text-gray-300 hover:text-white hover:bg-[#222]"
-                  onClick={() => {
-                    const shareMenu = document.getElementById("share-menu")
-                    if (shareMenu) {
-                      if (shareMenu.classList.contains("hidden")) {
-                        shareMenu.classList.remove("hidden")
-                        setTimeout(() => {
-                          shareMenu.classList.add("opacity-100", "translate-x-0")
-                        }, 10)
-                      } else {
-                        shareMenu.classList.remove("opacity-100", "translate-x-0")
-                        setTimeout(() => {
-                          shareMenu.classList.add("hidden")
-                        }, 200)
-                      }
-                    }
-                  }}
+                  className={`border-[#222] ${isShareMenuOpen ? "bg-[#222]" : "bg-[#1a1a1a]"} text-gray-300 hover:text-white hover:bg-[#222] z-10 relative`}
+                  onClick={toggleShareMenu}
+                  aria-label="Share article"
                 >
                   <Share2 className="h-4 w-4" />
                   <span className="sr-only">Share article</span>
                 </Button>
                 <div
                   id="share-menu"
-                  className="hidden absolute right-full top-0 mr-1 flex items-center h-9 bg-[#1a1a1a] border border-[#222] rounded-lg px-2 opacity-0 transform translate-x-2 origin-right transition-all duration-200 ease-in-out"
+                  className="hidden absolute right-0 top-0 flex items-center h-9 bg-[#1a1a1a] border border-[#222] rounded-l-lg px-2 opacity-0 transform translate-x-full transition-all duration-200 ease-in-out"
+                  style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0, paddingRight: "40px" }}
                 >
                   <button className="p-2 hover:bg-[#222] rounded-md" onClick={() => handleShare("facebook")}>
                     <Facebook className="h-4 w-4 text-[#1877F2]" />
