@@ -7,7 +7,7 @@ export function NewsletterSignup() {
     <Card className="bg-[#0f0f0f] border-[#222] hover:bg-[#1a1a1a] transition-colors duration-200">
       <CardHeader className="text-center px-6 pt-6 pb-2 text-center">
         <CardTitle className="text-2xl font-[balboa] text-white">Subscribe to Our Newsletter</CardTitle>
-        <CardDescription className="text-gray-300">
+        <CardDescription className="text-xs text-gray-300">
             Get the latest updates straight to your inbox.
         </CardDescription>
       </CardHeader>

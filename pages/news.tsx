@@ -293,9 +293,45 @@ export default function NewsPage() {
                 />
               </PaginationItem>
 
-              {Array.from({ length: Math.min(3, Math.ceil(filteredNews.length / itemsPerPage)) }, (_, i) => {
-                const pageNumber = i + 1
-                return (
+              {/* First page */}
+              {currentPage > 3 && (
+                <PaginationItem>
+                  <PaginationLink
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      setCurrentPage(1)
+                    }}
+                    className="bg-[#0f0f0f] border border-[#222] text-white hover:bg-[#1a1a1a]"
+                  >
+                    1
+                  </PaginationLink>
+                </PaginationItem>
+              )}
+
+              {/* Left ellipsis */}
+              {currentPage > 4 && (
+                <PaginationItem>
+                  <PaginationEllipsis className="bg-[#0f0f0f] border border-[#222] text-white rounded-md h-9 w-9 flex items-center justify-center" />
+                </PaginationItem>
+              )}
+
+              {/* Page numbers around current page */}
+              {Array.from({ length: Math.ceil(filteredNews.length / itemsPerPage) }, (_, i) => i + 1)
+                .filter((pageNumber) => {
+                  // Show pages around current page
+                  return (
+                    pageNumber === 1 ||
+                    pageNumber === Math.ceil(filteredNews.length / itemsPerPage) ||
+                    (pageNumber >= currentPage - 1 && pageNumber <= currentPage + 1)
+                  )
+                })
+                .filter((pageNumber, idx, array) => {
+                  // Remove duplicates
+                  return array.indexOf(pageNumber) === idx
+                })
+                .sort((a, b) => a - b)
+                .map((pageNumber) => (
                   <PaginationItem key={pageNumber}>
                     <PaginationLink
                       href="#"
@@ -313,32 +349,12 @@ export default function NewsPage() {
                       {pageNumber}
                     </PaginationLink>
                   </PaginationItem>
-                )
-              })}
+                ))}
 
-              {Math.ceil(filteredNews.length / itemsPerPage) > 3 && (
+              {/* Right ellipsis */}
+              {currentPage < Math.ceil(filteredNews.length / itemsPerPage) - 3 && (
                 <PaginationItem>
                   <PaginationEllipsis className="bg-[#0f0f0f] border border-[#222] text-white rounded-md h-9 w-9 flex items-center justify-center" />
-                </PaginationItem>
-              )}
-
-              {Math.ceil(filteredNews.length / itemsPerPage) > 3 && (
-                <PaginationItem>
-                  <PaginationLink
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault()
-                      setCurrentPage(Math.ceil(filteredNews.length / itemsPerPage))
-                    }}
-                    isActive={currentPage === Math.ceil(filteredNews.length / itemsPerPage)}
-                    className={
-                      currentPage === Math.ceil(filteredNews.length / itemsPerPage)
-                        ? "bg-[#edb900] text-[#0f0f0f] border-[#edb900] hover:bg-[#edb900]/90"
-                        : "bg-[#0f0f0f] border border-[#222] text-white hover:bg-[#1a1a1a]"
-                    }
-                  >
-                    {Math.ceil(filteredNews.length / itemsPerPage)}
-                  </PaginationLink>
                 </PaginationItem>
               )}
 
