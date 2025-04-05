@@ -812,7 +812,7 @@ export default function BlogsArticlePage() {
 
               {/* Comment Section */}
               <div className="mt-12 pt-8 border-t border-[#222]">
-                <CommentSection type="news" itemId={article.id.toString()} onLoginModalOpen={handleLoginModalOpen} />
+                <CommentSection type="blogs" itemId={article.id.toString()} onLoginModalOpen={handleLoginModalOpen} />
               </div>
             </div>
 

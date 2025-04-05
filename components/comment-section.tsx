@@ -8,7 +8,7 @@ import { useUser, SignedIn, SignedOut } from "@clerk/nextjs"
 import { MessageSquare, Edit, Trash, X, Loader, Check, ChevronUpIcon, ChevronDownIcon } from "lucide-react"
 
 // Types for our comment system
-type CommentType = "propfirm" | "news" | "blog"
+type CommentType = "propfirm" | "news" | "blogs"
 
 interface CommentSectionProps {
   type: CommentType
@@ -105,7 +105,7 @@ export default function CommentSection({ type, itemId, onLoginModalOpen }: Comme
           votes: "news_comment_votes",
           itemField: "news_id",
         }
-      case "blog":
+      case "blogs":
         return {
           comments: "blog_comments",
           votes: "blog_comment_votes",
