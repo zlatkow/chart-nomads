@@ -505,52 +505,57 @@ export default function NewsArticlePage() {
             </div>
           </div>
 
-          {/* Article title */}
-          <h1 className="text-4xl md:text-5xl tracking-tight mb-4 text-white">{article.name}</h1>
+          {/* Two-column layout with text on left, image on right */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+            {/* Left column - Text content */}
+            <div className="flex flex-col">
+              {/* Article title */}
+              <h1 className="text-4xl md:text-5xl tracking-tight mb-4 text-white">{article.name}</h1>
 
-          {/* Article metadata */}
-          <div className="flex flex-wrap items-center gap-4 text-gray-400 mb-6">
-            <div className="flex items-center gap-1">
-              <CalendarIcon className="h-4 w-4" />
-              <span>{new Date(article.created_at).toLocaleDateString()}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Clock className="h-4 w-4" />
-              <span>{article.read_time} min read</span>
-            </div>
-            <div className="flex items-center">
-              <Badge className="bg-[#edb900] text-[#0f0f0f] hover:bg-[#edb900]/90 hover:text-[#0f0f0f] flex items-center gap-1">
-                {article.category}
-              </Badge>
-            </div>
-          </div>
+              {/* Article metadata */}
+              <div className="flex flex-wrap items-center gap-4 text-gray-400 mb-6">
+                <div className="flex items-center gap-1">
+                  <CalendarIcon className="h-4 w-4" />
+                  <span>{new Date(article.created_at).toLocaleDateString()}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Clock className="h-4 w-4" />
+                  <span>{article.read_time} min read</span>
+                </div>
+                <div className="flex items-center">
+                  <Badge className="bg-[#edb900] text-[#0f0f0f] hover:bg-[#edb900]/90 hover:text-[#0f0f0f] flex items-center gap-1">
+                    {article.category}
+                  </Badge>
+                </div>
+              </div>
 
-          {/* Author information */}
-          <div className="flex items-center gap-3 mb-8">
-            <Avatar className="h-12 w-12">
-              <AvatarImage
-                src={authorData?.profile_pic || "/placeholder.svg?height=80&width=80"}
-                alt={authorData?.name || "Author"}
+              {/* Author information */}
+              <div className="flex items-center gap-3 mt-auto">
+                <Avatar className="h-12 w-12">
+                  <AvatarImage
+                    src={authorData?.profile_pic || "/placeholder.svg?height=80&width=80"}
+                    alt={authorData?.name || "Author"}
+                  />
+                  <AvatarFallback>{authorData?.name?.charAt(0) || "A"}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="font-medium text-white">{authorData?.name || "Unknown Author"}</p>
+                  <p className="text-sm text-gray-400">Author</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Right column - Featured image */}
+            <div className="relative w-full h-[300px] md:h-full rounded-lg overflow-hidden">
+              <Image
+                src={article.image_url || "/placeholder.svg?height=600&width=1200"}
+                alt={article.name}
+                fill
+                className="object-cover"
+                priority
               />
-              <AvatarFallback>{authorData?.name?.charAt(0) || "A"}</AvatarFallback>
-            </Avatar>
-            <div>
-              <p className="font-medium text-white">{authorData?.name || "Unknown Author"}</p>
-              <p className="text-sm text-gray-400">Author</p>
             </div>
           </div>
-        </div>
-
-        {/* Full-width article image */}
-        <div className="relative w-full h-[400px] md:h-[500px] mb-8 rounded-lg overflow-hidden">
-          <Image
-            src={article.image_url || "/placeholder.svg?height=600&width=1200"}
-            alt={article.name}
-            fill
-            className="object-cover"
-            priority
-          />
-        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-12">
           <div>
@@ -729,6 +734,6 @@ export default function NewsArticlePage() {
       <Newsletter />
       <Footer />
     </div>
-  )
+    </div>
+  );
 }
-
