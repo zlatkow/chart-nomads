@@ -127,10 +127,11 @@ export default function NewsArticlePage() {
       try {
         const supabase = createClient(supabaseUrl, supabaseAnonKey)
         const { data, error } = await supabase
-          .from("user_bookmarks")
+          .from("bookmarks")
           .select("*")
           .eq("user_id", user.id)
-          .eq("article_id", article.id)
+          .eq("post_id", article.id)
+          .eq("post_type", "news")
           .single()
 
         if (error && error.code !== "PGRST116") {
@@ -161,37 +162,64 @@ export default function NewsArticlePage() {
       if (isBookmarked) {
         // Remove bookmark
         const { error } = await supabase
-          .from("user_bookmarks")
+          .from("bookmarks")
           .delete()
           .eq("user_id", user.id)
-          .eq("article_id", article.id)
+          .eq("post_id", article.id)
+          .eq("post_type", "news")
 
         if (error) {
           console.error("Error removing bookmark:", error)
+          toast({
+            title: "Error",
+            description: "Failed to remove bookmark. Please try again.",
+            variant: "destructive",
+          })
           return
         }
+
+        // Show success message
+        toast({
+          title: "Bookmark removed",
+          description: "Article has been removed from your bookmarks.",
+        })
       } else {
         // Add bookmark
-        const { error } = await supabase.from("user_bookmarks").insert([
+        const { error } = await supabase.from("bookmarks").insert([
           {
             user_id: user.id,
-            article_id: article.id,
-            article_title: article.name,
-            article_image: article.image_url,
-            bookmarked_at: new Date().toISOString(),
+            post_id: article.id,
+            post_type: "news", // Explicitly set post_type to "news"
+            created_at: new Date().toISOString(),
           },
         ])
 
         if (error) {
           console.error("Error adding bookmark:", error)
+          toast({
+            title: "Error",
+            description: "Failed to bookmark article. Please try again.",
+            variant: "destructive",
+          })
           return
         }
+
+        // Show success message
+        toast({
+          title: "Bookmark added",
+          description: "Article has been added to your bookmarks.",
+        })
       }
 
       // Update local state
       setIsBookmarked(!isBookmarked)
     } catch (err) {
       console.error("Error toggling bookmark:", err)
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      })
     }
   }
 
@@ -483,9 +511,11 @@ export default function NewsArticlePage() {
                 <Button
                   variant="outline"
                   size="icon"
-                  className={`border-[#222] ${
-                    isBookmarked ? "bg-[#edb900] text-[#0f0f0f]" : "bg-[#1a1a1a] text-gray-300"
-                  } hover:text-white hover:bg-[#222]`}
+                  className={`border-[#222] transition-all duration-200 ${
+                    isBookmarked
+                      ? "bg-[#edb900] text-[#0f0f0f] hover:bg-[#edb900]/90"
+                      : "bg-[#1a1a1a] text-gray-300 hover:text-white hover:bg-[#222]"
+                  }`}
                   onClick={(e) => {
                     e.preventDefault()
                     e.stopPropagation()
