@@ -10,9 +10,9 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { CalendarIcon, Clock, ArrowLeft, Share2, Bookmark, Tag, Facebook, Copy, Check } from "lucide-react"
-import { ReadingProgress } from "@/components/news-page/reading-progress"
-import { TableOfContents } from "@/components/news-page/table-of-contents"
-import { NewsletterSignup } from "@/components/news-page/newsletter-signup"
+import { ReadingProgress } from "@/components/blog-page/reading-progress"
+import { TableOfContents } from "@/components/blog-page/table-of-contents"
+import { NewsletterSignup } from "@/components/blog-page/newsletter-signup"
 import CommentSection from "@/components/comment-section"
 import { createClient } from "@supabase/supabase-js"
 import { useRouter } from "next/router"
@@ -39,7 +39,7 @@ interface Blogs {
   name: string
   slug: string
   summary: string
-  news_post_body: string
+  blog_post_body: string
   read_time: number
   featured: boolean
   category: string
@@ -123,7 +123,7 @@ export default function BlogsArticlePage() {
           .select("*")
           .eq("user_id", user.id)
           .eq("post_id", article.id)
-          .eq("post_type", "news")
+          .eq("post_type", "blogs")
           .single()
 
         if (error && error.code !== "PGRST116") {
@@ -158,7 +158,7 @@ export default function BlogsArticlePage() {
           .delete()
           .eq("user_id", user.id)
           .eq("post_id", article.id)
-          .eq("post_type", "news")
+          .eq("post_type", "blogs")
 
         if (error) {
           console.error("Error removing bookmark:", error)
@@ -192,7 +192,7 @@ export default function BlogsArticlePage() {
           {
             user_id: user.id,
             post_id: article.id,
-            post_type: "news", // Explicitly set post_type to "news"
+            post_type: "blogs", // Explicitly set post_type to "blogs"
             created_at: new Date().toISOString(),
           },
         ])
@@ -735,7 +735,7 @@ export default function BlogsArticlePage() {
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-12 mt-12">
             <div>
               <article className="article prose prose-lg prose-invert max-w-none" id={`article-${article.id}`}>
-                <div dangerouslySetInnerHTML={{ __html: article.news_post_body }} />
+                <div dangerouslySetInnerHTML={{ __html: article.blog_post_body }} />
               </article>
 
               {articleTags.length > 0 && (
@@ -827,7 +827,7 @@ export default function BlogsArticlePage() {
                   {relatedArticles.length > 0 ? (
                     <div className="space-y-4">
                       {relatedArticles.map((relatedArticle) => (
-                        <Link href={`/news/${relatedArticle.slug}`} key={relatedArticle.id} className="block group">
+                        <Link href={`/blog/${relatedArticle.slug}`} key={relatedArticle.id} className="block group">
                           <div className="flex gap-3 p-3 rounded-lg bg-[#0f0f0f] hover:bg-[#1a1a1a] border border-[#222] transition-colors duration-200">
                             <div className="relative h-16 w-16 flex-shrink-0 rounded-md overflow-hidden">
                               <Image
