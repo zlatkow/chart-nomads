@@ -2,7 +2,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs_news"
+import { Tabs, TabsContent } from "@/components/ui/tabs_news"
 import {
   Pagination,
   PaginationContent,
@@ -20,6 +20,8 @@ import Community from "../components/Community"
 import Newsletter from "../components/Newsletter"
 import Footer from "../components/Footer"
 import { createClient } from "@supabase/supabase-js"
+import { Search } from "lucide-react"
+import { Input } from "@/components/ui/input"
 
 // Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
@@ -56,6 +58,12 @@ export default function NewsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [activeCategory, setActiveCategory] = useState("All")
+  const [searchQuery, setSearchQuery] = useState("")
+
+  // Handle search
+  const handleSearch = (e) => {
+    setSearchQuery(e.target.value)
+  }
 
   // Fetch news from Supabase
   useEffect(() => {
@@ -79,23 +87,23 @@ export default function NewsPage() {
 
         if (data) {
           setNews(data as News[])
-          
+
           // Get unique author IDs
-          const authorIds = Array.from(new Set(data.map(item => item.author)))
-          
+          const authorIds = Array.from(new Set(data.map((item) => item.author)))
+
           // Fetch all authors in one query
           if (authorIds.length > 0) {
             const { data: authorsData, error: authorsError } = await supabase
               .from("authors")
               .select("*")
               .in("id", authorIds)
-            
+
             if (authorsError) {
               console.error("Error fetching authors:", authorsError)
             } else if (authorsData) {
               // Create a map of author id to author data
               const authorsMap: Record<number, Author> = {}
-              authorsData.forEach(author => {
+              authorsData.forEach((author) => {
                 authorsMap[author.id] = author
               })
               setAuthors(authorsMap)
@@ -122,12 +130,25 @@ export default function NewsPage() {
     ...Array.from(new Set(news.filter((item) => item && item.category).map((item) => item.category))),
   ]
 
-  // Filter news by category
+  // Filter news by category and search query
   const getFilteredNews = () => {
-    if (activeCategory === "All") {
-      return news
+    let filtered = news
+
+    // Filter by category
+    if (activeCategory !== "All") {
+      filtered = filtered.filter((item) => item.category === activeCategory)
     }
-    return news.filter((item) => item.category === activeCategory)
+
+    // Filter by search query
+    if (searchQuery.trim() !== "") {
+      filtered = filtered.filter(
+        (item) =>
+          item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.summary.toLowerCase().includes(searchQuery.toLowerCase()),
+      )
+    }
+
+    return filtered
   }
 
   const filteredNews = getFilteredNews()
@@ -175,18 +196,40 @@ export default function NewsPage() {
         <div className="my-12">
           <Tabs defaultValue="All" className="w-full" value={activeCategory} onValueChange={setActiveCategory}>
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-              <h2 className="text-2xl text-white">Recent Articles</h2>
-              <TabsList className="bg-[#1a1a1a] overflow-x-auto flex-wrap">
-                {categories.map((category) => (
-                  <TabsTrigger
-                    key={category}
-                    value={category}
-                    className="data-[state=active]:bg-[#edb900] data-[state=active]:text-[#0f0f0f] transition-colors duration-300 ease-in-out hover:text-[#edb900]"
+              <h2 className="text-2xl text-white">News Articles</h2>
+              <div className="w-[300px]">
+                <Search className="relative left-2.5 top-6 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder="Search articles..."
+                  className="searchDark w-full pl-8 bg-[#333333] border-[#333333] focus-visible:ring-[#edb900]"
+                  value={searchQuery}
+                  onChange={handleSearch}
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchQuery("")
+                    }}
+                    className="relative right-[-275px] top-[-27px] h-4 w-4 text-[#edb900] hover:text-[#edb900]/80"
+                    aria-label="Clear search"
                   >
-                    {category}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="h-4 w-4"
+                    >
+                      <path d="M18 6L6 18M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
+              </div>
             </div>
 
             {categories.map((category) => (
@@ -266,3 +309,4 @@ export default function NewsPage() {
     </div>
   )
 }
+
