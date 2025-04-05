@@ -172,8 +172,8 @@ export function FeaturedNewsSlider({
             onClick={() => goToSlide(index)}
             className={`relative ${
               currentSlide === index 
-                ? "w-6 h-1 rounded-full bg-[#1a1a1a]" 
-                : "w-1 h-1 rounded-full bg-[#1a1a1a]"
+                ? "w-6 h-1 rounded-full bg-[#333333]" 
+                : "w-1 h-1 rounded-full bg-[#333333]"
             } overflow-hidden transition-all duration-300`}
             aria-label={`Go to slide ${index + 1}`}
           >
