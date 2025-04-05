@@ -1,9 +1,12 @@
+"use client"
+
+import { useState, useEffect, useCallback, useRef } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { CalendarIcon, Clock } from "lucide-react"
+import { CalendarIcon, Clock } from 'lucide-react'
 
 interface Author {
   id: number
@@ -31,6 +34,7 @@ interface FeaturedNewsProps {
   article: FeaturedArticle
 }
 
+// Original FeaturedNews component
 export function FeaturedNews({ article }: FeaturedNewsProps) {
   // Ensure the slug is properly formatted
   const formattedSlug = article.slug?.trim() || article.id
@@ -79,13 +83,12 @@ export function FeaturedNews({ article }: FeaturedNewsProps) {
                   <div>
                     <p className="text-sm font-medium text-gray-200">{authorName}</p>
                     <div className="flex">
-                        <p className="text-sm text-gray-400 flex items-center gap-1">
+                        <p className="text-xs text-gray-400 flex items-center gap-1">
                             <CalendarIcon className="h-3 w-3" /> {article.date}
                         </p>
                         <p className="ml-1 text-xs text-gray-400 flex items-center gap-1">
                             <Clock className="h-3 w-3" /> {article.readTime}
                         </p>
-                        
                     </div>
                   </div>
                 </div>
@@ -98,3 +101,92 @@ export function FeaturedNews({ article }: FeaturedNewsProps) {
   )
 }
 
+// New slider component that uses FeaturedNews
+interface FeaturedNewsSliderProps {
+  articles: FeaturedArticle[]
+  autoPlayInterval?: number
+}
+
+export function FeaturedNewsSlider({ 
+  articles, 
+  autoPlayInterval = 5000 
+}: FeaturedNewsSliderProps) {
+  const [currentSlide, setCurrentSlide] = useState(0)
+  const [progress, setProgress] = useState(0)
+  const progressIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  
+  const nextSlide = useCallback(() => {
+    setCurrentSlide((prev) => (prev + 1) % articles.length)
+    setProgress(0) // Reset progress when changing slides
+  }, [articles.length])
+
+  // Progress animation
+  useEffect(() => {
+    // Clear any existing interval
+    if (progressIntervalRef.current) {
+      clearInterval(progressIntervalRef.current)
+    }
+    
+    // Start a new progress interval
+    const updateFrequency = 50 // Update every 50ms for smoother animation
+    const progressIncrement = (updateFrequency / autoPlayInterval) * 100
+    
+    progressIntervalRef.current = setInterval(() => {
+      setProgress(prev => {
+        const newProgress = prev + progressIncrement
+        return newProgress > 100 ? 100 : newProgress
+      })
+    }, updateFrequency)
+    
+    return () => {
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current)
+      }
+    }
+  }, [currentSlide, autoPlayInterval])
+
+  // Auto-play functionality
+  useEffect(() => {
+    const interval = setInterval(nextSlide, autoPlayInterval)
+    return () => clearInterval(interval)
+  }, [nextSlide, autoPlayInterval])
+
+  // Handle manual navigation
+  const goToSlide = (index: number) => {
+    setCurrentSlide(index)
+    setProgress(0) // Reset progress when manually changing slides
+  }
+
+  return (
+    <div className="relative">
+      {/* Current slide */}
+      {articles.length > 0 && (
+        <FeaturedNews article={articles[currentSlide]} />
+      )}
+      
+      {/* Indicator dots - active is pill-shaped, inactive are circular */}
+      <div className="flex justify-center mt-6 gap-4">
+        {articles.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => goToSlide(index)}
+            className={`relative ${
+              currentSlide === index 
+                ? "w-10 h-2.5 rounded-full bg-[#4a4a4a]" 
+                : "w-2.5 h-2.5 rounded-full bg-[#4a4a4a]"
+            } overflow-hidden transition-all duration-300`}
+            aria-label={`Go to slide ${index + 1}`}
+          >
+            {/* Only show progress bar for the active slide */}
+            {currentSlide === index && (
+              <div 
+                className="absolute left-0 top-0 bottom-0 bg-[#edb900] rounded-full"
+                style={{ width: `${progress}%` }}
+              />
+            )}
+          </button>
+        ))}
+      </div>
+    </div>   
+    )
+}
