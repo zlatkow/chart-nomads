@@ -190,221 +190,310 @@ export default function NewsPage() {
 
   const filteredNews = getFilteredNews()
 
+  // Shimmer loading component
+  const NewsPageSkeleton = () => (
+    <>
+      {/* Header skeleton */}
+      <div className="flex flex-col gap-2 mb-8">
+        <div className="h-10 bg-[#1a1a1a] rounded-md w-48 overflow-hidden relative shimmer-effect"></div>
+        <div className="h-5 bg-[#1a1a1a] rounded-md w-96 overflow-hidden relative shimmer-effect"></div>
+      </div>
+
+      {/* Featured news slider skeleton */}
+      <div className="w-full h-[400px] bg-[#1a1a1a] rounded-xl overflow-hidden relative shimmer-effect mb-12"></div>
+
+      {/* Tabs and search skeleton */}
+      <div className="my-12">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+          <div className="w-[300px] h-10 bg-[#1a1a1a] rounded-md overflow-hidden relative shimmer-effect"></div>
+          <div className="flex gap-2 overflow-x-auto">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="h-9 w-24 bg-[#1a1a1a] rounded-md overflow-hidden relative shimmer-effect"></div>
+            ))}
+          </div>
+        </div>
+
+        {/* News grid skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {Array(8)
+            .fill(0)
+            .map((_, i) => (
+              <div key={i} className="flex flex-col gap-3">
+                <div className="w-full h-48 bg-[#1a1a1a] rounded-lg overflow-hidden relative shimmer-effect"></div>
+                <div className="h-5 bg-[#1a1a1a] rounded-md w-3/4 overflow-hidden relative shimmer-effect"></div>
+                <div className="h-4 bg-[#1a1a1a] rounded-md w-1/2 overflow-hidden relative shimmer-effect"></div>
+                <div className="flex items-center gap-2 mt-2">
+                  <div className="h-8 w-8 bg-[#1a1a1a] rounded-full overflow-hidden relative shimmer-effect"></div>
+                  <div className="h-4 bg-[#1a1a1a] rounded-md w-24 overflow-hidden relative shimmer-effect"></div>
+                </div>
+              </div>
+            ))}
+        </div>
+      </div>
+
+      {/* Pagination skeleton */}
+      <div className="flex justify-center my-8">
+        <div className="flex gap-2">
+          <div className="h-9 w-24 bg-[#1a1a1a] rounded-md overflow-hidden relative shimmer-effect"></div>
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-9 w-9 bg-[#1a1a1a] rounded-md overflow-hidden relative shimmer-effect"></div>
+          ))}
+          <div className="h-9 w-24 bg-[#1a1a1a] rounded-md overflow-hidden relative shimmer-effect"></div>
+        </div>
+      </div>
+    </>
+  )
+
   return (
     <div>
       <Navbar />
       <Noise />
       <div className="relative z-50 container mx-auto px-4 py-8 text-white mt-[200px] max-w-[1280px] mb-[100px]">
-        <div className="flex flex-col gap-2 mb-8">
-          <h1 className="text-4xl tracking-tight text-white">Latest News</h1>
-          <p className="text-gray-400">Stay updated with the latest developments in financial markets</p>
-        </div>
-
-        {/* Loading and Error States */}
-        {loading && (
-          <div className="rounded-xl border border-white/10 bg-[#0f0f0f] p-8 text-center text-white mb-16">
-            <p>Loading news posts...</p>
-          </div>
-        )}
-
-        {error && (
-          <div className="rounded-xl border border-red-500/20 bg-[#0f0f0f] p-8 text-center text-red-500 mb-16">
-            <p>{error}</p>
-          </div>
-        )}
-
-        {/* Featured News Slider */}
-        {!loading && !error && featuredArticles.length > 0 && (
-          <FeaturedNewsSlider articles={featuredArticles} autoPlayInterval={5000} />
-        )}
-
-        <div className="my-12">
-          <Tabs defaultValue="All" className="w-full" value={activeCategory} onValueChange={setActiveCategory}>
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-              <div className="w-[300px]">
-                <Search className="relative left-2.5 top-6 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="text"
-                  placeholder="Search articles..."
-                  className="searchDark w-full pl-8 bg-[#333333] border-[#333333] focus-visible:ring-[#edb900]"
-                  value={searchQuery}
-                  onChange={handleSearch}
-                />
-                {searchQuery && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSearchQuery("")
-                    }}
-                    className="relative right-[-275px] top-[-27px] h-4 w-4 text-[#edb900] hover:text-[#edb900]/80"
-                    aria-label="Clear search"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="h-4 w-4"
-                    >
-                      <path d="M18 6L6 18M6 6l12 12" />
-                    </svg>
-                  </button>
-                )}
-              </div>
-              <TabsList className="bg-[#1a1a1a] overflow-x-auto flex-wrap">
-                {categories.map((category) => (
-                  <TabsTrigger
-                    key={category}
-                    value={category}
-                    className="data-[state=active]:bg-[#edb900] data-[state=active]:text-[#0f0f0f] transition-colors duration-300 ease-in-out hover:text-[#edb900]"
-                  >
-                    {category}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
+        {/* Loading State with Shimmer Effect */}
+        {loading ? (
+          <NewsPageSkeleton />
+        ) : (
+          <>
+            <div className="flex flex-col gap-2 mb-8">
+              <h1 className="text-4xl tracking-tight text-white">Latest News</h1>
+              <p className="text-gray-400">Stay updated with the latest developments in financial markets</p>
             </div>
 
-            {categories.map((category) => (
-              <TabsContent key={category} value={category} className="mt-0">
-                {!loading && !error && filteredNews.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {filteredNews.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((item) => (
-                      <NewsCard
-                        key={item.id}
-                        article={{
-                          id: item.id.toString(),
-                          title: item.name,
-                          excerpt: item.summary,
-                          slug: item.slug,
-                          category: item.category,
-                          date: new Date(item.created_at).toLocaleDateString(),
-                          author: authors[item.author]?.name || "Unknown Author",
-                          authorImage: authors[item.author]?.profile_pic || "/placeholder.svg?height=40&width=40",
-                          image: item.image_url || "/placeholder.svg?height=400&width=600",
-                          readTime: `${item.read_time} min read`,
+            {/* Error State */}
+            {error && (
+              <div className="rounded-xl border border-red-500/20 bg-[#0f0f0f] p-8 text-center text-red-500 mb-16">
+                <p>{error}</p>
+              </div>
+            )}
+
+            {/* Featured News Slider */}
+            {!error && featuredArticles.length > 0 && (
+              <FeaturedNewsSlider articles={featuredArticles} autoPlayInterval={5000} />
+            )}
+
+            <div className="my-12">
+              <Tabs defaultValue="All" className="w-full" value={activeCategory} onValueChange={setActiveCategory}>
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+                  <div className="w-[300px]">
+                    <Search className="relative left-2.5 top-6 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      type="text"
+                      placeholder="Search articles..."
+                      className="searchDark w-full pl-8 bg-[#333333] border-[#333333] focus-visible:ring-[#edb900]"
+                      value={searchQuery}
+                      onChange={handleSearch}
+                    />
+                    {searchQuery && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSearchQuery("")
                         }}
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-white/70">
-                    {loading ? "Loading..." : error ? "Error loading news" : "No news articles found"}
-                  </div>
-                )}
-              </TabsContent>
-            ))}
-          </Tabs>
-        </div>
-
-        {/* Dynamic Pagination */}
-        {filteredNews.length > itemsPerPage && (
-          <Pagination className="my-8">
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault()
-                    if (currentPage > 1) setCurrentPage(currentPage - 1)
-                  }}
-                  className={`bg-[#0f0f0f] border border-[#222] text-white hover:bg-[#1a1a1a] hover:text-white w-24 justify-center ${
-                    currentPage === 1 ? "opacity-50 pointer-events-none" : ""
-                  }`}
-                />
-              </PaginationItem>
-
-              {/* Create an array of page numbers to display */}
-              {(() => {
-                const totalPages = Math.ceil(filteredNews.length / itemsPerPage)
-                let pagesToShow = []
-
-                // Always include page 1
-                pagesToShow.push(1)
-
-                // Add ellipsis after page 1 if current page is > 3
-                if (currentPage > 3) {
-                  pagesToShow.push("ellipsis1")
-                }
-
-                // Add page before current if it exists and isn't page 1
-                if (currentPage > 2) {
-                  pagesToShow.push(currentPage - 1)
-                }
-
-                // Add current page if it's not page 1
-                if (currentPage > 1 && currentPage < totalPages) {
-                  pagesToShow.push(currentPage)
-                }
-
-                // Add page after current if it exists and isn't the last page
-                if (currentPage < totalPages - 1) {
-                  pagesToShow.push(currentPage + 1)
-                }
-
-                // Add ellipsis before last page if needed
-                if (currentPage < totalPages - 2) {
-                  pagesToShow.push("ellipsis2")
-                }
-
-                // Always include last page if it's not page 1
-                if (totalPages > 1) {
-                  pagesToShow.push(totalPages)
-                }
-
-                // Remove duplicates
-                pagesToShow = [...new Set(pagesToShow)]
-
-                return pagesToShow.map((page, index) => {
-                  if (page === "ellipsis1" || page === "ellipsis2") {
-                    return (
-                      <PaginationItem key={`ellipsis-${index}`}>
-                        <PaginationEllipsis className="bg-[#0f0f0f] border border-[#222] text-white rounded-md h-9 w-9 flex items-center justify-center" />
-                      </PaginationItem>
-                    )
-                  }
-
-                  return (
-                    <PaginationItem key={page}>
-                      <PaginationLink
-                        href="#"
-                        onClick={(e) => {
-                          e.preventDefault()
-                          setCurrentPage(page)
-                        }}
-                        isActive={currentPage === page}
-                        className={
-                          currentPage === page
-                            ? "bg-[#edb900] text-[#0f0f0f] border-[#edb900] hover:bg-[#edb900]/90"
-                            : "bg-[#0f0f0f] border border-[#222] text-white hover:bg-[#1a1a1a]"
-                        }
+                        className="relative right-[-275px] top-[-27px] h-4 w-4 text-[#edb900] hover:text-[#edb900]/80"
+                        aria-label="Clear search"
                       >
-                        {page}
-                      </PaginationLink>
-                    </PaginationItem>
-                  )
-                })
-              })()}
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="h-4 w-4"
+                        >
+                          <path d="M18 6L6 18M6 6l12 12" />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                  <TabsList className="bg-[#1a1a1a] overflow-x-auto flex-wrap">
+                    {categories.map((category) => (
+                      <TabsTrigger
+                        key={category}
+                        value={category}
+                        className="data-[state=active]:bg-[#edb900] data-[state=active]:text-[#0f0f0f] transition-colors duration-300 ease-in-out hover:text-[#edb900]"
+                      >
+                        {category}
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+                </div>
 
-              <PaginationItem>
-                <PaginationNext
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault()
-                    if (currentPage < Math.ceil(filteredNews.length / itemsPerPage)) setCurrentPage(currentPage + 1)
-                  }}
-                  className={`bg-[#0f0f0f] border border-[#222] text-white hover:bg-[#1a1a1a] hover:text-white w-24 justify-center ${
-                    currentPage === Math.ceil(filteredNews.length / itemsPerPage)
-                      ? "opacity-50 pointer-events-none"
-                      : ""
-                  }`}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
+                {categories.map((category) => (
+                  <TabsContent key={category} value={category} className="mt-0">
+                    {!error && filteredNews.length > 0 ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {filteredNews
+                          .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+                          .map((item) => (
+                            <NewsCard
+                              key={item.id}
+                              article={{
+                                id: item.id.toString(),
+                                title: item.name,
+                                excerpt: item.summary,
+                                slug: item.slug,
+                                category: item.category,
+                                date: new Date(item.created_at).toLocaleDateString(),
+                                author: authors[item.author]?.name || "Unknown Author",
+                                authorImage: authors[item.author]?.profile_pic || "/placeholder.svg?height=40&width=40",
+                                image: item.image_url || "/placeholder.svg?height=400&width=600",
+                                readTime: `${item.read_time} min read`,
+                              }}
+                            />
+                          ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8 text-white/70">
+                        {error ? "Error loading news" : "No news articles found"}
+                      </div>
+                    )}
+                  </TabsContent>
+                ))}
+              </Tabs>
+            </div>
+
+            {/* Dynamic Pagination */}
+            {filteredNews.length > itemsPerPage && (
+              <Pagination className="my-8">
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        if (currentPage > 1) setCurrentPage(currentPage - 1)
+                      }}
+                      className={`bg-[#0f0f0f] border border-[#222] text-white hover:bg-[#1a1a1a] hover:text-white w-24 justify-center ${
+                        currentPage === 1 ? "opacity-50 pointer-events-none" : ""
+                      }`}
+                    />
+                  </PaginationItem>
+
+                  {/* Create an array of page numbers to display */}
+                  {(() => {
+                    const totalPages = Math.ceil(filteredNews.length / itemsPerPage)
+                    let pagesToShow = []
+
+                    // Always include page 1
+                    pagesToShow.push(1)
+
+                    // Add ellipsis after page 1 if current page is > 3
+                    if (currentPage > 3) {
+                      pagesToShow.push("ellipsis1")
+                    }
+
+                    // Add page before current if it exists and isn't page 1
+                    if (currentPage > 2) {
+                      pagesToShow.push(currentPage - 1)
+                    }
+
+                    // Add current page if it's not page 1
+                    if (currentPage > 1 && currentPage < totalPages) {
+                      pagesToShow.push(currentPage)
+                    }
+
+                    // Add page after current if it exists and isn't the last page
+                    if (currentPage < totalPages - 1) {
+                      pagesToShow.push(currentPage + 1)
+                    }
+
+                    // Add ellipsis before last page if needed
+                    if (currentPage < totalPages - 2) {
+                      pagesToShow.push("ellipsis2")
+                    }
+
+                    // Always include last page if it's not page 1
+                    if (totalPages > 1) {
+                      pagesToShow.push(totalPages)
+                    }
+
+                    // Remove duplicates
+                    pagesToShow = [...new Set(pagesToShow)]
+
+                    return pagesToShow.map((page, index) => {
+                      if (page === "ellipsis1" || page === "ellipsis2") {
+                        return (
+                          <PaginationItem key={`ellipsis-${index}`}>
+                            <PaginationEllipsis className="bg-[#0f0f0f] border border-[#222] text-white rounded-md h-9 w-9 flex items-center justify-center" />
+                          </PaginationItem>
+                        )
+                      }
+
+                      return (
+                        <PaginationItem key={page}>
+                          <PaginationLink
+                            href="#"
+                            onClick={(e) => {
+                              e.preventDefault()
+                              setCurrentPage(page)
+                            }}
+                            isActive={currentPage === page}
+                            className={
+                              currentPage === page
+                                ? "bg-[#edb900] text-[#0f0f0f] border-[#edb900] hover:bg-[#edb900]/90"
+                                : "bg-[#0f0f0f] border border-[#222] text-white hover:bg-[#1a1a1a]"
+                            }
+                          >
+                            {page}
+                          </PaginationLink>
+                        </PaginationItem>
+                      )
+                    })
+                  })()}
+
+                  <PaginationItem>
+                    <PaginationNext
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        if (currentPage < Math.ceil(filteredNews.length / itemsPerPage)) setCurrentPage(currentPage + 1)
+                      }}
+                      className={`bg-[#0f0f0f] border border-[#222] text-white hover:bg-[#1a1a1a] hover:text-white w-24 justify-center ${
+                        currentPage === Math.ceil(filteredNews.length / itemsPerPage)
+                          ? "opacity-50 pointer-events-none"
+                          : ""
+                      }`}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            )}
+          </>
         )}
+
+        {/* Shimmer effect styles */}
+        <style jsx global>{`
+          .shimmer-effect {
+            position: relative;
+            overflow: hidden;
+          }
+
+          .shimmer-effect::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            transform: translateX(-100%);
+            background-image: linear-gradient(
+              90deg,
+              rgba(34, 34, 34, 0) 0,
+              rgba(34, 34, 34, 0.2) 20%,
+              rgba(237, 185, 0, 0.1) 60%,
+              rgba(34, 34, 34, 0)
+            );
+            animation: shimmer 2s infinite;
+          }
+
+          @keyframes shimmer {
+            100% {
+              transform: translateX(100%);
+            }
+          }
+        `}</style>
       </div>
       <Community />
       <Newsletter />
