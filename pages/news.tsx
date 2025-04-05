@@ -259,7 +259,8 @@ export default function NewsPage() {
                           category: item.category,
                           date: new Date(item.created_at).toLocaleDateString(),
                           author: authors[item.author]?.name || "Unknown Author",
-                          authorImage: authors[item.author]?.profile_pic || "/placeholder.svg?height=40&width=40",
+                          authorImage:
+                            authors[featuredArticle.author]?.profile_pic || "/placeholder.svg?height=40&width=40",
                           image: item.image_url || "/placeholder.svg?height=400&width=600",
                           readTime: `${item.read_time} min read`,
                         }}
@@ -293,70 +294,77 @@ export default function NewsPage() {
                 />
               </PaginationItem>
 
-              {/* First page */}
-              {currentPage > 3 && (
-                <PaginationItem>
-                  <PaginationLink
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault()
-                      setCurrentPage(1)
-                    }}
-                    className="bg-[#0f0f0f] border border-[#222] text-white hover:bg-[#1a1a1a]"
-                  >
-                    1
-                  </PaginationLink>
-                </PaginationItem>
-              )}
+              {/* Create an array of page numbers to display */}
+              {(() => {
+                const totalPages = Math.ceil(filteredNews.length / itemsPerPage)
+                let pagesToShow = []
 
-              {/* Left ellipsis */}
-              {currentPage > 4 && (
-                <PaginationItem>
-                  <PaginationEllipsis className="bg-[#0f0f0f] border border-[#222] text-white rounded-md h-9 w-9 flex items-center justify-center" />
-                </PaginationItem>
-              )}
+                // Always include page 1
+                pagesToShow.push(1)
 
-              {/* Page numbers around current page */}
-              {Array.from({ length: Math.ceil(filteredNews.length / itemsPerPage) }, (_, i) => i + 1)
-                .filter((pageNumber) => {
-                  // Show pages around current page
+                // Add ellipsis after page 1 if current page is > 3
+                if (currentPage > 3) {
+                  pagesToShow.push("ellipsis1")
+                }
+
+                // Add page before current if it exists and isn't page 1
+                if (currentPage > 2) {
+                  pagesToShow.push(currentPage - 1)
+                }
+
+                // Add current page if it's not page 1
+                if (currentPage > 1 && currentPage < totalPages) {
+                  pagesToShow.push(currentPage)
+                }
+
+                // Add page after current if it exists and isn't the last page
+                if (currentPage < totalPages - 1) {
+                  pagesToShow.push(currentPage + 1)
+                }
+
+                // Add ellipsis before last page if needed
+                if (currentPage < totalPages - 2) {
+                  pagesToShow.push("ellipsis2")
+                }
+
+                // Always include last page if it's not page 1
+                if (totalPages > 1) {
+                  pagesToShow.push(totalPages)
+                }
+
+                // Remove duplicates
+                pagesToShow = [...new Set(pagesToShow)]
+
+                return pagesToShow.map((page, index) => {
+                  if (page === "ellipsis1" || page === "ellipsis2") {
+                    return (
+                      <PaginationItem key={`ellipsis-${index}`}>
+                        <PaginationEllipsis className="bg-[#0f0f0f] border border-[#222] text-white rounded-md h-9 w-9 flex items-center justify-center" />
+                      </PaginationItem>
+                    )
+                  }
+
                   return (
-                    pageNumber === 1 ||
-                    pageNumber === Math.ceil(filteredNews.length / itemsPerPage) ||
-                    (pageNumber >= currentPage - 1 && pageNumber <= currentPage + 1)
+                    <PaginationItem key={page}>
+                      <PaginationLink
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          setCurrentPage(page)
+                        }}
+                        isActive={currentPage === page}
+                        className={
+                          currentPage === page
+                            ? "bg-[#edb900] text-[#0f0f0f] border-[#edb900] hover:bg-[#edb900]/90"
+                            : "bg-[#0f0f0f] border border-[#222] text-white hover:bg-[#1a1a1a]"
+                        }
+                      >
+                        {page}
+                      </PaginationLink>
+                    </PaginationItem>
                   )
                 })
-                .filter((pageNumber, idx, array) => {
-                  // Remove duplicates
-                  return array.indexOf(pageNumber) === idx
-                })
-                .sort((a, b) => a - b)
-                .map((pageNumber) => (
-                  <PaginationItem key={pageNumber}>
-                    <PaginationLink
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault()
-                        setCurrentPage(pageNumber)
-                      }}
-                      isActive={currentPage === pageNumber}
-                      className={
-                        currentPage === pageNumber
-                          ? "bg-[#edb900] text-[#0f0f0f] border-[#edb900] hover:bg-[#edb900]/90"
-                          : "bg-[#0f0f0f] border border-[#222] text-white hover:bg-[#1a1a1a]"
-                      }
-                    >
-                      {pageNumber}
-                    </PaginationLink>
-                  </PaginationItem>
-                ))}
-
-              {/* Right ellipsis */}
-              {currentPage < Math.ceil(filteredNews.length / itemsPerPage) - 3 && (
-                <PaginationItem>
-                  <PaginationEllipsis className="bg-[#0f0f0f] border border-[#222] text-white rounded-md h-9 w-9 flex items-center justify-center" />
-                </PaginationItem>
-              )}
+              })()}
 
               <PaginationItem>
                 <PaginationNext
