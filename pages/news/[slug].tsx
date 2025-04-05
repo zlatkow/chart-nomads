@@ -530,7 +530,7 @@ export default function NewsArticlePage() {
               </div>
 
               {/* Author information */}
-              <div className="flex items-center gap-3 mt-auto">
+              <div className="flex items-center gap-3">
                 <Avatar className="h-12 w-12">
                   <AvatarImage
                     src={authorData?.profile_pic || "/placeholder.svg?height=80&width=80"}
@@ -546,7 +546,7 @@ export default function NewsArticlePage() {
             </div>
 
             {/* Right column - Featured image */}
-            <div className="relative w-full h-[400px] md:h-[500px] rounded-lg overflow-hidden">
+            <div className="relative w-full h-[400px] md:h-[400px] rounded-lg overflow-hidden">
               <Image
                 src={article.image_url || "/placeholder.svg?height=600&width=1200"}
                 alt={article.name}
@@ -730,10 +730,10 @@ export default function NewsArticlePage() {
           </aside>
         </div>
       </div>
-      <Community />
-      <Newsletter />
-      <Footer />
     </div>
+    <Community />
+    <Newsletter />
+    <Footer />
     </div>
   )
 }
