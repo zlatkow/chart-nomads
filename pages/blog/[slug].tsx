@@ -564,7 +564,7 @@ export default function BlogsArticlePage() {
           <h2 className="text-2xl font-bold text-red-500 mb-4">Error</h2>
           <p className="text-gray-300">{error || "Article not found"}</p>
           <Button variant="ghost" size="sm" asChild className="mt-4 text-gray-300 hover:text-white hover:bg-[#1a1a1a]">
-            <Link href="/news">
+            <Link href="/blog">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Blog
             </Link>
@@ -587,7 +587,7 @@ export default function BlogsArticlePage() {
           {/* Top navigation row with back button and share/bookmark buttons */}
           <div className="flex items-center justify-between mb-6">
             <Button variant="ghost" size="sm" asChild className="text-gray-300 hover:text-white hover:bg-[#1a1a1a]">
-              <Link href="/news">
+              <Link href="/blog">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back to Blog
               </Link>
