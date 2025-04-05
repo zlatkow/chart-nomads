@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { cn } from "@/lib/utils"
 import { ChevronDown, ChevronRight } from 'lucide-react'
 
@@ -19,6 +19,8 @@ export function TableOfContents({ articleId }: TableOfContentsProps) {
   const [headings, setHeadings] = useState<Heading[]>([])
   const [activeId, setActiveId] = useState<string>("")
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({})
+  const [userExpandedSections, setUserExpandedSections] = useState<Record<string, boolean | null>>({})
+  const lastScrollPosition = useRef(0)
 
   useEffect(() => {
     // Find all headings in the article content
@@ -61,41 +63,100 @@ export function TableOfContents({ articleId }: TableOfContentsProps) {
 
       if (headingElements.length === 0) return
 
+      // Determine scroll direction
+      const currentScrollPosition = window.scrollY
+      const isScrollingDown = currentScrollPosition > lastScrollPosition.current
+      lastScrollPosition.current = currentScrollPosition
+
       // Find the heading that's currently in view
       const scrollPosition = window.scrollY + 100 // Offset for better UX
+      
+      // Keep track of which sections should be expanded based on current view
+      const sectionsToExpand: Record<string, boolean> = {}
+      let foundActiveHeading = false
 
-      for (let i = headingElements.length - 1; i >= 0; i--) {
-        const currentHeading = headingElements[i]
-        if (currentHeading && currentHeading.offsetTop <= scrollPosition) {
-          setActiveId(currentHeading.id)
-          
-          // Auto-expand the section containing the active heading
-          const activeHeading = headings.find(h => h.id === currentHeading.id)
-          if (activeHeading && activeHeading.parentId) {
-            setExpandedSections(prev => ({
-              ...prev,
-              [activeHeading.parentId]: true
-            }))
-          } else if (activeHeading && activeHeading.level === 2) {
-            // If it's an h2, expand it
-            setExpandedSections(prev => ({
-              ...prev,
-              [activeHeading.id]: true
-            }))
+      // When scrolling up, we want to find the first heading above the viewport
+      if (!isScrollingDown) {
+        for (let i = 0; i < headingElements.length; i++) {
+          const currentHeading = headingElements[i]
+          if (currentHeading && currentHeading.offsetTop > scrollPosition) {
+            // If we found a heading below the scroll position, use the previous one as active
+            if (i > 0) {
+              const previousHeading = headingElements[i - 1]
+              setActiveId(previousHeading.id)
+              
+              // Only auto-expand if user hasn't manually collapsed
+              const activeHeading = headings.find(h => h.id === previousHeading.id)
+              if (activeHeading) {
+                if (activeHeading.parentId && userExpandedSections[activeHeading.parentId] !== false) {
+                  sectionsToExpand[activeHeading.parentId] = true
+                } else if (activeHeading.level === 2 && userExpandedSections[activeHeading.id] !== false) {
+                  sectionsToExpand[activeHeading.id] = true
+                }
+              }
+            }
+            foundActiveHeading = true
+            break
           }
-          
-          break
         }
       }
+      
+      // If we didn't find an active heading when scrolling up, or if we're scrolling down
+      if (!foundActiveHeading) {
+        for (let i = headingElements.length - 1; i >= 0; i--) {
+          const currentHeading = headingElements[i]
+          if (currentHeading && currentHeading.offsetTop <= scrollPosition) {
+            setActiveId(currentHeading.id)
+            
+            // Only auto-expand if user hasn't manually collapsed
+            const activeHeading = headings.find(h => h.id === currentHeading.id)
+            if (activeHeading) {
+              if (activeHeading.parentId && userExpandedSections[activeHeading.parentId] !== false) {
+                sectionsToExpand[activeHeading.parentId] = true
+              } else if (activeHeading.level === 2 && userExpandedSections[activeHeading.id] !== false) {
+                sectionsToExpand[activeHeading.id] = true
+              }
+            }
+            break
+          }
+        }
+      }
+
+      // Update expanded sections, preserving user choices
+      setExpandedSections(prev => {
+        const newExpandedSections = { ...prev };
+        
+        // First, collapse all sections that aren't in the current view
+        // and weren't explicitly expanded by the user
+        Object.keys(newExpandedSections).forEach(id => {
+          if (!sectionsToExpand[id] && userExpandedSections[id] !== true) {
+            newExpandedSections[id] = false;
+          }
+        });
+        
+        // Then expand sections that should be expanded
+        Object.keys(sectionsToExpand).forEach(id => {
+          newExpandedSections[id] = true;
+        });
+        
+        return newExpandedSections;
+      });
     }
 
     window.addEventListener("scroll", handleScroll)
     handleScroll() // Initialize on mount
 
     return () => window.removeEventListener("scroll", handleScroll)
-  }, [headings])
+  }, [headings, userExpandedSections])
 
   const toggleSection = (headingId: string) => {
+    // Track user's explicit choice to expand/collapse
+    setUserExpandedSections(prev => ({
+      ...prev,
+      [headingId]: !expandedSections[headingId]
+    }))
+    
+    // Update the actual expanded state
     setExpandedSections(prev => ({
       ...prev,
       [headingId]: !prev[headingId]
@@ -157,6 +218,11 @@ export function TableOfContents({ articleId }: TableOfContentsProps) {
                   onClick={() => {
                     scrollToHeading(h2.id)
                     if (childHeadings.length > 0) {
+                      // Track that user explicitly expanded this section
+                      setUserExpandedSections(prev => ({
+                        ...prev,
+                        [h2.id]: true
+                      }))
                       setExpandedSections(prev => ({
                         ...prev,
                         [h2.id]: true
