@@ -13,7 +13,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination_news"
 import { NewsCard } from "@/components/news-page/news-card"
-import { FeaturedNews } from "@/components/news-page/featured-news"
+import { FeaturedNewsSlider } from "@/components/news-page/featured-news"
 import Navbar from "../components/Navbar"
 import Noise from "../components/Noise"
 import Community from "../components/Community"
@@ -60,7 +60,7 @@ export default function NewsPage() {
   const [activeCategory, setActiveCategory] = useState("All")
   const [searchQuery, setSearchQuery] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
-  const [itemsPerPage] = useState(12) 
+  const [itemsPerPage] = useState(12)
 
   // Handle search
   const handleSearch = (e) => {
@@ -123,8 +123,43 @@ export default function NewsPage() {
     fetchNews()
   }, [])
 
-  // Get featured news
-  const featuredArticle = news.length > 0 ? news.find((item) => item && item.featured) || news[0] : null
+  // Get featured news articles (up to 5)
+  const featuredArticles = news
+    .filter((item) => item && (item.featured || item.category === "featured"))
+    .slice(0, 5)
+    .map((item) => ({
+      id: item.id.toString(),
+      title: item.name,
+      excerpt: item.summary,
+      category: item.category,
+      slug: item.slug,
+      date: new Date(item.created_at).toLocaleDateString(),
+      author: authors[item.author] || "Unknown Author",
+      authorImage: authors[item.author]?.profile_pic || "/placeholder.svg?height=40&width=40",
+      image: item.image_url || "/placeholder.svg?height=600&width=1200",
+      readTime: `${item.read_time} min read`,
+    }))
+
+  // If we don't have enough featured articles, add some regular ones to make at least 2
+  if (featuredArticles.length < 2) {
+    const regularArticles = news
+      .filter((item) => item && !featuredArticles.some((featured) => featured.id === item.id.toString()))
+      .slice(0, 5 - featuredArticles.length)
+      .map((item) => ({
+        id: item.id.toString(),
+        title: item.name,
+        excerpt: item.summary,
+        category: item.category,
+        slug: item.slug,
+        date: new Date(item.created_at).toLocaleDateString(),
+        author: authors[item.author] || "Unknown Author",
+        authorImage: authors[item.author]?.profile_pic || "/placeholder.svg?height=40&width=40",
+        image: item.image_url || "/placeholder.svg?height=600&width=1200",
+        readTime: `${item.read_time} min read`,
+      }))
+
+    featuredArticles.push(...regularArticles)
+  }
 
   // Get unique categories from fetched news
   const categories = [
@@ -178,21 +213,9 @@ export default function NewsPage() {
           </div>
         )}
 
-        {!loading && !error && featuredArticle && (
-          <FeaturedNews
-            article={{
-              id: featuredArticle.id.toString(),
-              title: featuredArticle.name,
-              excerpt: featuredArticle.summary,
-              category: featuredArticle.category,
-              slug: featuredArticle.slug,
-              date: new Date(featuredArticle.created_at).toLocaleDateString(),
-              author: authors[featuredArticle.author]?.name || "Unknown Author",
-              authorImage: authors[featuredArticle.author]?.profile_pic || "/placeholder.svg?height=40&width=40",
-              image: featuredArticle.image_url || "/placeholder.svg?height=600&width=1200",
-              readTime: `${featuredArticle.read_time} min read`,
-            }}
-          />
+        {/* Featured News Slider */}
+        {!loading && !error && featuredArticles.length > 0 && (
+          <FeaturedNewsSlider articles={featuredArticles} autoPlayInterval={5000} />
         )}
 
         <div className="my-12">
@@ -259,8 +282,7 @@ export default function NewsPage() {
                           category: item.category,
                           date: new Date(item.created_at).toLocaleDateString(),
                           author: authors[item.author]?.name || "Unknown Author",
-                          authorImage:
-                            authors[featuredArticle.author]?.profile_pic || "/placeholder.svg?height=40&width=40",
+                          authorImage: authors[item.author]?.profile_pic || "/placeholder.svg?height=40&width=40",
                           image: item.image_url || "/placeholder.svg?height=400&width=600",
                           readTime: `${item.read_time} min read`,
                         }}
