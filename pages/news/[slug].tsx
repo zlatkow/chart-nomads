@@ -22,7 +22,6 @@ import {
   Copy,
   Check,
 } from "lucide-react"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { ReadingProgress } from "@/components/news-page/reading-progress"
 import { TableOfContents } from "@/components/news-page/table-of-contents"
 import { NewsletterSignup } from "@/components/news-page/newsletter-signup"
@@ -345,6 +344,23 @@ export default function NewsArticlePage() {
     fetchArticle()
   }, [slug]) // Add slug as a dependency
 
+  // Close share menu when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      const shareMenu = document.getElementById("share-menu")
+      const shareButton = event.target as Element
+
+      if (shareMenu && !shareMenu.contains(shareButton) && !shareButton.closest("button")?.contains(shareButton)) {
+        shareMenu.classList.add("hidden")
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [])
+
   // Show loading state while article is being fetched
   if (loading) {
     return (
@@ -425,49 +441,44 @@ export default function NewsArticlePage() {
             </div>
 
             <div className="flex gap-2">
-              {/* Share dropdown menu */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="border-[#222] bg-[#1a1a1a] text-gray-300 hover:text-white hover:bg-[#222]"
-                  >
-                    <Share2 className="h-4 w-4" />
-                    <span className="sr-only">Share article</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48 bg-[#1a1a1a] border-[#222] text-white">
-                  <DropdownMenuItem
-                    className="flex items-center gap-2 cursor-pointer hover:bg-[#222]"
-                    onClick={() => handleShare("facebook")}
-                  >
+              {/* Share accordion menu */}
+              <div className="relative">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="border-[#222] bg-[#1a1a1a] text-gray-300 hover:text-white hover:bg-[#222]"
+                  onClick={() => {
+                    const shareMenu = document.getElementById("share-menu")
+                    if (shareMenu) {
+                      shareMenu.classList.toggle("hidden")
+                    }
+                  }}
+                >
+                  <Share2 className="h-4 w-4" />
+                  <span className="sr-only">Share article</span>
+                </Button>
+                <div
+                  id="share-menu"
+                  className="hidden absolute right-full top-0 mr-2 flex items-center h-10 bg-[#1a1a1a] border border-[#222] rounded-lg px-2"
+                >
+                  <button className="p-2 hover:bg-[#222] rounded-md" onClick={() => handleShare("facebook")}>
                     <Facebook className="h-4 w-4 text-[#1877F2]" />
-                    <span>Facebook</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    className="flex items-center gap-2 cursor-pointer hover:bg-[#222]"
-                    onClick={() => handleShare("twitter")}
-                  >
+                    <span className="sr-only">Share on Facebook</span>
+                  </button>
+                  <button className="p-2 hover:bg-[#222] rounded-md" onClick={() => handleShare("twitter")}>
                     <Twitter className="h-4 w-4 text-[#1DA1F2]" />
-                    <span>Twitter</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    className="flex items-center gap-2 cursor-pointer hover:bg-[#222]"
-                    onClick={() => handleShare("linkedin")}
-                  >
+                    <span className="sr-only">Share on Twitter</span>
+                  </button>
+                  <button className="p-2 hover:bg-[#222] rounded-md" onClick={() => handleShare("linkedin")}>
                     <Linkedin className="h-4 w-4 text-[#0A66C2]" />
-                    <span>LinkedIn</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    className="flex items-center gap-2 cursor-pointer hover:bg-[#222]"
-                    onClick={() => handleShare("copy")}
-                  >
+                    <span className="sr-only">Share on LinkedIn</span>
+                  </button>
+                  <button className="p-2 hover:bg-[#222] rounded-md" onClick={() => handleShare("copy")}>
                     {isCopied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
-                    <span>{isCopied ? "Copied!" : "Copy Link"}</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                    <span className="sr-only">{isCopied ? "Copied!" : "Copy Link"}</span>
+                  </button>
+                </div>
+              </div>
 
               {/* Bookmark button with conditional rendering based on auth state */}
               <SignedOut>
@@ -544,18 +555,14 @@ export default function NewsArticlePage() {
             <div className="mt-8 pt-6 border-t border-[#222]">
               <h3 className="text-lg mb-4 text-white">About the Author</h3>
               <div className="flex items-start gap-4">
-                <Avatar className="h-16 w-16">
-                  <AvatarImage
-                    src={authorData?.profile_pic || "/placeholder.svg?height=80&width=80"}
-                    alt={authorData?.name || "Author"}
-                  />
-                  <AvatarFallback>{authorData?.name?.charAt(0) || "A"}</AvatarFallback>
-                </Avatar>
-                <div>
-                  <h4 className="font-medium text-lg text-white">{authorData?.name || "Unknown Author"}</h4>
-                  <p className="text-gray-300">
-                    {authorData?.author_bio || `Author of articles about ${article.category}.`}
-                  </p>
+                <div className="flex flex-col items-center">
+                  <Avatar className="h-16 w-16">
+                    <AvatarImage
+                      src={authorData?.profile_pic || "/placeholder.svg?height=80&width=80"}
+                      alt={authorData?.name || "Author"}
+                    />
+                    <AvatarFallback>{authorData?.name?.charAt(0) || "A"}</AvatarFallback>
+                  </Avatar>
                   {authorData && (
                     <div className="flex gap-3 mt-2">
                       {authorData.x_link && (
@@ -633,6 +640,12 @@ export default function NewsArticlePage() {
                       )}
                     </div>
                   )}
+                </div>
+                <div>
+                  <h4 className="font-medium text-lg text-white">{authorData?.name || "Unknown Author"}</h4>
+                  <p className="text-gray-300">
+                    {authorData?.author_bio || `Author of articles about ${article.category}.`}
+                  </p>
                 </div>
               </div>
             </div>
