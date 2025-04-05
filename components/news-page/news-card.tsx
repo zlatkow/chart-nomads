@@ -64,7 +64,7 @@ export function NewsCard({ article }: NewsCardProps) {
           </h3>
         </CardHeader>
         <CardContent className="p-4 pt-0 flex-grow">
-          <p className="text-gray-300 line-clamp-3">{article.excerpt}</p>
+          <p className="text-gray-300 text-sm line-clamp-4">{article.excerpt}</p>
         </CardContent>
         <CardFooter className="p-4 pt-4 border-t border-[#222] flex items-center justify-between">
           <div className="flex items-center gap-2">
