@@ -35,6 +35,8 @@ import Newsletter from "../../components/Newsletter"
 import Footer from "../../components/Footer"
 import { ModalContext } from "../../pages/_app"
 import { useToast } from "@/hooks/use-toast"
+import { Toaster } from "@/components/ui/toaster"
+import { BookmarkButtonWithToast } from "@/components/bookmark-button-with-toast"
 
 // Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
@@ -116,55 +118,6 @@ export default function NewsArticlePage() {
     }
   }
 
-  // Add this function to manually show toast notifications
-  // Add this function right after all your state declarations
-  // const showCustomToast = (message: string, type: "success" | "error") => {
-  //   // First try to use the built-in toast system
-  //   toast({
-  //     variant: type === "success" ? "default" : "destructive",
-  //     title: type === "success" ? "Success" : "Error",
-  //     description: message,
-  //   })
-
-  //   // Also create a fallback manual toast in case the built-in one doesn't work
-  //   const toastElement = document.createElement("div")
-  //   toastElement.className = `manual-toast ${type}-toast`
-  //   toastElement.style.position = "fixed"
-  //   toastElement.style.bottom = "20px"
-  //   toastElement.style.right = "20px"
-  //   toastElement.style.backgroundColor = type === "success" ? "#edb900" : "#ef4444"
-  //   toastElement.style.color = type === "success" ? "#0f0f0f" : "white"
-  //   toastElement.style.padding = "12px 16px"
-  //   toastElement.style.borderRadius = "8px"
-  //   toastElement.style.boxShadow = "0 4px 12px rgba(0,0,0,0.15)"
-  //   toastElement.style.zIndex = "9999"
-  //   toastElement.style.maxWidth = "300px"
-
-  //   toastElement.innerHTML = `
-  //     <div style="display: flex; align-items: center; gap: 12px;">
-  //       <div style="flex-shrink: 0;">
-  //         ${
-  //           type === "success"
-  //             ? '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>'
-  //             : '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>'
-  //         }
-  //       </div>
-  //       <div>
-  //         <p style="margin: 0; font-weight: 500;">${message}</p>
-  //       </div>
-  //     </div>
-  //   `
-
-  //   document.body.appendChild(toastElement)
-
-  //   // Remove the toast after 3 seconds
-  //   setTimeout(() => {
-  //     if (document.body.contains(toastElement)) {
-  //       document.body.removeChild(toastElement)
-  //     }
-  //   }, 3000)
-  // }
-
   // Check if article is bookmarked when user is available
   useEffect(() => {
     if (!user || !article) {
@@ -219,6 +172,7 @@ export default function NewsArticlePage() {
 
         if (error) {
           console.error("Error removing bookmark:", error)
+          // Show error toast
           toast({
             variant: "destructive",
             title: "Error",
@@ -227,7 +181,7 @@ export default function NewsArticlePage() {
           return
         }
 
-        // Show success message
+        // Show success toast
         toast({
           title: "Bookmark removed",
           description: "Article has been removed from your bookmarks.",
@@ -245,6 +199,7 @@ export default function NewsArticlePage() {
 
         if (error) {
           console.error("Error adding bookmark:", error)
+          // Show error toast
           toast({
             variant: "destructive",
             title: "Error",
@@ -253,7 +208,7 @@ export default function NewsArticlePage() {
           return
         }
 
-        // Show success message
+        // Show success toast
         toast({
           title: "Bookmark added",
           description: "Article has been added to your bookmarks.",
@@ -264,6 +219,7 @@ export default function NewsArticlePage() {
       setIsBookmarked(!isBookmarked)
     } catch (err) {
       console.error("Error toggling bookmark:", err)
+      // Show error toast
       toast({
         variant: "destructive",
         title: "Error",
@@ -557,24 +513,14 @@ export default function NewsArticlePage() {
               </SignedOut>
 
               <SignedIn>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className={`border-[#222] transition-all duration-200 ${
-                    isBookmarked
-                      ? "bg-[#edb900] text-[#0f0f0f] hover:bg-[#edb900]/90"
-                      : "bg-[#1a1a1a] text-gray-300 hover:text-white hover:bg-[#222]"
-                  }`}
-                  onClick={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    handleBookmarkToggle()
-                  }}
-                  disabled={loadingBookmarks}
-                >
-                  <Bookmark className={`h-4 w-4 ${isBookmarked ? "fill-current" : ""}`} />
-                  <span className="sr-only">{isBookmarked ? "Remove bookmark" : "Save article"}</span>
-                </Button>
+                <BookmarkButtonWithToast
+                  userId={user?.id || null}
+                  postId={article.id}
+                  postType="news"
+                  isBookmarked={isBookmarked}
+                  onLoginRequired={handleLoginModalOpen}
+                  onBookmarkChange={(newState) => setIsBookmarked(newState)}
+                />
               </SignedIn>
             </div>
           </div>
@@ -808,6 +754,7 @@ export default function NewsArticlePage() {
       <Community />
       <Newsletter />
       <Footer />
+      <Toaster />
     </div>
   )
 }
