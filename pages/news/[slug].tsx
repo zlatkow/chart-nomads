@@ -9,19 +9,7 @@ import { useState, useEffect, useContext, useRef } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import {
-  CalendarIcon,
-  Clock,
-  ArrowLeft,
-  Share2,
-  Bookmark,
-  Tag,
-  Facebook,
-  Twitter,
-  Linkedin,
-  Copy,
-  Check,
-} from "lucide-react"
+import { CalendarIcon, Clock, ArrowLeft, Share2, Bookmark, Tag, Facebook, Copy, Check } from "lucide-react"
 import { ReadingProgress } from "@/components/news-page/reading-progress"
 import { TableOfContents } from "@/components/news-page/table-of-contents"
 import { NewsletterSignup } from "@/components/news-page/newsletter-signup"
@@ -36,9 +24,9 @@ import Footer from "../../components/Footer"
 import { ModalContext } from "../../pages/_app"
 import { useToast } from "@/hooks/use-toast"
 import { Toaster } from "@/components/ui/toaster"
-import { FiLinkedin } from "react-icons/fi";
-import { RiInstagramLine } from "react-icons/ri";
-import { RiTwitterXFill } from "react-icons/ri";
+import { FiLinkedin } from "react-icons/fi"
+import { RiInstagramLine } from "react-icons/ri"
+import { RiTwitterXFill } from "react-icons/ri"
 
 // Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
@@ -442,9 +430,128 @@ export default function NewsArticlePage() {
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8 bg-[#0f0f0f] text-white">
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#edb900]"></div>
+        <div className="w-full max-w-[1280px] mx-auto">
+          {/* Navigation skeleton */}
+          <div className="flex items-center justify-between mb-10">
+            <div className="w-32 h-9 bg-[#1a1a1a] rounded-md overflow-hidden relative shimmer-effect"></div>
+            <div className="flex gap-2">
+              <div className="w-9 h-9 bg-[#1a1a1a] rounded-md overflow-hidden relative shimmer-effect"></div>
+              <div className="w-9 h-9 bg-[#1a1a1a] rounded-md overflow-hidden relative shimmer-effect"></div>
+            </div>
+          </div>
+
+          {/* Two-column layout skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+            {/* Left column - Text content skeleton */}
+            <div className="flex flex-col">
+              {/* Title skeleton */}
+              <div className="h-12 bg-[#1a1a1a] rounded-md mb-4 w-full overflow-hidden relative shimmer-effect"></div>
+              <div className="h-12 bg-[#1a1a1a] rounded-md mb-6 w-3/4 overflow-hidden relative shimmer-effect"></div>
+
+              {/* Metadata skeleton */}
+              <div className="flex flex-wrap items-center gap-4 mb-6">
+                <div className="h-6 w-32 bg-[#1a1a1a] rounded-full overflow-hidden relative shimmer-effect"></div>
+                <div className="h-6 w-24 bg-[#1a1a1a] rounded-full overflow-hidden relative shimmer-effect"></div>
+                <div className="h-6 w-20 bg-[#1a1a1a] rounded-full overflow-hidden relative shimmer-effect"></div>
+              </div>
+
+              {/* Author skeleton */}
+              <div className="flex items-center gap-3">
+                <div className="h-12 w-12 bg-[#1a1a1a] rounded-full overflow-hidden relative shimmer-effect"></div>
+                <div className="flex flex-col gap-2">
+                  <div className="h-5 w-32 bg-[#1a1a1a] rounded-md overflow-hidden relative shimmer-effect"></div>
+                  <div className="h-4 w-16 bg-[#1a1a1a] rounded-md overflow-hidden relative shimmer-effect"></div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right column - Featured image skeleton */}
+            <div className="w-full h-[400px] bg-[#1a1a1a] rounded-lg overflow-hidden relative shimmer-effect"></div>
+          </div>
+
+          {/* Content skeleton */}
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-12 mt-12">
+            <div className="space-y-6">
+              <div className="h-4 bg-[#1a1a1a] rounded-md w-full overflow-hidden relative shimmer-effect"></div>
+              <div className="h-4 bg-[#1a1a1a] rounded-md w-full overflow-hidden relative shimmer-effect"></div>
+              <div className="h-4 bg-[#1a1a1a] rounded-md w-5/6 overflow-hidden relative shimmer-effect"></div>
+              <div className="h-4 bg-[#1a1a1a] rounded-md w-full overflow-hidden relative shimmer-effect"></div>
+              <div className="h-4 bg-[#1a1a1a] rounded-md w-4/5 overflow-hidden relative shimmer-effect"></div>
+              <div className="h-4 bg-[#1a1a1a] rounded-md w-full overflow-hidden relative shimmer-effect"></div>
+              <div className="h-4 bg-[#1a1a1a] rounded-md w-3/4 overflow-hidden relative shimmer-effect"></div>
+
+              <div className="pt-6 mt-6 border-t border-[#222]">
+                <div className="h-8 bg-[#1a1a1a] rounded-md w-48 mb-4 overflow-hidden relative shimmer-effect"></div>
+                <div className="flex flex-wrap gap-2">
+                  <div className="h-6 w-20 bg-[#1a1a1a] rounded-full overflow-hidden relative shimmer-effect"></div>
+                  <div className="h-6 w-24 bg-[#1a1a1a] rounded-full overflow-hidden relative shimmer-effect"></div>
+                  <div className="h-6 w-16 bg-[#1a1a1a] rounded-full overflow-hidden relative shimmer-effect"></div>
+                </div>
+              </div>
+
+              <div className="pt-6 mt-6 border-t border-[#222]">
+                <div className="h-8 bg-[#1a1a1a] rounded-md w-48 mb-4 overflow-hidden relative shimmer-effect"></div>
+                <div className="flex items-start gap-4">
+                  <div className="h-16 w-16 bg-[#1a1a1a] rounded-full overflow-hidden relative shimmer-effect"></div>
+                  <div className="flex-1">
+                    <div className="h-6 bg-[#1a1a1a] rounded-md w-48 mb-2 overflow-hidden relative shimmer-effect"></div>
+                    <div className="h-4 bg-[#1a1a1a] rounded-md w-full overflow-hidden relative shimmer-effect"></div>
+                    <div className="h-4 bg-[#1a1a1a] rounded-md w-5/6 mt-2 overflow-hidden relative shimmer-effect"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <aside className="space-y-8">
+              <div className="bg-[#1a1a1a] p-4 rounded-lg h-64 overflow-hidden relative shimmer-effect"></div>
+              <div className="pt-6 border-t border-[#222]">
+                <div className="h-8 bg-[#1a1a1a] rounded-md w-48 mb-4 overflow-hidden relative shimmer-effect"></div>
+                <div className="space-y-4">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="flex gap-3 p-3 rounded-lg bg-[#1a1a1a] border border-[#222]">
+                      <div className="h-16 w-16 bg-[#222] rounded-md overflow-hidden relative shimmer-effect"></div>
+                      <div className="flex-1">
+                        <div className="h-4 bg-[#222] rounded-md w-full mb-2 overflow-hidden relative shimmer-effect"></div>
+                        <div className="h-3 bg-[#222] rounded-md w-24 overflow-hidden relative shimmer-effect"></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </aside>
+          </div>
         </div>
+
+        <style jsx global>{`
+          .shimmer-effect {
+            position: relative;
+            overflow: hidden;
+          }
+
+          .shimmer-effect::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            transform: translateX(-100%);
+            background-image: linear-gradient(
+              90deg,
+              rgba(34, 34, 34, 0) 0,
+              rgba(34, 34, 34, 0.2) 20%,
+              rgba(237, 185, 0, 0.1) 60%,
+              rgba(34, 34, 34, 0)
+            );
+            animation: shimmer 2s infinite;
+          }
+
+          @keyframes shimmer {
+            100% {
+              transform: translateX(100%);
+            }
+          }
+        `}</style>
       </div>
     )
   }
@@ -518,11 +625,11 @@ export default function NewsArticlePage() {
                       <span className="sr-only">Share on Facebook</span>
                     </button>
                     <button className="p-2 hover:bg-[#222] rounded-md" onClick={() => handleShare("twitter")}>
-                    <RiTwitterXFill className="h-4 w-4" />
+                      <RiTwitterXFill className="h-4 w-4" />
                       <span className="sr-only">Share on Twitter</span>
                     </button>
                     <button className="p-2 hover:bg-[#222] rounded-md" onClick={() => handleShare("linkedin")}>
-                      <Linkedin className="h-4 w-4" />
+                      <FiLinkedin className="h-4 w-4" />
                       <span className="sr-only">Share on LinkedIn</span>
                     </button>
                     <button className="p-2 hover:bg-[#222] rounded-md" onClick={() => handleShare("copy")}>
