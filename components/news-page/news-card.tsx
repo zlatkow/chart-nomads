@@ -47,7 +47,7 @@ export function NewsCard({ article }: NewsCardProps) {
   return (
     <Link href={`/news/${formattedSlug}`} className="block h-full group">
       <Card className="overflow-hidden h-full flex flex-col transition-colors duration-200 bg-[#0f0f0f] group-hover:bg-[#1a1a1a] border-[#222]">
-        <div className="relative h-[300px] w-full">
+        <div className="relative h-[200px] w-full">
           <Image src={article.image || "/placeholder.svg"} alt={article.title} fill className="object-cover" />
         </div>
         <CardHeader className="p-4">

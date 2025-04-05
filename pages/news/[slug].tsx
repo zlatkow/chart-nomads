@@ -721,8 +721,8 @@ export default function NewsArticlePage() {
                     <div className="space-y-4">
                       {relatedArticles.map((relatedArticle) => (
                         <Link href={`/news/${relatedArticle.slug}`} key={relatedArticle.id} className="block group">
-                          <div className="flex gap-3 p-3 rounded-lg bg-[#0f0f0f] hover:bg-[#1a1a1a] transition-colors duration-200">
-                            <div className="relative h-16 w-16 flex-shrink-0 rounded-md border border-[#222] overflow-hidden">
+                          <div className="flex gap-3 p-3 rounded-lg bg-[#0f0f0f] hover:bg-[#1a1a1a] border border-[#222] transition-colors duration-200">
+                            <div className="relative h-16 w-16 flex-shrink-0 rounded-md overflow-hidden">
                               <Image
                                 src={relatedArticle.image_url || "/placeholder.svg?height=64&width=64"}
                                 alt={relatedArticle.name}
