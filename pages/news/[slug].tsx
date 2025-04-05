@@ -432,8 +432,8 @@ export default function NewsArticlePage() {
 
                 <div
                   ref={shareMenuRef}
-                  className={`absolute right-0 top-0 flex items-center h-9 bg-[#1a1a1a] border border-[#222] rounded-l-lg px-2 transition-all duration-200 ease-in-out overflow-hidden ${
-                    isShareMenuOpen ? "opacity-100 w-[160px]" : "opacity-0 w-0"
+                  className={`absolute right-0 top-0 flex items-center h-9 bg-[#1a1a1a] border border-[#222] rounded-l-lg px-2 transition-all duration-500 ease-in-out overflow-hidden ${
+                    isShareMenuOpen ? "opacity-100 w-[170px]" : "opacity-0 w-0"
                   }`}
                   style={{
                     borderTopRightRadius: 0,
