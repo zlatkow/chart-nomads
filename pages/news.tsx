@@ -2,7 +2,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Tabs, TabsContent } from "@/components/ui/tabs_news"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs_news"
 import {
   Pagination,
   PaginationContent,
@@ -196,7 +196,6 @@ export default function NewsPage() {
         <div className="my-12">
           <Tabs defaultValue="All" className="w-full" value={activeCategory} onValueChange={setActiveCategory}>
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-              <h2 className="text-2xl text-white">News Articles</h2>
               <div className="w-[300px]">
                 <Search className="relative left-2.5 top-6 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -230,6 +229,17 @@ export default function NewsPage() {
                   </button>
                 )}
               </div>
+              <TabsList className="bg-[#1a1a1a] overflow-x-auto flex-wrap">
+                {categories.map((category) => (
+                  <TabsTrigger
+                    key={category}
+                    value={category}
+                    className="data-[state=active]:bg-[#edb900] data-[state=active]:text-[#0f0f0f] transition-colors duration-300 ease-in-out hover:text-[#edb900]"
+                  >
+                    {category}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
             </div>
 
             {categories.map((category) => (
