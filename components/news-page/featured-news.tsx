@@ -79,7 +79,7 @@ export function FeaturedNews({ article }: FeaturedNewsProps) {
                   <div>
                     <p className="text-sm font-medium text-gray-200">{authorName}</p>
                     <div className="flex">
-                        <p> className="text-xs text-gray-400 flex items-center gap-1">
+                        <p className="text-xs text-gray-400 flex items-center gap-1">
                         <Clock className="h-3 w-3" /> {article.readTime}
                         </p>
                         <p className="text-sm text-gray-400 flex items-center gap-1">
