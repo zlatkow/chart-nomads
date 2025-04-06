@@ -40,6 +40,7 @@ const shimmerAnimation = `
 .shimmer-effect {
   position: relative;
   overflow: hidden;
+  background-color: #222;
 }
 
 .shimmer-effect::after {
@@ -339,33 +340,32 @@ const AllPropFirms = ({ blogs }) => {
   )
   const sortedPropFirms = sortPropFirms(filteredPropFirms, sortBy)
 
-  // Replace the renderSkeletonCards function with this updated version
+  // Simplified skeleton cards function that matches the second image
   const renderSkeletonCards = () => {
     return Array(16)
       .fill(0)
       .map((_, index) => (
         <div
           key={`skeleton-${index}`}
-          className="z-50 p-4 shadow-lg relative bg-[#1a1a1a] rounded-[10px] border border-[#2a2a2a] py-7"
+          className="z-50 relative bg-[#1a1a1a] rounded-[10px] border border-[#2a2a2a] overflow-hidden"
         >
-          <div className="flex">
-            <span className="absolute top-3 left-3 px-[5px] border border-[#333] text-xs rounded-[10px] w-16 h-4 bg-[#1a1a1a] shimmer-effect"></span>
-            <span className="absolute top-3 right-3 w-6 h-6 rounded-full bg-[rgba(237,185,0,0.1)] shimmer-effect"></span>
-          </div>
-          <div className="flex justify-between">
-            <div className="w-20 h-20 mb-2 flex items-center justify-center rounded-[10px] p-1 mt-[50px] bg-[#222] shimmer-effect"></div>
-            <div className="block mt-9 min-w-[150px] justify-center">
-              <div className="h-6 w-24 bg-transparent rounded mb-2 mx-auto shimmer-effect"></div>
-              <div className="h-6 w-16 bg-transparent rounded mb-2 mx-auto shimmer-effect">
-                <div className="flex items-center justify-center">
-                  <div className="w-4 h-4 mr-1 bg-[#333] rounded-full shimmer-effect"></div>
-                  <div className="w-8 h-4 bg-[#333] rounded shimmer-effect"></div>
-                </div>
-              </div>
-              <div className="h-6 w-20 bg-[#333] rounded-[8px] mx-auto shimmer-effect"></div>
-              <div className="absolute top-4 right-[45px] h-4 w-16 bg-transparent text-center text-xs shimmer-effect">
-                <div className="w-full h-full bg-[#333] rounded shimmer-effect"></div>
-              </div>
+          {/* Top tag */}
+          <div className="p-4">
+            <div className="h-4 w-16 bg-[#222] rounded-[10px] mb-6 shimmer-effect"></div>
+
+            {/* Main content area */}
+            <div className="flex flex-col space-y-4">
+              {/* Logo area */}
+              <div className="w-20 h-20 bg-[#222] rounded-[10px] shimmer-effect"></div>
+
+              {/* Title */}
+              <div className="h-6 w-full max-w-[180px] bg-[#222] rounded shimmer-effect mx-auto"></div>
+
+              {/* Rating */}
+              <div className="h-6 w-16 bg-[#222] rounded shimmer-effect mx-auto"></div>
+
+              {/* Reviews */}
+              <div className="h-6 w-24 bg-[#222] rounded shimmer-effect mx-auto"></div>
             </div>
           </div>
         </div>
@@ -380,98 +380,85 @@ const AllPropFirms = ({ blogs }) => {
         <h1 className="text-7xl font-bold text-center z-50">ALL PROP FIRMS</h1>
         <p className="text-center mb-[150px] z-50">Select a specific company to find more information.</p>
 
-        {/* Search & Sorting - Show either real UI or skeleton based on loading state */}
-        <div className="w-full flex flex-col md:flex-row justify-between items-center mb-6">
-          <div className="flex items-center gap-4 z-20">
-            <div className="w-[300px] h-10 justify-center">
-              <div className="relative h-10">
-                {isLoading ? (
-                  <>
-                    <div className="absolute left-2.5 top-2.5 h-4 w-4 bg-[#444] rounded-full shimmer-effect z-10"></div>
-                    <div className="w-full h-10 bg-[#333333] border border-[#333333] rounded-md shimmer-effect"></div>
-                  </>
-                ) : (
-                  <>
-                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
-                    <Input
-                      type="text"
-                      placeholder="Search by company name..."
-                      className="searchDark w-full pl-8 bg-[#333333] border-[#333333] focus-visible:ring-[#edb900] h-10"
-                      value={searchQuery}
-                      onChange={handleSearch}
-                    />
-                    {searchQuery && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSearchQuery("")
-                          setSearchTerm("") // Clear searchTerm as well to fix search functionality
-                        }}
-                        className="absolute right-2.5 top-2.5 h-4 w-4 text-[#edb900] hover:text-[#edb900]/80"
-                        aria-label="Clear search"
+        {/* Search & Sorting */}
+        {isLoading ? (
+          /* Simplified skeleton for search and sort UI */
+          <div className="w-full flex flex-col md:flex-row justify-between items-center mb-6">
+            <div className="w-[300px] h-10 bg-[#222] rounded-md shimmer-effect"></div>
+            <div className="w-[170px] h-10 bg-[#222] rounded-md shimmer-effect mt-4 md:mt-0"></div>
+          </div>
+        ) : (
+          /* Actual search and sort UI */
+          <div className="w-full flex flex-col md:flex-row justify-between items-center mb-6">
+            <div className="flex items-center gap-4 z-20">
+              <div className="w-[300px] h-10 justify-center">
+                <div className="relative h-10">
+                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
+                  <Input
+                    type="text"
+                    placeholder="Search by company name..."
+                    className="searchDark w-full pl-8 bg-[#333333] border-[#333333] focus-visible:ring-[#edb900] h-10"
+                    value={searchQuery}
+                    onChange={handleSearch}
+                  />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSearchQuery("")
+                        setSearchTerm("") // Clear searchTerm as well to fix search functionality
+                      }}
+                      className="absolute right-2.5 top-2.5 h-4 w-4 text-[#edb900] hover:text-[#edb900]/80"
+                      aria-label="Clear search"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="h-4 w-4"
                       >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="h-4 w-4"
-                        >
-                          <path d="M18 6L6 18M6 6l12 12" />
-                        </svg>
-                      </button>
-                    )}
-                  </>
-                )}
+                        <path d="M18 6L6 18M6 6l12 12" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
               </div>
-            </div>
-            <div className="text-sm">
-              {isLoading ? (
-                <div className="h-5 w-32 bg-[#222] rounded shimmer-effect"></div>
-              ) : (
+              <div className="text-sm">
                 <p className="text-white">
                   Showing <span className="text-[#EDB900]">{sortedPropFirms.length}</span> results.
                 </p>
-              )}
+              </div>
             </div>
-          </div>
 
-          <div className="flex flex-col md:flex-row gap-4 items-center justify-end z-20 mt-4 md:mt-0">
-            <div className="flex items-center gap-2">
-              {isLoading ? (
-                <>
-                  <div className="h-5 w-14 bg-transparent text-sm shimmer-effect">Sort by:</div>
-                  <div className="w-[170px] h-10 bg-[#1A1A1A] border border-[#333333] rounded-md shimmer-effect"></div>
-                </>
-              ) : (
-                <>
-                  <label className="text-sm">Sort by:</label>
-                  <Select value={sortBy} onValueChange={(value) => setSortBy(value)}>
-                    <SelectTrigger className="w-[170px] bg-[#1A1A1A] border-[#333333] text-gray-300 px-4 py-1">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-[#1A1A1A] border-[#333333] text-white shadow-lg">
-                      <SelectItem value="name-asc">Name (A-Z)</SelectItem>
-                      <SelectItem value="name-desc">Name (Z-A)</SelectItem>
-                      <SelectItem value="rating-desc">Highest Rating</SelectItem>
-                      <SelectItem value="rating-asc">Lowest Rating</SelectItem>
-                      <SelectItem value="reviews-desc">Most Reviews</SelectItem>
-                      <SelectItem value="reviews-asc">Fewest Reviews</SelectItem>
-                      <SelectItem value="likes-desc">Most Likes</SelectItem>
-                      <SelectItem value="likes-asc">Fewest Likes</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </>
-              )}
+            <div className="flex flex-col md:flex-row gap-4 items-center justify-end z-20">
+              <div className="flex items-center gap-2">
+                <label className="text-sm">Sort by:</label>
+                <Select value={sortBy} onValueChange={(value) => setSortBy(value)}>
+                  <SelectTrigger className="w-[170px] bg-[#1A1A1A] border-[#333333] text-gray-300 px-4 py-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#1A1A1A] border-[#333333] text-white shadow-lg">
+                    <SelectItem value="name-asc">Name (A-Z)</SelectItem>
+                    <SelectItem value="name-desc">Name (Z-A)</SelectItem>
+                    <SelectItem value="rating-desc">Highest Rating</SelectItem>
+                    <SelectItem value="rating-asc">Lowest Rating</SelectItem>
+                    <SelectItem value="reviews-desc">Most Reviews</SelectItem>
+                    <SelectItem value="reviews-asc">Fewest Reviews</SelectItem>
+                    <SelectItem value="likes-desc">Most Likes</SelectItem>
+                    <SelectItem value="likes-asc">Fewest Likes</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {isLoading ? (
-          /* Skeleton cards grid */
+          /* Simplified skeleton cards grid */
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-[300px]">
             {renderSkeletonCards()}
           </div>
