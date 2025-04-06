@@ -352,12 +352,10 @@ const AllPropFirms = ({ blogs }) => {
           {/* Top tag */}
           <div className="p-4">
             <div className="h-4 w-16 bg-[#222] rounded-[10px] mb-6 shimmer-effect"></div>
-
+            {/* Logo area */}
+            <div className="w-20 h-20 bg-[#222] rounded-[10px] shimmer-effect"></div>
             {/* Main content area */}
-            <div className="flex space-y-4">
-              {/* Logo area */}
-              <div className="w-20 h-20 bg-[#222] rounded-[10px] shimmer-effect"></div>
-
+            <div className="flex flex-col space-y-4">
               {/* Title */}
               <div className="h-6 w-full max-w-[180px] bg-[#222] rounded shimmer-effect mx-auto"></div>
 
