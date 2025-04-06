@@ -374,105 +374,104 @@ const AllPropFirms = ({ blogs }) => {
         <h1 className="text-7xl font-bold text-center z-50">ALL PROP FIRMS</h1>
         <p className="text-center mb-[150px] z-50">Select a specific company to find more information.</p>
 
-        {/* Search & Sorting */}
-        <div className="w-full flex flex-col md:flex-row justify-between items-center mb-6">
-          <div className="flex items-center gap-4 z-20">
-            <div className="w-[300px] h-10 justify-center">
-              <div className="relative h-10">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
-                <Input
-                  type="text"
-                  placeholder="Search by company name..."
-                  className="searchDark w-full pl-8 bg-[#333333] border-[#333333] focus-visible:ring-[#edb900] h-10"
-                  value={searchQuery}
-                  onChange={handleSearch}
-                />
-                {searchQuery && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSearchQuery("")
-                      setSearchTerm("") // Clear searchTerm as well to fix search functionality
-                    }}
-                    className="absolute right-2.5 top-2.5 h-4 w-4 text-[#edb900] hover:text-[#edb900]/80"
-                    aria-label="Clear search"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="h-4 w-4"
-                    >
-                      <path d="M18 6L6 18M6 6l12 12" />
-                    </svg>
-                  </button>
-                )}
+        {/* Search & Sorting - Show either real UI or skeleton based on loading state */}
+        {isLoading ? (
+          /* Skeleton for search and sort UI */
+          <div className="w-full flex flex-col md:flex-row justify-between items-center mb-6">
+            <div className="flex items-center gap-4 z-20">
+              <div className="w-[300px] h-10 justify-center">
+                <div className="relative h-10">
+                  <div className="absolute left-2.5 top-2.5 h-4 w-4 bg-[#444] rounded shimmer-effect"></div>
+                  <div className="w-full h-10 bg-[#333333] border border-[#333333] rounded-md shimmer-effect"></div>
+                </div>
+              </div>
+              <div className="text-sm">
+                <div className="h-5 w-32 bg-[#222] rounded shimmer-effect"></div>
               </div>
             </div>
-            {!isLoading && (
+
+            <div className="flex flex-col md:flex-row gap-4 items-center justify-end z-20 mt-4 md:mt-0">
+              <div className="flex items-center gap-2">
+                <div className="h-5 w-14 bg-[#222] rounded shimmer-effect"></div>
+                <div className="w-[170px] h-10 bg-[#1A1A1A] border border-[#333333] rounded-md shimmer-effect"></div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          /* Actual search and sort UI */
+          <div className="w-full flex flex-col md:flex-row justify-between items-center mb-6">
+            <div className="flex items-center gap-4 z-20">
+              <div className="w-[300px] h-10 justify-center">
+                <div className="relative h-10">
+                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
+                  <Input
+                    type="text"
+                    placeholder="Search by company name..."
+                    className="searchDark w-full pl-8 bg-[#333333] border-[#333333] focus-visible:ring-[#edb900] h-10"
+                    value={searchQuery}
+                    onChange={handleSearch}
+                  />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSearchQuery("")
+                        setSearchTerm("") // Clear searchTerm as well to fix search functionality
+                      }}
+                      className="absolute right-2.5 top-2.5 h-4 w-4 text-[#edb900] hover:text-[#edb900]/80"
+                      aria-label="Clear search"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="h-4 w-4"
+                      >
+                        <path d="M18 6L6 18M6 6l12 12" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
+              </div>
               <div className="text-sm">
                 <p className="text-white">
                   Showing <span className="text-[#EDB900]">{sortedPropFirms.length}</span> results.
                 </p>
               </div>
-            )}
-          </div>
+            </div>
 
-          <div className="flex flex-col md:flex-row gap-4 items-center justify-end z-20">
-            <div className="flex items-center gap-2">
-              <label className="text-sm">Sort by:</label>
-              <Select value={sortBy} onValueChange={(value) => setSortBy(value)}>
-                <SelectTrigger className="w-[170px] bg-[#1A1A1A] border-[#333333] text-gray-300 px-4 py-1">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-[#1A1A1A] border-[#333333] text-white shadow-lg">
-                  <SelectItem value="name-asc">Name (A-Z)</SelectItem>
-                  <SelectItem value="name-desc">Name (Z-A)</SelectItem>
-                  <SelectItem value="rating-desc">Highest Rating</SelectItem>
-                  <SelectItem value="rating-asc">Lowest Rating</SelectItem>
-                  <SelectItem value="reviews-desc">Most Reviews</SelectItem>
-                  <SelectItem value="reviews-asc">Fewest Reviews</SelectItem>
-                  <SelectItem value="likes-desc">Most Likes</SelectItem>
-                  <SelectItem value="likes-asc">Fewest Likes</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="flex flex-col md:flex-row gap-4 items-center justify-end z-20">
+              <div className="flex items-center gap-2">
+                <label className="text-sm">Sort by:</label>
+                <Select value={sortBy} onValueChange={(value) => setSortBy(value)}>
+                  <SelectTrigger className="w-[170px] bg-[#1A1A1A] border-[#333333] text-gray-300 px-4 py-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#1A1A1A] border-[#333333] text-white shadow-lg">
+                    <SelectItem value="name-asc">Name (A-Z)</SelectItem>
+                    <SelectItem value="name-desc">Name (Z-A)</SelectItem>
+                    <SelectItem value="rating-desc">Highest Rating</SelectItem>
+                    <SelectItem value="rating-asc">Lowest Rating</SelectItem>
+                    <SelectItem value="reviews-desc">Most Reviews</SelectItem>
+                    <SelectItem value="reviews-asc">Fewest Reviews</SelectItem>
+                    <SelectItem value="likes-desc">Most Likes</SelectItem>
+                    <SelectItem value="likes-asc">Fewest Likes</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {isLoading ? (
-          <>
-            {/* Skeleton for search and sort UI */}
-            <div className="w-full flex flex-col md:flex-row justify-between items-center mb-6">
-              <div className="flex items-center gap-4 z-20">
-                <div className="w-[300px] h-10 justify-center">
-                  <div className="relative h-10">
-                    <div className="absolute left-2.5 top-2.5 h-4 w-4 bg-[#444] rounded shimmer-effect"></div>
-                    <div className="w-full h-10 bg-[#333333] border border-[#333333] rounded-md shimmer-effect"></div>
-                  </div>
-                </div>
-                <div className="text-sm">
-                  <div className="h-5 w-32 bg-[#222] rounded shimmer-effect"></div>
-                </div>
-              </div>
-
-              <div className="flex flex-col md:flex-row gap-4 items-center justify-end z-20 mt-4 md:mt-0">
-                <div className="flex items-center gap-2">
-                  <div className="h-5 w-14 bg-[#222] rounded shimmer-effect"></div>
-                  <div className="w-[170px] h-10 bg-[#1A1A1A] border border-[#333333] rounded-md shimmer-effect"></div>
-                </div>
-              </div>
-            </div>
-
-            {/* Skeleton cards grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-[300px]">
-              {renderSkeletonCards()}
-            </div>
-          </>
+          /* Skeleton cards grid */
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-[300px]">
+            {renderSkeletonCards()}
+          </div>
         ) : sortedPropFirms.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-[300px]">
             {sortedPropFirms.map((firm) => {
