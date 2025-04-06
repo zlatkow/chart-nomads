@@ -478,7 +478,7 @@ const PropFirmRules = ({ propFirmRules }) => {
           <div className="flex justify-between">
             <Tabs
               defaultValue="tab1"
-              className="w-full"
+              className="w-full z-20"
               value={activeTab === "tab1" ? "tab1" : "tab2"}
               onValueChange={(value) => handleTabClick(value)}
             >
@@ -769,7 +769,7 @@ const PropFirmRules = ({ propFirmRules }) => {
                       </div>
 
                       {/* ✅ Content Section */}
-                      <div className="rules-section rules-container ml-[20px] mt-6 p-3 border-l-[1px] border-[rgba(237,185,0,0.1)] px-[100px]">
+                      <div className="rules-section rules-container w-[900px] ml-[20px] mt-6 p-3 border-l-[1px] border-[rgba(237,185,0,0.1)] px-[100px]">
                         <div className="flex text-xs justify-end flex-grow mt-[-35px] mb-10 mr-[-100px]">
                           <FontAwesomeIcon
                             icon={faCalendar}
