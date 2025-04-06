@@ -70,6 +70,7 @@ const AllPropFirms = ({ blogs }) => {
   const [propFirms, setPropFirms] = useState([])
   const [sortBy, setSortBy] = useState("name-asc")
   const [searchTerm, setSearchTerm] = useState("")
+  const [timeRange, setTimeRange] = useState("All Time") // Add this line
   // Remove the local login modal state
   // const [isLoginOpen, setIsLoginOpen] = useState(false);
   const { user } = useUser()
@@ -135,6 +136,34 @@ const AllPropFirms = ({ blogs }) => {
 
     fetchPropFirms()
   }, [])
+
+  // Filter data based on time range selection
+  useEffect(() => {
+    if (!propFirms.length) return
+
+    const now = new Date()
+    let monthsToShow = 12 // Default to last 12 months
+
+    if (timeRange === "All Time") {
+      // No filtering needed for All Time
+      return
+    } else if (timeRange === "Last 6 Months") {
+      monthsToShow = 6
+    }
+
+    // Calculate cutoff date
+    const cutoffDate = new Date()
+    cutoffDate.setMonth(now.getMonth() - monthsToShow)
+
+    // Filter prop firms based on their creation date
+    const filteredData = propFirms.filter((firm) => {
+      // Assuming each firm has a created_at field
+      const firmDate = new Date(firm.created_at)
+      return firmDate >= cutoffDate
+    })
+
+    setPropFirms(filteredData)
+  }, [timeRange])
 
   // ✅ Sorting Logic
   const sortPropFirms = (firms, criteria) => {
@@ -234,6 +263,9 @@ const AllPropFirms = ({ blogs }) => {
   )
   const sortedPropFirms = sortPropFirms(filteredPropFirms, sortBy)
 
+  // Add a date range text display similar to the chart component
+  const dateRangeText = timeRange !== "All Time" ? `Showing data from the ${timeRange}` : "Showing all data"
+
   // Replace the renderSkeletonCards function with this updated version
   const renderSkeletonCards = () => {
     return Array(12)
@@ -303,21 +335,36 @@ const AllPropFirms = ({ blogs }) => {
             </div>
           </div>
 
-          <div className="flex w-[250px] justify-end mb-4">
-            <label className="w-[120px] text-sm pt-2">Sort by:</label>
-            <select
-              className="p-2 bg-[#0f0f0f] text-white rounded z-50 rounded-[10px] h-[35px]"
-              onChange={(e) => setSortBy(e.target.value)}
-            >
-              <option value="name-asc">Name (A-Z)</option>
-              <option value="name-desc">Name (Z-A)</option>
-              <option value="rating-desc">Highest Rating</option>
-              <option value="rating-asc">Lowest Rating</option>
-              <option value="reviews-desc">Most Reviews</option>
-              <option value="reviews-asc">Fewest Reviews</option>
-              <option value="likes-desc">Most Likes</option>
-              <option value="likes-asc">Fewest Likes</option>
-            </select>
+          <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto justify-end mb-4">
+            <div className="flex w-[250px] justify-end">
+              <label className="w-[120px] text-sm pt-2">Sort by:</label>
+              <select
+                className="p-2 bg-[#0f0f0f] text-white rounded z-50 rounded-[10px] h-[35px]"
+                onChange={(e) => setSortBy(e.target.value)}
+              >
+                <option value="name-asc">Name (A-Z)</option>
+                <option value="name-desc">Name (Z-A)</option>
+                <option value="rating-desc">Highest Rating</option>
+                <option value="rating-asc">Lowest Rating</option>
+                <option value="reviews-desc">Most Reviews</option>
+                <option value="reviews-asc">Fewest Reviews</option>
+                <option value="likes-desc">Most Likes</option>
+                <option value="likes-asc">Fewest Likes</option>
+              </select>
+            </div>
+
+            <div className="flex w-[250px] justify-end">
+              <label className="w-[120px] text-sm pt-2">Time range:</label>
+              <select
+                className="p-2 bg-[#0f0f0f] text-white rounded z-50 rounded-[10px] h-[35px]"
+                value={timeRange}
+                onChange={(e) => setTimeRange(e.target.value)}
+              >
+                <option value="All Time">All Time</option>
+                <option value="Last 12 Months">Last 12 Months</option>
+                <option value="Last 6 Months">Last 6 Months</option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -427,6 +474,11 @@ const AllPropFirms = ({ blogs }) => {
           </div>
         ) : (
           <p className="text-center">No matching prop firms found..</p>
+        )}
+        {sortedPropFirms.length > 0 && (
+          <div className="text-xs text-[#666666] mt-4 mb-[300px]">
+            <p>{dateRangeText}</p>
+          </div>
         )}
       </div>
       <LatestBlogs blogs={blogs} />

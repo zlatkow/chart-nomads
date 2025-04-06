@@ -148,12 +148,12 @@ export default function AllTransactions({ transactions: initialTransactions }) {
               <p className="text-[#666666]">Browse through most recent payouts in the industry</p>
             </div>
           </div>
-          <div className="w-[300px]">
-            <Search className="relative left-2.5 top-6 h-4 w-4 text-muted-foreground" />
+          <div className="w-[300px] h-10 relative">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
             <Input
               type="text"
               placeholder="Search by company.."
-              className="searchDark w-full pl-8 bg-[#333333] border-[#333333] focus-visible:ring-[#edb900]"
+              className="searchDark w-full pl-8 bg-[#333333] border-[#333333] focus-visible:ring-[#edb900] h-10"
               value={searchQuery}
               onChange={handleSearch}
             />
@@ -164,7 +164,7 @@ export default function AllTransactions({ transactions: initialTransactions }) {
                   setSearchQuery("")
                   setPage(1)
                 }}
-                className="relative right-[-275px] top-[-27px] h-4 w-4 text-[#edb900] hover:text-[#edb900]/80"
+                className="absolute right-2.5 top-2.5 h-4 w-4 text-[#edb900] hover:text-[#edb900]/80"
                 aria-label="Clear search"
               >
                 <svg
