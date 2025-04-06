@@ -23,6 +23,8 @@ import { ModalContext } from "./_app"
 import { Search } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useToast } from "@/hooks/use-toast"
+import { Toaster } from "@/components/ui/toaster"
 
 // Update the shimmer animation CSS to match exactly what's in the blog page
 const shimmerAnimation = `
@@ -79,6 +81,7 @@ const AllPropFirms = ({ blogs }) => {
   const [loadingLikes, setLoadingLikes] = useState(true)
   const [isLoading, setIsLoading] = useState(true) // Add loading state for prop firms
   const [searchQuery, setSearchQuery] = useState("")
+  const { toast } = useToast()
 
   // Use the ModalContext
   const { setShowLoginModal } = useContext(ModalContext)
@@ -199,6 +202,9 @@ const AllPropFirms = ({ blogs }) => {
       return
     }
 
+    // Store the previous state to handle optimistic updates
+    const wasLiked = userLikedFirms.has(Number(firmId))
+
     setUserLikedFirms((prevLikes) => {
       const updatedLikes = new Set(prevLikes)
       const numericFirmId = Number(firmId) // ✅ Convert firmId to number to match state
@@ -224,26 +230,92 @@ const AllPropFirms = ({ blogs }) => {
       // 🟢 Like: Insert into `user_likes`
       const { error } = await supabase.from("user_likes").insert([{ user_id: user.id, firm_id: firmId }])
       if (error) {
+        // Show error toast with icon
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to like company. Please try again.",
+          action: (
+            <div className="h-8 w-8 bg-red-100 rounded-full flex items-center justify-center mr-3">
+              <FontAwesomeIcon icon={regularHeart} className="h-4 w-4 text-red-500" />
+            </div>
+          ),
+        })
         return
       }
 
       // 🟢 Increment likes in DB
       const { error: incrementError } = await supabase.rpc("increment_likes", { firm_id: firmId })
       if (incrementError) {
+        // Show error toast with icon
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to update like count. Please try again.",
+          action: (
+            <div className="h-8 w-8 bg-red-100 rounded-full flex items-center justify-center mr-3">
+              <FontAwesomeIcon icon={regularHeart} className="h-4 w-4 text-red-500" />
+            </div>
+          ),
+        })
         return
       }
+
+      // Show success toast with icon
+      toast({
+        title: "Company liked",
+        description: "This company has been added to your likes.",
+        action: (
+          <div className="h-8 w-8 bg-[#edb900] rounded-full flex items-center justify-center mr-3">
+            <FontAwesomeIcon icon={solidHeart} className="h-4 w-4 text-[#0f0f0f]" />
+          </div>
+        ),
+      })
     } else {
       // 🔴 Unlike: Remove from `user_likes`
       const { error } = await supabase.from("user_likes").delete().eq("user_id", user.id).eq("firm_id", firmId)
       if (error) {
+        // Show error toast with icon
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to unlike company. Please try again.",
+          action: (
+            <div className="h-8 w-8 bg-red-100 rounded-full flex items-center justify-center mr-3">
+              <FontAwesomeIcon icon={regularHeart} className="h-4 w-4 text-red-500" />
+            </div>
+          ),
+        })
         return
       }
 
       // 🔴 Decrement likes in DB
       const { error: decrementError } = await supabase.rpc("decrement_likes", { firm_id: firmId })
       if (decrementError) {
+        // Show error toast with icon
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to update like count. Please try again.",
+          action: (
+            <div className="h-8 w-8 bg-red-100 rounded-full flex items-center justify-center mr-3">
+              <FontAwesomeIcon icon={regularHeart} className="h-4 w-4 text-red-500" />
+            </div>
+          ),
+        })
         return
       }
+
+      // Show success toast with icon
+      toast({
+        title: "Company unliked",
+        description: "This company has been removed from your likes.",
+        action: (
+          <div className="h-8 w-8 bg-gray-100 rounded-full flex items-center justify-center mr-3">
+            <FontAwesomeIcon icon={regularHeart} className="h-4 w-4 text-gray-500" />
+          </div>
+        ),
+      })
     }
   }
 
@@ -489,6 +561,7 @@ const AllPropFirms = ({ blogs }) => {
       <Community />
       <Newsletter />
       <Footer />
+      <Toaster />
     </div>
   )
 }
