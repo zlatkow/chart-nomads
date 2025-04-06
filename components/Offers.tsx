@@ -12,7 +12,7 @@ import { faStar } from "@fortawesome/free-solid-svg-icons"
 import { faTags } from "@fortawesome/free-solid-svg-icons"
 import { faChevronDown, faChevronUp } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Info, ShoppingCart, Copy, Check, Calendar, Infinity, Search } from 'lucide-react'
+import { Info, ShoppingCart, Copy, Check, Calendar, Infinity, Search } from "lucide-react"
 import { SignedIn, SignedOut, useUser } from "@clerk/nextjs"
 import { Input } from "@/components/ui/input"
 
@@ -114,17 +114,17 @@ export default function OffersComponent({
   showTabs = false, // New prop to control whether to show tabs
   showSearch = false, // New prop to control whether to show search
 }: {
-  firmId?: number | null;
-  discounts?: any[];
-  isLoading?: boolean;
-  activeTab?: string;
-  supabase: any;
-  onLoginModalOpen?: () => void;
-  showOptionalBonus?: boolean;
-  customClass?: string;
-  hideCompanyCard?: boolean;
-  showTabs?: boolean;
-  showSearch?: boolean;
+  firmId?: number | null
+  discounts?: any[]
+  isLoading?: boolean
+  activeTab?: string
+  supabase: any
+  onLoginModalOpen?: () => void
+  showOptionalBonus?: boolean
+  customClass?: string
+  hideCompanyCard?: boolean
+  showTabs?: boolean
+  showSearch?: boolean
 }) {
   // State for tabs, search, and filtering
   const [activeTab, setActiveTab] = useState(initialActiveTab)
@@ -552,6 +552,27 @@ export default function OffersComponent({
                 <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
                   <Search className="h-4 w-4" />
                 </div>
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-2.5 top-1/2 transform -translate-y-1/2 text-[#edb900] hover:text-[#edb900]/80"
+                    aria-label="Clear search"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="h-4 w-4"
+                    >
+                      <path d="M18 6L6 18M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
               </div>
             </div>
           )}
@@ -1113,3 +1134,4 @@ function isLastDay(dateString) {
 
   return diffDays === 0 // Return true if it's the last day
 }
+
