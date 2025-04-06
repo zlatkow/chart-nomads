@@ -29,6 +29,9 @@ import { Toaster } from "@/components/ui/toaster"
 // Update the shimmer animation CSS to match exactly what's in the blog page
 const shimmerAnimation = `
 @keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
   100% {
     transform: translateX(100%);
   }
@@ -37,6 +40,7 @@ const shimmerAnimation = `
 .shimmer-effect {
   position: relative;
   overflow: hidden;
+  background-color: #222;
 }
 
 .shimmer-effect::after {
@@ -51,7 +55,7 @@ const shimmerAnimation = `
     90deg,
     rgba(34, 34, 34, 0) 0,
     rgba(34, 34, 34, 0.2) 20%,
-    rgba(237, 185, 0, 0.1) 60%,
+    rgba(237, 185, 0, 0.15) 60%,
     rgba(34, 34, 34, 0)
   );
   animation: shimmer 2s infinite;
@@ -341,9 +345,13 @@ const AllPropFirms = ({ blogs }) => {
     return Array(16)
       .fill(0)
       .map((_, index) => (
-        <div key={`skeleton-${index}`} className="z-50 p-4 shadow-lg relative bg-[#1a1a1a] rounded-[10px]">
+        <div
+          key={`skeleton-${index}`}
+          className="z-50 p-4 shadow-lg relative bg-[#1a1a1a] rounded-[10px] border border-[#2a2a2a]"
+        >
           <div className="flex">
             <span className="absolute top-3 left-3 px-[5px] text-xs rounded-[10px] w-16 h-4 bg-[#222] shimmer-effect"></span>
+            <span className="absolute top-3 right-3 w-6 h-6 bg-[#222] rounded-full shimmer-effect"></span>
           </div>
           <div className="flex justify-between">
             <div className="w-20 h-20 mb-2 flex items-center justify-center rounded-[10px] p-1 mt-[50px] bg-[#222] shimmer-effect"></div>
@@ -408,7 +416,7 @@ const AllPropFirms = ({ blogs }) => {
             {!isLoading && (
               <div className="text-sm">
                 <p className="text-white">
-                  Showing <span className="text-[#EDB900]">{sortedPropFirms.length}</span> results
+                  Showing <span className="text-[#EDB900]">{sortedPropFirms.length}</span> results.
                 </p>
               </div>
             )}
@@ -438,11 +446,24 @@ const AllPropFirms = ({ blogs }) => {
 
         {isLoading ? (
           <>
-            {/* Skeleton for search results counter */}
+            {/* Skeleton for search and sort UI */}
             <div className="w-full flex flex-col md:flex-row justify-between items-center mb-6">
               <div className="flex items-center gap-4 z-20">
+                <div className="w-[300px] h-10 justify-center">
+                  <div className="relative h-10">
+                    <div className="absolute left-2.5 top-2.5 h-4 w-4 bg-[#444] rounded shimmer-effect"></div>
+                    <div className="w-full h-10 bg-[#333333] border border-[#333333] rounded-md shimmer-effect"></div>
+                  </div>
+                </div>
                 <div className="text-sm">
                   <div className="h-5 w-32 bg-[#222] rounded shimmer-effect"></div>
+                </div>
+              </div>
+
+              <div className="flex flex-col md:flex-row gap-4 items-center justify-end z-20 mt-4 md:mt-0">
+                <div className="flex items-center gap-2">
+                  <div className="h-5 w-14 bg-[#222] rounded shimmer-effect"></div>
+                  <div className="w-[170px] h-10 bg-[#1A1A1A] border border-[#333333] rounded-md shimmer-effect"></div>
                 </div>
               </div>
             </div>
