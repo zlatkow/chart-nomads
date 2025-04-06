@@ -242,8 +242,7 @@ const AllPropFirms = ({ blogs }) => {
       .map((_, index) => (
         <div key={`skeleton-${index}`} className="z-50 p-4 shadow-lg relative bg-[#1a1a1a] rounded-[10px]">
           <div className="flex">
-            <span className="absolute top-3 left-3 px-[5px] border text-xs rounded-[10px] w-16 h-4 bg-[#222] shimmer-effect"></span>
-            <span className="absolute top-3 right-3 w-6 h-6 bg-[#222] rounded-full shimmer-effect"></span>
+            <span className="absolute top-3 left-3 px-[5px] text-xs rounded-[10px] w-16 h-4 bg-[#222] shimmer-effect"></span>
           </div>
           <div className="flex justify-between">
             <div className="w-20 h-20 mb-2 flex items-center justify-center rounded-[10px] p-1 mt-[50px] bg-[#222] shimmer-effect"></div>
@@ -262,7 +261,7 @@ const AllPropFirms = ({ blogs }) => {
     <div className="min-h-screen text-white pt-[300px]">
       <Navbar />
       <Noise />
-      <div className="container mx-auto z-50">
+      <div className="container max-w-[1280px] mx-auto z-50">
         <h1 className="text-7xl font-bold text-center z-50">ALL PROP FIRMS</h1>
         <p className="text-center mb-[150px] z-50">Select a specific company to find more information.</p>
 
