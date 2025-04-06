@@ -1,5 +1,7 @@
-/* eslint-disable */
 "use client"
+
+/* eslint-disable */
+
 import { useState, useEffect, useContext } from "react"
 import { supabase } from "../lib/supabase"
 import { SignedIn, SignedOut, useUser } from "@clerk/nextjs"
@@ -7,7 +9,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faHeart as solidHeart } from "@fortawesome/free-solid-svg-icons"
 import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons"
 import { faStar } from "@fortawesome/free-solid-svg-icons"
-import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons"
 import Navbar from "../components/Navbar"
 import Noise from "../components/Noise"
 import Link from "next/link"
@@ -20,14 +21,14 @@ import Footer from "../components/Footer"
 import MissingRuleForm from "../components/IssueReportForm"
 import Image from "next/image"
 import { ModalContext } from "./_app"
+import { useToast } from "@/hooks/use-toast"
+import { Toaster } from "@/components/ui/toaster"
+import { Search } from "lucide-react"
+import { Input } from "@/components/ui/input"
 
 export async function getServerSideProps() {
   try {
-    console.log("📡 Fetching Banned Countries Data...")
-
-    const { data: bannedCountries, error } = await supabase
-      .from("banned_countries") // 🔥 Change this to your banned countries table
-      .select(`
+    const { data: bannedCountries, error } = await supabase.from("banned_countries").select(`
         id,
         last_updated,
         banned_countries_list,
@@ -45,31 +46,88 @@ export async function getServerSideProps() {
       `)
 
     if (error) {
-      console.error("❌ ERROR Fetching Banned Countries Data:", error)
       return { props: { bannedFirms: [] } }
     }
 
-    console.log("✅ SUCCESS: Fetched", bannedCountries.length, "Banned Countries records.")
-
     return { props: { bannedFirms: bannedCountries } }
   } catch (error) {
-    console.error("🔥 UNEXPECTED ERROR in getServerSideProps:", error)
     return { props: { bannedFirms: [] } }
   }
 }
 
+// Add shimmer animation CSS
+const shimmerAnimation = `
+  @keyframes shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  .shimmer-effect {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .shimmer-effect::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    transform: translateX(-100%);
+    background-image: linear-gradient(
+      90deg,
+      rgba(34, 34, 34, 0) 0,
+      rgba(34, 34, 34, 0.2) 20%,
+      rgba(237, 185, 0, 0.15) 60%,
+      rgba(34, 34, 34, 0)
+    );
+    animation: shimmer 2s infinite;
+  }
+`
+
 const BannedCountries = ({ bannedFirms }) => {
   const [searchTerm, setSearchTerm] = useState("")
+  const [searchQuery, setSearchQuery] = useState("")
   const [userLikedFirms, setUserLikedFirms] = useState(new Set())
   const { user } = useUser()
   const [loadingLikes, setLoadingLikes] = useState(true)
-  // Remove the local login modal state
-  // const [isLoginOpen, setIsLoginOpen] = useState(false)
   const [likesMap, setLikesMap] = useState({})
-  const [visibleCount, setVisibleCount] = useState(10) // Show first 10 items
+  const [visibleCount, setVisibleCount] = useState(10)
+  const [isLoading, setIsLoading] = useState(true)
+  const { toast } = useToast()
 
   // Use the ModalContext
   const { setShowLoginModal } = useContext(ModalContext)
+
+  // Add the shimmer animation to the document
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      const style = document.createElement("style")
+      style.textContent = shimmerAnimation
+      document.head.appendChild(style)
+
+      return () => {
+        document.head.removeChild(style)
+      }
+    }
+  }, [])
+
+  // Set loading to false after initial render
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false)
+    }, 1500)
+
+    return () => clearTimeout(timer)
+  }, [])
+
+  // Handle search
+  const handleSearch = (e) => {
+    setSearchQuery(e.target.value)
+    setSearchTerm(e.target.value)
+  }
 
   const searchLower = searchTerm.toLowerCase()
 
@@ -108,7 +166,7 @@ const BannedCountries = ({ bannedFirms }) => {
     setLikesMap(initialLikes)
   }, [bannedFirms])
 
-  // ✅ Fetch liked firms from the user
+  // Fetch liked firms from the user
   useEffect(() => {
     if (!user) {
       setLoadingLikes(false)
@@ -119,17 +177,12 @@ const BannedCountries = ({ bannedFirms }) => {
       const { data, error } = await supabase.from("user_likes").select("firm_id").eq("user_id", user.id)
 
       if (error) {
-        console.error("Error fetching liked firms:", error)
         setLoadingLikes(false)
         return
       }
 
       const likedFirmIds = new Set(data.map((entry) => Number(entry.firm_id)))
       setUserLikedFirms(likedFirmIds)
-
-      // Log the liked companies on page load
-      console.log("Liked firms on page load:", likedFirmIds)
-
       setLoadingLikes(false)
     }
 
@@ -143,15 +196,14 @@ const BannedCountries = ({ bannedFirms }) => {
 
   const handleLikeToggle = async (firmId) => {
     if (!user) {
-      console.warn("User must be logged in to like.")
-      // Use the context to open the login modal
-      handleLoginModalOpen()
+      setShowLoginModal(true)
       return
     }
 
     const numericFirmId = Number(firmId)
-    console.log(`\n🔄 Like toggle triggered for Firm ID: ${numericFirmId}`)
+    const wasLiked = userLikedFirms.has(numericFirmId)
 
+    // Update local state
     setUserLikedFirms((prevLikes) => {
       const updatedLikes = new Set(prevLikes)
       if (updatedLikes.has(numericFirmId)) {
@@ -162,28 +214,173 @@ const BannedCountries = ({ bannedFirms }) => {
       return updatedLikes
     })
 
-    // ✅ Update `likesMap` instead of relying on `propFirms`
+    // Update likes count in UI
     setLikesMap((prevLikes) => {
       const newLikes = { ...prevLikes }
-      const isLiked = userLikedFirms.has(numericFirmId)
-      newLikes[numericFirmId] = isLiked ? newLikes[numericFirmId] - 1 : newLikes[numericFirmId] + 1
-      console.log(`🔢 Updated local likes count for Firm ID ${numericFirmId}:`, newLikes[numericFirmId])
+      newLikes[numericFirmId] = wasLiked ? (newLikes[numericFirmId] || 0) - 1 : (newLikes[numericFirmId] || 0) + 1
       return newLikes
     })
 
     try {
-      if (!userLikedFirms.has(numericFirmId)) {
-        await supabase.from("user_likes").insert([{ user_id: user.id, firm_id: numericFirmId }])
-        await supabase.rpc("increment_likes", { firm_id: numericFirmId })
-        console.log(`✅ Firm ID ${numericFirmId} successfully liked and database updated.`)
+      if (!wasLiked) {
+        // Like the firm
+        const { error } = await supabase.from("user_likes").insert([{ user_id: user.id, firm_id: numericFirmId }])
+        if (error) {
+          // Show error toast with icon
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Failed to like company. Please try again.",
+            action: (
+              <div className="h-8 w-8 bg-red-100 rounded-full flex items-center justify-center mr-3">
+                <FontAwesomeIcon icon={regularHeart} className="h-4 w-4 text-red-500" />
+              </div>
+            ),
+          })
+          return
+        }
+
+        // Increment likes in DB
+        const { error: incrementError } = await supabase.rpc("increment_likes", { firm_id: numericFirmId })
+        if (incrementError) {
+          // Show error toast with icon
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Failed to update like count. Please try again.",
+            action: (
+              <div className="h-8 w-8 bg-red-100 rounded-full flex items-center justify-center mr-3">
+                <FontAwesomeIcon icon={regularHeart} className="h-4 w-4 text-red-500" />
+              </div>
+            ),
+          })
+          return
+        }
+
+        // Show success toast with icon
+        toast({
+          title: "Company liked",
+          description: "You've added this company to your favorites.",
+          action: (
+            <div className="h-8 w-8 bg-[#edb900] rounded-full flex items-center justify-center mr-3">
+              <FontAwesomeIcon icon={solidHeart} className="h-4 w-4 text-[#0f0f0f]" />
+            </div>
+          ),
+        })
       } else {
-        await supabase.from("user_likes").delete().eq("user_id", user.id).eq("firm_id", numericFirmId)
-        await supabase.rpc("decrement_likes", { firm_id: numericFirmId })
-        console.log(`✅ Firm ID ${numericFirmId} successfully unliked and database updated.`)
+        // Unlike the firm
+        const { error } = await supabase.from("user_likes").delete().eq("user_id", user.id).eq("firm_id", numericFirmId)
+        if (error) {
+          // Show error toast with icon
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Failed to unlike company. Please try again.",
+            action: (
+              <div className="h-8 w-8 bg-red-100 rounded-full flex items-center justify-center mr-3">
+                <FontAwesomeIcon icon={regularHeart} className="h-4 w-4 text-red-500" />
+              </div>
+            ),
+          })
+          return
+        }
+
+        // Decrement likes in DB
+        const { error: decrementError } = await supabase.rpc("decrement_likes", { firm_id: numericFirmId })
+        if (decrementError) {
+          // Show error toast with icon
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Failed to update like count. Please try again.",
+            action: (
+              <div className="h-8 w-8 bg-red-100 rounded-full flex items-center justify-center mr-3">
+                <FontAwesomeIcon icon={regularHeart} className="h-4 w-4 text-red-500" />
+              </div>
+            ),
+          })
+          return
+        }
+
+        // Show success toast with icon
+        toast({
+          title: "Company unliked",
+          description: "You've removed this company from your favorites.",
+          action: (
+            <div className="h-8 w-8 bg-gray-100 rounded-full flex items-center justify-center mr-3">
+              <FontAwesomeIcon icon={regularHeart} className="h-4 w-4 text-gray-500" />
+            </div>
+          ),
+        })
       }
     } catch (err) {
-      console.error("❌ Unexpected error updating likes:", err)
+      // Show general error toast
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+      })
     }
+  }
+
+  // Render skeleton cards for loading state
+  const renderSkeletonCards = () => {
+    return Array(3)
+      .fill(0)
+      .map((_, index) => (
+        <div
+          key={`skeleton-${index}`}
+          className="relative flex mb-20 bg-[#0f0f0f] border-[rgba(237,185,0,0.1)] border-[1px] p-5 rounded-[10px] z-50"
+        >
+          {/* Firm info skeleton */}
+          <div className="flex w-[300px] h-[200px] shadow-lg relative bg-[rgba(255,255,255,0.03)] rounded-[10px] p-7">
+            {/* Category tag skeleton */}
+            <div className="absolute top-3 left-3 w-16 h-4 bg-[#222] rounded-[10px] shimmer-effect"></div>
+
+            {/* Heart icon skeleton */}
+            <div className="absolute top-3 right-3 w-6 h-6 bg-[#222] rounded-full shimmer-effect"></div>
+
+            <div className="flex w-full justify-between">
+              {/* Logo skeleton */}
+              <div className="w-20 h-20 mb-2 rounded-[10px] mt-[50px] shimmer-effect"></div>
+
+              <div className="block mt-9 justify-center w-[150px]">
+                {/* Company name skeleton */}
+                <div className="h-6 w-full bg-[#222] rounded shimmer-effect mx-auto mb-2"></div>
+
+                {/* Rating skeleton */}
+                <div className="h-6 w-16 bg-[#222] rounded shimmer-effect mx-auto mb-2"></div>
+
+                {/* Reviews count skeleton */}
+                <div className="h-6 w-24 bg-[#222] rounded-[8px] shimmer-effect mx-auto mb-10"></div>
+
+                {/* Likes count skeleton */}
+                <div className="absolute top-4 right-[45px] w-16 h-4 bg-[#222] rounded shimmer-effect"></div>
+              </div>
+            </div>
+          </div>
+
+          {/* Content skeleton */}
+          <div className="ml-[20px] mt-6 p-3 border-l-[1px] border-[rgba(237,185,0,0.1)] px-[100px] w-full">
+            {/* Date skeleton */}
+            <div className="flex justify-end mt-[-35px] mb-10 mr-[-100px]">
+              <div className="w-32 h-4 bg-[#222] rounded shimmer-effect"></div>
+            </div>
+
+            {/* Title skeleton */}
+            <div className="h-8 w-64 bg-[#222] rounded shimmer-effect mb-6"></div>
+
+            {/* Content lines skeleton */}
+            <div className="space-y-4">
+              <div className="h-4 w-full bg-[#222] rounded shimmer-effect"></div>
+              <div className="h-4 w-3/4 bg-[#222] rounded shimmer-effect"></div>
+              <div className="h-4 w-5/6 bg-[#222] rounded shimmer-effect"></div>
+              <div className="h-4 w-2/3 bg-[#222] rounded shimmer-effect"></div>
+              <div className="h-4 w-4/5 bg-[#222] rounded shimmer-effect"></div>
+            </div>
+          </div>
+        </div>
+      ))
   }
 
   return (
@@ -206,24 +403,47 @@ const BannedCountries = ({ bannedFirms }) => {
                 <span>results.</span>
               </div>
 
-              {/* ✅ Search Bar */}
+              {/* ✅ Updated Search Bar with clear button */}
               <div className="relative w-[250px] justify-center z-20 mb-4">
-                <FontAwesomeIcon
-                  icon={faMagnifyingGlass}
-                  className="absolute left-3 max-w-[20px] top-1/2 transform -translate-y-1/2 text-gray-400"
-                />
-                <input
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
+                <Input
                   type="text"
-                  placeholder="Search.."
-                  className="searchInput pl-10 search-input p-2 bg-[#0f0f0f] text-white placeholder-gray-400 caret-white rounded-[10px] border border-gray-600 w-full md:w-[250px] z-20"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search..."
+                  className="searchDark w-full pl-8 bg-[#0f0f0f] border-gray-600 focus-visible:ring-[#edb900] h-10"
+                  value={searchQuery}
+                  onChange={handleSearch}
                 />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchQuery("")
+                      setSearchTerm("")
+                    }}
+                    className="absolute right-2.5 top-2.5 h-4 w-4 text-[#edb900] hover:text-[#edb900]/80"
+                    aria-label="Clear search"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="h-4 w-4"
+                    >
+                      <path d="M18 6L6 18M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
               </div>
             </div>
           </div>
 
-          {filteredFirms.length > 0 ? (
+          {isLoading ? (
+            renderSkeletonCards()
+          ) : filteredFirms.length > 0 ? (
             visibleFirms.map((entry, index) => (
               <div
                 key={index}
@@ -255,14 +475,7 @@ const BannedCountries = ({ bannedFirms }) => {
 
                   <SignedOut>
                     <button
-                      onClick={(e) => {
-                        e.preventDefault()
-                        e.stopPropagation()
-                        console.log("Heart clicked by unauthenticated user")
-                        // Update to use the context
-                        handleLoginModalOpen()
-                        console.log("Login modal opened")
-                      }}
+                      onClick={handleLoginModalOpen}
                       className="absolute top-3 right-3 hover:animate-[heartbeat_1.5s_infinite_ease-in-out] z-60"
                       style={{ color: "rgba(237, 185, 0, 0.3)" }}
                     >
@@ -344,7 +557,7 @@ const BannedCountries = ({ bannedFirms }) => {
           ) : (
             <p className="text-center">No results found.</p>
           )}
-          {visibleCount < filteredFirms.length && (
+          {filteredFirms.length > 0 && visibleCount < filteredFirms.length && (
             <div className="flex justify-center mt-6">
               <button
                 onClick={() => setVisibleCount((prev) => prev + 10)}
@@ -356,12 +569,43 @@ const BannedCountries = ({ bannedFirms }) => {
           )}
         </div>
         <MissingRuleForm />
+        <Toaster />
       </div>
       <Community />
       <Newsletter />
       <Footer />
 
-      {/* Remove the direct LoginModal component */}
+      {/* Shimmer effect styles */}
+      <style jsx global>{`
+        .shimmer-effect {
+          position: relative;
+          overflow: hidden;
+        }
+
+        .shimmer-effect::after {
+          content: "";
+          position: absolute;
+          top: 0;
+          right: 0;
+          bottom: 0;
+          left: 0;
+          transform: translateX(-100%);
+          background-image: linear-gradient(
+            90deg,
+            rgba(34, 34, 34, 0) 0,
+            rgba(34, 34, 34, 0.2) 20%,
+            rgba(237, 185, 0, 0.15) 60%,
+            rgba(34, 34, 34, 0)
+          );
+          animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+          100% {
+            transform: translateX(100%);
+          }
+        }
+      `}</style>
     </div>
   )
 }
