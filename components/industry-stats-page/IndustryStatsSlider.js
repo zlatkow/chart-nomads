@@ -45,7 +45,7 @@ const IndustryStatsSlider = ({ statsData }) => {
   const [loading, setLoading] = useState(true)
   const [isHovered, setIsHovered] = useState(false)
   const dataReadyTimestamp = useRef(null)
-  const minimumLoadingTime = 2000 // Minimum time to show loading state (ms)
+  const minimumLoadingTime = 2800 // Minimum time to show loading state (ms)
 
   const slides = statsData
     ? [statsData.last24Hours, statsData.last7Days, statsData.last30Days, statsData.sinceStart]
