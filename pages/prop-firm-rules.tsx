@@ -786,7 +786,7 @@ const PropFirmRules = ({ propFirmRules }) => {
                         </div>
 
                         <div
-                          className="w-full min-w-[750px] flex-grow"
+                          className="w-full min-w-[700px] flex-grow"
                           dangerouslySetInnerHTML={{ __html: entry.change_log || "No change log available" }}
                         />
                       </div>
