@@ -299,7 +299,7 @@ const AllPropFirms = ({ blogs }) => {
 
         {/* Search & Sorting */}
         <div className="w-full flex flex-col md:flex-row justify-between items-center mb-6">
-          <div className="w-[300px] h-10 justify-center z-20">
+          <div className="w-[300px] h-10 justify-center z-20 mb-4">
             <div className="relative h-10">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
               <Input
@@ -336,7 +336,7 @@ const AllPropFirms = ({ blogs }) => {
             </div>
           </div>
 
-          <div className="flex flex-col md:flex-row gap-4 items-center justify-end z-20">
+          <div className="flex flex-col md:flex-row gap-4 items-center justify-end mb-4">
             <div className="flex items-center gap-2">
               <label className="text-sm">Sort by:</label>
               <Select value={sortBy} onValueChange={(value) => setSortBy(value)}>
@@ -355,8 +355,31 @@ const AllPropFirms = ({ blogs }) => {
                 </SelectContent>
               </Select>
             </div>
+
+            <div className="flex items-center gap-2">
+              <label className="text-sm">Time range:</label>
+              <Select value={timeRange} onValueChange={(value) => setTimeRange(value)}>
+                <SelectTrigger className="w-[170px] bg-[#1A1A1A] border-[#333333] text-gray-300 px-4 py-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-[#1A1A1A] border-[#333333] text-white shadow-lg">
+                  <SelectItem value="All Time">All Time</SelectItem>
+                  <SelectItem value="Last 12 Months">Last 12 Months</SelectItem>
+                  <SelectItem value="Last 6 Months">Last 6 Months</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
+
+        {/* Results counter */}
+        {!isLoading && (
+          <div className="mb-4">
+            <p className="text-white">
+              Showing <span className="text-[#EDB900]">{sortedPropFirms.length}</span> results.
+            </p>
+          </div>
+        )}
 
         {isLoading ? (
           // Show skeleton loading UI when loading
@@ -373,7 +396,7 @@ const AllPropFirms = ({ blogs }) => {
                   className="z-50 p-4 shadow-lg relative bg-[rgba(255,255,255,0.03)] rounded-[10px] 
                                hover:bg-[#0f0f0f] py-7 hover:bg-gradient-to-r 
                                hover:from-[rgba(237,185,0,0.5)] hover:to-[rgba(255,255,255,0.10)] 
-                               transition-transform duration-200 hover:scale-[1.03] cursor-pointer border border-[#2a2a2a]"
+                               transition-transform duration-200 hover:scale-[1.03] cursor-pointer"
                 >
                   <div className="flex">
                     <Tippy
