@@ -60,7 +60,6 @@ export async function getServerSideProps() {
   const { data, error } = await supabase.from("blogs").select("*").eq("featured", true)
 
   if (error) {
-    console.error("Error fetching blogs:", error)
     return { props: { blogs: [] } }
   }
 
@@ -78,11 +77,6 @@ const AllPropFirms = ({ blogs }) => {
   const [loadingLikes, setLoadingLikes] = useState(true)
   const [isLoading, setIsLoading] = useState(true) // Add loading state for prop firms
   const [searchQuery, setSearchQuery] = useState("")
-
-    // Handle search
-    const handleSearch = (e) => {
-      setSearchQuery(e.target.value)
-    }
 
   // Use the ModalContext
   const { setShowLoginModal } = useContext(ModalContext)
@@ -102,23 +96,17 @@ const AllPropFirms = ({ blogs }) => {
 
   useEffect(() => {
     if (!user) {
-      console.warn("🚨 No user found! Skipping fetch for liked companies.")
       setLoadingLikes(false)
       return
     }
-
-    console.log("🟡 Fetching liked companies for user:", user.id)
 
     const fetchLikedFirms = async () => {
       const { data, error } = await supabase.from("user_likes").select("firm_id").eq("user_id", user.id)
 
       if (error) {
-        console.error("❌ Error fetching liked firms:", error)
         setLoadingLikes(false)
         return
       }
-
-      console.log("✅ Fetched liked firms:", data)
 
       // ✅ Ensure firm IDs are stored as numbers to match the state type
       const likedFirmIds = new Set(data.map((entry) => Number(entry.firm_id)))
@@ -134,11 +122,13 @@ const AllPropFirms = ({ blogs }) => {
   useEffect(() => {
     const fetchPropFirms = async () => {
       setIsLoading(true) // Set loading to true before fetching
-      console.log("🔄 Fetching Prop Firms...")
       const { data, error } = await supabase.from("prop_firms").select("*").eq("listing_status", "listed")
 
-      if (error) console.error("❌ Error fetching prop firms:", error)
-      console.log("✅ Prop Firms Fetched:", data)
+      if (error) {
+        setIsLoading(false)
+        return
+      }
+
       setPropFirms(data || [])
       setIsLoading(false) // Set loading to false after fetching
     }
@@ -174,7 +164,6 @@ const AllPropFirms = ({ blogs }) => {
 
   const handleLikeToggle = async (firmId) => {
     if (!user) {
-      console.warn("User must be logged in to like.")
       // Use the context to open the login modal
       setShowLoginModal(true)
       return
@@ -205,28 +194,24 @@ const AllPropFirms = ({ blogs }) => {
       // 🟢 Like: Insert into `user_likes`
       const { error } = await supabase.from("user_likes").insert([{ user_id: user.id, firm_id: firmId }])
       if (error) {
-        console.error("Error liking firm:", error)
         return
       }
 
       // 🟢 Increment likes in DB
       const { error: incrementError } = await supabase.rpc("increment_likes", { firm_id: firmId })
       if (incrementError) {
-        console.error("Error incrementing likes:", incrementError)
         return
       }
     } else {
       // 🔴 Unlike: Remove from `user_likes`
       const { error } = await supabase.from("user_likes").delete().eq("user_id", user.id).eq("firm_id", firmId)
       if (error) {
-        console.error("Error unliking firm:", error)
         return
       }
 
       // 🔴 Decrement likes in DB
       const { error: decrementError } = await supabase.rpc("decrement_likes", { firm_id: firmId })
       if (decrementError) {
-        console.error("Error decrementing likes:", decrementError)
         return
       }
     }
@@ -235,6 +220,12 @@ const AllPropFirms = ({ blogs }) => {
   // Function to handle opening the login modal
   const handleLoginModalOpen = () => {
     setShowLoginModal(true)
+  }
+
+  // Handle search
+  const handleSearch = (e) => {
+    setSearchQuery(e.target.value)
+    setSearchTerm(e.target.value) // Update searchTerm to fix search functionality
   }
 
   // ✅ Filter and Sort
@@ -277,36 +268,37 @@ const AllPropFirms = ({ blogs }) => {
         <div className="w-full flex flex-col md:flex-row justify-between items-center mb-6">
           <div className="w-[300px] justify-center z-20 mb-4">
             <Search className="relative left-2.5 top-6 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="text"
-                placeholder="Search by company name..."
-                className="searchDark w-full pl-8 bg-[#333333] border-[#333333] focus-visible:ring-[#edb900]"
-                value={searchQuery}
-                onChange={handleSearch}
-              />
-                {searchQuery && (
-                  <button
-                  type="button"
-                  onClick={() => {
-                    setSearchQuery("")
-                  }}
-                    className="relative right-[-275px] top-[-27px] h-4 w-4 text-[#edb900] hover:text-[#edb900]/80"
-                    aria-label="Clear search"
-                  >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="h-4 w-4"
-                  >
-                    <path d="M18 6L6 18M6 6l12 12" />
-                  </svg>
-                  </button>
-                )}
+            <Input
+              type="text"
+              placeholder="Search by company name..."
+              className="searchDark w-full pl-8 bg-[#333333] border-[#333333] focus-visible:ring-[#edb900]"
+              value={searchQuery}
+              onChange={handleSearch}
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchQuery("")
+                  setSearchTerm("") // Clear searchTerm as well to fix search functionality
+                }}
+                className="relative right-[-275px] top-[-27px] h-4 w-4 text-[#edb900] hover:text-[#edb900]/80"
+                aria-label="Clear search"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="h-4 w-4"
+                >
+                  <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+              </button>
+            )}
           </div>
 
           <div className="flex w-[250px] justify-end mb-4">
