@@ -266,7 +266,7 @@ const AllPropFirms = ({ blogs }) => {
 
   // Replace the renderSkeletonCards function with this updated version
   const renderSkeletonCards = () => {
-    return Array(12)
+    return Array(16)
       .fill(0)
       .map((_, index) => (
         <div key={`skeleton-${index}`} className="z-50 p-4 shadow-lg relative bg-[#1a1a1a] rounded-[10px]">
@@ -295,42 +295,51 @@ const AllPropFirms = ({ blogs }) => {
         <p className="text-center mb-[150px] z-50">Select a specific company to find more information.</p>
 
         {/* Search & Sorting */}
-        <div className="w-full flex flex-col md:flex-row justify-between items-center mb-1">
-          <div className="w-[300px] h-10 justify-center z-20">
-            <div className="relative h-10">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
-              <Input
-                type="text"
-                placeholder="Search by company name..."
-                className="searchDark w-full pl-8 bg-[#333333] border-[#333333] focus-visible:ring-[#edb900] h-10"
-                value={searchQuery}
-                onChange={handleSearch}
-              />
-              {searchQuery && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSearchQuery("")
-                    setSearchTerm("") // Clear searchTerm as well to fix search functionality
-                  }}
-                  className="absolute right-2.5 top-2.5 h-4 w-4 text-[#edb900] hover:text-[#edb900]/80"
-                  aria-label="Clear search"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="h-4 w-4"
+        <div className="w-full flex flex-col md:flex-row justify-between items-center mb-6">
+          <div className="flex items-center gap-4 z-20">
+            <div className="w-[300px] h-10 justify-center">
+              <div className="relative h-10">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
+                <Input
+                  type="text"
+                  placeholder="Search by company name..."
+                  className="searchDark w-full pl-8 bg-[#333333] border-[#333333] focus-visible:ring-[#edb900] h-10"
+                  value={searchQuery}
+                  onChange={handleSearch}
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchQuery("")
+                      setSearchTerm("") // Clear searchTerm as well to fix search functionality
+                    }}
+                    className="absolute right-2.5 top-2.5 h-4 w-4 text-[#edb900] hover:text-[#edb900]/80"
+                    aria-label="Clear search"
                   >
-                    <path d="M18 6L6 18M6 6l12 12" />
-                  </svg>
-                </button>
-              )}
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="h-4 w-4"
+                    >
+                      <path d="M18 6L6 18M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
+              </div>
             </div>
+            {!isLoading && (
+              <div className="text-sm">
+                <p className="text-white">
+                  Showing <span className="text-[#EDB900]">{sortedPropFirms.length}</span> results
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="flex flex-col md:flex-row gap-4 items-center justify-end z-20">
@@ -355,20 +364,22 @@ const AllPropFirms = ({ blogs }) => {
           </div>
         </div>
 
-        {/* Results counter */}
-        {!isLoading && (
-          <div className="mb-4 flex justify-end text-sm">
-            <p className="text-white">
-              Showing <span className="text-[#EDB900]">{sortedPropFirms.length}</span> results.
-            </p>
-          </div>
-        )}
-
         {isLoading ? (
-          // Show skeleton loading UI when loading
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-[300px]">
-            {renderSkeletonCards()}
-          </div>
+          <>
+            {/* Skeleton for search results counter */}
+            <div className="w-full flex flex-col md:flex-row justify-between items-center mb-6">
+              <div className="flex items-center gap-4 z-20">
+                <div className="text-sm">
+                  <div className="h-5 w-32 bg-[#222] rounded shimmer-effect"></div>
+                </div>
+              </div>
+            </div>
+
+            {/* Skeleton cards grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-[300px]">
+              {renderSkeletonCards()}
+            </div>
+          </>
         ) : sortedPropFirms.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-[300px]">
             {sortedPropFirms.map((firm) => {
