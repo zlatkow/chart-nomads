@@ -17,9 +17,10 @@ import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons"
 import { faStar } from "@fortawesome/free-solid-svg-icons"
 import Link from "next/link"
 import Tippy from "@tippyjs/react"
-import "tippy.js/dist/tippy.css" // Default tooltip styles
-// Import the ModalContext
+import "tippy.js/dist/tippy.css"
 import { ModalContext } from "./_app"
+import { Search } from "lucide-react"
+import { Input } from "@/components/ui/input"
 
 // Update the shimmer animation CSS to match exactly what's in the blog page
 const shimmerAnimation = `
@@ -75,6 +76,12 @@ const AllPropFirms = ({ blogs }) => {
   const [userLikedFirms, setUserLikedFirms] = useState(new Set())
   const [loadingLikes, setLoadingLikes] = useState(true)
   const [isLoading, setIsLoading] = useState(true) // Add loading state for prop firms
+  const [searchQuery, setSearchQuery] = useState("")
+
+    // Handle search
+    const handleSearch = (e) => {
+      setSearchQuery(e.target.value)
+    }
 
   // Use the ModalContext
   const { setShowLoginModal } = useContext(ModalContext)
@@ -267,14 +274,38 @@ const AllPropFirms = ({ blogs }) => {
 
         {/* Search & Sorting */}
         <div className="w-full flex flex-col md:flex-row justify-between items-center mb-6">
-          <div className="w-[250px] justify-center z-20 mb-4">
-            <input
-              type="text"
-              placeholder="Search by company name.."
-              className="search-input p-2 bg-[#0f0f0f] text-white rounded-[10px] border border-gray-600 w-full md:w-[250px] z-20"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+          <div className="w-[300px] justify-center z-20 mb-4">
+            <Search className="relative left-2.5 top-6 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Search by company name..."
+                className="searchDark w-full pl-8 bg-[#333333] border-[#333333] focus-visible:ring-[#edb900]"
+                value={searchQuery}
+                onChange={handleSearch}
+              />
+                {searchQuery && (
+                  <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery("")
+                  }}
+                    className="relative right-[-275px] top-[-27px] h-4 w-4 text-[#edb900] hover:text-[#edb900]/80"
+                    aria-label="Clear search"
+                  >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="h-4 w-4"
+                  >
+                    <path d="M18 6L6 18M6 6l12 12" />
+                  </svg>
+                  </button>
+                )}
           </div>
 
           <div className="flex w-[250px] justify-end mb-4">
