@@ -80,7 +80,7 @@ const IndustryStatsSlider = ({ statsData }) => {
       // Use a shorter timeout to better sync with other components
       setTimeout(() => {
         setLoading(false)
-      }, 1800) // Adjusted timeout to better sync with other components
+      }, 2500) // Adjusted timeout to better sync with other components
     }
   }, [statsData])
 
