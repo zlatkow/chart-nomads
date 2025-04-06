@@ -350,12 +350,15 @@ const AllPropFirms = ({ blogs }) => {
           className="flex z-50 relative bg-[#1a1a1a] rounded-[10px] border border-[#2a2a2a] overflow-hidden"
         >
           {/* Top tag */}
-          <div className="p-4">
-            <div className="h-4 w-16 bg-[#222] rounded-[10px] mb-6 shimmer-effect"></div>
-            {/* Logo area */}
-            <div className="w-20 h-20 bg-[#222] rounded-[10px] shimmer-effect"></div>
-            {/* Main content area */}
-            <div className="flex flex-col space-y-4">
+          <div className="p-4 flex">
+            <div>
+              <div className="h-4 w-16 bg-[#222] rounded-[10px] mb-6 shimmer-effect"></div>
+              {/* Logo area */}
+              <div className="w-20 h-20 bg-[#222] rounded-[10px] shimmer-effect"></div>
+            </div>
+            <div>
+              {/* Main content area */}
+              <div className="flex flex-col space-y-4">
               {/* Title */}
               <div className="h-6 w-full max-w-[180px] bg-[#222] rounded shimmer-effect mx-auto"></div>
 
@@ -364,6 +367,7 @@ const AllPropFirms = ({ blogs }) => {
 
               {/* Reviews */}
               <div className="h-6 w-24 bg-[#222] rounded shimmer-effect mx-auto"></div>
+            </div>
             </div>
           </div>
         </div>
