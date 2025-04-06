@@ -347,7 +347,7 @@ const AllPropFirms = ({ blogs }) => {
       .map((_, index) => (
         <div
           key={`skeleton-${index}`}
-          className="z-50 relative bg-[#1a1a1a] rounded-[10px] border border-[#2a2a2a] overflow-hidden"
+          className="flex z-50 relative bg-[#1a1a1a] rounded-[10px] border border-[#2a2a2a] overflow-hidden"
         >
           {/* Top tag */}
           <div className="p-4">
