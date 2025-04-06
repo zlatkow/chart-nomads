@@ -22,6 +22,7 @@ import "tippy.js/dist/tippy.css"
 import { ModalContext } from "./_app"
 import { Search } from "lucide-react"
 import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 // Update the shimmer animation CSS to match exactly what's in the blog page
 const shimmerAnimation = `
@@ -335,35 +336,24 @@ const AllPropFirms = ({ blogs }) => {
             </div>
           </div>
 
-          <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto justify-end mb-4">
-            <div className="flex w-[250px] justify-end">
-              <label className="w-[120px] text-sm pt-2">Sort by:</label>
-              <select
-                className="p-2 bg-[#0f0f0f] text-white rounded z-50 rounded-[10px] h-[35px]"
-                onChange={(e) => setSortBy(e.target.value)}
-              >
-                <option value="name-asc">Name (A-Z)</option>
-                <option value="name-desc">Name (Z-A)</option>
-                <option value="rating-desc">Highest Rating</option>
-                <option value="rating-asc">Lowest Rating</option>
-                <option value="reviews-desc">Most Reviews</option>
-                <option value="reviews-asc">Fewest Reviews</option>
-                <option value="likes-desc">Most Likes</option>
-                <option value="likes-asc">Fewest Likes</option>
-              </select>
-            </div>
-
-            <div className="flex w-[250px] justify-end">
-              <label className="w-[120px] text-sm pt-2">Time range:</label>
-              <select
-                className="p-2 bg-[#0f0f0f] text-white rounded z-50 rounded-[10px] h-[35px]"
-                value={timeRange}
-                onChange={(e) => setTimeRange(e.target.value)}
-              >
-                <option value="All Time">All Time</option>
-                <option value="Last 12 Months">Last 12 Months</option>
-                <option value="Last 6 Months">Last 6 Months</option>
-              </select>
+          <div className="flex flex-col md:flex-row gap-4 items-center justify-end mb-4">
+            <div className="flex items-center gap-2">
+              <label className="text-sm">Sort by:</label>
+              <Select value={sortBy} onValueChange={(value) => setSortBy(value)}>
+                <SelectTrigger className="w-[170px] bg-[#1A1A1A] border-[#333333] text-gray-300 px-4 py-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-[#1A1A1A] border-[#333333] text-white shadow-lg">
+                  <SelectItem value="name-asc">Name (A-Z)</SelectItem>
+                  <SelectItem value="name-desc">Name (Z-A)</SelectItem>
+                  <SelectItem value="rating-desc">Highest Rating</SelectItem>
+                  <SelectItem value="rating-asc">Lowest Rating</SelectItem>
+                  <SelectItem value="reviews-desc">Most Reviews</SelectItem>
+                  <SelectItem value="reviews-asc">Fewest Reviews</SelectItem>
+                  <SelectItem value="likes-desc">Most Likes</SelectItem>
+                  <SelectItem value="likes-asc">Fewest Likes</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </div>
