@@ -454,7 +454,7 @@ const PropFirmRules = ({ propFirmRules }) => {
 
   return (
     <div className="w-full">
-      <div className="min-h-screen text-white pt-[300px] container mx-auto z-50">
+      <div className="min-h-screen text-white pt-[300px] container max-w-[1280px] mx-auto z-50">
         <Navbar />
         <Noise />
         <h1 className="text-7xl font-bold text-center mb-10">Prop Firm Rules</h1>
@@ -482,7 +482,7 @@ const PropFirmRules = ({ propFirmRules }) => {
               value={activeTab === "tab1" ? "tab1" : "tab2"}
               onValueChange={(value) => handleTabClick(value)}
             >
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+              <div className="flex flex-col z-20 md:flex-row md:items-center md:justify-between gap-4 mb-6">
                 <TabsList className="bg-[#1a1a1a] overflow-x-auto flex-wrap">
                   <TabsTrigger
                     value="tab1"
@@ -498,8 +498,8 @@ const PropFirmRules = ({ propFirmRules }) => {
                   </TabsTrigger>
                 </TabsList>
 
-                <div className="flex mb-3">
-                  <div className="flex justify-end mx-3 text-xs my-3">
+                <div className="flex h-[35px]">
+                  <div className="flex justify-end mx-3 text-xs mt-3">
                     <span>Showing</span>
                     <span className="mx-2 text-[#EDB900]">{totalResults}</span>
                     <span>results.</span>
