@@ -1,7 +1,6 @@
-/* eslint-disable */
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import useFetchStats from "../webhooks/useFetchStats"
 import IndustryStatsSlider from "../components/industry-stats-page/IndustryStatsSlider"
 import Navbar from "../components/Navbar"
@@ -14,21 +13,8 @@ import StatsTabs from "../components/industry-stats-page/StatsTabs"
 import StatsTabContent from "../components/industry-stats-page/StatsTabContent"
 
 const StatsPage = () => {
-  const { stats } = useFetchStats()
+  const { stats } = useFetchStats() // Just get the stats, no loading state
   const [activeTab, setActiveTab] = useState("stats")
-
-  // Add the shimmer animation to the document
-  useEffect(() => {
-    if (typeof document !== "undefined") {
-      const style = document.createElement("style")
-      style.textContent = shimmerAnimation
-      document.head.appendChild(style)
-
-      return () => {
-        document.head.removeChild(style)
-      }
-    }
-  }, [])
 
   const statsData = {
     last24Hours: {
@@ -102,14 +88,17 @@ const StatsPage = () => {
               </p>
             </Accordion>
           </div>
-            <IndustryStatsSlider statsData={statsData} />
-            <div className="w-full">
-              <div className="flex justify-left mx-auto">
-                <StatsTabs activeTab={activeTab} onTabChange={setActiveTab} />
-              </div>
-              {/* Tab content */}
-              <StatsTabContent activeTab={activeTab} stats={stats} />
+          
+          {/* Pass the stats data directly to the components */}
+          <IndustryStatsSlider statsData={statsData} />
+          
+          <div className="w-full">
+            <div className="flex justify-left mx-auto">
+              <StatsTabs activeTab={activeTab} onTabChange={setActiveTab} />
             </div>
+            {/* Tab content */}
+            <StatsTabContent activeTab={activeTab} stats={stats} />
+          </div>
         </div>
       </div>
       <Community />
@@ -120,4 +109,3 @@ const StatsPage = () => {
 }
 
 export default StatsPage
-
