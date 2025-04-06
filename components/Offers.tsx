@@ -822,7 +822,7 @@ export default function OffersComponent({
 
                     {/* Adjust the grid columns based on whether the company card is hidden */}
                     <div className={`text-center ${hideCompanyCard ? "md:col-span-1" : ""}`}>
-                      <div className="relative p-3 to-transparent rounded-lg border border-[rgba(237,185,0,0.15)]">
+                      <div className="relative p-5 to-transparent rounded-lg border border-[rgba(237,185,0,0.15)]">
                         {/* Extract and emphasize percentage + "OFF" if it exists */}
                         {mainDiscount.description && mainDiscount.description.match(/\d+%\s*(?:OFF|off)?/) ? (
                           <div className="flex flex-col items-center">
@@ -1005,7 +1005,7 @@ export default function OffersComponent({
 
                           {/* Discount Description */}
                           <div className="text-center">
-                            <div className="relative p-3 to-transparent rounded-lg border border-[rgba(237,185,0,0.15)]">
+                            <div className="relative p-5 to-transparent rounded-lg border border-[rgba(237,185,0,0.15)]">
                               {/* Extract and emphasize percentage + "OFF" if it exists */}
                               {additionalDiscount.description &&
                               additionalDiscount.description.match(/\d+%\s*(?:OFF|off)?/) ? (

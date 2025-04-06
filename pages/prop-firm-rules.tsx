@@ -23,6 +23,7 @@ import MissingRuleForm from "../components/MissingRuleForm"
 import Image from "next/image"
 // Import the ModalContext
 import { ModalContext } from "./_app"
+import { Toaster } from "@/components/ui/toaster"
 
 export async function getServerSideProps() {
   try {
@@ -445,6 +446,7 @@ const PropFirmRules = ({ propFirmRules }) => {
           </div>
         )}
         <MissingRuleForm />
+        <Toaster />
       </div>
       <Community />
       <Newsletter />
