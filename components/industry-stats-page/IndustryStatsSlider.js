@@ -2,7 +2,43 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { DollarSign, Users, TrendingUp, BarChart2, LoaderCircle, Gem, Banknote } from "lucide-react"
+import { DollarSign, Users, TrendingUp, BarChart2, Gem, Banknote } from "lucide-react"
+
+// Add the shimmer animation CSS
+const shimmerAnimation = `
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.shimmer-effect {
+  position: relative;
+  overflow: hidden;
+  background-color: #222;
+}
+
+.shimmer-effect::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    rgba(34, 34, 34, 0) 0,
+    rgba(34, 34, 34, 0.2) 20%,
+    rgba(237, 185, 0, 0.15) 60%,
+    rgba(34, 34, 34, 0)
+  );
+  animation: shimmer 2s infinite;
+}
+`
 
 const IndustryStatsSlider = ({ statsData }) => {
   const [currentSlide, setCurrentSlide] = useState(0)
@@ -20,7 +56,18 @@ const IndustryStatsSlider = ({ statsData }) => {
     if (!statsData) {
       setLoading(true)
     } else {
-      setTimeout(() => setLoading(false), 4000)
+      setTimeout(() => setLoading(false), 1500) // Reduced loading time for better UX
+    }
+
+    // Add the shimmer animation to the document
+    if (typeof document !== "undefined") {
+      const style = document.createElement("style")
+      style.textContent = shimmerAnimation
+      document.head.appendChild(style)
+
+      return () => {
+        document.head.removeChild(style)
+      }
     }
   }, [statsData])
 
@@ -48,18 +95,55 @@ const IndustryStatsSlider = ({ statsData }) => {
     )
   }
 
+  // Skeleton loader for the stats cards
+  const renderSkeletonCards = () => {
+    return (
+      <>
+        {/* Skeleton Heading */}
+        <div className="h-8 w-48 bg-[#222] rounded shimmer-effect mb-6 ml-3"></div>
+
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-6 px-2 py-1">
+          {Array(6)
+            .fill(0)
+            .map((_, index) => (
+              <div
+                key={`skeleton-${index}`}
+                className="relative bg-[#0f0f0f] p-6 rounded-lg shadow-sm flex flex-col items-start border-[1px] border-[#666666]"
+              >
+                {/* Icon placeholder */}
+                <div className="absolute top-4 right-4">
+                  <div className="h-5 w-5 bg-[#222] rounded shimmer-effect"></div>
+                </div>
+
+                {/* Title placeholder */}
+                <div className="h-5 w-24 bg-[#222] rounded shimmer-effect mb-3"></div>
+
+                {/* Value placeholder */}
+                <div className="h-8 w-32 bg-[#222] rounded shimmer-effect mb-2"></div>
+
+                {/* Subtitle placeholder */}
+                <div className="h-4 w-36 bg-[#222] rounded shimmer-effect"></div>
+              </div>
+            ))}
+        </div>
+
+        {/* Time Since Last Payout placeholder */}
+        <div className="mt-4 text-right px-10">
+          <div className="h-6 w-64 bg-[#222] rounded shimmer-effect ml-auto"></div>
+        </div>
+      </>
+    )
+  }
+
   return (
     <div
       className="relative w-full bg-[#0f0f0f] rounded-lg p-6 mb-[50px]"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Loading Indicator */}
+      {/* Loading Indicator with Shimmer Effect */}
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-10">
-          <LoaderCircle size={40} className="animate-spin text-[#edb900]" />
-          <p className="text-white mt-4">Loading Stats..</p>
-        </div>
+        renderSkeletonCards()
       ) : (
         <>
           {/* Slide Heading */}
