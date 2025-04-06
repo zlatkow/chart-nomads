@@ -18,23 +18,24 @@ import { Input } from "@/components/ui/input"
 import { useToast } from "@/hooks/use-toast"
 import { Toaster } from "@/components/ui/toaster"
 
-// Update the shimmer animation CSS to include border transition
+// Replace the existing shimmer animation CSS with this updated version
 const shimmerAnimation = `
 @keyframes shimmer {
   0% {
-    background-position: -1000px 0;
+    transform: translateX(-100%);
   }
   100% {
-    background-position: 1000px 0;
+    transform: translateX(100%);
   }
 }
 
-.animate-pulse {
+.shimmer-effect {
   position: relative;
   overflow: hidden;
+  background-color: #222;
 }
 
-.animate-pulse::after {
+.shimmer-effect::after {
   content: "";
   position: absolute;
   top: 0;
@@ -44,61 +45,12 @@ const shimmerAnimation = `
   transform: translateX(-100%);
   background-image: linear-gradient(
     90deg,
-    rgba(255, 255, 255, 0) 0,
-    rgba(255, 255, 255, 0.05) 20%,
-    rgba(255, 255, 255, 0.1) 60%,
-    rgba(255, 255, 255, 0)
+    rgba(34, 34, 34, 0) 0,
+    rgba(34, 34, 34, 0.2) 20%,
+    rgba(237, 185, 0, 0.15) 60%,
+    rgba(34, 34, 34, 0)
   );
   animation: shimmer 2s infinite;
-  pointer-events: none;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes rotate {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(180deg);
-  }
-}
-
-.accordion-content {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
-  opacity: 0;
-}
-
-.accordion-content.open {
-  max-height: 1000px;
-  opacity: 1;
-}
-
-.chevron-icon {
-  transition: transform 0.3s ease;
-}
-
-.chevron-icon.open {
-  transform: rotate(180deg);
-}
-
-.discount-card {
-  transition: border-color 0.3s ease;
-}
-
-.discount-card.expanded {
-  border-color: #edb900 !important;
 }
 `
 
@@ -680,65 +632,86 @@ export default function OffersComponent({
 
       {/* Offers Display */}
       {isLoading ? (
-        // Skeleton loading UI - adjust grid columns based on hideCompanyCard
-        Array(5)
-          .fill(0)
-          .map((_, index) => (
-            <div
-              key={`skeleton-${index}`}
-              className={`grid grid-cols-1 ${hideCompanyCard ? "md:grid-cols-3" : "md:grid-cols-4"} gap-4 bg-[#0f0f0f] border border-[rgba(237,185,0,0.15)] rounded-lg p-4 items-center animate-pulse`}
-            >
-              {/* Only show company skeleton if not hiding company card */}
-              {!hideCompanyCard && (
-                <div className="flex justify-start items-center">
-                  <div className="flex w-[300px] h-[200px] shadow-lg relative bg-[rgba(255,255,255,0.03)] rounded-[10px] overflow-hidden">
-                    <div className="absolute top-3 left-3 w-16 h-5 bg-[rgba(237,185,0,0.1)] rounded-[10px]"></div>
-                    <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-[rgba(237,185,0,0.1)]"></div>
+        // Skeleton loading UI - show 3 rows of skeleton cards
+        <div className="space-y-6">
+          {/* Skeleton for tabs and search if they're shown */}
+          {(showTabs || showSearch) && (
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+              {showTabs && (
+                <div className="flex bg-[#222] rounded-md overflow-hidden h-12 w-[450px] shimmer-effect"></div>
+              )}
+              {showSearch && (
+                <div className="flex items-center gap-4">
+                  <div className="w-64 h-10 bg-[#222] rounded-md shimmer-effect"></div>
+                </div>
+              )}
+            </div>
+          )}
 
-                    <div className="flex w-full h-full justify-between px-7">
-                      <div className="w-20 h-20 mb-2 flex items-center justify-center rounded-[10px] bg-[rgba(237,185,0,0.1)] mt-[50px]"></div>
+          {/* Skeleton cards - 3 rows */}
+          {Array(3)
+            .fill(0)
+            .map((_, rowIndex) => (
+              <div
+                key={`skeleton-row-${rowIndex}`}
+                className="bg-[#0f0f0f] border border-[rgba(237,185,0,0.15)] rounded-lg p-4"
+              >
+                <div
+                  className={`grid grid-cols-1 ${hideCompanyCard ? "md:grid-cols-3" : "md:grid-cols-4"} gap-4 items-center`}
+                >
+                  {/* Company card skeleton - only if not hidden */}
+                  {!hideCompanyCard && (
+                    <div className="flex justify-start items-center">
+                      <div className="flex w-[300px] h-[200px] shadow-lg relative bg-[rgba(255,255,255,0.03)] rounded-[10px] overflow-hidden">
+                        <div className="absolute top-3 left-3 w-16 h-5 bg-[#222] rounded-[10px] shimmer-effect"></div>
+                        <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-[#222] shimmer-effect"></div>
 
-                      <div className="block mt-9 justify-center w-32">
-                        <div className="h-8 bg-[rgba(255,255,255,0.05)] rounded mb-2 mx-auto"></div>
-                        <div className="h-6 bg-[rgba(237,185,0,0.1)] rounded mb-2 w-16 mx-auto"></div>
-                        <div className="h-6 bg-[rgba(237,185,0,0.1)] rounded mb-2 w-20 mx-auto"></div>
-                        <div className="absolute top-4 right-[45px] w-12 h-4 bg-[rgba(255,255,255,0.05)] rounded"></div>
+                        <div className="flex w-full h-full justify-between px-7">
+                          <div className="w-20 h-20 mb-2 flex items-center justify-center rounded-[10px] bg-[#222] mt-[50px] shimmer-effect"></div>
+
+                          <div className="block mt-9 justify-center w-32">
+                            <div className="h-8 bg-[#222] rounded mb-2 mx-auto shimmer-effect"></div>
+                            <div className="h-6 bg-[#222] rounded mb-2 w-16 mx-auto shimmer-effect"></div>
+                            <div className="h-6 bg-[#222] rounded mb-2 w-20 mx-auto shimmer-effect"></div>
+                            <div className="absolute top-4 right-[45px] w-12 h-4 bg-[#222] rounded shimmer-effect"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Discount Description skeleton */}
+                  <div className="text-center">
+                    <div className="relative p-3 rounded-lg border border-[rgba(237,185,0,0.15)] h-[150px]">
+                      <div className="h-12 bg-[#222] rounded-md mb-3 w-3/4 mx-auto shimmer-effect"></div>
+                      <div className="h-4 bg-[#222] rounded w-full mb-2 shimmer-effect"></div>
+                      <div className="h-4 bg-[#222] rounded w-2/3 mx-auto shimmer-effect"></div>
+                      <div className="mt-4 w-full border-t border-[rgba(237,185,0,0.1)] pt-2">
+                        <div className="h-6 bg-[#222] rounded w-1/2 mx-auto shimmer-effect"></div>
                       </div>
                     </div>
                   </div>
-                </div>
-              )}
 
-              {/* Rest of the skeleton UI */}
-              {/* Discount Description skeleton */}
-              <div className="text-center">
-                <div className="relative p-3 rounded-lg border border-[rgba(237,185,0,0.15)] h-[150px]">
-                  <div className="h-12 bg-[rgba(237,185,0,0.1)] rounded-md mb-3 w-3/4 mx-auto"></div>
-                  <div className="h-4 bg-[rgba(255,255,255,0.05)] rounded w-full mb-2"></div>
-                  <div className="h-4 bg-[rgba(255,255,255,0.05)] rounded w-2/3 mx-auto"></div>
-                  <div className="mt-4 w-full border-t border-[rgba(237,185,0,0.1)] pt-2">
-                    <div className="h-6 bg-[rgba(237,185,0,0.1)] rounded w-1/2 mx-auto"></div>
+                  {/* Code skeleton */}
+                  <div className="flex justify-center">
+                    <div className="relative min-w-[150px] w-auto">
+                      <div className="relative w-full bg-[#222] text-black font-medium rounded-md py-3 px-4 shadow-md h-12 shimmer-effect"></div>
+                      <div className="h-4 bg-[#222] rounded w-24 mx-auto mt-2 shimmer-effect"></div>
+                    </div>
+                  </div>
+
+                  {/* Buy button skeleton */}
+                  <div className="flex justify-center">
+                    <div className="bg-[#222] rounded-md min-w-[120px] min-h-[45px] w-16 h-12 shimmer-effect"></div>
                   </div>
                 </div>
               </div>
-
-              {/* Code skeleton */}
-              <div className="flex justify-center">
-                <div className="relative min-w-[150px] w-auto">
-                  <div className="relative w-full bg-[rgba(237,185,0,0.1)] text-black font-medium rounded-md py-3 px-4 shadow-md h-12"></div>
-                  <div className="h-4 bg-[rgba(255,255,255,0.05)] rounded w-24 mx-auto mt-2"></div>
-                </div>
-              </div>
-
-              {/* Buy button skeleton */}
-              <div className="flex justify-center">
-                <div className="bg-[rgba(237,185,0,0.1)] rounded-md min-w-[120px] min-h-[45px] w-16 h-12"></div>
-              </div>
-            </div>
-          ))
+            ))}
+        </div>
       ) : groupedDiscounts.length === 0 ? (
         <div className="text-center py-8">No discounts found for this company.</div>
       ) : (
+        // Rest of the existing code for displaying actual discounts
         groupedDiscounts.map((group, groupIndex) => {
           // Get the first discount in the group to display as the main one
           const mainDiscount = group[0]
