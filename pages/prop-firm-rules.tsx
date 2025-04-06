@@ -26,6 +26,7 @@ import { useToast } from "@/hooks/use-toast"
 import { Toaster } from "@/components/ui/toaster"
 import { Search } from "lucide-react"
 import { Input } from "@/components/ui/input"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs_blog"
 
 export async function getServerSideProps() {
   try {
@@ -49,7 +50,6 @@ export async function getServerSideProps() {
     `)
 
     if (mainRulesError) {
-      console.error("❌ ERROR Fetching Main Rules:", mainRulesError)
       return { props: { propFirmRules: [] } }
     }
 
@@ -73,7 +73,6 @@ export async function getServerSideProps() {
     `)
 
     if (changeLogsError) {
-      console.error("❌ ERROR Fetching Change Logs:", changeLogsError)
       return { props: { propFirmRules: [] } }
     }
 
@@ -85,45 +84,40 @@ export async function getServerSideProps() {
 
     return { props: { propFirmRules: processedData } }
   } catch (error) {
-    console.error("🔥 UNEXPECTED ERROR in getServerSideProps:", error)
     return { props: { propFirmRules: { mainRules: [], changeLogs: [] } } }
   }
 }
 
 // Add shimmer animation CSS
 const shimmerAnimation = `
-@keyframes shimmer {
-  0% {
+  @keyframes shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  .shimmer-effect {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .shimmer-effect::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
     transform: translateX(-100%);
+    background-image: linear-gradient(
+      90deg,
+      rgba(34, 34, 34, 0) 0,
+      rgba(34, 34, 34, 0.2) 20%,
+      rgba(237, 185, 0, 0.1) 60%,
+      rgba(34, 34, 34, 0)
+    );
+    animation: shimmer 2s infinite;
   }
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-.shimmer-effect {
-  position: relative;
-  overflow: hidden;
-  background-color: #222;
-}
-
-.shimmer-effect::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  transform: translateX(-100%);
-  background-image: linear-gradient(
-    90deg,
-    rgba(34, 34, 34, 0) 0,
-    rgba(34, 34, 34, 0.2) 20%,
-    rgba(237, 185, 0, 0.15) 60%,
-    rgba(34, 34, 34, 0)
-  );
-  animation: shimmer 2s infinite;
-}
 `
 
 const PropFirmRules = ({ propFirmRules }) => {
@@ -254,7 +248,6 @@ const PropFirmRules = ({ propFirmRules }) => {
       const { data, error } = await supabase.from("user_likes").select("firm_id").eq("user_id", user.id)
 
       if (error) {
-        console.error("Error fetching liked firms:", error)
         setLoadingLikes(false)
         return
       }
@@ -388,7 +381,6 @@ const PropFirmRules = ({ propFirmRules }) => {
         })
       }
     } catch (err) {
-      console.error("❌ Unexpected error updating likes:", err)
       // Show general error toast
       toast({
         variant: "destructive",
@@ -484,197 +476,331 @@ const PropFirmRules = ({ propFirmRules }) => {
         {/* ✅ Tabs & Search Section */}
         <div className="block">
           <div className="flex justify-between">
-            <div className="tabs flex space-x-4 z-50">
-              <button
-                onClick={() => handleTabClick("tab1")}
-                className={`px-2 py-1 rounded-[10px] border-[1px] border-[rgba(237,185,0,0.1)] transition-colors h-[35px] text-sm ${
-                  activeTab === "tab1" ? "bg-[#EDB900] text-black" : "opacity-100"
-                } hover:border-[#EDB900] hover:opacity-80 focus:outline-none`}
-              >
-                Main Rules
-              </button>
-              <button
-                onClick={() => handleTabClick("tab2")}
-                className={`px-2 py-1 rounded-[10px] border-[1px] border-[rgba(237,185,0,0.1)] transition-colors h-[35px] text-sm ${
-                  activeTab === "tab2" ? "bg-[#EDB900] text-black" : "opacity-100"
-                } hover:border-[#EDB900] hover:opacity-80 focus:outline-none`}
-              >
-                Change Log
-              </button>
-            </div>
-
-            <div className="flex mb-3">
-              <div className="flex justify-end mx-3 text-xs my-3">
-                <span>Showing</span>
-                <span className="mx-2 text-[#EDB900]">{totalResults}</span>
-                <span>results.</span>
-              </div>
-
-              {/* ✅ Updated Search Bar with clear button */}
-              <div className="relative w-[250px] justify-center z-20 mb-4">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
-                <Input
-                  type="text"
-                  placeholder="Search..."
-                  className="searchDark w-full pl-8 bg-[#0f0f0f] border-gray-600 focus-visible:ring-[#edb900] h-10"
-                  value={searchQuery}
-                  onChange={handleSearch}
-                />
-                {searchQuery && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSearchQuery("")
-                      setSearchTerm("")
-                    }}
-                    className="absolute right-2.5 top-2.5 h-4 w-4 text-[#edb900] hover:text-[#edb900]/80"
-                    aria-label="Clear search"
+            <Tabs
+              defaultValue="tab1"
+              className="w-full"
+              value={activeTab === "tab1" ? "tab1" : "tab2"}
+              onValueChange={(value) => handleTabClick(value)}
+            >
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+                <TabsList className="bg-[#1a1a1a] overflow-x-auto flex-wrap">
+                  <TabsTrigger
+                    value="tab1"
+                    className="data-[state=active]:bg-[#edb900] data-[state=active]:text-[#0f0f0f] transition-colors duration-300 ease-in-out hover:text-[#edb900]"
                   >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="h-4 w-4"
-                    >
-                      <path d="M18 6L6 18M6 6l12 12" />
-                    </svg>
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* ✅ Displaying Content Based on Active Tab */}
-          {isLoading ? (
-            renderSkeletonCards()
-          ) : filteredData.length > 0 ? (
-            filteredData.map((entry, index) => (
-              <div
-                key={index}
-                className="relative flex mb-20 bg-[#0f0f0f] border-[rgba(237,185,0,0.1)] border-[1px] p-5 rounded-[10px] z-50"
-              >
-                {/* ✅ Firm Info Section */}
-                <div className="flex w-[300px] h-[200px] shadow-lg relative bg-[rgba(255,255,255,0.03)] rounded-[10px] hover:bg-[#0f0f0f] py-7 hover:bg-gradient-to-r hover:from-[rgba(237,185,0,0.5)] hover:to-[rgba(255,255,255,0.10)] transition-transform duration-200 hover:scale-[1.03] cursor-pointer z-50">
-                  <Tippy
-                    content={
-                      <span className="font-[balboa]">
-                        We use AI to categorize all the companies. You can learn more on our Evaluation process page.
-                      </span>
-                    }
-                    placement="top"
-                    delay={[100, 0]}
-                    className="z-50"
-                    theme="custom"
+                    Main Rules
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="tab2"
+                    className="data-[state=active]:bg-[#edb900] data-[state=active]:text-[#0f0f0f] transition-colors duration-300 ease-in-out hover:text-[#edb900]"
                   >
-                    <span
-                      className={`absolute top-3 left-3 px-[5px] border text-xs rounded-[10px] font-[balboa]
-                      ${entry.prop_firms?.category === "Gold" ? "text-[#efbf04] border-[#efbf04]" : ""}
-                      ${entry.prop_firms?.category === "Platinum" ? "text-[#D9D9D9] border-[#D9D9D9]" : ""}
-                      ${entry.prop_firms?.category === "Diamond" ? "text-[#c8bfe7] border-[#c8bfe7]" : ""}
-                      ${entry.prop_firms?.category === "Silver" ? "text-[#c4c4c4] border-[#c4c4c4]" : ""}
-                      ${entry.prop_firms?.category === "Copper" ? "text-[#c68346] border-[#c68346]" : ""}`}
-                    >
-                      {entry.prop_firms?.category || "Unknown"}
-                    </span>
-                  </Tippy>
+                    Change Log
+                  </TabsTrigger>
+                </TabsList>
 
-                  <SignedOut>
-                    <button
-                      onClick={handleLoginModalOpen}
-                      className="absolute top-3 right-3 hover:animate-[heartbeat_1.5s_infinite_ease-in-out] z-60"
-                      style={{ color: "rgba(237, 185, 0, 0.3)" }}
-                    >
-                      <FontAwesomeIcon icon={regularHeart} style={{ fontSize: "25px" }} />
-                    </button>
-                  </SignedOut>
-
-                  <SignedIn>
-                    <button
-                      onClick={() => handleLikeToggle(entry.prop_firms?.id)}
-                      className={`absolute top-3 right-3 transition-all duration-200 ${
-                        userLikedFirms.has(Number(entry.prop_firms?.id))
-                          ? "text-[#EDB900] scale-105 hover:animate-[heartbeat_1.5s_infinite_ease-in-out]"
-                          : "text-[rgba(237,185,0,0.3)] hover:text-[#EDB900] hover:animate-[heartbeat_1.5s_infinite_ease-in-out]"
-                      }`}
-                    >
-                      <FontAwesomeIcon
-                        icon={userLikedFirms.has(Number(entry.prop_firms?.id)) ? solidHeart : regularHeart}
-                        className={`transition-all duration-200 text-[25px] ${
-                          userLikedFirms.has(Number(entry.prop_firms?.id))
-                            ? "text-[#EDB900] scale-105"
-                            : "text-[rgba(237,185,0,0.3)] hover:text-[#EDB900]"
-                        }`}
-                      />
-                    </button>
-                  </SignedIn>
-
-                  <Link href={`/prop-firms/${entry.prop_firms?.slug || ""}`} passHref>
-                    <div className="flex w-[300px] h-[200px] justify-between px-7">
-                      <div
-                        className="w-20 h-20 mb-2 flex items-center justify-center rounded-[10px] p-1 mt-[50px]"
-                        style={{ backgroundColor: entry.prop_firms?.brand_colour || "#000" }}
-                      >
-                        <Image
-                          src={entry.prop_firms?.logo_url || "/default-logo.png"}
-                          alt={entry.prop_firms?.propfirm_name || "Company"}
-                          width={40}
-                          height={40}
-                          className="object-cover"
-                        />
-                      </div>
-
-                      <div className="block mt-9 justify-center">
-                        <h3 className="text-2xl text-center">{entry.prop_firms?.propfirm_name || "Unknown Company"}</h3>
-                        <p className="text-center text-2xl text-[#EDB900]">
-                          <FontAwesomeIcon icon={faStar} className="text-lg" />
-                          <span className="text-white"> {entry.prop_firms?.rating || "N/A"}</span>
-                        </p>
-                        <p className="text-center text-xs text-black bg-yellow-500 px-2 py-[5px] rounded-[8px] mt-2 mb-10 min-w-[80px] w-fit mx-auto">
-                          {entry.prop_firms?.reviews_count || 0} reviews
-                        </p>
-                        <p className="absolute top-4 right-[45px] text-center text-xs">
-                          {likesMap[entry.prop_firms?.id] || 0} Likes
-                        </p>
-                      </div>
-                    </div>
-                  </Link>
-                </div>
-
-                {/* ✅ Content Section */}
-                <div className="rules-section rules-container ml-[20px] mt-6 p-3 border-l-[1px] border-[rgba(237,185,0,0.1)] px-[100px]">
-                  <div className="flex text-xs justify-end flex-grow mt-[-35px] mb-10 mr-[-100px]">
-                    <FontAwesomeIcon icon={faCalendar} className="text-md text-white-500 mr-2 max-w-[20px] mt-[1px]" />
-                    <p className="font-[balboa]">
-                      Updated on:{" "}
-                      {new Date(entry.last_updated || new Date()).toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })}
-                    </p>
+                <div className="flex mb-3">
+                  <div className="flex justify-end mx-3 text-xs my-3">
+                    <span>Showing</span>
+                    <span className="mx-2 text-[#EDB900]">{totalResults}</span>
+                    <span>results.</span>
                   </div>
 
-                  {activeTab === "tab1" ? (
-                    <div dangerouslySetInnerHTML={{ __html: entry.main_rules || "No rules available" }} />
-                  ) : (
-                    <div
-                      className="w-full min-w-[975px] flex-grow"
-                      dangerouslySetInnerHTML={{ __html: entry.change_log || "No change log available" }}
+                  {/* ✅ Updated Search Bar with clear button */}
+                  <div className="relative w-[250px] justify-center z-20 mb-4">
+                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
+                    <Input
+                      type="text"
+                      placeholder="Search..."
+                      className="searchDark w-full pl-8 bg-[#0f0f0f] border-gray-600 focus-visible:ring-[#edb900] h-10"
+                      value={searchQuery}
+                      onChange={handleSearch}
                     />
-                  )}
+                    {searchQuery && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSearchQuery("")
+                          setSearchTerm("")
+                        }}
+                        className="absolute right-2.5 top-2.5 h-4 w-4 text-[#edb900] hover:text-[#edb900]/80"
+                        aria-label="Clear search"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="h-4 w-4"
+                        >
+                          <path d="M18 6L6 18M6 6l12 12" />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
-            ))
-          ) : (
-            <p className="text-center">No results found.</p>
-          )}
+
+              {/* ✅ Displaying Content Based on Active Tab */}
+              <TabsContent value="tab1" className="mt-0">
+                {isLoading ? (
+                  renderSkeletonCards()
+                ) : filteredData.length > 0 ? (
+                  filteredData.map((entry, index) => (
+                    <div
+                      key={index}
+                      className="relative flex mb-20 bg-[#0f0f0f] border-[rgba(237,185,0,0.1)] border-[1px] p-5 rounded-[10px] z-50"
+                    >
+                      {/* ✅ Firm Info Section */}
+                      <div className="flex w-[300px] h-[200px] shadow-lg relative bg-[rgba(255,255,255,0.03)] rounded-[10px] hover:bg-[#0f0f0f] py-7 hover:bg-gradient-to-r hover:from-[rgba(237,185,0,0.5)] hover:to-[rgba(255,255,255,0.10)] transition-transform duration-200 hover:scale-[1.03] cursor-pointer z-50">
+                        <Tippy
+                          content={
+                            <span className="font-[balboa]">
+                              We use AI to categorize all the companies. You can learn more on our Evaluation process
+                              page.
+                            </span>
+                          }
+                          placement="top"
+                          delay={[100, 0]}
+                          className="z-50"
+                          theme="custom"
+                        >
+                          <span
+                            className={`absolute top-3 left-3 px-[5px] border text-xs rounded-[10px] font-[balboa]
+                            ${entry.prop_firms?.category === "Gold" ? "text-[#efbf04] border-[#efbf04]" : ""}
+                            ${entry.prop_firms?.category === "Platinum" ? "text-[#D9D9D9] border-[#D9D9D9]" : ""}
+                            ${entry.prop_firms?.category === "Diamond" ? "text-[#c8bfe7] border-[#c8bfe7]" : ""}
+                            ${entry.prop_firms?.category === "Silver" ? "text-[#c4c4c4] border-[#c4c4c4]" : ""}
+                            ${entry.prop_firms?.category === "Copper" ? "text-[#c68346] border-[#c68346]" : ""}`}
+                          >
+                            {entry.prop_firms?.category || "Unknown"}
+                          </span>
+                        </Tippy>
+
+                        <SignedOut>
+                          <button
+                            onClick={handleLoginModalOpen}
+                            className="absolute top-3 right-3 hover:animate-[heartbeat_1.5s_infinite_ease-in-out] z-60"
+                            style={{ color: "rgba(237, 185, 0, 0.3)" }}
+                          >
+                            <FontAwesomeIcon icon={regularHeart} style={{ fontSize: "25px" }} />
+                          </button>
+                        </SignedOut>
+
+                        <SignedIn>
+                          <button
+                            onClick={() => handleLikeToggle(entry.prop_firms?.id)}
+                            className={`absolute top-3 right-3 transition-all duration-200 ${
+                              userLikedFirms.has(Number(entry.prop_firms?.id))
+                                ? "text-[#EDB900] scale-105 hover:animate-[heartbeat_1.5s_infinite_ease-in-out]"
+                                : "text-[rgba(237,185,0,0.3)] hover:text-[#EDB900] hover:animate-[heartbeat_1.5s_infinite_ease-in-out]"
+                            }`}
+                          >
+                            <FontAwesomeIcon
+                              icon={userLikedFirms.has(Number(entry.prop_firms?.id)) ? solidHeart : regularHeart}
+                              className={`transition-all duration-200 text-[25px] ${
+                                userLikedFirms.has(Number(entry.prop_firms?.id))
+                                  ? "text-[#EDB900] scale-105"
+                                  : "text-[rgba(237,185,0,0.3)] hover:text-[#EDB900]"
+                              }`}
+                            />
+                          </button>
+                        </SignedIn>
+
+                        <Link href={`/prop-firms/${entry.prop_firms?.slug || ""}`} passHref>
+                          <div className="flex w-[300px] h-[200px] justify-between px-7">
+                            <div
+                              className="w-20 h-20 mb-2 flex items-center justify-center rounded-[10px] p-1 mt-[50px]"
+                              style={{ backgroundColor: entry.prop_firms?.brand_colour || "#000" }}
+                            >
+                              <Image
+                                src={entry.prop_firms?.logo_url || "/default-logo.png"}
+                                alt={entry.prop_firms?.propfirm_name || "Company"}
+                                width={40}
+                                height={40}
+                                className="object-cover"
+                              />
+                            </div>
+
+                            <div className="block mt-9 justify-center">
+                              <h3 className="text-2xl text-center">
+                                {entry.prop_firms?.propfirm_name || "Unknown Company"}
+                              </h3>
+                              <p className="text-center text-2xl text-[#EDB900]">
+                                <FontAwesomeIcon icon={faStar} className="text-lg" />
+                                <span className="text-white"> {entry.prop_firms?.rating || "N/A"}</span>
+                              </p>
+                              <p className="text-center text-xs text-black bg-yellow-500 px-2 py-[5px] rounded-[8px] mt-2 mb-10 min-w-[80px] w-fit mx-auto">
+                                {entry.prop_firms?.reviews_count || 0} reviews
+                              </p>
+                              <p className="absolute top-4 right-[45px] text-center text-xs">
+                                {likesMap[entry.prop_firms?.id] || 0} Likes
+                              </p>
+                            </div>
+                          </div>
+                        </Link>
+                      </div>
+
+                      {/* ✅ Content Section */}
+                      <div className="rules-section rules-container ml-[20px] mt-6 p-3 border-l-[1px] border-[rgba(237,185,0,0.1)] px-[100px]">
+                        <div className="flex text-xs justify-end flex-grow mt-[-35px] mb-10 mr-[-100px]">
+                          <FontAwesomeIcon
+                            icon={faCalendar}
+                            className="text-md text-white-500 mr-2 max-w-[20px] mt-[1px]"
+                          />
+                          <p className="font-[balboa]">
+                            Updated on:{" "}
+                            {new Date(entry.last_updated || new Date()).toLocaleDateString("en-US", {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            })}
+                          </p>
+                        </div>
+
+                        <div dangerouslySetInnerHTML={{ __html: entry.main_rules || "No rules available" }} />
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-center">No results found.</p>
+                )}
+              </TabsContent>
+
+              <TabsContent value="tab2" className="mt-0">
+                {isLoading ? (
+                  renderSkeletonCards()
+                ) : filteredData.length > 0 ? (
+                  filteredData.map((entry, index) => (
+                    <div
+                      key={index}
+                      className="relative flex mb-20 bg-[#0f0f0f] border-[rgba(237,185,0,0.1)] border-[1px] p-5 rounded-[10px] z-50"
+                    >
+                      {/* ✅ Firm Info Section */}
+                      <div className="flex w-[300px] h-[200px] shadow-lg relative bg-[rgba(255,255,255,0.03)] rounded-[10px] hover:bg-[#0f0f0f] py-7 hover:bg-gradient-to-r hover:from-[rgba(237,185,0,0.5)] hover:to-[rgba(255,255,255,0.10)] transition-transform duration-200 hover:scale-[1.03] cursor-pointer z-50">
+                        <Tippy
+                          content={
+                            <span className="font-[balboa]">
+                              We use AI to categorize all the companies. You can learn more on our Evaluation process
+                              page.
+                            </span>
+                          }
+                          placement="top"
+                          delay={[100, 0]}
+                          className="z-50"
+                          theme="custom"
+                        >
+                          <span
+                            className={`absolute top-3 left-3 px-[5px] border text-xs rounded-[10px] font-[balboa]
+                            ${entry.prop_firms?.category === "Gold" ? "text-[#efbf04] border-[#efbf04]" : ""}
+                            ${entry.prop_firms?.category === "Platinum" ? "text-[#D9D9D9] border-[#D9D9D9]" : ""}
+                            ${entry.prop_firms?.category === "Diamond" ? "text-[#c8bfe7] border-[#c8bfe7]" : ""}
+                            ${entry.prop_firms?.category === "Silver" ? "text-[#c4c4c4] border-[#c4c4c4]" : ""}
+                            ${entry.prop_firms?.category === "Copper" ? "text-[#c68346] border-[#c68346]" : ""}`}
+                          >
+                            {entry.prop_firms?.category || "Unknown"}
+                          </span>
+                        </Tippy>
+
+                        <SignedOut>
+                          <button
+                            onClick={handleLoginModalOpen}
+                            className="absolute top-3 right-3 hover:animate-[heartbeat_1.5s_infinite_ease-in-out] z-60"
+                            style={{ color: "rgba(237, 185, 0, 0.3)" }}
+                          >
+                            <FontAwesomeIcon icon={regularHeart} style={{ fontSize: "25px" }} />
+                          </button>
+                        </SignedOut>
+
+                        <SignedIn>
+                          <button
+                            onClick={() => handleLikeToggle(entry.prop_firms?.id)}
+                            className={`absolute top-3 right-3 transition-all duration-200 ${
+                              userLikedFirms.has(Number(entry.prop_firms?.id))
+                                ? "text-[#EDB900] scale-105 hover:animate-[heartbeat_1.5s_infinite_ease-in-out]"
+                                : "text-[rgba(237,185,0,0.3)] hover:text-[#EDB900] hover:animate-[heartbeat_1.5s_infinite_ease-in-out]"
+                            }`}
+                          >
+                            <FontAwesomeIcon
+                              icon={userLikedFirms.has(Number(entry.prop_firms?.id)) ? solidHeart : regularHeart}
+                              className={`transition-all duration-200 text-[25px] ${
+                                userLikedFirms.has(Number(entry.prop_firms?.id))
+                                  ? "text-[#EDB900] scale-105"
+                                  : "text-[rgba(237,185,0,0.3)] hover:text-[#EDB900]"
+                              }`}
+                            />
+                          </button>
+                        </SignedIn>
+
+                        <Link href={`/prop-firms/${entry.prop_firms?.slug || ""}`} passHref>
+                          <div className="flex w-[300px] h-[200px] justify-between px-7">
+                            <div
+                              className="w-20 h-20 mb-2 flex items-center justify-center rounded-[10px] p-1 mt-[50px]"
+                              style={{ backgroundColor: entry.prop_firms?.brand_colour || "#000" }}
+                            >
+                              <Image
+                                src={entry.prop_firms?.logo_url || "/default-logo.png"}
+                                alt={entry.prop_firms?.propfirm_name || "Company"}
+                                width={40}
+                                height={40}
+                                className="object-cover"
+                              />
+                            </div>
+
+                            <div className="block mt-9 justify-center">
+                              <h3 className="text-2xl text-center">
+                                {entry.prop_firms?.propfirm_name || "Unknown Company"}
+                              </h3>
+                              <p className="text-center text-2xl text-[#EDB900]">
+                                <FontAwesomeIcon icon={faStar} className="text-lg" />
+                                <span className="text-white"> {entry.prop_firms?.rating || "N/A"}</span>
+                              </p>
+                              <p className="text-center text-xs text-black bg-yellow-500 px-2 py-[5px] rounded-[8px] mt-2 mb-10 min-w-[80px] w-fit mx-auto">
+                                {entry.prop_firms?.reviews_count || 0} reviews
+                              </p>
+                              <p className="absolute top-4 right-[45px] text-center text-xs">
+                                {likesMap[entry.prop_firms?.id] || 0} Likes
+                              </p>
+                            </div>
+                          </div>
+                        </Link>
+                      </div>
+
+                      {/* ✅ Content Section */}
+                      <div className="rules-section rules-container ml-[20px] mt-6 p-3 border-l-[1px] border-[rgba(237,185,0,0.1)] px-[100px]">
+                        <div className="flex text-xs justify-end flex-grow mt-[-35px] mb-10 mr-[-100px]">
+                          <FontAwesomeIcon
+                            icon={faCalendar}
+                            className="text-md text-white-500 mr-2 max-w-[20px] mt-[1px]"
+                          />
+                          <p className="font-[balboa]">
+                            Updated on:{" "}
+                            {new Date(entry.last_updated || new Date()).toLocaleDateString("en-US", {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            })}
+                          </p>
+                        </div>
+
+                        <div
+                          className="w-full min-w-[975px] flex-grow"
+                          dangerouslySetInnerHTML={{ __html: entry.change_log || "No change log available" }}
+                        />
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-center">No results found.</p>
+                )}
+              </TabsContent>
+            </Tabs>
+          </div>
         </div>
         {/* Remove the direct LoginModal component */}
-        {visibleCount < totalResults && (
+        {filteredData.length > 0 && visibleCount < totalResults && (
           <div className="text-center mt-5">
             <button
               onClick={() => setVisibleCount((prev) => prev + 10)}
@@ -690,6 +816,37 @@ const PropFirmRules = ({ propFirmRules }) => {
       <Community />
       <Newsletter />
       <Footer />
+      {/* Shimmer effect styles */}
+      <style jsx global>{`
+        .shimmer-effect {
+          position: relative;
+          overflow: hidden;
+        }
+
+        .shimmer-effect::after {
+          content: "";
+          position: absolute;
+          top: 0;
+          right: 0;
+          bottom: 0;
+          left: 0;
+          transform: translateX(-100%);
+          background-image: linear-gradient(
+            90deg,
+            rgba(34, 34, 34, 0) 0,
+            rgba(34, 34, 34, 0.2) 20%,
+            rgba(237, 185, 0, 0.15) 60%,
+            rgba(34, 34, 34, 0)
+          );
+          animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+          100% {
+            transform: translateX(100%);
+          }
+        }
+      `}</style>
     </div>
   )
 }
