@@ -295,7 +295,7 @@ const AllPropFirms = ({ blogs }) => {
         <p className="text-center mb-[150px] z-50">Select a specific company to find more information.</p>
 
         {/* Search & Sorting */}
-        <div className="w-full flex flex-col md:flex-row justify-between items-center mb-6">
+        <div className="w-full flex flex-col md:flex-row justify-between items-center mb-1">
           <div className="w-[300px] h-10 justify-center z-20">
             <div className="relative h-10">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
