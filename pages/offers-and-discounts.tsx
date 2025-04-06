@@ -94,7 +94,7 @@ export default function DiscountsPage() {
       <Navbar />
       <Noise />
       {/* Main Content */}
-      <main className="relative container mx-auto px-4 pt-[250px] z-10 mb-[150px]">
+      <main className="relative container max-w-[1280px] mx-auto px-4 pt-[250px] z-10 mb-[150px]">
         {/* Hero Section */}
         <div className="text-center mb-16">
           <h1 className="text-5xl font-bold mb-4 flex flex-wrap items-center justify-center gap-2 md:gap-4">
