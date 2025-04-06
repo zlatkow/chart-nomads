@@ -402,7 +402,7 @@ const PropFirmRules = ({ propFirmRules }) => {
       .map((_, index) => (
         <div
           key={`skeleton-${index}`}
-          className="relative flex mb-20 bg-[#0f0f0f] border-[rgba(237,185,0,0.1)] border-[1px] p-5 rounded-[10px] z-50"
+          className="relative flex mb-5 bg-[#0f0f0f] border-[rgba(237,185,0,0.1)] border-[1px] p-5 rounded-[10px] z-50"
         >
           {/* Firm info skeleton */}
           <div className="flex w-[300px] h-[200px] shadow-lg relative bg-[rgba(255,255,255,0.03)] rounded-[10px] p-7">
@@ -551,7 +551,7 @@ const PropFirmRules = ({ propFirmRules }) => {
                   filteredData.map((entry, index) => (
                     <div
                       key={index}
-                      className="relative flex mb-20 bg-[#0f0f0f] border-[rgba(237,185,0,0.1)] border-[1px] p-5 rounded-[10px] z-50"
+                      className="relative flex mb-5 bg-[#0f0f0f] border-[rgba(237,185,0,0.1)] border-[1px] p-5 rounded-[10px] z-50"
                     >
                       {/* ✅ Firm Info Section */}
                       <div className="flex w-[300px] h-[200px] shadow-lg relative bg-[rgba(255,255,255,0.03)] rounded-[10px] hover:bg-[#0f0f0f] py-7 hover:bg-gradient-to-r hover:from-[rgba(237,185,0,0.5)] hover:to-[rgba(255,255,255,0.10)] transition-transform duration-200 hover:scale-[1.03] cursor-pointer z-50">
@@ -676,7 +676,7 @@ const PropFirmRules = ({ propFirmRules }) => {
                   filteredData.map((entry, index) => (
                     <div
                       key={index}
-                      className="relative flex mb-20 bg-[#0f0f0f] border-[rgba(237,185,0,0.1)] border-[1px] p-5 rounded-[10px] z-50"
+                      className="relative flex mb-5 bg-[#0f0f0f] border-[rgba(237,185,0,0.1)] border-[1px] p-5 rounded-[10px] z-50"
                     >
                       {/* ✅ Firm Info Section */}
                       <div className="flex w-[300px] h-[200px] shadow-lg relative bg-[rgba(255,255,255,0.03)] rounded-[10px] hover:bg-[#0f0f0f] py-7 hover:bg-gradient-to-r hover:from-[rgba(237,185,0,0.5)] hover:to-[rgba(255,255,255,0.10)] transition-transform duration-200 hover:scale-[1.03] cursor-pointer z-50">
@@ -786,7 +786,7 @@ const PropFirmRules = ({ propFirmRules }) => {
                         </div>
 
                         <div
-                          className="w-full min-w-[975px] flex-grow"
+                          className="w-full min-w-[925px] flex-grow"
                           dangerouslySetInnerHTML={{ __html: entry.change_log || "No change log available" }}
                         />
                       </div>
