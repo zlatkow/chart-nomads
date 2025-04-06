@@ -1,8 +1,6 @@
-/* eslint-disable */
-
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import useFetchStats from "../webhooks/useFetchStats"
 import IndustryStatsSlider from "../components/industry-stats-page/IndustryStatsSlider"
 import Navbar from "../components/Navbar"
@@ -14,9 +12,58 @@ import Footer from "../components/Footer"
 import StatsTabs from "../components/industry-stats-page/StatsTabs"
 import StatsTabContent from "../components/industry-stats-page/StatsTabContent"
 
+// Add the shimmer animation CSS
+const shimmerAnimation = `
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.shimmer-effect {
+  position: relative;
+  overflow: hidden;
+  background-color: #222;
+}
+
+.shimmer-effect::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    rgba(34, 34, 34, 0) 0,
+    rgba(34, 34, 34, 0.2) 20%,
+    rgba(237, 185, 0, 0.15) 60%,
+    rgba(34, 34, 34, 0)
+  );
+  animation: shimmer 2s infinite;
+}
+`
+
 const StatsPage = () => {
   const { stats, loading } = useFetchStats()
   const [activeTab, setActiveTab] = useState("stats")
+
+  // Add the shimmer animation to the document
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      const style = document.createElement("style")
+      style.textContent = shimmerAnimation
+      document.head.appendChild(style)
+
+      return () => {
+        document.head.removeChild(style)
+      }
+    }
+  }, [])
 
   const statsData = {
     last24Hours: {
@@ -66,6 +113,49 @@ const StatsPage = () => {
     },
   }
 
+  // Skeleton for the industry stats slider
+  const renderSliderSkeleton = () => {
+    return (
+      <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        {Array(3)
+          .fill(0)
+          .map((_, index) => (
+            <div key={`slider-skeleton-${index}`} className="bg-[#1a1a1a] rounded-[10px] border border-[#2a2a2a] p-6">
+              <div className="h-8 w-40 bg-[#222] rounded shimmer-effect mb-4"></div>
+              <div className="h-10 w-32 bg-[#222] rounded shimmer-effect mb-6"></div>
+              <div className="h-6 w-full bg-[#222] rounded shimmer-effect mb-3"></div>
+              <div className="h-6 w-3/4 bg-[#222] rounded shimmer-effect"></div>
+            </div>
+          ))}
+      </div>
+    )
+  }
+
+  // Skeleton for the tabs content
+  const renderTabsContentSkeleton = () => {
+    return (
+      <div className="w-full">
+        <div className="flex justify-left mx-auto mb-6">
+          <div className="h-10 w-64 bg-[#222] rounded shimmer-effect"></div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Array(6)
+            .fill(0)
+            .map((_, index) => (
+              <div
+                key={`tab-content-skeleton-${index}`}
+                className="bg-[#1a1a1a] rounded-[10px] border border-[#2a2a2a] p-6"
+              >
+                <div className="h-6 w-32 bg-[#222] rounded shimmer-effect mb-4"></div>
+                <div className="h-8 w-24 bg-[#222] rounded shimmer-effect mb-3"></div>
+                <div className="h-4 w-full bg-[#222] rounded shimmer-effect"></div>
+              </div>
+            ))}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="w-full min-h-screen flex flex-col">
       <Navbar />
@@ -90,16 +180,25 @@ const StatsPage = () => {
               </p>
             </Accordion>
           </div>
-          <IndustryStatsSlider statsData={statsData} />
-          {!loading && (
-        //   {/* Add the tabs component here */}
-          <div className="w-full">
-            <div className="flex justify-left mx-auto">
-            <StatsTabs activeTab={activeTab} onTabChange={setActiveTab} />
+
+          {loading ? (
+            // Show skeleton loader for the slider when loading
+            renderSliderSkeleton()
+          ) : (
+            <IndustryStatsSlider statsData={statsData} />
+          )}
+
+          {loading ? (
+            // Show skeleton loader for the tabs content when loading
+            renderTabsContentSkeleton()
+          ) : (
+            <div className="w-full">
+              <div className="flex justify-left mx-auto">
+                <StatsTabs activeTab={activeTab} onTabChange={setActiveTab} />
+              </div>
+              {/* Tab content */}
+              <StatsTabContent activeTab={activeTab} stats={stats} />
             </div>
-            {/* Tab content */}
-            <StatsTabContent activeTab={activeTab} stats={stats} />
-          </div>
           )}
         </div>
       </div>
