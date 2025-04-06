@@ -358,7 +358,7 @@ const AllPropFirms = ({ blogs }) => {
             </div>
             <div>
               {/* Main content area */}
-              <div className="flex flex-col space-y-4">
+              <div className="flex flex-col ml-5 mt-2 min-w-[150px] space-y-4">
               {/* Title */}
               <div className="h-6 w-full max-w-[180px] bg-[#222] rounded shimmer-effect mx-auto"></div>
 
