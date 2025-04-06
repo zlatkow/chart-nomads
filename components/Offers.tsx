@@ -546,95 +546,10 @@ export default function OffersComponent({
   // Update the main grid layout to adjust columns when hideCompanyCard is true
   return (
     <div className={`space-y-8 mb-12 ${customClass}`}>
-      {/* Tabs and Search - Only show if showTabs or showSearch is true */}
-      {(showTabs || showSearch) && (
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-          {showTabs && (
-            <div className="flex bg-[#0f0f0f] rounded-md overflow-hidden">
-              <button
-                role="tab"
-                className={`px-6 py-3 font-medium flex items-center gap-2 transition-all ${
-                  activeTab === "Limited Time"
-                    ? "bg-[#edb900] text-black"
-                    : "bg-transparent text-white hover:text-[#826600]"
-                }`}
-                onClick={() => handleTabClick("Limited Time")}
-              >
-                Limited Time Offers
-              </button>
-              <button
-                role="tab"
-                className={`px-6 py-3 font-medium flex items-center gap-2 transition-colors ${
-                  activeTab === "Exclusive"
-                    ? "bg-[#edb900] text-black"
-                    : "bg-transparent text-white hover:text-[#826600]"
-                }`}
-                onClick={() => handleTabClick("Exclusive")}
-              >
-                Exclusive offers
-              </button>
-              <button
-                role="tab"
-                className={`px-6 py-3 font-medium flex items-center gap-2 transition-colors ${
-                  activeTab === "Review & earn"
-                    ? "bg-[#edb900] text-black"
-                    : "bg-transparent text-white hover:text-[#826600]"
-                }`}
-                onClick={() => handleTabClick("Review & earn")}
-              >
-                Review & earn offers
-              </button>
-            </div>
-          )}
-
-          {showSearch && (
-            <div className="flex items-center gap-4">
-              <span className="text-xs text-white">
-                Showing <span className="text-[#edb900]">{filteredDiscounts.length}</span> results.
-              </span>
-              <div className="relative">
-                <Input
-                  type="text"
-                  placeholder="Search..."
-                  className="searchDark bg-gray-900 border-gray-800 text-white placeholder:text-gray-500 w-64 pl-9"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-                <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                  <Search className="h-4 w-4" />
-                </div>
-                {searchQuery && (
-                  <button
-                    type="button"
-                    onClick={() => setSearchQuery("")}
-                    className="absolute right-2.5 top-1/2 transform -translate-y-1/2 text-[#edb900] hover:text-[#edb900]/80"
-                    aria-label="Clear search"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="h-4 w-4"
-                    >
-                      <path d="M18 6L6 18M6 6l12 12" />
-                    </svg>
-                  </button>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Offers Display */}
+      {/* Skeleton UI for loading state */}
       {isLoading ? (
-        // Skeleton loading UI - show 3 rows of skeleton cards
         <div className="space-y-6">
-          {/* Skeleton for tabs and search if they're shown */}
+          {/* Skeleton for tabs and search */}
           {(showTabs || showSearch) && (
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
               {showTabs && (
@@ -662,480 +577,380 @@ export default function OffersComponent({
                   {/* Company card skeleton - only if not hidden */}
                   {!hideCompanyCard && (
                     <div className="flex justify-start items-center">
-                      <div className="flex w-[300px] h-[200px] shadow-lg relative bg-[rgba(255,255,255,0.03)] rounded-[10px] overflow-hidden">
-                        <div className="absolute top-3 left-3 w-16 h-5 bg-[#222] rounded-[10px] shimmer-effect"></div>
-                        <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-[#222] shimmer-effect"></div>
-
-                        <div className="flex w-full h-full justify-between px-7">
-                          <div className="w-20 h-20 mb-2 flex items-center justify-center rounded-[10px] bg-[#222] mt-[50px] shimmer-effect"></div>
-
-                          <div className="block mt-9 justify-center w-32">
-                            <div className="h-8 bg-[#222] rounded mb-2 mx-auto shimmer-effect"></div>
-                            <div className="h-6 bg-[#222] rounded mb-2 w-16 mx-auto shimmer-effect"></div>
-                            <div className="h-6 bg-[#222] rounded mb-2 w-20 mx-auto shimmer-effect"></div>
-                            <div className="absolute top-4 right-[45px] w-12 h-4 bg-[#222] rounded shimmer-effect"></div>
-                          </div>
-                        </div>
-                      </div>
+                      <div className="w-[300px] h-[200px] bg-[#222] rounded-[10px] shimmer-effect"></div>
                     </div>
                   )}
 
-                  {/* Discount Description skeleton */}
+                  {/* Discount Description skeleton - simplified */}
                   <div className="text-center">
-                    <div className="relative p-3 rounded-lg border border-[rgba(237,185,0,0.15)] h-[150px]">
-                      <div className="h-12 bg-[#222] rounded-md mb-3 w-3/4 mx-auto shimmer-effect"></div>
-                      <div className="h-4 bg-[#222] rounded w-full mb-2 shimmer-effect"></div>
-                      <div className="h-4 bg-[#222] rounded w-2/3 mx-auto shimmer-effect"></div>
-                      <div className="mt-4 w-full border-t border-[rgba(237,185,0,0.1)] pt-2">
-                        <div className="h-6 bg-[#222] rounded w-1/2 mx-auto shimmer-effect"></div>
-                      </div>
-                    </div>
+                    <div className="h-[150px] bg-[#222] rounded-lg shimmer-effect"></div>
                   </div>
 
-                  {/* Code skeleton */}
+                  {/* Code skeleton - simplified */}
                   <div className="flex justify-center">
-                    <div className="relative min-w-[150px] w-auto">
-                      <div className="relative w-full bg-[#222] text-black font-medium rounded-md py-3 px-4 shadow-md h-12 shimmer-effect"></div>
-                      <div className="h-4 bg-[#222] rounded w-24 mx-auto mt-2 shimmer-effect"></div>
-                    </div>
+                    <div className="h-12 w-full bg-[#222] rounded-md shimmer-effect"></div>
                   </div>
 
-                  {/* Buy button skeleton */}
+                  {/* Buy button skeleton - simplified */}
                   <div className="flex justify-center">
-                    <div className="bg-[#222] rounded-md min-w-[120px] min-h-[45px] w-16 h-12 shimmer-effect"></div>
+                    <div className="w-16 h-12 bg-[#222] rounded-md shimmer-effect"></div>
                   </div>
                 </div>
               </div>
             ))}
         </div>
-      ) : groupedDiscounts.length === 0 ? (
-        <div className="text-center py-8">No discounts found for this company.</div>
       ) : (
-        // Rest of the existing code for displaying actual discounts
-        groupedDiscounts.map((group, groupIndex) => {
-          // Get the first discount in the group to display as the main one
-          const mainDiscount = group[0]
-          const hasMultipleDiscounts = group.length > 1
-          const groupId = `group-${groupIndex}`
-          const isExpanded = expandedGroups[groupId] || false
+        <>
+          {/* Tabs and Search - Only show if showTabs or showSearch is true */}
+          {(showTabs || showSearch) && (
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+              {showTabs && (
+                <div className="flex bg-[#0f0f0f] rounded-md overflow-hidden">
+                  <button
+                    role="tab"
+                    className={`px-6 py-3 font-medium flex items-center gap-2 transition-all ${
+                      activeTab === "Limited Time"
+                        ? "bg-[#edb900] text-black"
+                        : "bg-transparent text-white hover:text-[#826600]"
+                    }`}
+                    onClick={() => handleTabClick("Limited Time")}
+                  >
+                    Limited Time Offers
+                  </button>
+                  <button
+                    role="tab"
+                    className={`px-6 py-3 font-medium flex items-center gap-2 transition-colors ${
+                      activeTab === "Exclusive"
+                        ? "bg-[#edb900] text-black"
+                        : "bg-transparent text-white hover:text-[#826600]"
+                    }`}
+                    onClick={() => handleTabClick("Exclusive")}
+                  >
+                    Exclusive offers
+                  </button>
+                  <button
+                    role="tab"
+                    className={`px-6 py-3 font-medium flex items-center gap-2 transition-colors ${
+                      activeTab === "Review & earn"
+                        ? "bg-[#edb900] text-black"
+                        : "bg-transparent text-white hover:text-[#826600]"
+                    }`}
+                    onClick={() => handleTabClick("Review & earn")}
+                  >
+                    Review & earn offers
+                  </button>
+                </div>
+              )}
 
-          // Get the current like count from likesMap or fall back to the original count
-          const currentLikeCount = mainDiscount.prop_firm
-            ? likesMap[mainDiscount.prop_firm] !== undefined
-              ? likesMap[mainDiscount.prop_firm]
-              : mainDiscount.likes
-            : mainDiscount.likes || 0
-
-          return (
-            <div
-              key={groupId}
-              className={`bg-[#0f0f0f] border border-[rgba(237,185,0,0.3)] rounded-lg overflow-hidden discount-card ${isExpanded ? "expanded" : ""}`}
-            >
-              {/* Main discount row - adjust grid columns based on hideCompanyCard */}
-              <div
-                className={`grid grid-cols-1 ${hideCompanyCard ? "md:grid-cols-3" : "md:grid-cols-4"} gap-4 p-4 items-center`}
-              >
-                {/* Company - Only show if hideCompanyCard is false */}
-                {!hideCompanyCard && mainDiscount.prop_firm ? (
-                  <div className="flex justify-start items-center">
-                    {/* ✅ Firm Info Section */}
-                    <div className="flex w-[300px] h-[200px] shadow-lg relative bg-[rgba(255,255,255,0.03)] rounded-[10px] hover:bg-[#0f0f0f] py-7 hover:bg-gradient-to-r hover:from-[rgba(237,185,0,0.5)] hover:to-[rgba(255,255,255,0.10)] transition-transform duration-200 hover:scale-[1.03] cursor-pointer z-50">
-                      <Tippy
-                        content={
-                          <span className="font-[balboa]">
-                            We use AI to categorize all the companies. You can learn more on our Evaluation process
-                            page.
-                          </span>
-                        }
-                        placement="top"
-                        delay={[100, 0]}
-                        className="z-50"
-                        theme="custom"
+              {showSearch && (
+                <div className="flex items-center gap-4">
+                  <span className="text-xs text-white">
+                    Showing <span className="text-[#edb900]">{filteredDiscounts.length}</span> results.
+                  </span>
+                  <div className="relative">
+                    <Input
+                      type="text"
+                      placeholder="Search..."
+                      className="searchDark bg-gray-900 border-gray-800 text-white placeholder:text-gray-500 w-64 pl-9"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                    <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                      <Search className="h-4 w-4" />
+                    </div>
+                    {searchQuery && (
+                      <button
+                        type="button"
+                        onClick={() => setSearchQuery("")}
+                        className="absolute right-2.5 top-1/2 transform -translate-y-1/2 text-[#edb900] hover:text-[#edb900]/80"
+                        aria-label="Clear search"
                       >
-                        <span
-                          className={`absolute top-3 left-3 px-[5px] border text-xs rounded-[10px] font-[balboa]
-                      ${mainDiscount.category === "Gold" ? "text-[#efbf04] border-[#efbf04]" : ""}
-                      ${mainDiscount.category === "Platinum" ? "text-[#D9D9D9] border-[#D9D9D9]" : ""}
-                      ${mainDiscount.category === "Diamond" ? "text-[#c8bfe7] border-[#c8bfe7]" : ""}
-                      ${mainDiscount.category === "Silver" ? "text-[#c4c4c4] border-[#c4c4c4]" : ""}
-                      ${mainDiscount.category === "Copper" ? "text-[#c68346] border-[#c68346]" : ""}
-                      ${mainDiscount.category === "Exclusive" ? "text-[#edb900] border-[#edb900]" : ""}`}
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="h-4 w-4"
                         >
-                          {mainDiscount.category}
-                        </span>
-                      </Tippy>
-
-                      <SignedOut>
-                        <button
-                          onClick={onLoginModalOpen}
-                          className="absolute top-3 right-3 hover:animate-[heartbeat_1.5s_infinite_ease-in-out] z-60"
-                          style={{ color: "rgba(237, 185, 0, 0.3)" }}
-                        >
-                          <FontAwesomeIcon icon={regularHeart} style={{ fontSize: "25px" }} />
-                        </button>
-                      </SignedOut>
-
-                      <SignedIn>
-                        <button
-                          onClick={() => handleLikeToggle(mainDiscount.prop_firm)}
-                          className={`absolute top-3 right-3 transition-all duration-200 ${
-                            userLikedFirms.has(Number(mainDiscount.prop_firm))
-                              ? "text-[#EDB900] scale-105 hover:animate-[heartbeat_1.5s_infinite_ease-in-out]"
-                              : "text-[rgba(237,185,0,0.3)] hover:text-[#EDB900] hover:animate-[heartbeat_1.5s_infinite_ease-in-out]"
-                          }`}
-                        >
-                          <FontAwesomeIcon
-                            icon={userLikedFirms.has(Number(mainDiscount.prop_firm)) ? solidHeart : regularHeart}
-                            className={`transition-all duration-200 text-[25px] ${
-                              userLikedFirms.has(Number(mainDiscount.prop_firm))
-                                ? "text-[#EDB900] scale-105"
-                                : "text-[rgba(237,185,0,0.3)] hover:text-[#EDB900]"
-                            }`}
-                          />
-                        </button>
-                      </SignedIn>
-
-                      <Link href={`/prop-firms/${mainDiscount.slug}`} passHref>
-                        <div className="flex w-[300px] h-[200px] justify-between px-7">
-                          <div
-                            className="w-20 h-20 mb-2 flex items-center justify-center rounded-[10px] p-1 mt-[50px]"
-                            style={{ backgroundColor: mainDiscount.brand_colour || "#38BDF8" }}
-                          >
-                            <Image
-                              src={mainDiscount.logo_url || "/default-logo.png"}
-                              alt={mainDiscount.propfirm_name}
-                              width={40}
-                              height={40}
-                              className="object-cover"
-                            />
-                          </div>
-
-                          <div className="block mt-9 justify-center">
-                            <h3 className="text-2xl text-center">{mainDiscount.propfirm_name}</h3>
-                            <p className="text-center text-2xl text-[#EDB900]">
-                              <FontAwesomeIcon icon={faStar} className="text-lg" />
-                              <span className="text-white"> {mainDiscount.rating || "4.5"}</span>
-                            </p>
-                            <p className="text-center text-xs text-black bg-[#edb900] px-2 py-[5px] rounded-[8px] mt-2 mb-10 min-w-[80px] w-fit mx-auto">
-                              {mainDiscount.reviews_count || 0} reviews
-                            </p>
-                            <p className="absolute top-4 right-[45px] text-center text-xs">{currentLikeCount} Likes</p>
-                          </div>
-                        </div>
-                      </Link>
-                    </div>
-                  </div>
-                ) : !hideCompanyCard ? (
-                  <div className="flex flex-col items-start text-left">
-                    <div className="h-16 w-16 bg-black rounded-lg flex items-center justify-center overflow-hidden mb-2">
-                      <Image
-                        src={mainDiscount.logo_url || "/placeholder.svg"}
-                        alt={mainDiscount.propfirm_name || mainDiscount.discount_code}
-                        width={48}
-                        height={48}
-                      />
-                    </div>
-                    <div className="font-medium">{mainDiscount.propfirm_name || mainDiscount.discount_code}</div>
-                  </div>
-                ) : null}
-
-                {/* Adjust the grid columns based on whether the company card is hidden */}
-                <div className={`text-center ${hideCompanyCard ? "md:col-span-1" : ""}`}>
-                  <div className="relative p-3 to-transparent rounded-lg border border-[rgba(237,185,0,0.15)]">
-                    {/* Extract and emphasize percentage + "OFF" if it exists */}
-                    {mainDiscount.description && mainDiscount.description.match(/\d+%\s*(?:OFF|off)?/) ? (
-                      <div className="flex flex-col items-center">
-                        {/* Main percentage + OFF - large and bold */}
-                        <div className="text-5xl font-extrabold text-[#edb900] mb-1 leading-tight">
-                          {mainDiscount.description.match(/\d+%\s*(?:OFF|off)?/)[0].toUpperCase()}
-                        </div>
-
-                        {/* Secondary text - the rest of the description */}
-                        <div className="text-sm text-gray-300 mb-2">
-                          {mainDiscount.description.replace(/\d+%\s*(?:OFF|off)?/, "").trim()}
-                        </div>
-
-                        {/* Optional bonus at the bottom with small font */}
-                        {showOptionalBonus &&
-                          mainDiscount.cashback_bonus &&
-                          (activeTab === "Review & earn" || activeTab === "Limited Time") && (
-                            <Tippy content={bonusTooltipContent} theme="custom" placement="top" arrow={true}>
-                              <div className="mt-2 w-full border-t border-[rgba(237,185,0,0.2)] pt-2 bg-gradient-to-b from-[rgba(237,185,0,0.1)] rounded-md relative">
-                                <div className="absolute top-1 right-1">
-                                  <Info className="h-4 w-4 text-[#edb900] cursor-pointer" />
-                                </div>
-                                <div className="text-xs text-gray-400 pt-1">
-                                  Optional cashback:
-                                  <div className="flex items-center justify-center gap-1 text-[#edb900] text-sm font-medium mt-1">
-                                    {mainDiscount.cashback_bonus}
-                                  </div>
-                                </div>
-                              </div>
-                            </Tippy>
-                          )}
-                      </div>
-                    ) : (
-                      // If no percentage is found, display the description normally with optional bonus below
-                      <div className="flex flex-col items-center">
-                        <div className="text-white mb-2 ">{mainDiscount.description}</div>
-                        {/* Optional bonus at the bottom with small font */}
-                        {showOptionalBonus &&
-                          mainDiscount.cashback_bonus &&
-                          (activeTab === "Review & earn" || activeTab === "Limited Time") && (
-                            <Tippy content={bonusTooltipContent} theme="custom" placement="top" arrow={true}>
-                              <div className="mt-2 w-full border-t border-[rgba(237,185,0,0.2)] pt-2 bg-gradient-to-b from-[rgba(237,185,0,0.1)] rounded-md relative">
-                                <div className="absolute top-1 right-1">
-                                  <Info className="h-4 w-4 text-[#edb900] cursor-pointer" />
-                                </div>
-                                <div className="text-xs text-gray-400 pt-1">
-                                  Optional cashback:
-                                  <div className="flex items-center justify-center gap-1 text-[#edb900] text-sm font-medium mt-1">
-                                    {mainDiscount.cashback_bonus}
-                                  </div>
-                                </div>
-                              </div>
-                            </Tippy>
-                          )}
-                      </div>
+                          <path d="M18 6L6 18M6 6l12 12" />
+                        </svg>
+                      </button>
                     )}
                   </div>
                 </div>
+              )}
+            </div>
+          )}
 
-                {/* Code */}
-                <div className="flex justify-center">
-                  {mainDiscount.no_code ? (
-                    <div className="relative min-w-[150px] w-auto">
-                      {" "}
-                      <Tippy content={noCodeTooltipContent} theme="custom" placement="top" arrow={true}>
-                        <div className="relative w-full bg-[#edb900] text-black font-medium rounded-md py-3 px-4 shadow-md text-center">
-                          No code needed, proceed to checkout
-                          <div className="absolute top-2 right-2">
-                            <Info className="h-4 w-4 text-[#0f0f0f] cursor-pointer" />
-                          </div>
-                        </div>
-                      </Tippy>
-                    </div>
-                  ) : (
-                    <div className="relative min-w-[150px] w-auto">
-                      <div className="flex items-center gap-2">
-                        {/* Update the button in the main discount section */}
-                        <button
-                          className={`relative w-full bg-[#edb900] text-black font-medium rounded-md py-3 px-4 transition-all duration-300 shadow-md hover:shadow-lg ${
-                            copiedCodes[`${mainDiscount.discount_code}-${mainDiscount.id}`]
-                              ? "bg-green-500 scale-105"
-                              : "hover:brightness-110"
-                          }`}
-                          onClick={() => handleCopyCode(mainDiscount.discount_code, mainDiscount.id)}
-                        >
-                          <div className="flex items-center justify-center">
-                            <span className="font-bold tracking-wider mr-5">
-                              {copiedCodes[`${mainDiscount.discount_code}-${mainDiscount.id}`]
-                                ? "COPIED!"
-                                : mainDiscount.discount_code}
-                            </span>
-                          </div>
+          {/* Offers Display */}
+          {groupedDiscounts.length === 0 ? (
+            <div className="text-center py-8">No discounts found for this company.</div>
+          ) : (
+            // Rest of the existing code for displaying actual discounts
+            groupedDiscounts.map((group, groupIndex) => {
+              // Get the first discount in the group to display as the main one
+              const mainDiscount = group[0]
+              const hasMultipleDiscounts = group.length > 1
+              const groupId = `group-${groupIndex}`
+              const isExpanded = expandedGroups[groupId] || false
 
-                          {/* Copy/Check Icon positioned absolutely in the top right */}
-                          <div
-                            className={`absolute top-2 right-2 transition-all duration-300 ${
-                              copiedCodes[`${mainDiscount.discount_code}-${mainDiscount.id}`]
-                                ? "opacity-100 scale-110"
-                                : "opacity-80"
-                            }`}
-                          >
-                            {copiedCodes[`${mainDiscount.discount_code}-${mainDiscount.id}`] ? (
-                              <Check className="h-5 w-5 stroke-[3]" />
-                            ) : (
-                              <Copy className="h-5 w-5" />
-                            )}
-                          </div>
-                        </button>
+              // Get the current like count from likesMap or fall back to the original count
+              const currentLikeCount = mainDiscount.prop_firm
+                ? likesMap[mainDiscount.prop_firm] !== undefined
+                  ? likesMap[mainDiscount.prop_firm]
+                  : mainDiscount.likes
+                : mainDiscount.likes || 0
 
-                        {/* Show more promos button - moved next to discount code button */}
-                        {hasMultipleDiscounts && (
-                          <button
-                            onClick={() => toggleGroupExpanded(groupId)}
-                            className="h-full bg-[#edb900] text-black rounded-[10px] py-3 px-3 flex items-center justify-center gap-1.5 transition-all hover:shadow-lg"
-                          >
-                            <FontAwesomeIcon icon={faTags} className="text-black" />
-                            <span>{group.length - 1}</span>
-                            <FontAwesomeIcon
-                              icon={isExpanded ? faChevronUp : faChevronDown}
-                              className={`text-black ml-1 text-xs chevron-icon ${isExpanded ? "open" : ""}`}
-                            />
-                          </button>
-                        )}
-                      </div>
-                      <div className="flex flex-col items-center">
-                        {mainDiscount.expiry_date ? (
-                          <>
-                            {isLastDay(mainDiscount.expiry_date) ? (
-                              <div className="text-xs mt-2 flex items-center justify-center gap-1.5 bg-[#0f0f0f] border border-[#edb900] rounded-md py-1 px-2.5 text-white animate-pulse">
-                                <span className="text-[#edb900]">🔥</span>
-                                <span>Last day, hurry up!</span>
-                              </div>
-                            ) : (
-                              <div className="text-xs text-gray-400 mt-2 flex items-center justify-center gap-1">
-                                <Calendar className="h-3.5 w-3.5" />
-                                <span>Ends: {new Date(mainDiscount.expiry_date).toLocaleDateString()}</span>
-                              </div>
-                            )}
-                          </>
-                        ) : (
-                          // Show infinity sign for Limited Time discounts with no expiry date
-                          mainDiscount.discount_type === "Limited Time" && (
-                            <div className="text-xs text-gray-400 mt-2 flex items-center justify-center gap-1">
-                              <Calendar className="mb-1 h-3.5 w-3.5" />
-                              <span className="flex">
-                                Ends: <Infinity className="pb-[3px] h-5 w-5" />
+              return (
+                <div
+                  key={groupId}
+                  className={`bg-[#0f0f0f] border border-[rgba(237,185,0,0.3)] rounded-lg overflow-hidden discount-card ${isExpanded ? "expanded" : ""}`}
+                >
+                  {/* Main discount row - adjust grid columns based on hideCompanyCard */}
+                  <div
+                    className={`grid grid-cols-1 ${hideCompanyCard ? "md:grid-cols-3" : "md:grid-cols-4"} gap-4 p-4 items-center`}
+                  >
+                    {/* Company - Only show if hideCompanyCard is false */}
+                    {!hideCompanyCard && mainDiscount.prop_firm ? (
+                      <div className="flex justify-start items-center">
+                        {/* ✅ Firm Info Section */}
+                        <div className="flex w-[300px] h-[200px] shadow-lg relative bg-[rgba(255,255,255,0.03)] rounded-[10px] hover:bg-[#0f0f0f] py-7 hover:bg-gradient-to-r hover:from-[rgba(237,185,0,0.5)] hover:to-[rgba(255,255,255,0.10)] transition-transform duration-200 hover:scale-[1.03] cursor-pointer z-50">
+                          <Tippy
+                            content={
+                              <span className="font-[balboa]">
+                                We use AI to categorize all the companies. You can learn more on our Evaluation process
+                                page.
                               </span>
+                            }
+                            placement="top"
+                            delay={[100, 0]}
+                            className="z-50"
+                            theme="custom"
+                          >
+                            <span
+                              className={`absolute top-3 left-3 px-[5px] border text-xs rounded-[10px] font-[balboa]
+                          ${mainDiscount.category === "Gold" ? "text-[#efbf04] border-[#efbf04]" : ""}
+                          ${mainDiscount.category === "Platinum" ? "text-[#D9D9D9] border-[#D9D9D9]" : ""}
+                          ${mainDiscount.category === "Diamond" ? "text-[#c8bfe7] border-" : ""}
+                          ${mainDiscount.category === "Diamond" ? "text-[#c8bfe7] border-[#c8bfe7]" : ""}
+                          ${mainDiscount.category === "Silver" ? "text-[#c4c4c4] border-[#c4c4c4]" : ""}
+                          ${mainDiscount.category === "Copper" ? "text-[#c68346] border-[#c68346]" : ""}
+                          ${mainDiscount.category === "Exclusive" ? "text-[#edb900] border-[#edb900]" : ""}`}
+                            >
+                              {mainDiscount.category}
+                            </span>
+                          </Tippy>
+
+                          <SignedOut>
+                            <button
+                              onClick={onLoginModalOpen}
+                              className="absolute top-3 right-3 hover:animate-[heartbeat_1.5s_infinite_ease-in-out] z-60"
+                              style={{ color: "rgba(237, 185, 0, 0.3)" }}
+                            >
+                              <FontAwesomeIcon icon={regularHeart} style={{ fontSize: "25px" }} />
+                            </button>
+                          </SignedOut>
+
+                          <SignedIn>
+                            <button
+                              onClick={() => handleLikeToggle(mainDiscount.prop_firm)}
+                              className={`absolute top-3 right-3 transition-all duration-200 ${
+                                userLikedFirms.has(Number(mainDiscount.prop_firm))
+                                  ? "text-[#EDB900] scale-105 hover:animate-[heartbeat_1.5s_infinite_ease-in-out]"
+                                  : "text-[rgba(237,185,0,0.3)] hover:text-[#EDB900] hover:animate-[heartbeat_1.5s_infinite_ease-in-out]"
+                              }`}
+                            >
+                              <FontAwesomeIcon
+                                icon={userLikedFirms.has(Number(mainDiscount.prop_firm)) ? solidHeart : regularHeart}
+                                className={`transition-all duration-200 text-[25px] ${
+                                  userLikedFirms.has(Number(mainDiscount.prop_firm))
+                                    ? "text-[#EDB900] scale-105"
+                                    : "text-[rgba(237,185,0,0.3)] hover:text-[#EDB900]"
+                                }`}
+                              />
+                            </button>
+                          </SignedIn>
+
+                          <Link href={`/prop-firms/${mainDiscount.slug}`} passHref>
+                            <div className="flex w-[300px] h-[200px] justify-between px-7">
+                              <div
+                                className="w-20 h-20 mb-2 flex items-center justify-center rounded-[10px] p-1 mt-[50px]"
+                                style={{ backgroundColor: mainDiscount.brand_colour || "#38BDF8" }}
+                              >
+                                <Image
+                                  src={mainDiscount.logo_url || "/default-logo.png"}
+                                  alt={mainDiscount.propfirm_name}
+                                  width={40}
+                                  height={40}
+                                  className="object-cover"
+                                />
+                              </div>
+
+                              <div className="block mt-9 justify-center">
+                                <h3 className="text-2xl text-center">{mainDiscount.propfirm_name}</h3>
+                                <p className="text-center text-2xl text-[#EDB900]">
+                                  <FontAwesomeIcon icon={faStar} className="text-lg" />
+                                  <span className="text-white"> {mainDiscount.rating || "4.5"}</span>
+                                </p>
+                                <p className="text-center text-xs text-black bg-[#edb900] px-2 py-[5px] rounded-[8px] mt-2 mb-10 min-w-[80px] w-fit mx-auto">
+                                  {mainDiscount.reviews_count || 0} reviews
+                                </p>
+                                <p className="absolute top-4 right-[45px] text-center text-xs">
+                                  {currentLikeCount} Likes
+                                </p>
+                              </div>
                             </div>
-                          )
+                          </Link>
+                        </div>
+                      </div>
+                    ) : !hideCompanyCard ? (
+                      <div className="flex flex-col items-start text-left">
+                        <div className="h-16 w-16 bg-black rounded-lg flex items-center justify-center overflow-hidden mb-2">
+                          <Image
+                            src={mainDiscount.logo_url || "/placeholder.svg"}
+                            alt={mainDiscount.propfirm_name || mainDiscount.discount_code}
+                            width={48}
+                            height={48}
+                          />
+                        </div>
+                        <div className="font-medium">{mainDiscount.propfirm_name || mainDiscount.discount_code}</div>
+                      </div>
+                    ) : null}
+
+                    {/* Adjust the grid columns based on whether the company card is hidden */}
+                    <div className={`text-center ${hideCompanyCard ? "md:col-span-1" : ""}`}>
+                      <div className="relative p-3 to-transparent rounded-lg border border-[rgba(237,185,0,0.15)]">
+                        {/* Extract and emphasize percentage + "OFF" if it exists */}
+                        {mainDiscount.description && mainDiscount.description.match(/\d+%\s*(?:OFF|off)?/) ? (
+                          <div className="flex flex-col items-center">
+                            {/* Main percentage + OFF - large and bold */}
+                            <div className="text-5xl font-extrabold text-[#edb900] mb-1 leading-tight">
+                              {mainDiscount.description.match(/\d+%\s*(?:OFF|off)?/)[0].toUpperCase()}
+                            </div>
+
+                            {/* Secondary text - the rest of the description */}
+                            <div className="text-sm text-gray-300 mb-2">
+                              {mainDiscount.description.replace(/\d+%\s*(?:OFF|off)?/, "").trim()}
+                            </div>
+
+                            {/* Optional bonus at the bottom with small font */}
+                            {showOptionalBonus &&
+                              mainDiscount.cashback_bonus &&
+                              (activeTab === "Review & earn" || activeTab === "Limited Time") && (
+                                <Tippy content={bonusTooltipContent} theme="custom" placement="top" arrow={true}>
+                                  <div className="mt-2 w-full border-t border-[rgba(237,185,0,0.2)] pt-2 bg-gradient-to-b from-[rgba(237,185,0,0.1)] rounded-md relative">
+                                    <div className="absolute top-1 right-1">
+                                      <Info className="h-4 w-4 text-[#edb900] cursor-pointer" />
+                                    </div>
+                                    <div className="text-xs text-gray-400 pt-1">
+                                      Optional cashback:
+                                      <div className="flex items-center justify-center gap-1 text-[#edb900] text-sm font-medium mt-1">
+                                        {mainDiscount.cashback_bonus}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </Tippy>
+                              )}
+                          </div>
+                        ) : (
+                          // If no percentage is found, display the description normally with optional bonus below
+                          <div className="flex flex-col items-center">
+                            <div className="text-white mb-2 ">{mainDiscount.description}</div>
+                            {/* Optional bonus at the bottom with small font */}
+                            {showOptionalBonus &&
+                              mainDiscount.cashback_bonus &&
+                              (activeTab === "Review & earn" || activeTab === "Limited Time") && (
+                                <Tippy content={bonusTooltipContent} theme="custom" placement="top" arrow={true}>
+                                  <div className="mt-2 w-full border-t border-[rgba(237,185,0,0.2)] pt-2 bg-gradient-to-b from-[rgba(237,185,0,0.1)] rounded-md relative">
+                                    <div className="absolute top-1 right-1">
+                                      <Info className="h-4 w-4 text-[#edb900] cursor-pointer" />
+                                    </div>
+                                    <div className="text-xs text-gray-400 pt-1">
+                                      Optional cashback:
+                                      <div className="flex items-center justify-center gap-1 text-[#edb900] text-sm font-medium mt-1">
+                                        {mainDiscount.cashback_bonus}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </Tippy>
+                              )}
+                          </div>
                         )}
                       </div>
                     </div>
-                  )}
-                </div>
 
-                {/* Buy */}
-                <div className="flex justify-center">
-                  <button className="bg-[#edb900] text-[#0f0f0f] rounded-md min-w-[120px] min-h-[45px] w-16 h-12 flex items-center justify-center transition-all hover:brightness-110 shadow-md">
-                    <ShoppingCart className="h-7 w-7" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Additional discounts (shown when expanded) */}
-              {hasMultipleDiscounts && (
-                <div className={`accordion-content ${isExpanded ? "open" : ""}`}>
-                  {group.slice(1).map((additionalDiscount, idx) => (
-                    <div
-                      key={`${groupId}-additional-${idx}`}
-                      className={`grid grid-cols-1 ${hideCompanyCard ? "md:grid-cols-3" : "md:grid-cols-4"} gap-4 py-6 px-4 items-center bg-[#0f0f0f]`}
-                      style={{
-                        animation: isExpanded ? `fadeIn 0.3s ease-in-out forwards ${idx * 0.1}s` : "none",
-                        opacity: isExpanded ? 1 : 0,
-                        borderTop: "1px solid rgba(237,185,0,0.2)",
-                        width: "100%", // Cover the full width
-                      }}
-                    >
-                      {/* Empty column for company info (since we're showing in the same card) - only if not hiding company card */}
-                      {!hideCompanyCard && <div className="flex flex-col items-start text-left opacity-50"></div>}
-
-                      {/* Discount Description */}
-                      <div className="text-center">
-                        <div className="relative p-3 to-transparent rounded-lg border border-[rgba(237,185,0,0.15)]">
-                          {/* Extract and emphasize percentage + "OFF" if it exists */}
-                          {additionalDiscount.description &&
-                          additionalDiscount.description.match(/\d+%\s*(?:OFF|off)?/) ? (
-                            <div className="flex flex-col items-center">
-                              {/* Main percentage + OFF - large and bold */}
-                              <div className="text-5xl font-extrabold text-[#edb900] mb-1 leading-tight">
-                                {additionalDiscount.description.match(/\d+%\s*(?:OFF|off)?/)[0].toUpperCase()}
+                    {/* Code */}
+                    <div className="flex justify-center">
+                      {mainDiscount.no_code ? (
+                        <div className="relative min-w-[150px] w-auto">
+                          {" "}
+                          <Tippy content={noCodeTooltipContent} theme="custom" placement="top" arrow={true}>
+                            <div className="relative w-full bg-[#edb900] text-black font-medium rounded-md py-3 px-4 shadow-md text-center">
+                              No code needed, proceed to checkout
+                              <div className="absolute top-2 right-2">
+                                <Info className="h-4 w-4 text-[#0f0f0f] cursor-pointer" />
                               </div>
-
-                              {/* Secondary text - the rest of the description */}
-                              <div className="text-sm text-gray-300 mb-2">
-                                {additionalDiscount.description.replace(/\d+%\s*(?:OFF|off)?/, "").trim()}
-                              </div>
-
-                              {/* Optional bonus at the bottom with small font */}
-                              {showOptionalBonus &&
-                                additionalDiscount.cashback_bonus &&
-                                (activeTab === "Review & earn" || activeTab === "Limited Time") && (
-                                  <Tippy content={bonusTooltipContent} theme="custom" placement="top" arrow={true}>
-                                    <div className="mt-2 w-full border-t border-[rgba(237,185,0,0.2)] pt-2 bg-gradient-to-b from-[rgba(237,185,0,0.1)] rounded-md relative">
-                                      <div className="absolute top-1 right-1">
-                                        <Info className="h-4 w-4 text-[#edb900] cursor-pointer" />
-                                      </div>
-                                      <div className="text-xs text-gray-400 pt-1">
-                                        Optional cashback:
-                                        <div className="flex items-center justify-center gap-1 text-[#edb900] text-sm font-medium mt-1">
-                                          {additionalDiscount.cashback_bonus}
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </Tippy>
-                                )}
                             </div>
-                          ) : (
-                            // If no percentage is found, display the description normally with optional bonus below
-                            <div className="flex flex-col items-center">
-                              <div className="text-white mb-2 ">{additionalDiscount.description}</div>
-                              {/* Optional bonus at the bottom with small font */}
-                              {showOptionalBonus &&
-                                additionalDiscount.cashback_bonus &&
-                                (activeTab === "Review & earn" || activeTab === "Limited Time") && (
-                                  <Tippy content={bonusTooltipContent} theme="custom" placement="top" arrow={true}>
-                                    <div className="mt-2 w-full border-t border-[rgba(237,185,0,0.2)] pt-2 bg-gradient-to-b from-[rgba(237,185,0,0.1)] rounded-md relative">
-                                      <div className="absolute top-1 right-1">
-                                        <Info className="h-4 w-4 text-[#edb900] cursor-pointer" />
-                                      </div>
-                                      <div className="text-xs text-gray-400 pt-1">
-                                        Optional cashback:
-                                        <div className="flex items-center justify-center gap-1 text-[#edb900] text-sm font-medium mt-1">
-                                          {additionalDiscount.cashback_bonus}
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </Tippy>
-                                )}
-                            </div>
-                          )}
+                          </Tippy>
                         </div>
-                      </div>
-
-                      {/* Code */}
-                      <div className="flex justify-center">
-                        {additionalDiscount.no_code ? (
-                          <div className="relative w-[300px]">
-                            {" "}
-                            <Tippy content={noCodeTooltipContent} theme="custom" placement="top" arrow={true}>
-                              <div className="relative w-full bg-[#edb900] text-black font-medium rounded-md py-4 px-4 shadow-md text-center">
-                                No code needed, proceed to checkout
-                                <div className="absolute top-2 right-2">
-                                  <Info className="h-4 w-4 text-[#0f0f0f] cursor-pointer" />
-                                </div>
-                              </div>
-                            </Tippy>
-                          </div>
-                        ) : (
-                          <div className="relative [min-w-[150px]] w-auto">
-                            {/* Update the button in the additional discounts section */}
+                      ) : (
+                        <div className="relative min-w-[150px] w-auto">
+                          <div className="flex items-center gap-2">
+                            {/* Update the button in the main discount section */}
                             <button
                               className={`relative w-full bg-[#edb900] text-black font-medium rounded-md py-3 px-4 transition-all duration-300 shadow-md hover:shadow-lg ${
-                                copiedCodes[`${additionalDiscount.discount_code}-${additionalDiscount.id}`]
+                                copiedCodes[`${mainDiscount.discount_code}-${mainDiscount.id}`]
                                   ? "bg-green-500 scale-105"
                                   : "hover:brightness-110"
                               }`}
-                              onClick={() => handleCopyCode(additionalDiscount.discount_code, additionalDiscount.id)}
+                              onClick={() => handleCopyCode(mainDiscount.discount_code, mainDiscount.id)}
                             >
                               <div className="flex items-center justify-center">
                                 <span className="font-bold tracking-wider mr-5">
-                                  {copiedCodes[`${additionalDiscount.discount_code}-${additionalDiscount.id}`]
+                                  {copiedCodes[`${mainDiscount.discount_code}-${mainDiscount.id}`]
                                     ? "COPIED!"
-                                    : additionalDiscount.discount_code}
+                                    : mainDiscount.discount_code}
                                 </span>
                               </div>
 
                               {/* Copy/Check Icon positioned absolutely in the top right */}
                               <div
                                 className={`absolute top-2 right-2 transition-all duration-300 ${
-                                  copiedCodes[`${additionalDiscount.discount_code}-${additionalDiscount.id}`]
+                                  copiedCodes[`${mainDiscount.discount_code}-${mainDiscount.id}`]
                                     ? "opacity-100 scale-110"
                                     : "opacity-80"
                                 }`}
                               >
-                                {copiedCodes[`${additionalDiscount.discount_code}-${additionalDiscount.id}`] ? (
+                                {copiedCodes[`${mainDiscount.discount_code}-${mainDiscount.id}`] ? (
                                   <Check className="h-5 w-5 stroke-[3]" />
                                 ) : (
                                   <Copy className="h-5 w-5" />
                                 )}
                               </div>
                             </button>
-                            {additionalDiscount.expiry_date ? (
+
+                            {/* Show more promos button - moved next to discount code button */}
+                            {hasMultipleDiscounts && (
+                              <button
+                                onClick={() => toggleGroupExpanded(groupId)}
+                                className="h-full bg-[#edb900] text-black rounded-[10px] py-3 px-3 flex items-center justify-center gap-1.5 transition-all hover:shadow-lg"
+                              >
+                                <FontAwesomeIcon icon={faTags} className="text-black" />
+                                <span>{group.length - 1}</span>
+                                <FontAwesomeIcon
+                                  icon={isExpanded ? faChevronUp : faChevronDown}
+                                  className={`text-black ml-1 text-xs chevron-icon ${isExpanded ? "open" : ""}`}
+                                />
+                              </button>
+                            )}
+                          </div>
+                          <div className="flex flex-col items-center">
+                            {mainDiscount.expiry_date ? (
                               <>
-                                {isLastDay(additionalDiscount.expiry_date) ? (
+                                {isLastDay(mainDiscount.expiry_date) ? (
                                   <div className="text-xs mt-2 flex items-center justify-center gap-1.5 bg-[#0f0f0f] border border-[#edb900] rounded-md py-1 px-2.5 text-white animate-pulse">
                                     <span className="text-[#edb900]">🔥</span>
                                     <span>Last day, hurry up!</span>
@@ -1143,13 +958,13 @@ export default function OffersComponent({
                                 ) : (
                                   <div className="text-xs text-gray-400 mt-2 flex items-center justify-center gap-1">
                                     <Calendar className="h-3.5 w-3.5" />
-                                    <span>Ends: {new Date(additionalDiscount.expiry_date).toLocaleDateString()}</span>
+                                    <span>Ends: {new Date(mainDiscount.expiry_date).toLocaleDateString()}</span>
                                   </div>
                                 )}
                               </>
                             ) : (
                               // Show infinity sign for Limited Time discounts with no expiry date
-                              additionalDiscount.discount_type === "Limited Time" && (
+                              mainDiscount.discount_type === "Limited Time" && (
                                 <div className="text-xs text-gray-400 mt-2 flex items-center justify-center gap-1">
                                   <Calendar className="mb-1 h-3.5 w-3.5" />
                                   <span className="flex">
@@ -1159,22 +974,194 @@ export default function OffersComponent({
                               )
                             )}
                           </div>
-                        )}
-                      </div>
-
-                      {/* Buy */}
-                      <div className="flex justify-center">
-                        <button className="bg-[#edb900] text-[#0f0f0f] rounded-md min-w-[120px] min-h-[45px] w-16 h-12 flex items-center justify-center transition-all hover:brightness-110 shadow-md">
-                          <ShoppingCart className="h-7 w-7" />
-                        </button>
-                      </div>
+                        </div>
+                      )}
                     </div>
-                  ))}
+
+                    {/* Buy */}
+                    <div className="flex justify-center">
+                      <button className="bg-[#edb900] text-[#0f0f0f] rounded-md min-w-[120px] min-h-[45px] w-16 h-12 flex items-center justify-center transition-all hover:brightness-110 shadow-md">
+                        <ShoppingCart className="h-7 w-7" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Additional discounts (shown when expanded) */}
+                  {hasMultipleDiscounts && (
+                    <div className={`accordion-content ${isExpanded ? "open" : ""}`}>
+                      {group.slice(1).map((additionalDiscount, idx) => (
+                        <div
+                          key={`${groupId}-additional-${idx}`}
+                          className={`grid grid-cols-1 ${hideCompanyCard ? "md:grid-cols-3" : "md:grid-cols-4"} gap-4 py-6 px-4 items-center bg-[#0f0f0f]`}
+                          style={{
+                            animation: isExpanded ? `fadeIn 0.3s ease-in-out forwards ${idx * 0.1}s` : "none",
+                            opacity: isExpanded ? 1 : 0,
+                            borderTop: "1px solid rgba(237,185,0,0.2)",
+                            width: "100%", // Cover the full width
+                          }}
+                        >
+                          {/* Empty column for company info (since we're showing in the same card) - only if not hiding company card */}
+                          {!hideCompanyCard && <div className="flex flex-col items-start text-left opacity-50"></div>}
+
+                          {/* Discount Description */}
+                          <div className="text-center">
+                            <div className="relative p-3 to-transparent rounded-lg border border-[rgba(237,185,0,0.15)]">
+                              {/* Extract and emphasize percentage + "OFF" if it exists */}
+                              {additionalDiscount.description &&
+                              additionalDiscount.description.match(/\d+%\s*(?:OFF|off)?/) ? (
+                                <div className="flex flex-col items-center">
+                                  {/* Main percentage + OFF - large and bold */}
+                                  <div className="text-5xl font-extrabold text-[#edb900] mb-1 leading-tight">
+                                    {additionalDiscount.description.match(/\d+%\s*(?:OFF|off)?/)[0].toUpperCase()}
+                                  </div>
+
+                                  {/* Secondary text - the rest of the description */}
+                                  <div className="text-sm text-gray-300 mb-2">
+                                    {additionalDiscount.description.replace(/\d+%\s*(?:OFF|off)?/, "").trim()}
+                                  </div>
+
+                                  {/* Optional bonus at the bottom with small font */}
+                                  {showOptionalBonus &&
+                                    additionalDiscount.cashback_bonus &&
+                                    (activeTab === "Review & earn" || activeTab === "Limited Time") && (
+                                      <Tippy content={bonusTooltipContent} theme="custom" placement="top" arrow={true}>
+                                        <div className="mt-2 w-full border-t border-[rgba(237,185,0,0.2)] pt-2 bg-gradient-to-b from-[rgba(237,185,0,0.1)] rounded-md relative">
+                                          <div className="absolute top-1 right-1">
+                                            <Info className="h-4 w-4 text-[#edb900] cursor-pointer" />
+                                          </div>
+                                          <div className="text-xs text-gray-400 pt-1">
+                                            Optional cashback:
+                                            <div className="flex items-center justify-center gap-1 text-[#edb900] text-sm font-medium mt-1">
+                                              {additionalDiscount.cashback_bonus}
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </Tippy>
+                                    )}
+                                </div>
+                              ) : (
+                                // If no percentage is found, display the description normally with optional bonus below
+                                <div className="flex flex-col items-center">
+                                  <div className="text-white mb-2 ">{additionalDiscount.description}</div>
+                                  {/* Optional bonus at the bottom with small font */}
+                                  {showOptionalBonus &&
+                                    additionalDiscount.cashback_bonus &&
+                                    (activeTab === "Review & earn" || activeTab === "Limited Time") && (
+                                      <Tippy content={bonusTooltipContent} theme="custom" placement="top" arrow={true}>
+                                        <div className="mt-2 w-full border-t border-[rgba(237,185,0,0.2)] pt-2 bg-gradient-to-b from-[rgba(237,185,0,0.1)] rounded-md relative">
+                                          <div className="absolute top-1 right-1">
+                                            <Info className="h-4 w-4 text-[#edb900] cursor-pointer" />
+                                          </div>
+                                          <div className="text-xs text-gray-400 pt-1">
+                                            Optional cashback:
+                                            <div className="flex items-center justify-center gap-1 text-[#edb900] text-sm font-medium mt-1">
+                                              {additionalDiscount.cashback_bonus}
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </Tippy>
+                                    )}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Code */}
+                          <div className="flex justify-center">
+                            {additionalDiscount.no_code ? (
+                              <div className="relative w-[300px]">
+                                {" "}
+                                <Tippy content={noCodeTooltipContent} theme="custom" placement="top" arrow={true}>
+                                  <div className="relative w-full bg-[#edb900] text-black font-medium rounded-md py-4 px-4 shadow-md text-center">
+                                    No code needed, proceed to checkout
+                                    <div className="absolute top-2 right-2">
+                                      <Info className="h-4 w-4 text-[#0f0f0f] cursor-pointer" />
+                                    </div>
+                                  </div>
+                                </Tippy>
+                              </div>
+                            ) : (
+                              <div className="relative [min-w-[150px]] w-auto">
+                                {/* Update the button in the additional discounts section */}
+                                <button
+                                  className={`relative w-full bg-[#edb900] text-black font-medium rounded-md py-3 px-4 transition-all duration-300 shadow-md hover:shadow-lg ${
+                                    copiedCodes[`${additionalDiscount.discount_code}-${additionalDiscount.id}`]
+                                      ? "bg-green-500 scale-105"
+                                      : "hover:brightness-110"
+                                  }`}
+                                  onClick={() =>
+                                    handleCopyCode(additionalDiscount.discount_code, additionalDiscount.id)
+                                  }
+                                >
+                                  <div className="flex items-center justify-center">
+                                    <span className="font-bold tracking-wider mr-5">
+                                      {copiedCodes[`${additionalDiscount.discount_code}-${additionalDiscount.id}`]
+                                        ? "COPIED!"
+                                        : additionalDiscount.discount_code}
+                                    </span>
+                                  </div>
+
+                                  {/* Copy/Check Icon positioned absolutely in the top right */}
+                                  <div
+                                    className={`absolute top-2 right-2 transition-all duration-300 ${
+                                      copiedCodes[`${additionalDiscount.discount_code}-${additionalDiscount.id}`]
+                                        ? "opacity-100 scale-110"
+                                        : "opacity-80"
+                                    }`}
+                                  >
+                                    {copiedCodes[`${additionalDiscount.discount_code}-${additionalDiscount.id}`] ? (
+                                      <Check className="h-5 w-5 stroke-[3]" />
+                                    ) : (
+                                      <Copy className="h-5 w-5" />
+                                    )}
+                                  </div>
+                                </button>
+                                {additionalDiscount.expiry_date ? (
+                                  <>
+                                    {isLastDay(additionalDiscount.expiry_date) ? (
+                                      <div className="text-xs mt-2 flex items-center justify-center gap-1.5 bg-[#0f0f0f] border border-[#edb900] rounded-md py-1 px-2.5 text-white animate-pulse">
+                                        <span className="text-[#edb900]">🔥</span>
+                                        <span>Last day, hurry up!</span>
+                                      </div>
+                                    ) : (
+                                      <div className="text-xs text-gray-400 mt-2 flex items-center justify-center gap-1">
+                                        <Calendar className="h-3.5 w-3.5" />
+                                        <span>
+                                          Ends: {new Date(additionalDiscount.expiry_date).toLocaleDateString()}
+                                        </span>
+                                      </div>
+                                    )}
+                                  </>
+                                ) : (
+                                  // Show infinity sign for Limited Time discounts with no expiry date
+                                  additionalDiscount.discount_type === "Limited Time" && (
+                                    <div className="text-xs text-gray-400 mt-2 flex items-center justify-center gap-1">
+                                      <Calendar className="mb-1 h-3.5 w-3.5" />
+                                      <span className="flex">
+                                        Ends: <Infinity className="pb-[3px] h-5 w-5" />
+                                      </span>
+                                    </div>
+                                  )
+                                )}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Buy */}
+                          <div className="flex justify-center">
+                            <button className="bg-[#edb900] text-[#0f0f0f] rounded-md min-w-[120px] min-h-[45px] w-16 h-12 flex items-center justify-center transition-all hover:brightness-110 shadow-md">
+                              <ShoppingCart className="h-7 w-7" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          )
-        })
+              )
+            })
+          )}
+        </>
       )}
       <Toaster />
     </div>
