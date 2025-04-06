@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { DollarSign, Users, TrendingUp, BarChart2, Gem, Banknote } from "lucide-react"
 
@@ -44,6 +44,8 @@ const IndustryStatsSlider = ({ statsData }) => {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [loading, setLoading] = useState(true)
   const [isHovered, setIsHovered] = useState(false)
+  const dataReadyTimestamp = useRef(null)
+  const minimumLoadingTime = 2000 // Minimum time to show loading state (ms)
 
   const slides = statsData
     ? [statsData.last24Hours, statsData.last7Days, statsData.last30Days, statsData.sinceStart]
@@ -53,10 +55,19 @@ const IndustryStatsSlider = ({ statsData }) => {
   const slideHeadings = ["Last 24 Hours", "Last 7 Days", "Last 30 Days", "All Time"]
 
   // Check if the data is actually valid and ready to display
-  // Less strict validation to better sync with other components
   const isDataReady = () => {
-    // Check if statsData exists and has basic structure
-    return statsData && (statsData.last24Hours || statsData.last7Days || statsData.last30Days || statsData.sinceStart)
+    // First check if statsData exists
+    if (!statsData) return false
+
+    // Check if at least one slide has valid data
+    return slides.some(
+      (slide) =>
+        slide &&
+        // Check for non-zero values in key metrics
+        ((typeof slide.totalAmount === "number" && slide.totalAmount !== 0) ||
+          (typeof slide.totalTransactions === "number" && slide.totalTransactions !== 0) ||
+          (typeof slide.uniqueTraders === "number" && slide.uniqueTraders !== 0)),
+    )
   }
 
   useEffect(() => {
@@ -73,14 +84,51 @@ const IndustryStatsSlider = ({ statsData }) => {
   }, [])
 
   useEffect(() => {
-    // Check if statsData exists and contains valid data
-    if (!isDataReady()) {
-      setLoading(true)
-    } else {
-      // Use a shorter timeout to better sync with other components
-      setTimeout(() => {
+    // Reset loading state when statsData changes
+    setLoading(true)
+
+    // Check if data is ready
+    if (isDataReady()) {
+      // Record when data became ready
+      dataReadyTimestamp.current = Date.now()
+
+      // Calculate how long to wait before showing content
+      const timeDataBecameReady = dataReadyTimestamp.current
+      const timeToWait = Math.max(0, minimumLoadingTime - (Date.now() - timeDataBecameReady))
+
+      // Wait at least minimumLoadingTime before showing content
+      const timer = setTimeout(() => {
         setLoading(false)
-      }, 2500) // Adjusted timeout to better sync with other components
+      }, timeToWait)
+
+      return () => clearTimeout(timer)
+    } else {
+      // If data is not ready, set up a check every 100ms
+      const checkInterval = setInterval(() => {
+        if (isDataReady()) {
+          // Record when data became ready
+          dataReadyTimestamp.current = Date.now()
+          clearInterval(checkInterval)
+
+          // Wait at least minimumLoadingTime before showing content
+          const timer = setTimeout(() => {
+            setLoading(false)
+          }, minimumLoadingTime)
+        }
+      }, 100)
+
+      // Set a maximum loading time
+      const maxLoadingTimer = setTimeout(() => {
+        clearInterval(checkInterval)
+        if (statsData) {
+          setLoading(false)
+        }
+      }, 5000) // Maximum 5 seconds of loading
+
+      return () => {
+        clearInterval(checkInterval)
+        clearTimeout(maxLoadingTimer)
+      }
     }
   }, [statsData])
 
