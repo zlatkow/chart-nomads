@@ -769,7 +769,7 @@ const PropFirmRules = ({ propFirmRules }) => {
                       </div>
 
                       {/* ✅ Content Section */}
-                      <div className="rules-section rules-container w-[900px] ml-[20px] mt-6 p-3 border-l-[1px] border-[rgba(237,185,0,0.1)] px-[100px]">
+                      <div className="rules-section rules-container ml-[20px] mt-6 p-3 border-l-[1px] border-[rgba(237,185,0,0.1)] px-[100px]">
                         <div className="flex text-xs justify-end flex-grow mt-[-35px] mb-10 mr-[-100px]">
                           <FontAwesomeIcon
                             icon={faCalendar}
