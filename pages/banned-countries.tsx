@@ -447,7 +447,7 @@ const BannedCountries = ({ bannedFirms }) => {
             visibleFirms.map((entry, index) => (
               <div
                 key={index}
-                className="relative flex mb-5 bg-[#0f0f0f] border-[rgba(237,185,0,0.1)] border-[1px] p-5 rounded-[10px] z-50"
+                className="relative flex mb-5 bg-[#0f0f0f] border-[rgba(237,185,0,0.1)] border-[1px] py-5 pl-5 pr-[10px] rounded-[10px] z-50"
               >
                 <div className="flex w-[300px] h-[200px] shadow-lg relative bg-[rgba(255,255,255,0.03)] rounded-[10px] hover:bg-[#0f0f0f] py-7 hover:bg-gradient-to-r hover:from-[rgba(237,185,0,0.5)] hover:to-[rgba(255,255,255,0.10)] transition-transform duration-200 hover:scale-[1.03] cursor-pointer z-50">
                   <Tippy
