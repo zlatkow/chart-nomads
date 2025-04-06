@@ -24,11 +24,8 @@ import { ModalContext } from "./_app"
 // Add shimmer animation CSS
 const shimmerAnimation = `
 @keyframes shimmer {
-  0% {
-    background-position: -1000px 0;
-  }
   100% {
-    background-position: 1000px 0;
+    transform: translateX(100%);
   }
 }
 
@@ -47,13 +44,12 @@ const shimmerAnimation = `
   transform: translateX(-100%);
   background-image: linear-gradient(
     90deg,
-    rgba(255, 255, 255, 0) 0,
-    rgba(255, 255, 255, 0.05) 20%,
-    rgba(255, 255, 255, 0.1) 60%,
-    rgba(255, 255, 255, 0)
+    rgba(34, 34, 34, 0) 0,
+    rgba(34, 34, 34, 0.2) 20%,
+    rgba(237, 185, 0, 0.1) 60%,
+    rgba(34, 34, 34, 0)
   );
   animation: shimmer 2s infinite;
-  pointer-events: none;
 }
 `
 
@@ -269,7 +265,7 @@ const AllPropFirms = ({ blogs }) => {
     <div className="min-h-screen text-white pt-[300px]">
       <Navbar />
       <Noise />
-      <div className="container mx-auto z-50">
+      <div className="relative max-w-[1280px] container mx-auto z-50">
         <h1 className="text-7xl font-bold text-center z-50">ALL PROP FIRMS</h1>
         <p className="text-center mb-[150px] z-50">Select a specific company to find more information.</p>
 
