@@ -21,7 +21,7 @@ import "tippy.js/dist/tippy.css" // Default tooltip styles
 // Import the ModalContext
 import { ModalContext } from "./_app"
 
-// Add shimmer animation CSS
+// Update the shimmer animation CSS to match exactly what's in the blog page
 const shimmerAnimation = `
 @keyframes shimmer {
   100% {
@@ -29,12 +29,12 @@ const shimmerAnimation = `
   }
 }
 
-.animate-pulse {
+.shimmer-effect {
   position: relative;
   overflow: hidden;
 }
 
-.animate-pulse::after {
+.shimmer-effect::after {
   content: "";
   position: absolute;
   top: 0;
@@ -235,26 +235,23 @@ const AllPropFirms = ({ blogs }) => {
   )
   const sortedPropFirms = sortPropFirms(filteredPropFirms, sortBy)
 
-  // Render loading skeleton
+  // Replace the renderSkeletonCards function with this updated version
   const renderSkeletonCards = () => {
     return Array(8)
       .fill(0)
       .map((_, index) => (
-        <div
-          key={`skeleton-${index}`}
-          className="z-50 p-4 shadow-lg relative bg-[rgba(255,255,255,0.03)] rounded-[10px] animate-pulse"
-        >
+        <div key={`skeleton-${index}`} className="z-50 p-4 shadow-lg relative bg-[#1a1a1a] rounded-[10px]">
           <div className="flex">
-            <span className="absolute top-3 left-3 px-[5px] border text-xs rounded-[10px] w-16 h-4 bg-[rgba(255,255,255,0.05)]"></span>
-            <span className="absolute top-3 right-3 w-6 h-6 bg-[rgba(255,255,255,0.05)] rounded-full"></span>
+            <span className="absolute top-3 left-3 px-[5px] border text-xs rounded-[10px] w-16 h-4 bg-[#222] shimmer-effect"></span>
+            <span className="absolute top-3 right-3 w-6 h-6 bg-[#222] rounded-full shimmer-effect"></span>
           </div>
-          <div className="flex justify-between px-7">
-            <div className="w-20 h-20 mb-2 flex items-center justify-center rounded-[10px] p-1 mt-[50px] bg-[rgba(255,255,255,0.05)]"></div>
+          <div className="flex justify-between">
+            <div className="w-20 h-20 mb-2 flex items-center justify-center rounded-[10px] p-1 mt-[50px] bg-[#222] shimmer-effect"></div>
             <div className="block mt-9 justify-center">
-              <div className="h-6 w-24 bg-[rgba(255,255,255,0.05)] rounded mb-2 mx-auto"></div>
-              <div className="h-6 w-16 bg-[rgba(255,255,255,0.05)] rounded mb-2 mx-auto"></div>
-              <div className="h-6 w-20 bg-[rgba(255,255,255,0.05)] rounded mx-auto"></div>
-              <div className="absolute top-4 right-[45px] h-4 w-16 bg-[rgba(255,255,255,0.05)] rounded"></div>
+              <div className="h-6 w-24 bg-[#222] rounded mb-2 mx-auto shimmer-effect"></div>
+              <div className="h-6 w-16 bg-[#222] rounded mb-2 mx-auto shimmer-effect"></div>
+              <div className="h-6 w-20 bg-[#222] rounded mx-auto shimmer-effect"></div>
+              <div className="absolute top-4 right-[45px] h-4 w-16 bg-[#222] rounded shimmer-effect"></div>
             </div>
           </div>
         </div>
@@ -265,7 +262,7 @@ const AllPropFirms = ({ blogs }) => {
     <div className="min-h-screen text-white pt-[300px]">
       <Navbar />
       <Noise />
-      <div className="relative max-w-[1280px] container mx-auto z-50">
+      <div className="container mx-auto z-50">
         <h1 className="text-7xl font-bold text-center z-50">ALL PROP FIRMS</h1>
         <p className="text-center mb-[150px] z-50">Select a specific company to find more information.</p>
 
@@ -301,11 +298,11 @@ const AllPropFirms = ({ blogs }) => {
 
         {isLoading ? (
           // Show skeleton loading UI when loading
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10 mb-[300px]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-[300px]">
             {renderSkeletonCards()}
           </div>
         ) : sortedPropFirms.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10 mb-[300px]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-[300px]">
             {sortedPropFirms.map((firm) => {
               const isLiked = !loadingLikes && userLikedFirms.has(Number(firm.id))
               return (
@@ -372,7 +369,7 @@ const AllPropFirms = ({ blogs }) => {
                   </div>
                   <Link href={`/prop-firms/${firm.slug}`} passHref>
                     {/* Firm Logo & Info */}
-                    <div className="flex justify-between px-7">
+                    <div className="flex justify-between">
                       <div
                         className="w-20 h-20 mb-2 flex items-center justify-center rounded-[10px] p-1 mt-[50px]"
                         style={{ backgroundColor: firm.brand_colour }}
