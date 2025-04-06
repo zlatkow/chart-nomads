@@ -246,7 +246,7 @@ const AllPropFirms = ({ blogs }) => {
           </div>
           <div className="flex justify-between">
             <div className="w-20 h-20 mb-2 flex items-center justify-center rounded-[10px] p-1 mt-[50px] bg-[#222] shimmer-effect"></div>
-            <div className="block mt-9 justify-center">
+            <div className="block mt-9 min-w-[150px] justify-center">
               <div className="h-6 w-24 bg-[#222] rounded mb-2 mx-auto shimmer-effect"></div>
               <div className="h-6 w-16 bg-[#222] rounded mb-2 mx-auto shimmer-effect"></div>
               <div className="h-6 w-20 bg-[#222] rounded mx-auto shimmer-effect"></div>
@@ -382,7 +382,7 @@ const AllPropFirms = ({ blogs }) => {
                         />
                       </div>
 
-                      <div className="block mt-9 justify-center">
+                      <div className="block mt-9 min-w-[150px] justify-center">
                         <h3 className="text-2xl text-center">{firm.propfirm_name}</h3>
                         <p className="text-center text-2xl text-[#EDB900]">
                           <FontAwesomeIcon icon={faStar} className="text-lg" />
