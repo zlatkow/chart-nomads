@@ -15,6 +15,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Info, ShoppingCart, Copy, Check, Calendar, Infinity, Search } from "lucide-react"
 import { SignedIn, SignedOut, useUser } from "@clerk/nextjs"
 import { Input } from "@/components/ui/input"
+import { useToast } from "@/hooks/use-toast"
+import { Toaster } from "@/components/ui/toaster"
 
 // Update the shimmer animation CSS to include border transition
 const shimmerAnimation = `
@@ -142,6 +144,7 @@ export default function OffersComponent({
   const [filteredDiscounts, setFilteredDiscounts] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const { user } = useUser()
+  const { toast } = useToast()
 
   // Use a ref to track if the component is mounted
   const isMounted = useRef(true)
@@ -446,11 +449,95 @@ export default function OffersComponent({
 
     try {
       if (!isCurrentlyLiked) {
-        await supabase.from("user_likes").insert([{ user_id: user.id, firm_id: numericFirmId }])
-        await supabase.rpc("increment_likes", { firm_id: numericFirmId })
+        // Like the firm
+        const { error } = await supabase.from("user_likes").insert([{ user_id: user.id, firm_id: numericFirmId }])
+        if (error) {
+          // Show error toast with icon
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Failed to like company. Please try again.",
+            action: (
+              <div className="h-8 w-8 bg-red-100 rounded-full flex items-center justify-center mr-3">
+                <FontAwesomeIcon icon={regularHeart} className="h-4 w-4 text-red-500" />
+              </div>
+            ),
+          })
+          return
+        }
+
+        // Increment likes in DB
+        const { error: incrementError } = await supabase.rpc("increment_likes", { firm_id: numericFirmId })
+        if (incrementError) {
+          // Show error toast with icon
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Failed to update like count. Please try again.",
+            action: (
+              <div className="h-8 w-8 bg-red-100 rounded-full flex items-center justify-center mr-3">
+                <FontAwesomeIcon icon={regularHeart} className="h-4 w-4 text-red-500" />
+              </div>
+            ),
+          })
+          return
+        }
+
+        // Show success toast with icon
+        toast({
+          title: "Company liked",
+          description: "You've added this company to your favorites.",
+          action: (
+            <div className="h-8 w-8 bg-[#edb900] rounded-full flex items-center justify-center mr-3">
+              <FontAwesomeIcon icon={solidHeart} className="h-4 w-4 text-[#0f0f0f]" />
+            </div>
+          ),
+        })
       } else {
-        await supabase.from("user_likes").delete().eq("user_id", user.id).eq("firm_id", numericFirmId)
-        await supabase.rpc("decrement_likes", { firm_id: numericFirmId })
+        // Unlike the firm
+        const { error } = await supabase.from("user_likes").delete().eq("user_id", user.id).eq("firm_id", numericFirmId)
+        if (error) {
+          // Show error toast with icon
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Failed to unlike company. Please try again.",
+            action: (
+              <div className="h-8 w-8 bg-red-100 rounded-full flex items-center justify-center mr-3">
+                <FontAwesomeIcon icon={regularHeart} className="h-4 w-4 text-red-500" />
+              </div>
+            ),
+          })
+          return
+        }
+
+        // Decrement likes in DB
+        const { error: decrementError } = await supabase.rpc("decrement_likes", { firm_id: numericFirmId })
+        if (decrementError) {
+          // Show error toast with icon
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Failed to update like count. Please try again.",
+            action: (
+              <div className="h-8 w-8 bg-red-100 rounded-full flex items-center justify-center mr-3">
+                <FontAwesomeIcon icon={regularHeart} className="h-4 w-4 text-red-500" />
+              </div>
+            ),
+          })
+          return
+        }
+
+        // Show success toast with icon
+        toast({
+          title: "Company unliked",
+          description: "You've removed this company from your favorites.",
+          action: (
+            <div className="h-8 w-8 bg-gray-100 rounded-full flex items-center justify-center mr-3">
+              <FontAwesomeIcon icon={regularHeart} className="h-4 w-4 text-gray-500" />
+            </div>
+          ),
+        })
       }
     } catch (err) {
       console.error("❌ Unexpected error updating likes:", err)
@@ -470,6 +557,18 @@ export default function OffersComponent({
         const newLikes = { ...prevLikes }
         newLikes[numericFirmId] = (prevLikes[numericFirmId] || 0) + (isCurrentlyLiked ? 1 : -1)
         return newLikes
+      })
+
+      // Show error toast with icon
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        action: (
+          <div className="h-8 w-8 bg-red-100 rounded-full flex items-center justify-center mr-3">
+            <FontAwesomeIcon icon={regularHeart} className="h-4 w-4 text-red-500" />
+          </div>
+        ),
       })
     }
   }
@@ -1104,6 +1203,7 @@ export default function OffersComponent({
           )
         })
       )}
+      <Toaster />
     </div>
   )
 }
