@@ -266,39 +266,41 @@ const AllPropFirms = ({ blogs }) => {
 
         {/* Search & Sorting */}
         <div className="w-full flex flex-col md:flex-row justify-between items-center mb-6">
-          <div className="w-[300px] justify-center z-20 mb-4">
-            <Search className="relative left-2.5 top-6 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="Search by company name..."
-              className="searchDark w-full pl-8 bg-[#333333] border-[#333333] focus-visible:ring-[#edb900]"
-              value={searchQuery}
-              onChange={handleSearch}
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => {
-                  setSearchQuery("")
-                  setSearchTerm("") // Clear searchTerm as well to fix search functionality
-                }}
-                className="relative right-[-275px] top-[-27px] h-4 w-4 text-[#edb900] hover:text-[#edb900]/80"
-                aria-label="Clear search"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-4 w-4"
+          <div className="w-[300px] h-10 justify-center z-20 mb-4">
+            <div className="relative h-10">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
+              <Input
+                type="text"
+                placeholder="Search by company name..."
+                className="searchDark w-full pl-8 bg-[#333333] border-[#333333] focus-visible:ring-[#edb900] h-10"
+                value={searchQuery}
+                onChange={handleSearch}
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery("")
+                    setSearchTerm("") // Clear searchTerm as well to fix search functionality
+                  }}
+                  className="absolute right-2.5 top-2.5 h-4 w-4 text-[#edb900] hover:text-[#edb900]/80"
+                  aria-label="Clear search"
                 >
-                  <path d="M18 6L6 18M6 6l12 12" />
-                </svg>
-              </button>
-            )}
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="h-4 w-4"
+                  >
+                    <path d="M18 6L6 18M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+            </div>
           </div>
 
           <div className="flex w-[250px] justify-end mb-4">
