@@ -296,7 +296,7 @@ const AllPropFirms = ({ blogs }) => {
 
         {/* Search & Sorting */}
         <div className="w-full flex flex-col md:flex-row justify-between items-center mb-6">
-          <div className="w-[300px] h-10 justify-center z-20 mb-4">
+          <div className="w-[300px] h-10 justify-center z-20">
             <div className="relative h-10">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
               <Input
@@ -333,7 +333,7 @@ const AllPropFirms = ({ blogs }) => {
             </div>
           </div>
 
-          <div className="flex flex-col md:flex-row gap-4 items-center justify-end mb-4">
+          <div className="flex flex-col md:flex-row gap-4 items-center justify-end z-20">
             <div className="flex items-center gap-2">
               <label className="text-sm">Sort by:</label>
               <Select value={sortBy} onValueChange={(value) => setSortBy(value)}>
