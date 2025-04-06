@@ -245,7 +245,7 @@ const AllPropFirms = ({ blogs }) => {
 
   // Replace the renderSkeletonCards function with this updated version
   const renderSkeletonCards = () => {
-    return Array(8)
+    return Array(12)
       .fill(0)
       .map((_, index) => (
         <div key={`skeleton-${index}`} className="z-50 p-4 shadow-lg relative bg-[#1a1a1a] rounded-[10px]">
