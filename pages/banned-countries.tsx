@@ -385,7 +385,7 @@ const BannedCountries = ({ bannedFirms }) => {
 
   return (
     <div className="w-full">
-      <div className="min-h-screen text-white pt-[300px] container max-w-[1200] mx-auto z-50">
+      <div className="min-h-screen text-white pt-[300px] container max-w-[1280px] mx-auto z-50">
         <Navbar />
         <Noise />
         <h1 className="text-7xl font-bold text-center mb-10">Banned Countries</h1>
