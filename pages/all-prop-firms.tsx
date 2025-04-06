@@ -264,9 +264,6 @@ const AllPropFirms = ({ blogs }) => {
   )
   const sortedPropFirms = sortPropFirms(filteredPropFirms, sortBy)
 
-  // Add a date range text display similar to the chart component
-  const dateRangeText = timeRange !== "All Time" ? `Showing data from the ${timeRange}` : "Showing all data"
-
   // Replace the renderSkeletonCards function with this updated version
   const renderSkeletonCards = () => {
     return Array(12)
@@ -355,26 +352,12 @@ const AllPropFirms = ({ blogs }) => {
                 </SelectContent>
               </Select>
             </div>
-
-            <div className="flex items-center gap-2">
-              <label className="text-sm">Time range:</label>
-              <Select value={timeRange} onValueChange={(value) => setTimeRange(value)}>
-                <SelectTrigger className="w-[170px] bg-[#1A1A1A] border-[#333333] text-gray-300 px-4 py-1">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-[#1A1A1A] border-[#333333] text-white shadow-lg">
-                  <SelectItem value="All Time">All Time</SelectItem>
-                  <SelectItem value="Last 12 Months">Last 12 Months</SelectItem>
-                  <SelectItem value="Last 6 Months">Last 6 Months</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
           </div>
         </div>
 
         {/* Results counter */}
         {!isLoading && (
-          <div className="mb-4">
+          <div className="mb-4 flex justify-end text-sm">
             <p className="text-white">
               Showing <span className="text-[#EDB900]">{sortedPropFirms.length}</span> results.
             </p>
@@ -487,11 +470,6 @@ const AllPropFirms = ({ blogs }) => {
           </div>
         ) : (
           <p className="text-center">No matching prop firms found..</p>
-        )}
-        {sortedPropFirms.length > 0 && (
-          <div className="text-xs text-[#666666] mt-4 mb-[300px]">
-            <p>{dateRangeText}</p>
-          </div>
         )}
       </div>
       <LatestBlogs blogs={blogs} />
