@@ -534,7 +534,7 @@ const BannedCountries = ({ bannedFirms }) => {
                   </Link>
                 </div>
 
-                <div className="rules-section rules-container w-[975px] ml-[20px] mt-6 p-3 border-l-[1px] border-[rgba(237,185,0,0.1)] px-[100px]">
+                <div className="rules-section rules-container w-[975px] ml-[20px] mt-6 p-3 border-l-[1px] border-[rgba(237,185,0,0.1)] pl-[100px]">
                   <div className="flex text-xs justify-end flex-grow mt-[-35px] mb-10">
                     <FontAwesomeIcon icon={faCalendar} className="text-md text-white-500 mr-2 max-w-[20px] mt-[1px]" />
                     <p className="font-[balboa]">
