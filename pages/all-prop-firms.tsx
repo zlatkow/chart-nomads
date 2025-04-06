@@ -268,7 +268,7 @@ const AllPropFirms = ({ blogs }) => {
       // Show success toast with icon
       toast({
         title: "Company liked",
-        description: "You&apos;ve added this company to your favorites.",
+        description: "You've added this company to your favorites.",
         action: (
           <div className="h-8 w-8 bg-[#edb900] rounded-full flex items-center justify-center mr-3">
             <FontAwesomeIcon icon={solidHeart} className="h-4 w-4 text-[#0f0f0f]" />
