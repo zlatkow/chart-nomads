@@ -330,7 +330,7 @@ const BannedCountries = ({ bannedFirms }) => {
       .map((_, index) => (
         <div
           key={`skeleton-${index}`}
-          className="relative flex mb-20 bg-[#0f0f0f] border-[rgba(237,185,0,0.1)] border-[1px] p-5 rounded-[10px] z-50"
+          className="relative flex mb-5 bg-[#0f0f0f] border-[rgba(237,185,0,0.1)] border-[1px] p-5 rounded-[10px] z-50"
         >
           {/* Firm info skeleton */}
           <div className="flex w-[300px] h-[200px] shadow-lg relative bg-[rgba(255,255,255,0.03)] rounded-[10px] p-7">
@@ -385,7 +385,7 @@ const BannedCountries = ({ bannedFirms }) => {
 
   return (
     <div className="w-full">
-      <div className="min-h-screen text-white pt-[300px] container mx-auto z-50">
+      <div className="min-h-screen text-white pt-[300px] container max-w-[1200] mx-auto z-50">
         <Navbar />
         <Noise />
         <h1 className="text-7xl font-bold text-center mb-10">Banned Countries</h1>
@@ -447,7 +447,7 @@ const BannedCountries = ({ bannedFirms }) => {
             visibleFirms.map((entry, index) => (
               <div
                 key={index}
-                className="relative flex mb-20 bg-[#0f0f0f] border-[rgba(237,185,0,0.1)] border-[1px] p-5 rounded-[10px] z-50"
+                className="relative flex mb-5 bg-[#0f0f0f] border-[rgba(237,185,0,0.1)] border-[1px] p-5 rounded-[10px] z-50"
               >
                 <div className="flex w-[300px] h-[200px] shadow-lg relative bg-[rgba(255,255,255,0.03)] rounded-[10px] hover:bg-[#0f0f0f] py-7 hover:bg-gradient-to-r hover:from-[rgba(237,185,0,0.5)] hover:to-[rgba(255,255,255,0.10)] transition-transform duration-200 hover:scale-[1.03] cursor-pointer z-50">
                   <Tippy
