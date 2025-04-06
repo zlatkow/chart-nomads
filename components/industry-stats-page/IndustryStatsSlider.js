@@ -56,7 +56,7 @@ const IndustryStatsSlider = ({ statsData }) => {
     if (!statsData) {
       setLoading(true)
     } else {
-      setTimeout(() => setLoading(false), 1500) // Reduced loading time for better UX
+      setTimeout(() => setLoading(false), 3000) // Reduced loading time for better UX
     }
 
     // Add the shimmer animation to the document
