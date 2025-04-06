@@ -53,11 +53,10 @@ const IndustryStatsSlider = ({ statsData }) => {
   const slideHeadings = ["Last 24 Hours", "Last 7 Days", "Last 30 Days", "All Time"]
 
   // Check if the data is actually valid and ready to display
+  // Less strict validation to better sync with other components
   const isDataReady = () => {
-    // Check if we have valid data in at least one slide
-    return slides.some(
-      (slide) => slide && (slide.totalAmount > 0 || slide.totalTransactions > 0 || slide.uniqueTraders > 0),
-    )
+    // Check if statsData exists and has basic structure
+    return statsData && (statsData.last24Hours || statsData.last7Days || statsData.last30Days || statsData.sinceStart)
   }
 
   useEffect(() => {
@@ -75,17 +74,13 @@ const IndustryStatsSlider = ({ statsData }) => {
 
   useEffect(() => {
     // Check if statsData exists and contains valid data
-    if (!statsData || !isDataReady()) {
+    if (!isDataReady()) {
       setLoading(true)
     } else {
-      // Use a longer timeout to ensure data is fully loaded
-      // This prevents the flash of empty content
+      // Use a shorter timeout to better sync with other components
       setTimeout(() => {
-        // Double-check that data is still valid before ending loading state
-        if (isDataReady()) {
-          setLoading(false)
-        }
-      }, 2500) // Increased timeout to ensure data is ready
+        setLoading(false)
+      }, 1800) // Adjusted timeout to better sync with other components
     }
   }, [statsData])
 
