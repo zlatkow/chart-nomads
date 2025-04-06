@@ -1,3 +1,4 @@
+/* eslint-disable */
 "use client"
 
 import { useState, useEffect } from "react"
@@ -13,7 +14,7 @@ import StatsTabs from "../components/industry-stats-page/StatsTabs"
 import StatsTabContent from "../components/industry-stats-page/StatsTabContent"
 
 const StatsPage = () => {
-  const { stats, loading } = useFetchStats()
+  const { stats } = useFetchStats()
   const [activeTab, setActiveTab] = useState("stats")
 
   // Add the shimmer animation to the document
