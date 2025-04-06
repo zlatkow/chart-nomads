@@ -52,13 +52,15 @@ const IndustryStatsSlider = ({ statsData }) => {
   // Array of headings for each slide
   const slideHeadings = ["Last 24 Hours", "Last 7 Days", "Last 30 Days", "All Time"]
 
-  useEffect(() => {
-    if (!statsData) {
-      setLoading(true)
-    } else {
-      setTimeout(() => setLoading(false), 3000) // Reduced loading time for better UX
-    }
+  // Check if the data is actually valid and ready to display
+  const isDataReady = () => {
+    // Check if we have valid data in at least one slide
+    return slides.some(
+      (slide) => slide && (slide.totalAmount > 0 || slide.totalTransactions > 0 || slide.uniqueTraders > 0),
+    )
+  }
 
+  useEffect(() => {
     // Add the shimmer animation to the document
     if (typeof document !== "undefined") {
       const style = document.createElement("style")
@@ -68,6 +70,22 @@ const IndustryStatsSlider = ({ statsData }) => {
       return () => {
         document.head.removeChild(style)
       }
+    }
+  }, [])
+
+  useEffect(() => {
+    // Check if statsData exists and contains valid data
+    if (!statsData || !isDataReady()) {
+      setLoading(true)
+    } else {
+      // Use a longer timeout to ensure data is fully loaded
+      // This prevents the flash of empty content
+      setTimeout(() => {
+        // Double-check that data is still valid before ending loading state
+        if (isDataReady()) {
+          setLoading(false)
+        }
+      }, 2500) // Increased timeout to ensure data is ready
     }
   }, [statsData])
 
