@@ -535,7 +535,7 @@ export default function PropFirmComparison() {
       <div className="w-full">
         <Navbar />
         <Noise />
-        <div className="relative container max-w-[1280px] mt-[200px] mb-[100px] mx-auto px-0 pt-[50px] pb-[50px] z-50">
+        <div className="relative container max-w-[1280px] mt-[200px] mb-[100px] mx-auto px-4 pt-[50px] pb-[50px] z-50 overflow-hidden">
           <h1 className="text-7xl text-center mb-8 text-white mb-[100px]">COMPARE ALL PROP FIRMS IN ONE PLACE</h1>
           <div className="flex flex-col lg:flex-row relative">
             {/* Sidebar - Search */}
@@ -902,7 +902,7 @@ export default function PropFirmComparison() {
             </div>
 
             {/* Main Content */}
-            <div className="flex-1 bg-[#0f0f0f] p-6 px-10 rounded-b-lg lg:rounded-bl-none lg:rounded-r-lg">
+            <div className="flex-1 bg-[#0f0f0f] p-6 px-4 lg:px-10 rounded-b-lg lg:rounded-bl-none lg:rounded-r-lg overflow-hidden w-full">
               {/* Company Selection */}
               <div className="mb-[100px]">
                 <p className="text-md mt-[50px] mb-4">Select company/companies from the list below:</p>
@@ -968,7 +968,7 @@ export default function PropFirmComparison() {
               </div>
 
               {/* Table with sticky columns and header */}
-              <div className="table-wrapper">
+              <div className="table-wrapper w-full max-w-full">
                 <div className="sticky-table-container">
                   <table className="sticky-table text-sm">
                     <thead>

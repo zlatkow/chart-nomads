@@ -695,6 +695,7 @@ input:checked + .toggle-switch::after {
 /* Table wrapper to enforce container constraints */
 .table-wrapper {
   width: 100%;
+  max-width: 100%;
   overflow: hidden;
   position: relative;
 }
@@ -704,6 +705,7 @@ input:checked + .toggle-switch::after {
   position: relative;
   overflow-x: auto;
   width: 100%;
+  max-width: 100%;
 }
 
 .sticky-table {
@@ -711,6 +713,7 @@ input:checked + .toggle-switch::after {
   border-spacing: 0;
   width: 100%;
   min-width: 1200px; /* Minimum width of table */
+  max-width: 100%;
   table-layout: fixed; /* This helps with column width control */
 }
 
