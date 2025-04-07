@@ -14,6 +14,38 @@ import Footer from "@/components/Footer"
 import { Input } from "@/components/ui/input"
 import Image from "next/image"
 
+// New component for segmented progress bar
+const SegmentedProgressBar = ({
+  value = 80,
+  segments = 5,
+  className = "",
+  showPercentage = false,
+}: {
+  value?: number
+  segments?: number
+  className?: string
+  showPercentage?: boolean
+}) => {
+  // Calculate how many segments should be filled
+  const filledSegments = Math.round((value / 100) * segments)
+
+  return (
+    <div className={`flex items-center ${className}`}>
+      {showPercentage && <span className="mr-2 text-xs font-medium">{value}%</span>}
+      <div className="relative flex-1 h-2 bg-[#222] rounded-full overflow-hidden border border-[#333]">
+        <div className="flex w-full h-full">
+          {Array.from({ length: segments }).map((_, i) => (
+            <div
+              key={i}
+              className={`flex-1 ${i < filledSegments ? "bg-gradient-to-r from-[#edb900] to-[#f5d742]" : "bg-transparent"} ${i > 0 ? "border-l border-[#333]" : ""}`}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function PropFirmComparison() {
   // State for the challenge details sidebar
   const [selectedChallenge, setSelectedChallenge] = useState<any>(null)
@@ -74,6 +106,7 @@ export default function PropFirmComparison() {
       maxDailyLoss: "5%",
       maxTotalDrawdown: "5%",
       profitSplit: "80%",
+      profitSplitValue: 80,
       payoutFrequency: "30 Days",
       loyaltyPoints: 173,
       isFavorite: false,
@@ -95,6 +128,7 @@ export default function PropFirmComparison() {
       maxDailyLoss: "4%",
       maxTotalDrawdown: "8%",
       profitSplit: "80%",
+      profitSplitValue: 80,
       payoutFrequency: "14 Days",
       loyaltyPoints: 210,
       isFavorite: true,
@@ -116,6 +150,7 @@ export default function PropFirmComparison() {
       maxDailyLoss: "4%",
       maxTotalDrawdown: "8%",
       profitSplit: "80%",
+      profitSplitValue: 80,
       payoutFrequency: "Payout-on-demand",
       loyaltyPoints: 307,
       isFavorite: false,
@@ -137,6 +172,7 @@ export default function PropFirmComparison() {
       maxDailyLoss: "5%",
       maxTotalDrawdown: "10%",
       profitSplit: "80%",
+      profitSplitValue: 80,
       payoutFrequency: "14 Days",
       loyaltyPoints: 188,
       isFavorite: true,
@@ -158,6 +194,7 @@ export default function PropFirmComparison() {
       maxDailyLoss: "3%",
       maxTotalDrawdown: "6%",
       profitSplit: "80%",
+      profitSplitValue: 80,
       payoutFrequency: "On-demand",
       loyaltyPoints: 140,
       isFavorite: false,
@@ -179,6 +216,7 @@ export default function PropFirmComparison() {
       maxDailyLoss: "4%",
       maxTotalDrawdown: "8%",
       profitSplit: "85%",
+      profitSplitValue: 85,
       payoutFrequency: "14 Days",
       loyaltyPoints: 574,
       isFavorite: false,
@@ -564,13 +602,13 @@ export default function PropFirmComparison() {
                               checked={showDiscountedPrice}
                               onChange={() => setShowDiscountedPrice(!showDiscountedPrice)}
                             />
-                            <div
-                              className="toggle-switch w-11 h-6 bg-[#0f0f0f] rounded-full peer 
-                              peer-checked:after:translate-x-full after:content-[''] after:absolute 
-                              after:top-[2px] after:left-[2px] after:bg-gray-300 after:border-gray-300 
-                              after:border after:rounded-full after:h-5 after:w-5 after:transition-all 
-                              peer-checked:after:bg-[#0f0f0f] peer-checked:after:border-[#0f0f0f]"
-                            ></div>
+                            <div className="toggle-switch w-12 h-6 bg-black rounded-full peer relative">
+                              {showDiscountedPrice && (
+                                <span className="absolute left-1.5 top-1/2 -translate-y-1/2 text-white text-xs z-10">
+                                  ✓
+                                </span>
+                              )}
+                            </div>
                           </label>
                         </div>
                       </>
@@ -1164,8 +1202,8 @@ export default function PropFirmComparison() {
                       <td className="p-3">
                         <div className="flex items-center">
                           <span>{offer.profitSplit}</span>
-                          <div className="ml-2 w-20 h-2 bg-[#333] rounded-full overflow-hidden">
-                            <div className="h-full bg-[#edb900]" style={{ width: "80%" }}></div>
+                          <div className="ml-2 w-20">
+                            <SegmentedProgressBar value={offer.profitSplitValue} segments={5} />
                           </div>
                         </div>
                       </td>
