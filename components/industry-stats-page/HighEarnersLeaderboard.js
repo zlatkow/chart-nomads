@@ -25,49 +25,104 @@ export default function HighEarnersLeaderboard({ topTraders }) {
     "Last 3 Months": "last_3_months",
   }
 
-  // Fetch data for payout count leaderboard
+  // Add this near the top of your component, after the useState declarations
+  const [dataCache, setDataCache] = useState({})
+
+  // Add this function after the useState declarations
+  const getCachedData = (type, timeRange) => {
+    const cacheKey = `${type}_${timeFilters[timeRange]}`
+    return dataCache[cacheKey]
+  }
+
+  // Add this function after getCachedData
+  const updateCache = (type, timeRange, newData) => {
+    const cacheKey = `${type}_${timeFilters[timeRange]}`
+    setDataCache((prev) => ({
+      ...prev,
+      [cacheKey]: newData,
+    }))
+  }
+
+  // Replace both existing useEffect hooks for data fetching with this single one
   useEffect(() => {
-    async function fetchData(type, timeRange) {
+    const controller = new AbortController()
+    const signal = controller.signal
+
+    async function fetchData() {
       try {
-        setLoading((prev) => ({ ...prev, [type]: true }))
-        const response = await fetch(`/api/fetchTopTraders?timefilter=${timeFilters[timeRange]}`)
-        const result = await response.json()
-        if (response.ok) {
-          setData((prevData) => ({ ...prevData, [type]: result.topTraders?.[0]?.[type] || [] }))
+        // Check cache first for both data types
+        const cachedPayoutsData = getCachedData("top_by_payouts", timeRangePayouts)
+        const cachedAmountData = getCachedData("top_by_amount", timeRangeAmount)
+
+        // Set initial data from cache if available
+        if (cachedPayoutsData) {
+          setData((prev) => ({ ...prev, top_by_payouts: cachedPayoutsData }))
+          setLoading((prev) => ({ ...prev, top_by_payouts: false }))
         } else {
-          throw new Error(result.error || "Failed to fetch traders")
+          setLoading((prev) => ({ ...prev, top_by_payouts: true }))
         }
+
+        if (cachedAmountData) {
+          setData((prev) => ({ ...prev, top_by_amount: cachedAmountData }))
+          setLoading((prev) => ({ ...prev, top_by_amount: false }))
+        } else {
+          setLoading((prev) => ({ ...prev, top_by_amount: true }))
+        }
+
+        // Only fetch data that's not in cache
+        const fetchPromises = []
+
+        if (!cachedPayoutsData) {
+          fetchPromises.push(
+            fetch(`/api/fetchTopTraders?timefilter=${timeFilters[timeRangePayouts]}`, { signal })
+              .then((res) => res.json())
+              .then((result) => {
+                if (result.topTraders?.[0]?.top_by_payouts) {
+                  const newData = result.topTraders[0].top_by_payouts
+                  updateCache("top_by_payouts", timeRangePayouts, newData)
+                  setData((prev) => ({ ...prev, top_by_payouts: newData }))
+                }
+                setLoading((prev) => ({ ...prev, top_by_payouts: false }))
+              }),
+          )
+        }
+
+        if (!cachedAmountData) {
+          fetchPromises.push(
+            fetch(`/api/fetchTopTraders?timefilter=${timeFilters[timeRangeAmount]}`, { signal })
+              .then((res) => res.json())
+              .then((result) => {
+                if (result.topTraders?.[0]?.top_by_amount) {
+                  const newData = result.topTraders[0].top_by_amount
+                  updateCache("top_by_amount", timeRangeAmount, newData)
+                  setData((prev) => ({ ...prev, top_by_amount: newData }))
+                }
+                setLoading((prev) => ({ ...prev, top_by_amount: false }))
+              }),
+          )
+        }
+
+        // Wait for all fetch operations to complete
+        await Promise.all(fetchPromises).catch((err) => {
+          if (err.name !== "AbortError") {
+            throw err
+          }
+        })
       } catch (err) {
-        setError(err.message)
-      } finally {
-        setLoading((prev) => ({ ...prev, [type]: false }))
+        if (err.name !== "AbortError") {
+          setError(err.message)
+        }
       }
     }
 
-    fetchData("top_by_payouts", timeRangePayouts)
-  }, [timeRangePayouts])
+    // Only fetch on initial mount or when time ranges change
+    fetchData()
 
-  // Fetch data for total amount leaderboard
-  useEffect(() => {
-    async function fetchData(type, timeRange) {
-      try {
-        setLoading((prev) => ({ ...prev, [type]: true }))
-        const response = await fetch(`/api/fetchTopTraders?timefilter=${timeFilters[timeRange]}`)
-        const result = await response.json()
-        if (response.ok) {
-          setData((prevData) => ({ ...prevData, [type]: result.topTraders?.[0]?.[type] || [] }))
-        } else {
-          throw new Error(result.error || "Failed to fetch traders")
-        }
-      } catch (err) {
-        setError(err.message)
-      } finally {
-        setLoading((prev) => ({ ...prev, [type]: false }))
-      }
+    // Cleanup function to abort fetch if component unmounts
+    return () => {
+      controller.abort()
     }
-
-    fetchData("top_by_amount", timeRangeAmount)
-  }, [timeRangeAmount])
+  }, [timeRangePayouts, timeRangeAmount]) // Only re-run when time ranges change
 
   // Initialize tooltips after render
   useEffect(() => {
