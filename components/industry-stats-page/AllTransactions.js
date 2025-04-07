@@ -19,12 +19,103 @@ import { Card, CardContent } from "../ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
 import Image from "next/image"
 
+// Global cache for transactions data
+let transactionsCache = null
+let lastFetchTime = null
+const CACHE_EXPIRY_TIME = 5 * 60 * 1000 // 5 minutes
+
+// Function to prefetch transactions data
+const prefetchTransactions = async () => {
+  // Check if we already have fresh cached data
+  if (transactionsCache && lastFetchTime && Date.now() - lastFetchTime < CACHE_EXPIRY_TIME) {
+    console.log("Using cached transactions data")
+    return transactionsCache
+  }
+
+  console.log("Prefetching transactions data")
+  try {
+    let allFetched = false
+    let offset = 0
+    let allTransactions = []
+
+    // Keep fetching until we get all transactions
+    while (!allFetched) {
+      const res = await fetch(
+        `/api/fetchTransactions?limitRows=1000&offsetRows=${offset}&timeFilter=last_7_days&searchQuery=`,
+      )
+
+      if (!res.ok) throw new Error("Failed to fetch transactions")
+
+      const data = await res.json()
+
+      // Add this batch to our collection
+      allTransactions = [...allTransactions, ...data.transactions]
+
+      // If we got fewer than the limit, we've reached the end
+      if (data.transactions.length < 1000) {
+        allFetched = true
+      } else {
+        // Otherwise, increment offset for next batch
+        offset += 1000
+      }
+    }
+
+    // Update the cache
+    transactionsCache = allTransactions
+    lastFetchTime = Date.now()
+
+    // Also store in sessionStorage as backup
+    try {
+      sessionStorage.setItem("transactionsData", JSON.stringify(allTransactions))
+      sessionStorage.setItem("transactionsFetchTime", lastFetchTime.toString())
+    } catch (e) {
+      console.warn("Failed to store transactions in sessionStorage:", e)
+    }
+
+    return allTransactions
+  } catch (error) {
+    console.error("Transaction prefetch error:", error)
+    return []
+  }
+}
+
+// Start prefetching as soon as this module loads
+if (typeof window !== "undefined") {
+  // Try to load from sessionStorage first
+  try {
+    const cachedData = sessionStorage.getItem("transactionsData")
+    const cachedTime = sessionStorage.getItem("transactionsFetchTime")
+
+    if (cachedData && cachedTime) {
+      transactionsCache = JSON.parse(cachedData)
+      lastFetchTime = Number.parseInt(cachedTime)
+      console.log("Loaded transactions from sessionStorage")
+    }
+  } catch (e) {
+    console.warn("Failed to load transactions from sessionStorage:", e)
+  }
+
+  // Prefetch in the background if needed
+  if (!transactionsCache || !lastFetchTime || Date.now() - lastFetchTime > CACHE_EXPIRY_TIME) {
+    prefetchTransactions()
+  }
+}
+
+// Loader component that can be included in the page to trigger prefetching
+export function TransactionsLoader() {
+  useEffect(() => {
+    prefetchTransactions()
+  }, [])
+
+  return null
+}
+
 // Changed function name from TransactionsTable to AllTransactions
 // Added transactions prop (but not using it to maintain existing logic)
 export default function AllTransactions({ transactions: initialTransactions }) {
   // State variables
   const [transactions, setTransactions] = useState([])
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
   const [page, setPage] = useState(1)
   const [limitRows, setLimitRows] = useState(10)
@@ -46,37 +137,19 @@ export default function AllTransactions({ transactions: initialTransactions }) {
 
   // Fetch all transactions in batches
   const fetchAllTransactions = async () => {
+    // Check if we have cached data first
+    if (transactionsCache) {
+      setTransactions(transactionsCache)
+      setLoading(false)
+      return
+    }
+
     // Clear existing transactions and start fresh
     setTransactions([])
     setLoading(true)
 
     try {
-      let allFetched = false
-      let offset = 0
-      let allTransactions = []
-
-      // Keep fetching until we get all transactions
-      while (!allFetched) {
-        const res = await fetch(
-          `/api/fetchTransactions?limitRows=1000&offsetRows=${offset}&timeFilter=last_7_days&searchQuery=${encodeURIComponent(searchQuery)}`,
-        )
-
-        if (!res.ok) throw new Error("Failed to fetch transactions")
-
-        const data = await res.json()
-
-        // Add this batch to our collection
-        allTransactions = [...allTransactions, ...data.transactions]
-
-        // If we got fewer than the limit, we've reached the end
-        if (data.transactions.length < 1000) {
-          allFetched = true
-        } else {
-          // Otherwise, increment offset for next batch
-          offset += 1000
-        }
-      }
-
+      const allTransactions = await prefetchTransactions()
       setTransactions(allTransactions)
     } catch (error) {
       console.error("Transaction fetch error:", error)
