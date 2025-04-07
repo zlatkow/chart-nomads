@@ -773,3 +773,13 @@ input:checked + .toggle-switch::after {
   overflow-y: auto;
   margin-bottom: 2rem;
 }
+
+/* Hide scrollbar but keep functionality */
+.sticky-table-container {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.sticky-table-container::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
