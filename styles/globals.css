@@ -3,24 +3,24 @@
 @tailwind utilities;
 
 @font-face {
-  font-family: 'Balboa';
-  src: url('/fonts/BalboaW01Medium.woff2') format('woff2');
+  font-family: "Balboa";
+  src: url("/fonts/BalboaW01Medium.woff2") format("woff2");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Cascadia Mono';
-  src: url('/fonts/CascadiaMonoPL-Regular.woff2') format('woff2');
+  font-family: "Cascadia Mono";
+  src: url("/fonts/CascadiaMonoPL-Regular.woff2") format("woff2");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Cascadia Mono Bold';
-  src: url('/fonts/CascadiaMonoPL-Bold.woff2') format('woff2');
+  font-family: "Cascadia Mono Bold";
+  src: url("/fonts/CascadiaMonoPL-Bold.woff2") format("woff2");
   font-weight: bold;
   font-style: normal;
   font-display: swap;
@@ -33,15 +33,17 @@
 body {
   background-color: #0f0f0f !important;
   @apply text-white;
-  font-family: 'Cascadia Mono', monospace;
+  font-family: "Cascadia Mono", monospace;
 }
 
-h1, h2, h3 {
-  font-family: 'Balboa', sans-serif;
+h1,
+h2,
+h3 {
+  font-family: "Balboa", sans-serif;
 }
 
 #hero-typed {
-  font-family: 'Cascadia Mono', monospace;
+  font-family: "Cascadia Mono", monospace;
 }
 
 /* Noise overlay effect */
@@ -59,11 +61,11 @@ h1, h2, h3 {
 }
 
 #ceo_quote {
-  font-family: 'Balboa', sans-serif;
+  font-family: "Balboa", sans-serif;
 }
 
 .swiper-pagination-bullet {
-  background: #0f0f0f28!important; /* Default inactive bullet color */
+  background: #0f0f0f28 !important; /* Default inactive bullet color */
   width: 12px !important;
   height: 12px !important;
   margin: 0 6px !important;
@@ -75,7 +77,6 @@ h1, h2, h3 {
   transform: scale(1.2); /* Slightly bigger active dot */
 }
 
-
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 5px; /* Adjust width */
@@ -83,7 +84,7 @@ h1, h2, h3 {
 
 /* Track (background) */
 ::-webkit-scrollbar-track {
-  background: #0F0F0F; /* Dark background */
+  background: #0f0f0f; /* Dark background */
   border-radius: 10px;
 }
 
@@ -95,11 +96,13 @@ h1, h2, h3 {
 
 /* Thumb hover effect */
 ::-webkit-scrollbar-thumb:hover {
-  background: #E6B800; /* Slightly darker yellow on hover */
+  background: #e6b800; /* Slightly darker yellow on hover */
 }
 
-#loginModalSeparator, #passwordLabel, #emailLabel #registerButton {
-  font-family: 'Balboa', sans-serif;
+#loginModalSeparator,
+#passwordLabel,
+#emailLabel #registerButton {
+  font-family: "Balboa", sans-serif;
 }
 
 /* Global input styles (except checkboxes & radio buttons) */
@@ -118,7 +121,7 @@ select {
 }
 #breach-reason {
   border-color: #333333;
-  background-color: #1A1A1A;
+  background-color: #1a1a1a;
   height: 35px;
   color: white;
 }
@@ -148,14 +151,14 @@ select {
 
 #payout-denial-reason {
   border-color: #333333;
-  background-color: #1A1A1A;
+  background-color: #1a1a1a;
   height: 35px;
   color: white;
 }
 
-#denied-amount  {
+#denied-amount {
   border-color: #333333;
-  background-color: #1A1A1A;
+  background-color: #1a1a1a;
   height: 35px;
   color: white;
 }
@@ -164,7 +167,7 @@ select {
 input:not([type="checkbox"]):not([type="radio"]):focus,
 textarea:focus,
 select:focus {
-  border-color: #EDB900;
+  border-color: #edb900;
   box-shadow: rgba(155, 132, 1, 0.5) 0px 1px 2px 0px;
 }
 
@@ -173,7 +176,7 @@ input[type="checkbox"] {
   width: 16px;
   height: 16px;
   appearance: none;
-  border: 2px solid #EDB900;
+  border: 2px solid #edb900;
   background: transparent;
   cursor: pointer;
   border-radius: 4px;
@@ -183,8 +186,8 @@ input[type="checkbox"] {
 
 /* ✅ Checkbox Checked Style */
 input[type="checkbox"]:checked {
-  background-color: #EDB900;
-  border: 2px solid #EDB900;
+  background-color: #edb900;
+  border: 2px solid #edb900;
 }
 
 /* ✅ Checkbox Checkmark */
@@ -198,8 +201,6 @@ input[type="checkbox"]:checked::after {
   left: 50%;
   transform: translate(-50%, -50%);
 }
-
-
 
 .country-name {
   color: black !important; /* Ensure text is white */
@@ -221,13 +222,22 @@ input[type="checkbox"]:checked::after {
   height: 45px;
 }
 
-
 @keyframes heartbeat {
-  0% { transform: scale(1); }
-  30% { transform: scale(1.2); }
-  40% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.2);
+  }
+  40% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 .heartbeat {
@@ -236,12 +246,12 @@ input[type="checkbox"]:checked::after {
 }
 
 .heartbeat:hover {
-  animation: heartbeat 1.5s in
+  animation: heartbeat 1.5s in;
 }
 
 .search-input {
   height: 35px !important;
-  background-color: #0F0F0F !important;
+  background-color: #0f0f0f !important;
 }
 
 /* Custom Tooltip Style */
@@ -265,14 +275,13 @@ input[type="checkbox"]:checked::after {
   z-index: 50 !important;
 }
 
-
 /* Headings in the rules section */
 .rules-section h2 {
   margin-bottom: 1rem;
 }
 
 rules-section {
-  font-family: 'Cascadia Mono', monospace;
+  font-family: "Cascadia Mono", monospace;
 }
 
 .rules-section h3 {
@@ -297,7 +306,7 @@ rules-section {
 }
 
 .rules-section a {
-  color: #EDB900;
+  color: #edb900;
 }
 
 .rules-section a:hover {
@@ -306,7 +315,7 @@ rules-section {
 
 /* Bold text for highlighted rules */
 .rules-section li strong {
-  font-family: 'Cascadia Mono Bold';
+  font-family: "Cascadia Mono Bold";
   font-size: 15px;
 }
 
@@ -319,12 +328,12 @@ rules-section {
 }
 
 .searchInput {
-  color:white !important;
+  color: white !important;
   padding-left: 35px !important;
 }
 
 .searchDark {
-  background-color: #1A1A1A !important;
+  background-color: #1a1a1a !important;
   border: 1px solid #333333 !important;
   padding-left: 35px !important;
   height: 35px !important;
@@ -338,14 +347,13 @@ rules-section {
   background-color: #222222 !important; /* Slightly different background */
 }
 
-
 a strong {
-  font-family: 'Cascadia Mono Bold';
+  font-family: "Cascadia Mono Bold";
   font-size: 15px;
 }
 
 strong {
-  font-family: 'Cascadia Mono Bold';
+  font-family: "Cascadia Mono Bold";
   font-size: 15px;
 }
 
@@ -354,10 +362,8 @@ strong {
 }
 
 #footerNewsletter {
-  border:0px;
+  border: 0px;
 }
-
-
 
 @layer base {
   :root {
@@ -684,28 +690,39 @@ input:checked + .toggle-switch::after {
   border: none;
 }
 
+/* Replace your sticky table CSS with this updated version */
 
-/* Add these styles for the sticky table */
+/* Table wrapper to enforce container constraints */
+.table-wrapper {
+  width: 100%;
+  max-width: 1280px; /* Match your container max-width */
+  overflow: hidden;
+  position: relative;
+}
+
+/* Sticky table container with horizontal scroll */
 .sticky-table-container {
   position: relative;
   overflow-x: auto;
+  width: 100%;
   max-width: 100%;
-  width: 100%; /* Set width to 100% of parent */
 }
 
 .sticky-table {
   border-collapse: separate;
   border-spacing: 0;
   width: 100%;
-  min-width: 900px; /* Ensure table maintains minimum width */
+  min-width: 1200px; /* Minimum width of table */
+  table-layout: fixed; /* This helps with column width control */
 }
 
-Sticky header
+/* Sticky header */
 .sticky-table thead th {
   position: sticky;
   top: 0;
   z-index: 10;
   background-color: #0f0f0f;
+  border-bottom: 1px solid #333 !important;
 }
 
 /* Sticky first column */
@@ -763,23 +780,12 @@ Sticky header
   pointer-events: none;
 }
 
-/* Ensure hover effect works with sticky columns */
-.sticky-table tbody tr:hover td {
-  background-color: #1a1a1a !important;
-}
-
-/* Hide scrollbar but keep functionality */
-.sticky-table-container {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
-}
-
-.sticky-table-container::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
-}
-
-/* Explicitly add border styles for table rows - override any other styles */
+/* Force borders on table rows - with !important to override any other styles */
 .sticky-table tbody tr {
+  border-bottom: 1px solid #333 !important;
+}
+
+.sticky-table tbody tr td {
   border-bottom: 1px solid #333 !important;
 }
 
@@ -787,9 +793,18 @@ Sticky header
   border-bottom: 1px solid #333 !important;
 }
 
-/* Additional helper for table wrapper to enforce container constraints */
-.table-wrapper {
-  width: 100%;
-  max-width: 100%;
-  overflow: hidden;
+/* Ensure hover effect works with sticky columns */
+.sticky-table tbody tr:hover td {
+  background-color: #1a1a1a !important;
 }
+
+/* Hide scrollbar but keep functionality */
+.sticky-table-container::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+.sticky-table-container {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
