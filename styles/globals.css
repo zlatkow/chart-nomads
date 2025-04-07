@@ -673,3 +673,40 @@ input:checked + .toggle-switch::after {
   background-color: #edb900;
   border: none;
 }
+
+/* Custom toggle switch styling */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  background-color: #0f0f0f;
+  border-radius: 12px;
+}
+
+.toggle-switch::after {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: #888;
+  top: 2px;
+  left: 2px;
+  transition: all 0.3s;
+}
+
+input:checked + .toggle-switch {
+  background-color: #0f0f0f;
+}
+
+input:checked + .toggle-switch::after {
+  transform: translateX(20px);
+  background-color: #edb900;
+}
+
+/* Discount toggle specific styling */
+input:checked + .toggle-switch::after {
+  background-color: #edb900;
+  border: none;
+}
