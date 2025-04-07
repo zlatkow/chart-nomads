@@ -468,7 +468,7 @@ export default function PropFirmComparison() {
                     <div className="flex bg-[#1a1a1a] p-1 rounded-lg mb-4">
                       <button
                         onClick={() => setSearchMode("quick")}
-                        className={`flex-1 py-2 px-4 rounded-md text-center transition-all duration-200 font-medium text-sm ${
+                        className={`flex-1 py-2 px-2 rounded-md text-center transition-all duration-200 font-medium text-xs ${
                           searchMode === "quick" ? "bg-[#edb900] text-[#0f0f0f]" : "text-[#edb900] hover:bg-[#1f1f1f]"
                         }`}
                       >
@@ -476,7 +476,7 @@ export default function PropFirmComparison() {
                       </button>
                       <button
                         onClick={() => setSearchMode("advanced")}
-                        className={`flex-1 py-2 px-4 rounded-md text-center transition-all duration-200 font-medium text-sm ${
+                        className={`flex-1 py-2 px-2 rounded-md text-center transition-all duration-200 font-medium text-xs ${
                           searchMode === "advanced" ? "bg-[#edb900] text-[#0f0f0f]" : "text-[#edb900] hover:bg-[#1f1f1f]"
                         }`}
                       >
@@ -800,7 +800,7 @@ export default function PropFirmComparison() {
             {/* Main Content */}
             <div className="flex-1 bg-[#0f0f0f] p-6 rounded-b-lg lg:rounded-bl-none lg:rounded-r-lg">
               {/* Company Selection */}
-              <div className="mb-8">
+              <div className="mb-[100px]">
                 <p className="text-lg mb-4">Select company/companies from the list below:</p>
 
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 2xl:grid-cols-8 gap-4">
