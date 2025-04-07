@@ -696,7 +696,7 @@ input:checked + .toggle-switch::after {
   border-collapse: separate;
   border-spacing: 0;
   width: 100%;
-  min-width: 1000px; /* Ensure table maintains minimum width */
+  min-width: 1200px; /* Ensure table maintains minimum width */
 }
 
 /* Sticky header */
