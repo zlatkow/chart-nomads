@@ -451,12 +451,12 @@ export default function PropFirmComparison() {
               <div
                 className={`${
                   sidebarExpanded ? "w-[300px]" : "w-[30px]"
-                } transition-all duration-300 ease-in-out overflow-hidden bg-[#edb900] text-[#0f0f0f] p-6 rounded-t-lg lg:rounded-tr-none lg:rounded-l-lg`}
+                } transition-all duration-300 ease-in-out overflow-hidden bg-[#edb900] text-[#0f0f0f] p-1 rounded-t-lg lg:rounded-tr-none lg:rounded-l-lg`}
               >
                 {/* Toggle button for sidebar - positioned on the right side */}
                 <button
                   onClick={toggleSidebar}
-                  className="absolute top-6 -right-4 w-8 h-8 bg-[#0f0f0f] text-[#edb900] rounded-full shadow-md flex items-center justify-center z-10 hover:bg-[#2a2a2a] transition-colors"
+                  className="absolute border border-[#edb900] top-6 -right-4 w-8 h-8 bg-[#0f0f0f] text-[#edb900] rounded-full shadow-md flex items-center justify-center z-10 hover:bg-[#2a2a2a] transition-colors"
                   aria-label={sidebarExpanded ? "Collapse sidebar" : "Expand sidebar"}
                 >
                   {sidebarExpanded ? <ChevronLeft size={16} /> : <SlidersHorizontal size={16} />}
