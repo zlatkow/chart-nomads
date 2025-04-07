@@ -14,7 +14,7 @@ import Footer from "@/components/Footer"
 import { Input } from "@/components/ui/input"
 import Image from "next/image"
 
-// Update the SegmentedProgressBar component to have a dark-to-yellow gradient
+// Update the SegmentedProgressBar component to have individual segment colors
 const SegmentedProgressBar = ({
   value = 80,
   segments = 5,
@@ -29,6 +29,15 @@ const SegmentedProgressBar = ({
   // Calculate how many segments should be filled
   const filledSegments = Math.round((value / 100) * segments)
 
+  // Define segment colors from darker to lighter yellow
+  const segmentColors = [
+    "#9f7c00", // 20%
+    "#b28b00", // 40%
+    "#c69a00", // 60%
+    "#d9aa00", // 80%
+    "#edb900", // 100%
+  ]
+
   return (
     <div className={`flex items-center ${className}`}>
       {showPercentage && <span className="mr-2 text-xs font-medium">{value}%</span>}
@@ -37,7 +46,10 @@ const SegmentedProgressBar = ({
           {Array.from({ length: segments }).map((_, i) => (
             <div
               key={i}
-              className={`flex-1 ${i < filledSegments ? "bg-gradient-to-r from-[#5a4500] to-[#edb900]" : "bg-transparent"} ${i > 0 ? "border-l border-[#333]" : ""}`}
+              className={`flex-1 ${i > 0 ? "border-l border-[#333]" : ""}`}
+              style={{
+                backgroundColor: i < filledSegments ? segmentColors[i] : "transparent",
+              }}
             />
           ))}
         </div>
