@@ -696,7 +696,7 @@ input:checked + .toggle-switch::after {
   border-collapse: separate;
   border-spacing: 0;
   width: 100%;
-  min-width: 900px; /* Ensure table maintains minimum width */
+  min-width: 1000px; /* Ensure table maintains minimum width */
 }
 
 /* Sticky header */
@@ -765,13 +765,6 @@ input:checked + .toggle-switch::after {
 /* Ensure hover effect works with sticky columns */
 .sticky-table tbody tr:hover td {
   background-color: #1a1a1a !important;
-}
-
-/* Ensure the table container has a fixed height for vertical scrolling */
-.table-wrapper {
-  max-height: 600px;
-  overflow-y: auto;
-  margin-bottom: 2rem;
 }
 
 /* Hide scrollbar but keep functionality */
