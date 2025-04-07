@@ -1,936 +1,855 @@
-/* eslint-disable */
 "use client"
 
-import type React from "react"
+/* eslint-disable */
 
-import { useState } from "react"
-import { Search, ChevronDown, ChevronUp, Bookmark } from "lucide-react"
-import { FaShoppingCart } from "react-icons/fa"
-import ChallengeDetailsSidebar from "@/components/challenge-details-sidebar"
+import { useState, useEffect, useContext } from "react"
+import { supabase } from "../lib/supabase"
+import { SignedIn, SignedOut, useUser } from "@clerk/nextjs"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faHeart as solidHeart } from "@fortawesome/free-solid-svg-icons"
+import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons"
+import { faStar } from "@fortawesome/free-solid-svg-icons"
 import Navbar from "../components/Navbar"
 import Noise from "../components/Noise"
+import Link from "next/link"
+import Tippy from "@tippyjs/react"
+import "tippy.js/dist/tippy.css" // Default tooltip styles
+import { faCalendar } from "@fortawesome/free-regular-svg-icons"
 import Community from "../components/Community"
 import Newsletter from "../components/Newsletter"
 import Footer from "../components/Footer"
+import MissingRuleForm from "../components/MissingRuleForm"
+import Image from "next/image"
+// Import the ModalContext
+import { ModalContext } from "./_app"
+import { useToast } from "@/hooks/use-toast"
+import { Toaster } from "@/components/ui/toaster"
+import { Search } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs_blog"
 
-export default function PropFirmComparison() {
-  // State for the challenge details sidebar
-  const [selectedChallenge, setSelectedChallenge] = useState<any>(null)
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+export async function getServerSideProps() {
+  try {
+    // Fetch main rules with prop firm details
+    const { data: mainRules, error: mainRulesError } = await supabase.from("prop_firm_main_rules").select(`
+      id,
+      last_updated,
+      main_rules,
+      prop_firm,
+      prop_firms (
+        id,
+        propfirm_name,
+        category,
+        rating,
+        logo_url,
+        slug,
+        brand_colour,
+        reviews_count,
+        likes
+      )
+    `)
 
-  // State for search mode toggle
-  const [searchMode, setSearchMode] = useState<"quick" | "advanced">("quick")
-
-  // Mock data for the design
-  const mockFirms = [
-    { id: 1, name: "FTMO", logo: "/placeholder.svg", color: "#3366ff" },
-    { id: 2, name: "MyForexFunds", logo: "/placeholder.svg", color: "#ff6633" },
-    { id: 3, name: "E8 Funding", logo: "/placeholder.svg", color: "#33cc99" },
-    { id: 4, name: "The5ers", logo: "/placeholder.svg", color: "#cc33ff" },
-    { id: 5, name: "Funded Next", logo: "/placeholder.svg", color: "#ffcc33" },
-    { id: 6, name: "True Forex Funds", logo: "/placeholder.svg", color: "#ff3366" },
-    { id: 7, name: "Lux Trading", logo: "/placeholder.svg", color: "#33ccff" },
-    { id: 8, name: "City Traders Imperium", logo: "/placeholder.svg", color: "#66cc33" },
-    { id: 9, name: "Audacity Capital", logo: "/placeholder.svg", color: "#ff9933" },
-    { id: 10, name: "Fidelcrest", logo: "/placeholder.svg", color: "#9933ff" },
-    { id: 11, name: "Topstep", logo: "/placeholder.svg", color: "#33ff99" },
-    { id: 12, name: "Earn2Trade", logo: "/placeholder.svg", color: "#ff3399" },
-    { id: 13, name: "Blue Guardian", logo: "/placeholder.svg", color: "#3399ff" },
-    { id: 14, name: "SurgeTrader", logo: "/placeholder.svg", color: "#ff9966" },
-    { id: 15, name: "Trader Career Path", logo: "/placeholder.svg", color: "#66ff33" },
-  ]
-
-  // Mock data for the comparison table
-  const mockOffers = [
-    {
-      id: 1,
-      firmId: 1,
-      firmName: "FTMO",
-      firmLogo: "/placeholder.svg",
-      firmColor: "#3366ff",
-      rating: 4.7,
-      reviews: 108,
-      price: 399.0,
-      originalPrice: 497.0,
-      accountSize: "100k",
-      steps: "2 Steps",
-      profitTarget: "10%",
-      phase2Target: "5%",
-      maxDailyLoss: "5%",
-      maxTotalDrawdown: "5%",
-      profitSplit: "80%",
-      payoutFrequency: "30 Days",
-      loyaltyPoints: 173,
-      isFavorite: false,
-    },
-    {
-      id: 2,
-      firmId: 2,
-      firmName: "MyForexFunds",
-      firmLogo: "/placeholder.svg",
-      firmColor: "#ff6633",
-      rating: 4.2,
-      reviews: 245,
-      price: 299.0,
-      originalPrice: 399.0,
-      accountSize: "100k",
-      steps: "2 Steps",
-      profitTarget: "8%",
-      phase2Target: "5%",
-      maxDailyLoss: "4%",
-      maxTotalDrawdown: "8%",
-      profitSplit: "80%",
-      payoutFrequency: "14 Days",
-      loyaltyPoints: 210,
-      isFavorite: true,
-    },
-    {
-      id: 3,
-      firmId: 3,
-      firmName: "E8 Markets",
-      firmLogo: "/placeholder.svg",
-      firmColor: "#33cc99",
-      rating: 4.8,
-      reviews: 298,
-      price: 558.6,
-      originalPrice: 580.0,
-      accountSize: "100k",
-      steps: "2 Steps",
-      profitTarget: "8%",
-      phase2Target: "4%",
-      maxDailyLoss: "4%",
-      maxTotalDrawdown: "8%",
-      profitSplit: "80%",
-      payoutFrequency: "Payout-on-demand",
-      loyaltyPoints: 307,
-      isFavorite: false,
-    },
-    {
-      id: 4,
-      firmId: 4,
-      firmName: "The5ers",
-      firmLogo: "/placeholder.svg",
-      firmColor: "#cc33ff",
-      rating: 4.8,
-      reviews: 713,
-      price: 517.75,
-      originalPrice: 545.0,
-      accountSize: "100k",
-      steps: "2 Steps",
-      profitTarget: "8%",
-      phase2Target: "5%",
-      maxDailyLoss: "5%",
-      maxTotalDrawdown: "10%",
-      profitSplit: "80%",
-      payoutFrequency: "14 Days",
-      loyaltyPoints: 188,
-      isFavorite: true,
-    },
-    {
-      id: 5,
-      firmId: 5,
-      firmName: "FundingPips",
-      firmLogo: "/placeholder.svg",
-      firmColor: "#3366ff",
-      rating: 4.3,
-      reviews: 562,
-      price: 341.05,
-      originalPrice: 359.0,
-      accountSize: "100k",
-      steps: "2 Steps",
-      profitTarget: "6%",
-      phase2Target: "6%",
-      maxDailyLoss: "3%",
-      maxTotalDrawdown: "6%",
-      profitSplit: "80%",
-      payoutFrequency: "On-demand",
-      loyaltyPoints: 140,
-      isFavorite: false,
-    },
-    {
-      id: 6,
-      firmId: 6,
-      firmName: "Blue Guardian",
-      firmLogo: "/placeholder.svg",
-      firmColor: "#3399ff",
-      rating: 4.3,
-      reviews: 119,
-      price: 345.42,
-      originalPrice: 497.0,
-      accountSize: "100k",
-      steps: "2 Steps",
-      profitTarget: "8%",
-      phase2Target: "4%",
-      maxDailyLoss: "4%",
-      maxTotalDrawdown: "8%",
-      profitSplit: "85%",
-      payoutFrequency: "14 Days",
-      loyaltyPoints: 574,
-      isFavorite: false,
-    },
-  ]
-
-  // Challenge type options
-  const challengeTypes = [
-    { value: "Instant Funding", label: "Instant Funding" },
-    { value: "1 Phase", label: "1 Phase" },
-    { value: "2 Phases", label: "2 Phases" },
-    { value: "3 Phases", label: "3 Phases" },
-  ]
-
-  // Account size options
-  const accountSizes = [
-    { value: "2k", label: "2k" },
-    { value: "2.5k", label: "2.5k" },
-    { value: "5k", label: "5k" },
-    { value: "6k", label: "6k" },
-    { value: "10k", label: "10k" },
-    { value: "15k", label: "15k" },
-    { value: "20k", label: "20k" },
-    { value: "25k", label: "25k" },
-    { value: "30k", label: "30k" },
-    { value: "40k", label: "40k" },
-    { value: "50k", label: "50k" },
-    { value: "60k", label: "60k" },
-    { value: "75k", label: "75k" },
-    { value: "100k", label: "100k" },
-    { value: "120k", label: "120k" },
-    { value: "140k", label: "140k" },
-    { value: "150k", label: "150k" },
-    { value: "200k", label: "200k" },
-    { value: "250k", label: "250k" },
-    { value: "300k", label: "300k" },
-    { value: "400k", label: "400k" },
-    { value: "500k", label: "500k" },
-    { value: "1M", label: "1M" },
-    { value: "2M", label: "2M" },
-    { value: "5M", label: "5M" },
-  ]
-
-  // Asset class options
-  const assetClasses = [
-    { value: "Forex", label: "Forex" },
-    { value: "Futures", label: "Futures" },
-    { value: "Crypto", label: "Crypto" },
-    { value: "Stocks", label: "Stocks" },
-    { value: "Indices", label: "Indices" },
-    { value: "Commodities", label: "Commodities" },
-  ]
-
-  // Brokers options
-  const brokers = [
-    { value: "ThinkMarkets", label: "ThinkMarkets" },
-    { value: "Purple Trading Seychelles", label: "Purple Trading Seychelles" },
-    { value: "Virtual Markets", label: "Virtual Markets" },
-    { value: "Capital Markets", label: "Capital Markets" },
-    { value: "Match Trade", label: "Match Trade" },
-    { value: "Finesse FX", label: "Finesse FX" },
-    { value: "FXPIG", label: "FXPIG" },
-    { value: "FXFlat", label: "FXFlat" },
-    { value: "GBE Brokers", label: "GBE Brokers" },
-    { value: "CBT Limited", label: "CBT Limited" },
-    { value: "Liquidity Provider / Own Broker", label: "Liquidity Provider / Own Broker" },
-  ]
-
-  // Platforms options
-  const platforms = [
-    { value: "MT4", label: "MT4" },
-    { value: "MT5", label: "MT5" },
-    { value: "cTrader", label: "cTrader" },
-    { value: "DXtrade", label: "DXtrade" },
-    { value: "TradeLocker", label: "TradeLocker" },
-    { value: "Match Trader", label: "Match Trader" },
-    { value: "ThinkTrader", label: "ThinkTrader" },
-    { value: "Other Platform", label: "Other Platform" },
-    { value: "Proprietary Platform", label: "Proprietary Platform" },
-  ]
-
-  // Special features options
-  const specialFeatures = [
-    { value: "Trade Copying", label: "Trade Copying" },
-    { value: "Expert Advisors", label: "Expert Advisors" },
-    { value: "In-house Technology", label: "In-house Technology" },
-    { value: "Refund Fee", label: "Refund Fee" },
-    { value: "Scaling Plan", label: "Scaling Plan" },
-    { value: "News Trading", label: "News Trading" },
-    { value: "Weekend Holding", label: "Weekend Holding" },
-    { value: "Auto-close", label: "Auto-close" },
-    { value: "Drawdown Blocker", label: "Drawdown Blocker" },
-    { value: "Swap Free Accounts", label: "Swap Free Accounts" },
-    { value: "Balance-based Daily Drawdown", label: "Balance-based Daily Drawdown" },
-  ]
-
-  // Countries options
-  const countries = [
-    { value: "USA", label: "USA" },
-    { value: "Pakistan", label: "Pakistan" },
-    { value: "India", label: "India" },
-    { value: "Vietnam", label: "Vietnam" },
-    { value: "Nigeria", label: "Nigeria" },
-    { value: "Iran", label: "Iran" },
-    { value: "Turkey", label: "Turkey" },
-    { value: "United Kingdom", label: "United Kingdom" },
-    { value: "United Arab Emirates", label: "United Arab Emirates" },
-    { value: "Kenya", label: "Kenya" },
-  ]
-
-  // Add a new state to track which accordion sections are open
-  const [openAccordions, setOpenAccordions] = useState<Record<string, boolean>>({
-    tradingAssetClass: true, // Open by default
-    accountSize: false,
-    challengeType: false,
-    brokers: false,
-    platforms: false,
-    specialFeatures: false,
-    countries: false,
-    advancedFiltering: false,
-  })
-
-  // Add a function to toggle accordion sections
-  const toggleAccordion = (section: string) => {
-    setOpenAccordions((prev) => ({
-      ...prev,
-      [section]: !prev[section],
-    }))
-  }
-
-  // Create a reusable accordion component for filter categories
-  const FilterAccordion = ({
-    title,
-    section,
-    children,
-  }: {
-    title: string
-    section: string
-    children: React.ReactNode
-  }) => {
-    const isOpen = openAccordions[section]
-
-    return (
-      <div className="mb-4 bg-[#1a1a1a] rounded-lg overflow-hidden">
-        <button
-          onClick={() => toggleAccordion(section)}
-          className="w-full p-3 flex justify-between items-center text-left"
-        >
-          {title}
-          <ChevronDown size={18} className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
-        </button>
-        <div
-          className={`transition-all duration-200 overflow-hidden ${
-            isOpen ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"
-          }`}
-        >
-          <div className="p-3 pt-0">{children}</div>
-        </div>
-      </div>
-    )
-  }
-
-  // Function to render star rating
-  const renderStars = (rating: number) => {
-    const fullStars = Math.floor(rating)
-    const hasHalfStar = rating % 1 >= 0.5
-
-    return (
-      <div className="flex items-center">
-        {[...Array(5)].map((_, i) => (
-          <span
-            key={i}
-            className={`text-xs ${i < fullStars ? "text-[#edb900]" : i === fullStars && hasHalfStar ? "text-[#edb900]" : "text-gray-500"}`}
-          >
-            ★
-          </span>
-        ))}
-      </div>
-    )
-  }
-
-  // Function to handle row click and open sidebar
-  const handleRowClick = (offer: any) => {
-    // Create a challenge details object from the offer data
-    const challengeDetails = {
-      id: offer.id,
-      firmId: offer.firmId,
-      firm: {
-        id: offer.firmId,
-        name: offer.firmName,
-        logo: offer.firmLogo,
-        color: offer.firmColor,
-        rating: offer.rating,
-        reviews: offer.reviews,
-        yearsInOperation: 5, // Default value
-        availablePlatforms: ["MT4", "MT5", "cTrader"], // Default platforms
-      },
-      price: offer.price,
-      originalPrice: offer.originalPrice,
-      accountSize: offer.accountSize,
-      maxDrawdown: offer.maxTotalDrawdown,
-      profitTarget: {
-        step1: offer.profitTarget,
-        step2: offer.phase2Target,
-      },
-      dailyLoss: offer.maxDailyLoss,
-      programName: `${offer.firmName} - ${offer.accountSize} ${offer.steps}`,
-      payoutOverview: {
-        profitSplit: offer.profitSplit,
-        refundableFee: "No",
-        payoutFrequency: offer.payoutFrequency,
-      },
-      tradingOverview: [
-        { label: "Max Leverage", value: "1:100" },
-        { label: "News-Trading", value: "Yes" },
-        { label: "Copy-Trading", value: "Yes" },
-        { label: "EA's", value: "Allowed" },
-        { label: "Weekend Holding", value: "Yes" },
-        { label: "Overnight Holding", value: "Yes" },
-      ],
+    if (mainRulesError) {
+      return { props: { propFirmRules: [] } }
     }
 
-    setSelectedChallenge(challengeDetails)
-    setIsSidebarOpen(true)
+    // Fetch change logs
+    const { data: changeLogs, error: changeLogsError } = await supabase.from("prop_firm_rules_change_logs").select(`
+      id,
+      last_updated,
+      change_log,
+      prop_firm,
+      prop_firms (
+        id,
+        propfirm_name,
+        category,
+        rating,
+        logo_url,
+        slug,
+        brand_colour,
+        reviews_count,
+        likes
+      )
+    `)
+
+    if (changeLogsError) {
+      return { props: { propFirmRules: [] } }
+    }
+
+    // Process the data to include change logs with each firm
+    const processedData = {
+      mainRules: mainRules || [],
+      changeLogs: changeLogs || [],
+    }
+
+    return { props: { propFirmRules: processedData } }
+  } catch (error) {
+    return { props: { propFirmRules: { mainRules: [], changeLogs: [] } } }
+  }
+}
+
+// Add shimmer animation CSS
+const shimmerAnimation = `
+  @keyframes shimmer {
+    100% {
+      transform: translateX(100%);
+    }
   }
 
-  // Function to render filter buttons
-  const renderFilterButtons = (options: { value: string; label: string }[], selectedValue?: string) => {
-    return (
-      <div className="flex flex-wrap gap-2">
-        {options.map((option) => (
-          <button
-            key={option.value}
-            className={`px-3 py-1 rounded-full border border-[#0f0f0f] text-sm ${
-              option.value === selectedValue ? "bg-[#0f0f0f] text-[#edb900]" : "bg-transparent"
-            }`}
-          >
-            {option.label}
-          </button>
-        ))}
-      </div>
-    )
+  .shimmer-effect {
+    position: relative;
+    overflow: hidden;
   }
 
-  return (
-    <div className="min-h-screen bg-[#0f0f0f] text-white">
-      <div className="w-full">
-      <Navbar/>
-      <Noise/>
-        <div className="relative container max-w-[1280px] mt-[200px] mb-[100px] mx-auto px-0 pt-[50px] pb-[50px] z-50">
-          <div className="flex flex-col lg:flex-row">
-            {/* Sidebar - Search */}
-            <div className="w-full lg:w-[350px] bg-[#edb900] text-[#0f0f0f] p-6 rounded-t-lg lg:rounded-tr-none lg:rounded-l-lg">
-              <div className="mb-6">
-                <div className="flex bg-[#1a1a1a] p-1 rounded-lg mb-4">
-                  <button
-                    onClick={() => setSearchMode("quick")}
-                    className={`flex-1 py-2 px-4 rounded-md text-center transition-all duration-200 font-medium text-sm ${
-                      searchMode === "quick" ? "bg-[#edb900] text-[#0f0f0f]" : "text-[#edb900] hover:bg-[#1f1f1f]"
-                    }`}
-                  >
-                    Quick Search
-                  </button>
-                  <button
-                    onClick={() => setSearchMode("advanced")}
-                    className={`flex-1 py-2 px-4 rounded-md text-center transition-all duration-200 font-medium text-sm ${
-                      searchMode === "advanced" ? "bg-[#edb900] text-[#0f0f0f]" : "text-[#edb900] hover:bg-[#1f1f1f]"
-                    }`}
-                  >
-                    Advanced Search
-                  </button>
-                </div>
-                <div className="flex justify-between items-center">
-                  <h2 className="text-xl">Filters</h2>
-                  <button className="text-sm font-medium hover:underline">Clear All</button>
-                </div>
+  .shimmer-effect::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    transform: translateX(-100%);
+    background-image: linear-gradient(
+      90deg,
+      rgba(34, 34, 34, 0) 0,
+      rgba(34, 34, 34, 0.2) 20%,
+      rgba(237, 185, 0, 0.1) 60%,
+      rgba(34, 34, 34, 0)
+    );
+    animation: shimmer 2s infinite;
+  }
+`
+
+const PropFirmRules = ({ propFirmRules }) => {
+  const [searchTerm, setSearchTerm] = useState("")
+  const [searchQuery, setSearchQuery] = useState("")
+  const [userLikedFirms, setUserLikedFirms] = useState(new Set())
+  const { user } = useUser()
+  const [likesMap, setLikesMap] = useState({})
+  const [activeTab, setActiveTab] = useState("tab1")
+  const [visibleCount, setVisibleCount] = useState(10)
+  const [loadingLikes, setLoadingLikes] = useState(true)
+  const [isLoading, setIsLoading] = useState(true)
+  const { toast } = useToast()
+
+  // Use the ModalContext
+  const { setShowLoginModal } = useContext(ModalContext)
+
+  // Extract the main rules and change logs from props
+  const { mainRules = [], changeLogs = [] } = propFirmRules || {}
+
+  // Add the shimmer animation to the document
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      const style = document.createElement("style")
+      style.textContent = shimmerAnimation
+      document.head.appendChild(style)
+
+      return () => {
+        document.head.removeChild(style)
+      }
+    }
+  }, [])
+
+  // Set loading to false after initial render
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false)
+    }, 1500)
+
+    return () => clearTimeout(timer)
+  }, [])
+
+  const handleTabClick = (tab) => {
+    setActiveTab(tab)
+    setVisibleCount(10)
+  }
+
+  // Handle search
+  const handleSearch = (e) => {
+    setSearchQuery(e.target.value)
+    setSearchTerm(e.target.value)
+  }
+
+  const searchLower = searchTerm.toLowerCase()
+
+  // Filter and prepare data based on active tab
+  const filteredData =
+    activeTab === "tab1"
+      ? (mainRules || [])
+          .filter((item) => {
+            if (!item || !item.prop_firms) return false
+
+            // Safely access and convert strings to lowercase with fallbacks
+            const name = item.prop_firms.propfirm_name ? item.prop_firms.propfirm_name.toLowerCase() : ""
+            const category = item.prop_firms.category ? item.prop_firms.category.toLowerCase() : ""
+            const rules = item.main_rules ? item.main_rules.toLowerCase() : ""
+
+            return name.includes(searchLower) || category.includes(searchLower) || rules.includes(searchLower)
+          })
+          .sort((a, b) => {
+            // Simple date comparison with null safety
+            const dateA = a && a.last_updated ? new Date(a.last_updated) : new Date(0)
+            const dateB = b && b.last_updated ? new Date(b.last_updated) : new Date(0)
+            return dateB.getTime() - dateA.getTime()
+          })
+          .slice(0, visibleCount)
+      : (changeLogs || [])
+          .filter((item) => {
+            if (!item || !item.prop_firms) return false
+
+            // Safely access and convert strings to lowercase with fallbacks
+            const name = item.prop_firms.propfirm_name ? item.prop_firms.propfirm_name.toLowerCase() : ""
+            const category = item.prop_firms.category ? item.prop_firms.category.toLowerCase() : ""
+            const log = item.change_log ? item.change_log.toLowerCase() : ""
+
+            return name.includes(searchLower) || category.includes(searchLower) || log.includes(searchLower)
+          })
+          .sort((a, b) => {
+            // Simple date comparison with null safety
+            const dateA = a && a.last_updated ? new Date(a.last_updated) : new Date(0)
+            const dateB = b && b.last_updated ? new Date(b.last_updated) : new Date(0)
+            return dateB.getTime() - dateA.getTime()
+          })
+          .slice(0, visibleCount)
+
+  // Update the totalResults calculation to be safer
+  const totalResults = activeTab === "tab1" ? (mainRules || []).length : (changeLogs || []).length
+
+  // Initialize likes map
+  useEffect(() => {
+    const initialLikes = {}
+
+    // Process main rules
+    mainRules.forEach((item) => {
+      if (item && item.prop_firms && item.prop_firms.id) {
+        initialLikes[item.prop_firms.id] = item.prop_firms.likes || 0
+      }
+    })
+
+    // Process change logs
+    changeLogs.forEach((item) => {
+      if (item && item.prop_firms && item.prop_firms.id) {
+        initialLikes[item.prop_firms.id] = item.prop_firms.likes || 0
+      }
+    })
+
+    setLikesMap(initialLikes)
+  }, [mainRules, changeLogs])
+
+  // Fetch liked firms
+  useEffect(() => {
+    if (!user) {
+      setLoadingLikes(false)
+      return
+    }
+
+    const fetchLikedFirms = async () => {
+      const { data, error } = await supabase.from("user_likes").select("firm_id").eq("user_id", user.id)
+
+      if (error) {
+        setLoadingLikes(false)
+        return
+      }
+
+      const likedFirmIds = new Set(data.map((entry) => Number(entry.firm_id)))
+      setUserLikedFirms(likedFirmIds)
+      setLoadingLikes(false)
+    }
+
+    fetchLikedFirms()
+  }, [user])
+
+  // Handle like toggle
+  const handleLikeToggle = async (firmId) => {
+    if (!user) {
+      setShowLoginModal(true)
+      return
+    }
+
+    const numericFirmId = Number(firmId)
+    const wasLiked = userLikedFirms.has(numericFirmId)
+
+    // Update local state
+    setUserLikedFirms((prevLikes) => {
+      const updatedLikes = new Set(prevLikes)
+      if (updatedLikes.has(numericFirmId)) {
+        updatedLikes.delete(numericFirmId)
+      } else {
+        updatedLikes.add(numericFirmId)
+      }
+      return updatedLikes
+    })
+
+    // Update likes count in UI
+    setLikesMap((prevLikes) => {
+      const newLikes = { ...prevLikes }
+      newLikes[numericFirmId] = wasLiked ? (newLikes[numericFirmId] || 0) - 1 : (newLikes[numericFirmId] || 0) + 1
+      return newLikes
+    })
+
+    try {
+      if (!wasLiked) {
+        // Like the firm
+        const { error } = await supabase.from("user_likes").insert([{ user_id: user.id, firm_id: numericFirmId }])
+        if (error) {
+          // Show error toast with icon
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Failed to like company. Please try again.",
+            action: (
+              <div className="h-8 w-8 bg-red-100 rounded-full flex items-center justify-center mr-3">
+                <FontAwesomeIcon icon={regularHeart} className="h-4 w-4 text-red-500" />
               </div>
+            ),
+          })
+          return
+        }
 
-              {/* Scrollable filter area */}
-              <div className="overflow-y-auto max-h-[calc(100vh-250px)] pr-2 -mr-2">
-                {searchMode === "quick" ? (
-                  <>
-                    {/* Challenge Type Filter */}
-                    <div className="mb-6">
-                      <h3 className=" mb-3">Challenge type:</h3>
-                      {renderFilterButtons(challengeTypes, "2 Phases")}
-                    </div>
-
-                    {/* Account Size Filter */}
-                    <div className="mb-6">
-                      <h3 className="mb-3">Account size:</h3>
-                      {renderFilterButtons(accountSizes.slice(0, 9), "100k")}
-                    </div>
-
-                    {/* Trading Asset Class Filter */}
-                    <div className="mb-6">
-                      <h3 className=" mb-3">Trading asset class:</h3>
-                      {renderFilterButtons(assetClasses, "Forex")}
-                    </div>
-
-                    {/* Show Discounted Price Toggle */}
-                    <div className="mb-6">
-                      <h3 className=" mb-3">Show discounted price?</h3>
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" className="sr-only peer" />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#0f0f0f]"></div>
-                      </label>
-                    </div>
-                  </>
-                ) : (
-                  // Advanced search content
-                  <div className="space-y-4">
-                    <FilterAccordion title="Trading Asset Class" section="tradingAssetClass">
-                      {renderFilterButtons(assetClasses)}
-                    </FilterAccordion>
-
-                    <FilterAccordion title="Account Size" section="accountSize">
-                      {renderFilterButtons(accountSizes)}
-                    </FilterAccordion>
-
-                    <FilterAccordion title="Challenge Type" section="challengeType">
-                      {renderFilterButtons(challengeTypes)}
-                    </FilterAccordion>
-
-                    <FilterAccordion title="Brokers" section="brokers">
-                      {renderFilterButtons(brokers)}
-                    </FilterAccordion>
-
-                    <FilterAccordion title="Platforms" section="platforms">
-                      {renderFilterButtons(platforms)}
-                    </FilterAccordion>
-
-                    <FilterAccordion title="Special Features" section="specialFeatures">
-                      {renderFilterButtons(specialFeatures)}
-                    </FilterAccordion>
-
-                    <FilterAccordion title="Countries" section="countries">
-                      {renderFilterButtons(countries)}
-                    </FilterAccordion>
-
-                    <FilterAccordion title="Advanced Filtering" section="advancedFiltering">
-                      <div className="space-y-4">
-                        {/* Price Range */}
-                        <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
-                          <label className="block mb-2 font-medium">Price $</label>
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="range"
-                              min="0"
-                              max="2000"
-                              step="50"
-                              defaultValue="500"
-                              className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
-                            />
-                          </div>
-                          <div className="flex justify-between mt-1 text-xs">
-                            <span>$0</span>
-                            <span>$2,000</span>
-                          </div>
-                        </div>
-
-                        {/* Account Size K */}
-                        <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
-                          <label className="block mb-2 font-medium">Account Size K</label>
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="range"
-                              min="0"
-                              max="400000"
-                              step="10000"
-                              defaultValue="100000"
-                              className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
-                            />
-                          </div>
-                          <div className="flex justify-between mt-1 text-xs">
-                            <span>$0</span>
-                            <span>$400,000</span>
-                          </div>
-                        </div>
-
-                        {/* Account Profit Split % */}
-                        <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
-                          <label className="block mb-2 font-medium">Account Profit Split %</label>
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="range"
-                              min="0"
-                              max="100"
-                              step="5"
-                              defaultValue="80"
-                              className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
-                            />
-                          </div>
-                          <div className="flex justify-between mt-1 text-xs">
-                            <span>0%</span>
-                            <span>100%</span>
-                          </div>
-                        </div>
-
-                        {/* Profit Target % (Combined) */}
-                        <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
-                          <label className="block mb-2 font-medium">Profit Target % (Combined)</label>
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="range"
-                              min="0"
-                              max="30"
-                              step="1"
-                              defaultValue="10"
-                              className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
-                            />
-                          </div>
-                          <div className="flex justify-between mt-1 text-xs">
-                            <span>0%</span>
-                            <span>30%</span>
-                          </div>
-                        </div>
-
-                        {/* Max Daily Loss % */}
-                        <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
-                          <label className="block mb-2 font-medium">Max Daily Loss %</label>
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="range"
-                              min="0"
-                              max="10"
-                              step="0.5"
-                              defaultValue="5"
-                              className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
-                            />
-                          </div>
-                          <div className="flex justify-between mt-1 text-xs">
-                            <span>0%</span>
-                            <span>10%</span>
-                          </div>
-                        </div>
-
-                        {/* Account Max Total Drawdown % */}
-                        <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
-                          <label className="block mb-2 font-medium">Account Max Total Drawdown %</label>
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="range"
-                              min="0"
-                              max="20"
-                              step="1"
-                              defaultValue="10"
-                              className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
-                            />
-                          </div>
-                          <div className="flex justify-between mt-1 text-xs">
-                            <span>0%</span>
-                            <span>20%</span>
-                          </div>
-                        </div>
-
-                        {/* Commission $ */}
-                        <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
-                          <label className="block mb-2 font-medium">Commission $</label>
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="range"
-                              min="0"
-                              max="10"
-                              step="0.5"
-                              defaultValue="0"
-                              className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
-                            />
-                          </div>
-                          <div className="flex justify-between mt-1 text-xs">
-                            <span>$0</span>
-                            <span>$10</span>
-                          </div>
-                        </div>
-
-                        {/* Account PT:DD ratio */}
-                        <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
-                          <label className="block mb-2 font-medium">Account PT:DD ratio</label>
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="range"
-                              min="0"
-                              max="1"
-                              step="0.1"
-                              defaultValue="0.5"
-                              className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
-                            />
-                          </div>
-                          <div className="flex justify-between mt-1 text-xs">
-                            <span>1:0</span>
-                            <span>1:1</span>
-                          </div>
-                        </div>
-
-                        {/* Payout Frequency (Days) */}
-                        <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
-                          <label className="block mb-2 font-medium">Payout Frequency (Days)</label>
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="range"
-                              min="0"
-                              max="30"
-                              step="1"
-                              defaultValue="14"
-                              className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
-                            />
-                          </div>
-                          <div className="flex justify-between mt-1 text-xs">
-                            <span>0 Days</span>
-                            <span>30 Days</span>
-                          </div>
-                        </div>
-
-                        {/* Trust Pilot Rating */}
-                        <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
-                          <label className="block mb-2 font-medium">Trust Pilot Rating</label>
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="range"
-                              min="1"
-                              max="5"
-                              step="0.1"
-                              defaultValue="4"
-                              className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
-                            />
-                          </div>
-                          <div className="flex justify-between mt-1 text-xs">
-                            <span>1</span>
-                            <span>5</span>
-                          </div>
-                        </div>
-
-                        {/* Years in Business */}
-                        <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
-                          <label className="block mb-2 font-medium">Years in Business</label>
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="range"
-                              min="1"
-                              max="15"
-                              step="1"
-                              defaultValue="5"
-                              className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
-                            />
-                          </div>
-                          <div className="flex justify-between mt-1 text-xs">
-                            <span>1 Years</span>
-                            <span>15 Years</span>
-                          </div>
-                        </div>
-
-                        {/* Loyalty Points */}
-                        <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
-                          <label className="block mb-2 font-medium">Loyalty Points</label>
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="range"
-                              min="0"
-                              max="5000"
-                              step="100"
-                              defaultValue="1000"
-                              className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
-                            />
-                          </div>
-                          <div className="flex justify-between mt-1 text-xs">
-                            <span>0 Points</span>
-                            <span>5,000 Points</span>
-                          </div>
-                        </div>
-                      </div>
-                    </FilterAccordion>
-                  </div>
-                )}
+        // Increment likes in DB
+        const { error: incrementError } = await supabase.rpc("increment_likes", { firm_id: numericFirmId })
+        if (incrementError) {
+          // Show error toast with icon
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Failed to update like count. Please try again.",
+            action: (
+              <div className="h-8 w-8 bg-red-100 rounded-full flex items-center justify-center mr-3">
+                <FontAwesomeIcon icon={regularHeart} className="h-4 w-4 text-red-500" />
               </div>
+            ),
+          })
+          return
+        }
 
-              {/* Search Button - Fixed at bottom */}
-              <div className="mt-6">
-                <button className="w-full py-3 bg-[#0f0f0f] text-[#edb900] rounded-md flex items-center justify-center gap-2 hover:bg-[#2a2a2a] transition-colors">
-                  <Search size={18} />
-                  {searchMode === "quick" ? "Search" : "Advanced Search"}
-                </button>
-              </div>
+        // Show success toast with icon
+        toast({
+          title: "Company liked",
+          description: "You've added this company to your favorites.",
+          action: (
+            <div className="h-8 w-8 bg-[#edb900] rounded-full flex items-center justify-center mr-3">
+              <FontAwesomeIcon icon={solidHeart} className="h-4 w-4 text-[#0f0f0f]" />
             </div>
-
-            {/* Main Content */}
-            <div className="flex-1 bg-[#0f0f0f] p-6 rounded-b-lg lg:rounded-bl-none lg:rounded-r-lg">
-              <h1 className="text-4xl text-center mb-8 text-[#edb900]">
-                COMPARE ALL PROP FIRMS IN ONE PLACE
-              </h1>
-
-              {/* Company Selection */}
-              <div className="mb-8">
-                <p className="text-lg mb-4">Select company/companies from the list below:</p>
-
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 2xl:grid-cols-8 gap-4">
-                  {mockFirms.map((firm) => (
-                    <div
-                      key={firm.id}
-                      className="bg-[#1a1a1a] rounded-lg p-4 aspect-square flex flex-col items-center justify-center hover:bg-[#2a2a2a] transition-colors cursor-pointer"
-                    >
-                      <div
-                        className="w-16 h-16 mb-3 rounded-md flex items-center justify-center overflow-hidden"
-                        style={{ backgroundColor: firm.color }}
-                      >
-                        <span className="text-[#0f0f0f] text-2xl">
-                          {firm.name.substring(0, 2).toUpperCase()}
-                        </span>
-                      </div>
-                      <h3 className="text-sm font-medium text-center">{firm.name}</h3>
-                    </div>
-                  ))}
-                </div>
+          ),
+        })
+      } else {
+        // Unlike the firm
+        const { error } = await supabase.from("user_likes").delete().eq("user_id", user.id).eq("firm_id", numericFirmId)
+        if (error) {
+          // Show error toast with icon
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Failed to unlike company. Please try again.",
+            action: (
+              <div className="h-8 w-8 bg-red-100 rounded-full flex items-center justify-center mr-3">
+                <FontAwesomeIcon icon={regularHeart} className="h-4 w-4 text-red-500" />
               </div>
+            ),
+          })
+          return
+        }
 
-              {/* Search and Results Count */}
-              <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
-                <div className="relative w-full md:w-auto">
-                  <input
-                    type="text"
-                    placeholder="Search by a keyword..."
-                    className="p-3 bg-[#1a1a1a] border border-[#333] rounded-md text-white w-full md:w-[300px]"
-                  />
-                  <Search className="absolute right-3 top-3 text-gray-400" size={20} />
-                </div>
-                <span className="text-sm">
-                  Showing <span className="text-[#edb900]">413</span> results.
-                </span>
+        // Decrement likes in DB
+        const { error: decrementError } = await supabase.rpc("decrement_likes", { firm_id: numericFirmId })
+        if (decrementError) {
+          // Show error toast with icon
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Failed to update like count. Please try again.",
+            action: (
+              <div className="h-8 w-8 bg-red-100 rounded-full flex items-center justify-center mr-3">
+                <FontAwesomeIcon icon={regularHeart} className="h-4 w-4 text-red-500" />
               </div>
+            ),
+          })
+          return
+        }
 
-              {/* Comparison Table - New Design */}
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-[#333]">
-                      <th className="p-3 text-left">
-                        <div className="flex items-center gap-1">
-                          FIRM / RANK
-                          <ChevronUp size={16} className="text-[#edb900]" />
-                        </div>
-                      </th>
-                      <th className="p-3 text-left">
-                        <div className="flex items-center gap-1">
-                          ACC SIZE
-                          <ChevronDown size={16} />
-                        </div>
-                      </th>
-                      <th className="p-3 text-left">PROGRAM</th>
-                      <th className="p-3 text-left">PROFIT TARGET</th>
-                      <th className="p-3 text-left">DAILY LOSS</th>
-                      <th className="p-3 text-left">MAX LOSS</th>
-                      <th className="p-3 text-left">PROFIT SPLIT</th>
-                      <th className="p-3 text-left">PAYOUT FREQ.</th>
-                      <th className="p-3 text-left">LOYALTY PTS</th>
-                      <th className="p-3 text-left">PRICE</th>
-                      <th className="p-3 text-left"></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {mockOffers.map((offer) => (
-                      <tr
-                        key={offer.id}
-                        className="border-b border-[#222] hover:bg-[#1a1a1a] cursor-pointer"
-                        onClick={() => handleRowClick(offer)}
-                      >
-                        <td className="p-3">
-                          <div className="flex items-center gap-3">
-                            <div
-                              className="w-12 h-12 rounded-md flex items-center justify-center overflow-hidden"
-                              style={{ backgroundColor: offer.firmColor }}
-                            >
-                              <span className="text-[#0f0f0f] text-lg">{offer.firmName.substring(0, 1)}</span>
-                            </div>
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <span className="font-medium">{offer.firmName}</span>
-                                <button
-                                  className="text-gray-400 hover:text-[#edb900]"
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    // Handle bookmark click
-                                  }}
-                                >
-                                  <Bookmark
-                                    size={16}
-                                    className={offer.isFavorite ? "fill-[#edb900] text-[#edb900]" : ""}
-                                  />
-                                </button>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="text-[#edb900]">{offer.rating.toFixed(1)}</span>
-                                <div className="flex">{renderStars(offer.rating)}</div>
-                                <span className="text-xs text-gray-400">{offer.reviews}</span>
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="p-3 font-medium">{offer.accountSize}</td>
-                        <td className="p-3">
-                          <div className="flex items-center gap-1">
-                            <span>{offer.steps}</span>
-                            <span className="text-gray-400 rounded-full border border-gray-600 w-4 h-4 flex items-center justify-center text-xs">
-                              i
-                            </span>
-                          </div>
-                        </td>
-                        <td className="p-3">
-                          <div>
-                            <span>{offer.profitTarget}</span>
-                            <span className="text-gray-400 ml-2">{offer.phase2Target}</span>
-                          </div>
-                        </td>
-                        <td className="p-3">{offer.maxDailyLoss}</td>
-                        <td className="p-3">{offer.maxTotalDrawdown}</td>
-                        <td className="p-3">
-                          <div className="flex items-center">
-                            <span>{offer.profitSplit}</span>
-                            <div className="ml-2 w-20 h-2 bg-[#333] rounded-full overflow-hidden">
-                              <div className="h-full bg-[#edb900]" style={{ width: "80%" }}></div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="p-3">{offer.payoutFrequency}</td>
-                        <td className="p-3">
-                          <div className="flex items-center gap-1">
-                            <span className="text-[#edb900]">$</span>
-                            <span>{offer.loyaltyPoints}</span>
-                          </div>
-                        </td>
-                        <td className="p-3">
-                          <div className="flex flex-col">
-                            <span>${offer.price.toFixed(2)}</span>
-                            <span className="text-xs text-gray-400 line-through">
-                              ${offer.originalPrice.toFixed(2)}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="p-3">
-                          <button
-                            className="w-10 h-10 flex items-center justify-center bg-[#edb900] text-[#0f0f0f] rounded-full hover:bg-[#c99e00] transition-colors"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              // Handle cart button click
-                            }}
-                          >
-                            <FaShoppingCart size={16} />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+        // Show success toast with icon
+        toast({
+          title: "Company unliked",
+          description: "You've removed this company from your favorites.",
+          action: (
+            <div className="h-8 w-8 bg-gray-100 rounded-full flex items-center justify-center mr-3">
+              <FontAwesomeIcon icon={regularHeart} className="h-4 w-4 text-gray-500" />
+            </div>
+          ),
+        })
+      }
+    } catch (err) {
+      // Show general error toast
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+      })
+    }
+  }
+
+  // Function to handle opening the login modal
+  const handleLoginModalOpen = () => {
+    setShowLoginModal(true)
+  }
+
+  // Render skeleton cards for loading state
+  const renderSkeletonCards = () => {
+    return Array(3)
+      .fill(0)
+      .map((_, index) => (
+        <div
+          key={`skeleton-${index}`}
+          className="relative flex mb-5 bg-[#0f0f0f] border-[rgba(237,185,0,0.1)] border-[1px] p-5 rounded-[10px] z-50"
+        >
+          {/* Firm info skeleton */}
+          <div className="flex w-[300px] h-[200px] shadow-lg relative bg-[rgba(255,255,255,0.03)] rounded-[10px] p-7">
+            {/* Category tag skeleton */}
+            <div className="absolute top-3 left-3 w-16 h-4 bg-[#222] rounded-[10px] shimmer-effect"></div>
+
+            {/* Heart icon skeleton */}
+            <div className="absolute top-3 right-3 w-6 h-6 bg-[#222] rounded-full shimmer-effect"></div>
+
+            <div className="flex w-full justify-between">
+              {/* Logo skeleton */}
+              <div className="w-20 h-20 mb-2 rounded-[10px] mt-[50px] shimmer-effect"></div>
+
+              <div className="block mt-9 justify-center w-[150px]">
+                {/* Company name skeleton */}
+                <div className="h-6 w-full bg-[#222] rounded shimmer-effect mx-auto mb-2"></div>
+
+                {/* Rating skeleton */}
+                <div className="h-6 w-16 bg-[#222] rounded shimmer-effect mx-auto mb-2"></div>
+
+                {/* Reviews count skeleton */}
+                <div className="h-6 w-24 bg-[#222] rounded-[8px] shimmer-effect mx-auto mb-10"></div>
+
+                {/* Likes count skeleton */}
+                <div className="absolute top-4 right-[45px] w-16 h-4 bg-[#222] rounded shimmer-effect"></div>
               </div>
             </div>
           </div>
-        </div>
-        <Community/>
-        <Newsletter/>
-        <Footer/>
-      </div>
 
-      {/* Challenge Details Sidebar */}
-      <ChallengeDetailsSidebar
-        challenge={selectedChallenge}
-        isOpen={isSidebarOpen}
-        onClose={() => setIsSidebarOpen(false)}
-      />
+          {/* Content skeleton */}
+          <div className="ml-[20px] mt-6 p-3 border-l-[1px] border-[rgba(237,185,0,0.1)] px-[100px] w-full">
+            {/* Date skeleton */}
+            <div className="flex justify-end mt-[-35px] mb-10 mr-[-100px]">
+              <div className="w-32 h-4 bg-[#222] rounded shimmer-effect"></div>
+            </div>
+
+            {/* Content lines skeleton */}
+            <div className="space-y-4">
+              <div className="h-4 w-full bg-[#222] rounded shimmer-effect"></div>
+              <div className="h-4 w-3/4 bg-[#222] rounded shimmer-effect"></div>
+              <div className="h-4 w-5/6 bg-[#222] rounded shimmer-effect"></div>
+              <div className="h-4 w-2/3 bg-[#222] rounded shimmer-effect"></div>
+              <div className="h-4 w-4/5 bg-[#222] rounded shimmer-effect"></div>
+            </div>
+          </div>
+        </div>
+      ))
+  }
+
+  return (
+    <div className="w-full">
+      <div className="min-h-screen text-white pt-[300px] container max-w-[1280px] mx-auto z-50">
+        <Navbar />
+        <Noise />
+        <h1 className="text-7xl font-bold text-center mb-10">Prop Firm Rules</h1>
+
+        <p className="mb-5">
+          In the prop trading industry, rules can vary significantly from one firm to another, depending on their risk
+          management policies.
+        </p>
+        <p className="mb-5">
+          While there are some well-known common rules, such as restrictions on the use of Expert Advisors (EAs),
+          High-Frequency Trading (HFT), latency arbitrage, and any trading activity that exploits platform
+          inefficiencies, there are also firm-specific rules that traders need to consider.
+        </p>
+        <p className="mb-[150px]">
+          Through extensive research into the terms and conditions of all listed prop trading firms, we have identified
+          some major key rules that you should be aware of before joining any of these funded programs.
+        </p>
+
+        {/* ✅ Tabs & Search Section */}
+        <div className="block">
+          <div className="flex justify-between">
+            <Tabs
+              defaultValue="tab1"
+              className="w-full z-20"
+              value={activeTab === "tab1" ? "tab1" : "tab2"}
+              onValueChange={(value) => handleTabClick(value)}
+            >
+              <div className="flex flex-col z-20 md:flex-row md:items-center md:justify-between gap-4 mb-6">
+                <TabsList className="bg-[#1a1a1a] overflow-x-auto flex-wrap">
+                  <TabsTrigger
+                    value="tab1"
+                    className="data-[state=active]:bg-[#edb900] data-[state=active]:text-[#0f0f0f] transition-colors duration-300 ease-in-out hover:text-[#edb900]"
+                  >
+                    Main Rules
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="tab2"
+                    className="data-[state=active]:bg-[#edb900] data-[state=active]:text-[#0f0f0f] transition-colors duration-300 ease-in-out hover:text-[#edb900]"
+                  >
+                    Change Log
+                  </TabsTrigger>
+                </TabsList>
+
+                <div className="flex h-[35px]">
+                  <div className="flex justify-end mx-3 text-xs mt-3">
+                    <span>Showing</span>
+                    <span className="mx-2 text-[#EDB900]">{totalResults}</span>
+                    <span>results.</span>
+                  </div>
+
+                  {/* ✅ Updated Search Bar with clear button */}
+                  <div className="relative w-[250px] justify-center z-20 mb-4">
+                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
+                    <Input
+                      type="text"
+                      placeholder="Search..."
+                      className="searchDark w-full pl-8 bg-[#0f0f0f] border-gray-600 focus-visible:ring-[#edb900] h-10"
+                      value={searchQuery}
+                      onChange={handleSearch}
+                    />
+                    {searchQuery && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSearchQuery("")
+                          setSearchTerm("")
+                        }}
+                        className="absolute right-2.5 top-2.5 h-4 w-4 text-[#edb900] hover:text-[#edb900]/80"
+                        aria-label="Clear search"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="h-4 w-4"
+                        >
+                          <path d="M18 6L6 18M6 6l12 12" />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* ✅ Displaying Content Based on Active Tab */}
+              <TabsContent value="tab1" className="mt-0">
+                {isLoading ? (
+                  renderSkeletonCards()
+                ) : filteredData.length > 0 ? (
+                  filteredData.map((entry, index) => (
+                    <div
+                      key={index}
+                      className="relative flex mb-5 bg-[#0f0f0f] border-[rgba(237,185,0,0.1)] border-[1px] p-5 rounded-[10px] z-50"
+                    >
+                      {/* ✅ Firm Info Section */}
+                      <div className="flex w-[300px] h-[200px] shadow-lg relative bg-[rgba(255,255,255,0.03)] rounded-[10px] hover:bg-[#0f0f0f] py-7 hover:bg-gradient-to-r hover:from-[rgba(237,185,0,0.5)] hover:to-[rgba(255,255,255,0.10)] transition-transform duration-200 hover:scale-[1.03] cursor-pointer z-50">
+                        <Tippy
+                          content={
+                            <span className="font-[balboa]">
+                              We use AI to categorize all the companies. You can learn more on our Evaluation process
+                              page.
+                            </span>
+                          }
+                          placement="top"
+                          delay={[100, 0]}
+                          className="z-50"
+                          theme="custom"
+                        >
+                          <span
+                            className={`absolute top-3 left-3 px-[5px] border text-xs rounded-[10px] font-[balboa]
+                            ${entry.prop_firms?.category === "Gold" ? "text-[#efbf04] border-[#efbf04]" : ""}
+                            ${entry.prop_firms?.category === "Platinum" ? "text-[#D9D9D9] border-[#D9D9D9]" : ""}
+                            ${entry.prop_firms?.category === "Diamond" ? "text-[#c8bfe7] border-[#c8bfe7]" : ""}
+                            ${entry.prop_firms?.category === "Silver" ? "text-[#c4c4c4] border-[#c4c4c4]" : ""}
+                            ${entry.prop_firms?.category === "Copper" ? "text-[#c68346] border-[#c68346]" : ""}`}
+                          >
+                            {entry.prop_firms?.category || "Unknown"}
+                          </span>
+                        </Tippy>
+
+                        <SignedOut>
+                          <button
+                            onClick={handleLoginModalOpen}
+                            className="absolute top-3 right-3 hover:animate-[heartbeat_1.5s_infinite_ease-in-out] z-60"
+                            style={{ color: "rgba(237, 185, 0, 0.3)" }}
+                          >
+                            <FontAwesomeIcon icon={regularHeart} style={{ fontSize: "25px" }} />
+                          </button>
+                        </SignedOut>
+
+                        <SignedIn>
+                          <button
+                            onClick={() => handleLikeToggle(entry.prop_firms?.id)}
+                            className={`absolute top-3 right-3 transition-all duration-200 ${
+                              userLikedFirms.has(Number(entry.prop_firms?.id))
+                                ? "text-[#EDB900] scale-105 hover:animate-[heartbeat_1.5s_infinite_ease-in-out]"
+                                : "text-[rgba(237,185,0,0.3)] hover:text-[#EDB900] hover:animate-[heartbeat_1.5s_infinite_ease-in-out]"
+                            }`}
+                          >
+                            <FontAwesomeIcon
+                              icon={userLikedFirms.has(Number(entry.prop_firms?.id)) ? solidHeart : regularHeart}
+                              className={`transition-all duration-200 text-[25px] ${
+                                userLikedFirms.has(Number(entry.prop_firms?.id))
+                                  ? "text-[#EDB900] scale-105"
+                                  : "text-[rgba(237,185,0,0.3)] hover:text-[#EDB900]"
+                              }`}
+                            />
+                          </button>
+                        </SignedIn>
+
+                        <Link href={`/prop-firms/${entry.prop_firms?.slug || ""}`} passHref>
+                          <div className="flex w-[300px] h-[200px] justify-between px-7">
+                            <div
+                              className="w-20 h-20 mb-2 flex items-center justify-center rounded-[10px] p-1 mt-[50px]"
+                              style={{ backgroundColor: entry.prop_firms?.brand_colour || "#000" }}
+                            >
+                              <Image
+                                src={entry.prop_firms?.logo_url || "/default-logo.png"}
+                                alt={entry.prop_firms?.propfirm_name || "Company"}
+                                width={40}
+                                height={40}
+                                className="object-cover"
+                              />
+                            </div>
+
+                            <div className="block mt-9 justify-center">
+                              <h3 className="text-2xl text-center">
+                                {entry.prop_firms?.propfirm_name || "Unknown Company"}
+                              </h3>
+                              <p className="text-center text-2xl text-[#EDB900]">
+                                <FontAwesomeIcon icon={faStar} className="text-lg" />
+                                <span className="text-white"> {entry.prop_firms?.rating || "N/A"}</span>
+                              </p>
+                              <p className="text-center text-xs text-black bg-yellow-500 px-2 py-[5px] rounded-[8px] mt-2 mb-10 min-w-[80px] w-fit mx-auto">
+                                {entry.prop_firms?.reviews_count || 0} reviews
+                              </p>
+                              <p className="absolute top-4 right-[45px] text-center text-xs">
+                                {likesMap[entry.prop_firms?.id] || 0} Likes
+                              </p>
+                            </div>
+                          </div>
+                        </Link>
+                      </div>
+
+                      {/* ✅ Content Section */}
+                      <div className="rules-section rules-container ml-[20px] mt-6 p-3 border-l-[1px] border-[rgba(237,185,0,0.1)] px-[100px]">
+                        <div className="flex text-xs justify-end flex-grow mt-[-35px] mb-10 mr-[-100px]">
+                          <FontAwesomeIcon
+                            icon={faCalendar}
+                            className="text-md text-white-500 mr-2 max-w-[20px] mt-[1px]"
+                          />
+                          <p className="font-[balboa]">
+                            Updated on:{" "}
+                            {new Date(entry.last_updated || new Date()).toLocaleDateString("en-US", {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            })}
+                          </p>
+                        </div>
+
+                        <div dangerouslySetInnerHTML={{ __html: entry.main_rules || "No rules available" }} />
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-center">No results found.</p>
+                )}
+              </TabsContent>
+
+              <TabsContent value="tab2" className="mt-0">
+                {isLoading ? (
+                  renderSkeletonCards()
+                ) : filteredData.length > 0 ? (
+                  filteredData.map((entry, index) => (
+                    <div
+                      key={index}
+                      className="relative flex mb-5 bg-[#0f0f0f] border-[rgba(237,185,0,0.1)] border-[1px] p-5 rounded-[10px] z-50"
+                    >
+                      {/* ✅ Firm Info Section */}
+                      <div className="flex w-[300px] h-[200px] shadow-lg relative bg-[rgba(255,255,255,0.03)] rounded-[10px] hover:bg-[#0f0f0f] py-7 hover:bg-gradient-to-r hover:from-[rgba(237,185,0,0.5)] hover:to-[rgba(255,255,255,0.10)] transition-transform duration-200 hover:scale-[1.03] cursor-pointer z-50">
+                        <Tippy
+                          content={
+                            <span className="font-[balboa]">
+                              We use AI to categorize all the companies. You can learn more on our Evaluation process
+                              page.
+                            </span>
+                          }
+                          placement="top"
+                          delay={[100, 0]}
+                          className="z-50"
+                          theme="custom"
+                        >
+                          <span
+                            className={`absolute top-3 left-3 px-[5px] border text-xs rounded-[10px] font-[balboa]
+                            ${entry.prop_firms?.category === "Gold" ? "text-[#efbf04] border-[#efbf04]" : ""}
+                            ${entry.prop_firms?.category === "Platinum" ? "text-[#D9D9D9] border-[#D9D9D9]" : ""}
+                            ${entry.prop_firms?.category === "Diamond" ? "text-[#c8bfe7] border-[#c8bfe7]" : ""}
+                            ${entry.prop_firms?.category === "Silver" ? "text-[#c4c4c4] border-[#c4c4c4]" : ""}
+                            ${entry.prop_firms?.category === "Copper" ? "text-[#c68346] border-[#c68346]" : ""}`}
+                          >
+                            {entry.prop_firms?.category || "Unknown"}
+                          </span>
+                        </Tippy>
+
+                        <SignedOut>
+                          <button
+                            onClick={handleLoginModalOpen}
+                            className="absolute top-3 right-3 hover:animate-[heartbeat_1.5s_infinite_ease-in-out] z-60"
+                            style={{ color: "rgba(237, 185, 0, 0.3)" }}
+                          >
+                            <FontAwesomeIcon icon={regularHeart} style={{ fontSize: "25px" }} />
+                          </button>
+                        </SignedOut>
+
+                        <SignedIn>
+                          <button
+                            onClick={() => handleLikeToggle(entry.prop_firms?.id)}
+                            className={`absolute top-3 right-3 transition-all duration-200 ${
+                              userLikedFirms.has(Number(entry.prop_firms?.id))
+                                ? "text-[#EDB900] scale-105 hover:animate-[heartbeat_1.5s_infinite_ease-in-out]"
+                                : "text-[rgba(237,185,0,0.3)] hover:text-[#EDB900] hover:animate-[heartbeat_1.5s_infinite_ease-in-out]"
+                            }`}
+                          >
+                            <FontAwesomeIcon
+                              icon={userLikedFirms.has(Number(entry.prop_firms?.id)) ? solidHeart : regularHeart}
+                              className={`transition-all duration-200 text-[25px] ${
+                                userLikedFirms.has(Number(entry.prop_firms?.id))
+                                  ? "text-[#EDB900] scale-105"
+                                  : "text-[rgba(237,185,0,0.3)] hover:text-[#EDB900]"
+                              }`}
+                            />
+                          </button>
+                        </SignedIn>
+
+                        <Link href={`/prop-firms/${entry.prop_firms?.slug || ""}`} passHref>
+                          <div className="flex w-[300px] h-[200px] justify-between px-7">
+                            <div
+                              className="w-20 h-20 mb-2 flex items-center justify-center rounded-[10px] p-1 mt-[50px]"
+                              style={{ backgroundColor: entry.prop_firms?.brand_colour || "#000" }}
+                            >
+                              <Image
+                                src={entry.prop_firms?.logo_url || "/default-logo.png"}
+                                alt={entry.prop_firms?.propfirm_name || "Company"}
+                                width={40}
+                                height={40}
+                                className="object-cover"
+                              />
+                            </div>
+
+                            <div className="block mt-9 justify-center">
+                              <h3 className="text-2xl text-center">
+                                {entry.prop_firms?.propfirm_name || "Unknown Company"}
+                              </h3>
+                              <p className="text-center text-2xl text-[#EDB900]">
+                                <FontAwesomeIcon icon={faStar} className="text-lg" />
+                                <span className="text-white"> {entry.prop_firms?.rating || "N/A"}</span>
+                              </p>
+                              <p className="text-center text-xs text-black bg-yellow-500 px-2 py-[5px] rounded-[8px] mt-2 mb-10 min-w-[80px] w-fit mx-auto">
+                                {entry.prop_firms?.reviews_count || 0} reviews
+                              </p>
+                              <p className="absolute top-4 right-[45px] text-center text-xs">
+                                {likesMap[entry.prop_firms?.id] || 0} Likes
+                              </p>
+                            </div>
+                          </div>
+                        </Link>
+                      </div>
+
+                      {/* ✅ Content Section */}
+                      <div className="rules-section rules-container ml-[20px] mt-6 p-3 border-l-[1px] border-[rgba(237,185,0,0.1)] px-[100px]">
+                        <div className="flex text-xs justify-end flex-grow mt-[-35px] mb-10 mr-[-100px]">
+                          <FontAwesomeIcon
+                            icon={faCalendar}
+                            className="text-md text-white-500 mr-2 max-w-[20px] mt-[1px]"
+                          />
+                          <p className="font-[balboa]">
+                            Updated on:{" "}
+                            {new Date(entry.last_updated || new Date()).toLocaleDateString("en-US", {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            })}
+                          </p>
+                        </div>
+
+                        <div
+                          className="w-full min-w-[717px] flex-grow"
+                          dangerouslySetInnerHTML={{ __html: entry.change_log || "No change log available" }}
+                        />
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-center">No results found.</p>
+                )}
+              </TabsContent>
+            </Tabs>
+          </div>
+        </div>
+        {/* Remove the direct LoginModal component */}
+        {filteredData.length > 0 && visibleCount < totalResults && (
+          <div className="text-center mt-5">
+            <button
+              onClick={() => setVisibleCount((prev) => prev + 10)}
+              className="px-4 py-2 bg-[#EDB900] text-black rounded-[10px] hover:opacity-80 transition"
+            >
+              Load More
+            </button>
+          </div>
+        )}
+        <MissingRuleForm />
+        <Toaster />
+      </div>
+      <Community />
+      <Newsletter />
+      <Footer />
+      {/* Shimmer effect styles */}
+      <style jsx global>{`
+        .shimmer-effect {
+          position: relative;
+          overflow: hidden;
+        }
+
+        .shimmer-effect::after {
+          content: "";
+          position: absolute;
+          top: 0;
+          right: 0;
+          bottom: 0;
+          left: 0;
+          transform: translateX(-100%);
+          background-image: linear-gradient(
+            90deg,
+            rgba(34, 34, 34, 0) 0,
+            rgba(34, 34, 34, 0.2) 20%,
+            rgba(237, 185, 0, 0.15) 60%,
+            rgba(34, 34, 34, 0)
+          );
+          animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+          100% {
+            transform: translateX(100%);
+          }
+        }
+      `}</style>
     </div>
   )
 }
+
+export default PropFirmRules
 

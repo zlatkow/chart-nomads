@@ -21,6 +21,10 @@ export default function PropFirmComparison() {
   // State for search mode toggle
   const [searchMode, setSearchMode] = useState<"quick" | "advanced">("quick")
 
+  // Add this state after the other useState declarations
+  const [searchTerm, setSearchTerm] = useState("")
+  const [searchQuery, setSearchQuery] = useState("")
+
   // Mock data for the design
   const mockFirms = [
     { id: 1, name: "FTMO", logo: "/placeholder.svg", color: "#3366ff" },
@@ -408,11 +412,30 @@ export default function PropFirmComparison() {
     )
   }
 
+  // Add this function to handle search
+  const handleSearch = (e) => {
+    setSearchQuery(e.target.value)
+    setSearchTerm(e.target.value)
+  }
+
+  // Add this to filter the mockOffers based on search term
+  const searchLower = searchTerm.toLowerCase()
+  const filteredOffers = mockOffers.filter((offer) => {
+    // Search in firm name
+    const name = offer.firmName.toLowerCase()
+    // Search in account size
+    const accountSize = offer.accountSize.toLowerCase()
+    // Search in program type
+    const steps = offer.steps.toLowerCase()
+
+    return name.includes(searchLower) || accountSize.includes(searchLower) || steps.includes(searchLower)
+  })
+
   return (
     <div className="min-h-screen bg-[#0f0f0f] text-white">
       <div className="w-full">
-      <Navbar/>
-      <Noise/>
+        <Navbar />
+        <Noise />
         <div className="relative container max-w-[1280px] mt-[200px] mb-[100px] mx-auto px-0 pt-[50px] pb-[50px] z-50">
           <div className="flex flex-col lg:flex-row">
             {/* Sidebar - Search */}
@@ -750,9 +773,7 @@ export default function PropFirmComparison() {
 
             {/* Main Content */}
             <div className="flex-1 bg-[#0f0f0f] p-6 rounded-b-lg lg:rounded-bl-none lg:rounded-r-lg">
-              <h1 className="text-4xl text-center mb-8 text-[#edb900]">
-                COMPARE ALL PROP FIRMS IN ONE PLACE
-              </h1>
+              <h1 className="text-4xl text-center mb-8 text-[#edb900]">COMPARE ALL PROP FIRMS IN ONE PLACE</h1>
 
               {/* Company Selection */}
               <div className="mb-8">
@@ -768,9 +789,7 @@ export default function PropFirmComparison() {
                         className="w-16 h-16 mb-3 rounded-md flex items-center justify-center overflow-hidden"
                         style={{ backgroundColor: firm.color }}
                       >
-                        <span className="text-[#0f0f0f] text-2xl">
-                          {firm.name.substring(0, 2).toUpperCase()}
-                        </span>
+                        <span className="text-[#0f0f0f] text-2xl">{firm.name.substring(0, 2).toUpperCase()}</span>
                       </div>
                       <h3 className="text-sm font-medium text-center">{firm.name}</h3>
                     </div>
@@ -781,15 +800,41 @@ export default function PropFirmComparison() {
               {/* Search and Results Count */}
               <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
                 <div className="relative w-full md:w-auto">
+                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
                   <input
                     type="text"
-                    placeholder="Search by a keyword..."
-                    className="p-3 bg-[#1a1a1a] border border-[#333] rounded-md text-white w-full md:w-[300px]"
+                    placeholder="Search..."
+                    className="p-3 pl-8 bg-[#1a1a1a] border border-[#333] rounded-md text-white w-full md:w-[300px] focus:outline-none focus:ring-1 focus:ring-[#edb900]"
+                    value={searchQuery}
+                    onChange={handleSearch}
                   />
-                  <Search className="absolute right-3 top-3 text-gray-400" size={20} />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSearchQuery("")
+                        setSearchTerm("")
+                      }}
+                      className="absolute right-2.5 top-2.5 h-4 w-4 text-[#edb900] hover:text-[#edb900]/80"
+                      aria-label="Clear search"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="h-4 w-4"
+                      >
+                        <path d="M18 6L6 18M6 6l12 12" />
+                      </svg>
+                    </button>
+                  )}
                 </div>
                 <span className="text-sm">
-                  Showing <span className="text-[#edb900]">413</span> results.
+                  Showing <span className="text-[#edb900]">{filteredOffers.length}</span> results.
                 </span>
               </div>
 
@@ -822,7 +867,7 @@ export default function PropFirmComparison() {
                     </tr>
                   </thead>
                   <tbody>
-                    {mockOffers.map((offer) => (
+                    {filteredOffers.map((offer) => (
                       <tr
                         key={offer.id}
                         className="border-b border-[#222] hover:bg-[#1a1a1a] cursor-pointer"
@@ -919,9 +964,9 @@ export default function PropFirmComparison() {
             </div>
           </div>
         </div>
-        <Community/>
-        <Newsletter/>
-        <Footer/>
+        <Community />
+        <Newsletter />
+        <Footer />
       </div>
 
       {/* Challenge Details Sidebar */}
