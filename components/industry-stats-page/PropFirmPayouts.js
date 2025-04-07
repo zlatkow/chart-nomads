@@ -1,10 +1,84 @@
 /* eslint-disable */
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { DollarSign } from "lucide-react"
+
+// Create a cache key generator function
+const createCacheKey = (timeFilter) => `prop_firm_payouts_${timeFilter}`
+
+// Function to check if data exists in sessionStorage
+const getFromCache = (timeFilter) => {
+  if (typeof window === "undefined") return null
+
+  const cacheKey = createCacheKey(timeFilter)
+  const cachedData = sessionStorage.getItem(cacheKey)
+
+  if (cachedData) {
+    try {
+      const parsed = JSON.parse(cachedData)
+      const timestamp = sessionStorage.getItem(`${cacheKey}_timestamp`)
+
+      // Check if cache is still valid (less than 5 minutes old)
+      if (timestamp && Date.now() - Number.parseInt(timestamp) < 5 * 60 * 1000) {
+        console.log(`Using cached prop firm payouts data for ${timeFilter}`)
+        return parsed
+      }
+    } catch (e) {
+      console.error("Error parsing cached data:", e)
+    }
+  }
+  return null
+}
+
+// Function to save data to sessionStorage
+const saveToCache = (timeFilter, data) => {
+  if (typeof window === "undefined") return
+
+  const cacheKey = createCacheKey(timeFilter)
+  try {
+    sessionStorage.setItem(cacheKey, JSON.stringify(data))
+    sessionStorage.setItem(`${cacheKey}_timestamp`, Date.now().toString())
+  } catch (e) {
+    console.error("Error saving data to cache:", e)
+  }
+}
+
+// Loader component that can be included in the page to trigger prefetching
+export function PropFirmPayoutsLoader() {
+  useEffect(() => {
+    // Try to load from session storage first
+    const cachedData = getFromCache("all")
+    if (cachedData) return
+
+    // If no cached data, prefetch in the background
+    const prefetchPayouts = async () => {
+      try {
+        console.log("Prefetching prop firm payouts data")
+        const res = await fetch(`/api/fetchTopPayouts?timefilter=all`)
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch top payouts")
+        }
+
+        const data = await res.json()
+
+        if (data?.topPayouts && Array.isArray(data.topPayouts)) {
+          saveToCache("all", data.topPayouts)
+          console.log("Prop firm payouts data cached successfully")
+        }
+      } catch (error) {
+        console.error("Error prefetching prop firm payouts:", error)
+      }
+    }
+
+    prefetchPayouts()
+  }, [])
+
+  return null
+}
 
 /**
  * PropFirmPayouts Component
@@ -14,20 +88,90 @@ import { DollarSign } from "lucide-react"
 export default function PropFirmPayouts({ topPayouts: initialPayouts = [] }) {
   const [selectedFilter, setSelectedFilter] = useState("all")
   const [payoutData, setPayoutData] = useState(initialPayouts)
-  const [loading, setLoading] = useState(!initialPayouts.length)
+  const [loading, setLoading] = useState(false)
+  const initialLoadComplete = useRef(false)
+  const isMounted = useRef(true)
+
+  // Set up cleanup when component unmounts
+  useEffect(() => {
+    return () => {
+      isMounted.current = false
+    }
+  }, [])
+
+  // Initialize data and set up caching
+  useEffect(() => {
+    if (!initialLoadComplete.current) {
+      // If we have initial data, use it and cache it
+      if (initialPayouts && initialPayouts.length > 0) {
+        setPayoutData(initialPayouts)
+        saveToCache("all", initialPayouts)
+        initialLoadComplete.current = true
+        return
+      }
+
+      // Check if we have cached data for the default filter
+      const cachedData = getFromCache("all")
+      if (cachedData) {
+        setPayoutData(cachedData)
+        initialLoadComplete.current = true
+        return
+      }
+
+      // If no data available, show loading state and fetch
+      setLoading(true)
+
+      const fetchPayouts = async () => {
+        try {
+          const res = await fetch(`/api/fetchTopPayouts?timefilter=all`)
+
+          if (!res.ok) {
+            throw new Error("Failed to fetch top payouts")
+          }
+
+          const data = await res.json()
+
+          if (isMounted.current) {
+            if (data?.topPayouts && Array.isArray(data.topPayouts)) {
+              setPayoutData(data.topPayouts)
+              saveToCache("all", data.topPayouts)
+            } else {
+              setPayoutData([])
+            }
+
+            setLoading(false)
+            initialLoadComplete.current = true
+          }
+        } catch (error) {
+          console.error("Error fetching prop firm payouts:", error)
+          if (isMounted.current) {
+            setPayoutData([])
+            setLoading(false)
+            initialLoadComplete.current = true
+          }
+        }
+      }
+
+      fetchPayouts()
+    }
+  }, [initialPayouts])
 
   // ✅ Fetch Data from Backend Whenever Filter Changes
   useEffect(() => {
-    // If we're using the "all" filter and we have initial data, use that
-    if (selectedFilter === "all" && initialPayouts.length > 0) {
-      setPayoutData(initialPayouts)
-      setLoading(false)
+    // Skip if this is the initial load
+    if (!initialLoadComplete.current) return
+
+    // Check if we have cached data for this filter
+    const cachedData = getFromCache(selectedFilter)
+    if (cachedData) {
+      setPayoutData(cachedData)
       return
     }
 
-    const fetchPayouts = async () => {
-      setLoading(true)
+    // If no cached data, fetch from API
+    setLoading(true)
 
+    const fetchPayouts = async () => {
       try {
         const res = await fetch(`/api/fetchTopPayouts?timefilter=${encodeURIComponent(selectedFilter)}`)
 
@@ -37,21 +181,27 @@ export default function PropFirmPayouts({ topPayouts: initialPayouts = [] }) {
 
         const data = await res.json()
 
-        if (!data?.topPayouts || !Array.isArray(data.topPayouts)) {
-          setPayoutData([])
-          return
-        }
+        if (isMounted.current) {
+          if (!data?.topPayouts || !Array.isArray(data.topPayouts)) {
+            setPayoutData([])
+          } else {
+            setPayoutData(data.topPayouts)
+            saveToCache(selectedFilter, data.topPayouts)
+          }
 
-        setPayoutData(data.topPayouts)
+          setLoading(false)
+        }
       } catch (error) {
-        setPayoutData([])
-      } finally {
-        setLoading(false)
+        console.error("Error fetching prop firm payouts:", error)
+        if (isMounted.current) {
+          setPayoutData([])
+          setLoading(false)
+        }
       }
     }
 
     fetchPayouts()
-  }, [selectedFilter, initialPayouts]) // ✅ Refetch data when the filter changes or initialPayouts changes
+  }, [selectedFilter]) // ✅ Refetch data when the filter changes
 
   // Format currency with commas and dollar sign
   const formatCurrency = (amount, decimalPlaces = 2) => {
