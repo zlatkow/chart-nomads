@@ -2,18 +2,25 @@
 
 "use client"
 
-import { useState, useEffect } from "react"
-import { DollarSign, User } from "lucide-react"
+import { useState, useEffect, useRef } from "react"
+import { DollarSign, User } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import Image from "next/image"
 import tippy from "tippy.js"
 import "tippy.js/dist/tippy.css"
 import "tippy.js/themes/light.css"
 
+// Create a global cache outside the component to persist across remounts
+const globalDataCache = {
+  data: null,
+  timestamp: null
+};
+
 export default function HighEarnersLeaderboard({ topTraders }) {
   const [data, setData] = useState({ top_by_payouts: [], top_by_amount: [] })
-  const [loading, setLoading] = useState({ top_by_payouts: true, top_by_amount: true })
+  const [loading, setLoading] = useState({ top_by_payouts: false, top_by_amount: false })
   const [error, setError] = useState(null)
+  const initialFetchDone = useRef(false)
 
   const [timeRangePayouts, setTimeRangePayouts] = useState("All Time")
   const [timeRangeAmount, setTimeRangeAmount] = useState("All Time")
@@ -25,104 +32,129 @@ export default function HighEarnersLeaderboard({ topTraders }) {
     "Last 3 Months": "last_3_months",
   }
 
-  // Add this near the top of your component, after the useState declarations
-  const [dataCache, setDataCache] = useState({})
-
-  // Add this function after the useState declarations
-  const getCachedData = (type, timeRange) => {
-    const cacheKey = `${type}_${timeFilters[timeRange]}`
-    return dataCache[cacheKey]
-  }
-
-  // Add this function after getCachedData
-  const updateCache = (type, timeRange, newData) => {
-    const cacheKey = `${type}_${timeFilters[timeRange]}`
-    setDataCache((prev) => ({
-      ...prev,
-      [cacheKey]: newData,
-    }))
-  }
-
-  // Replace both existing useEffect hooks for data fetching with this single one
+  // Load data from session storage or fetch it if not available
   useEffect(() => {
-    const controller = new AbortController()
-    const signal = controller.signal
-
-    async function fetchData() {
+    // Check if we've already fetched data in this session
+    const sessionData = sessionStorage.getItem('leaderboardData');
+    const sessionTimeRanges = sessionStorage.getItem('leaderboardTimeRanges');
+    
+    if (sessionData && sessionTimeRanges && !initialFetchDone.current) {
       try {
-        // Check cache first for both data types
-        const cachedPayoutsData = getCachedData("top_by_payouts", timeRangePayouts)
-        const cachedAmountData = getCachedData("top_by_amount", timeRangeAmount)
-
-        // Set initial data from cache if available
-        if (cachedPayoutsData) {
-          setData((prev) => ({ ...prev, top_by_payouts: cachedPayoutsData }))
-          setLoading((prev) => ({ ...prev, top_by_payouts: false }))
-        } else {
-          setLoading((prev) => ({ ...prev, top_by_payouts: true }))
-        }
-
-        if (cachedAmountData) {
-          setData((prev) => ({ ...prev, top_by_amount: cachedAmountData }))
-          setLoading((prev) => ({ ...prev, top_by_amount: false }))
-        } else {
-          setLoading((prev) => ({ ...prev, top_by_amount: true }))
-        }
-
-        // Only fetch data that's not in cache
-        const fetchPromises = []
-
-        if (!cachedPayoutsData) {
-          fetchPromises.push(
-            fetch(`/api/fetchTopTraders?timefilter=${timeFilters[timeRangePayouts]}`, { signal })
-              .then((res) => res.json())
-              .then((result) => {
-                if (result.topTraders?.[0]?.top_by_payouts) {
-                  const newData = result.topTraders[0].top_by_payouts
-                  updateCache("top_by_payouts", timeRangePayouts, newData)
-                  setData((prev) => ({ ...prev, top_by_payouts: newData }))
-                }
-                setLoading((prev) => ({ ...prev, top_by_payouts: false }))
-              }),
-          )
-        }
-
-        if (!cachedAmountData) {
-          fetchPromises.push(
-            fetch(`/api/fetchTopTraders?timefilter=${timeFilters[timeRangeAmount]}`, { signal })
-              .then((res) => res.json())
-              .then((result) => {
-                if (result.topTraders?.[0]?.top_by_amount) {
-                  const newData = result.topTraders[0].top_by_amount
-                  updateCache("top_by_amount", timeRangeAmount, newData)
-                  setData((prev) => ({ ...prev, top_by_amount: newData }))
-                }
-                setLoading((prev) => ({ ...prev, top_by_amount: false }))
-              }),
-          )
-        }
-
-        // Wait for all fetch operations to complete
-        await Promise.all(fetchPromises).catch((err) => {
-          if (err.name !== "AbortError") {
-            throw err
-          }
-        })
-      } catch (err) {
-        if (err.name !== "AbortError") {
-          setError(err.message)
-        }
+        const parsedData = JSON.parse(sessionData);
+        const parsedTimeRanges = JSON.parse(sessionTimeRanges);
+        
+        setData(parsedData);
+        setTimeRangePayouts(parsedTimeRanges.payouts);
+        setTimeRangeAmount(parsedTimeRanges.amount);
+        initialFetchDone.current = true;
+        
+        console.log("Loaded data from session storage");
+        return;
+      } catch (e) {
+        console.error("Error parsing session data:", e);
+        // Continue to fetch if parsing fails
       }
     }
-
-    // Only fetch on initial mount or when time ranges change
-    fetchData()
-
-    // Cleanup function to abort fetch if component unmounts
-    return () => {
-      controller.abort()
+    
+    // If we reach here, we need to fetch data
+    if (!initialFetchDone.current) {
+      fetchBothDatasets();
+      initialFetchDone.current = true;
     }
-  }, [timeRangePayouts, timeRangeAmount]) // Only re-run when time ranges change
+  }, []);
+
+  // Save data to session storage when it changes
+  useEffect(() => {
+    if (data.top_by_payouts.length > 0 || data.top_by_amount.length > 0) {
+      sessionStorage.setItem('leaderboardData', JSON.stringify(data));
+      sessionStorage.setItem('leaderboardTimeRanges', JSON.stringify({
+        payouts: timeRangePayouts,
+        amount: timeRangeAmount
+      }));
+    }
+  }, [data, timeRangePayouts, timeRangeAmount]);
+
+  // Handle time range changes
+  useEffect(() => {
+    // Only fetch if the initial data load is done and time range changes
+    if (initialFetchDone.current) {
+      fetchData('top_by_payouts', timeRangePayouts);
+    }
+  }, [timeRangePayouts]);
+
+  useEffect(() => {
+    // Only fetch if the initial data load is done and time range changes
+    if (initialFetchDone.current) {
+      fetchData('top_by_amount', timeRangeAmount);
+    }
+  }, [timeRangeAmount]);
+
+  // Function to fetch both datasets at once
+  const fetchBothDatasets = async () => {
+    setLoading({ top_by_payouts: true, top_by_amount: true });
+    
+    try {
+      // Fetch payouts data
+      const payoutsResponse = await fetch(`/api/fetchTopTraders?timefilter=${timeFilters[timeRangePayouts]}`);
+      const payoutsResult = await payoutsResponse.json();
+      
+      // Fetch amount data
+      const amountResponse = await fetch(`/api/fetchTopTraders?timefilter=${timeFilters[timeRangeAmount]}`);
+      const amountResult = await amountResponse.json();
+      
+      // Update state with both datasets
+      setData({
+        top_by_payouts: payoutsResult.topTraders?.[0]?.top_by_payouts || [],
+        top_by_amount: amountResult.topTraders?.[0]?.top_by_amount || []
+      });
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading({ top_by_payouts: false, top_by_amount: false });
+    }
+  };
+
+  // Function to fetch a specific dataset
+  const fetchData = async (type, timeRange) => {
+    // Check if we already have this data in session storage with the same time range
+    const sessionData = sessionStorage.getItem('leaderboardData');
+    const sessionTimeRanges = sessionStorage.getItem('leaderboardTimeRanges');
+    
+    if (sessionData && sessionTimeRanges) {
+      try {
+        const parsedData = JSON.parse(sessionData);
+        const parsedTimeRanges = JSON.parse(sessionTimeRanges);
+        
+        // If we're requesting the same time range that's already cached, use that
+        if ((type === 'top_by_payouts' && parsedTimeRanges.payouts === timeRange) ||
+            (type === 'top_by_amount' && parsedTimeRanges.amount === timeRange)) {
+          return;
+        }
+      } catch (e) {
+        // Continue to fetch if parsing fails
+      }
+    }
+    
+    setLoading(prev => ({ ...prev, [type]: true }));
+    
+    try {
+      const response = await fetch(`/api/fetchTopTraders?timefilter=${timeFilters[timeRange]}`);
+      const result = await response.json();
+      
+      if (response.ok) {
+        setData(prevData => ({ 
+          ...prevData, 
+          [type]: result.topTraders?.[0]?.[type] || [] 
+        }));
+      } else {
+        throw new Error(result.error || "Failed to fetch traders");
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(prev => ({ ...prev, [type]: false }));
+    }
+  };
 
   // Initialize tooltips after render
   useEffect(() => {
@@ -289,4 +321,3 @@ export default function HighEarnersLeaderboard({ topTraders }) {
     </div>
   )
 }
-
