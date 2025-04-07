@@ -798,10 +798,10 @@ export default function PropFirmComparison() {
             </div>
 
             {/* Main Content */}
-            <div className="flex-1 bg-[#0f0f0f] p-6 rounded-b-lg lg:rounded-bl-none lg:rounded-r-lg">
+            <div className="flex-1 bg-[#0f0f0f] p-6 px-10 rounded-b-lg lg:rounded-bl-none lg:rounded-r-lg">
               {/* Company Selection */}
               <div className="mb-[100px]">
-                <p className="text-lg mb-4">Select company/companies from the list below:</p>
+                <p className="text-md mb-4">Select company/companies from the list below:</p>
 
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 2xl:grid-cols-8 gap-4">
                   {mockFirms.map((firm) => (
