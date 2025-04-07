@@ -647,33 +647,6 @@ strong {
   margin-top: 0.5rem;
 }
 
-.toggle-switch::after {
-  content: "";
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background-color: #888;
-  top: 2px;
-  left: 2px;
-  transition: all 0.3s;
-}
-
-input:checked + .toggle-switch {
-  background-color: #0f0f0f;
-}
-
-input:checked + .toggle-switch::after {
-  transform: translateX(20px);
-  background-color: #edb900;
-}
-
-/* Discount toggle specific styling */
-input:checked + .toggle-switch::after {
-  background-color: #edb900;
-  border: none;
-}
-
 /* Custom toggle switch styling */
 .toggle-switch {
   position: relative;
@@ -709,4 +682,94 @@ input:checked + .toggle-switch::after {
 input:checked + .toggle-switch::after {
   background-color: #edb900;
   border: none;
+}
+
+
+/* Add these styles for the sticky table */
+.sticky-table-container {
+  position: relative;
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.sticky-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  min-width: 1200px; /* Ensure table maintains minimum width */
+}
+
+/* Sticky header */
+.sticky-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: #0f0f0f;
+}
+
+/* Sticky first column */
+.sticky-table th:first-child,
+.sticky-table td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 5;
+  background-color: #0f0f0f;
+}
+
+/* Sticky last two columns (price and buy button) */
+.sticky-table th:nth-last-child(2),
+.sticky-table td:nth-last-child(2),
+.sticky-table th:last-child,
+.sticky-table td:last-child {
+  position: sticky;
+  right: 0;
+  z-index: 5;
+  background-color: #0f0f0f;
+}
+
+/* Adjust z-index for the corner cells (header + sticky column) */
+.sticky-table th:first-child {
+  z-index: 15;
+}
+
+.sticky-table th:nth-last-child(2),
+.sticky-table th:last-child {
+  z-index: 15;
+}
+
+/* Add shadow effect to indicate scrollable content */
+.sticky-table td:first-child::after,
+.sticky-table th:first-child::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: -5px;
+  bottom: 0;
+  width: 5px;
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.1), transparent);
+  pointer-events: none;
+}
+
+.sticky-table td:nth-last-child(2)::before,
+.sticky-table th:nth-last-child(2)::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -5px;
+  bottom: 0;
+  width: 5px;
+  background: linear-gradient(to left, rgba(0, 0, 0, 0.1), transparent);
+  pointer-events: none;
+}
+
+/* Ensure hover effect works with sticky columns */
+.sticky-table tbody tr:hover td {
+  background-color: #1a1a1a !important;
+}
+
+/* Ensure the table container has a fixed height for vertical scrolling */
+.table-wrapper {
+  max-height: 600px;
+  overflow-y: auto;
+  margin-bottom: 2rem;
 }
