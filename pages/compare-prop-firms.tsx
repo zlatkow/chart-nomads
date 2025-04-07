@@ -14,7 +14,7 @@ import Footer from "@/components/Footer"
 import { Input } from "@/components/ui/input"
 import Image from "next/image"
 
-// New component for segmented progress bar
+// Update the SegmentedProgressBar component to have a dark-to-yellow gradient
 const SegmentedProgressBar = ({
   value = 80,
   segments = 5,
@@ -32,12 +32,12 @@ const SegmentedProgressBar = ({
   return (
     <div className={`flex items-center ${className}`}>
       {showPercentage && <span className="mr-2 text-xs font-medium">{value}%</span>}
-      <div className="relative flex-1 h-2 bg-[#222] rounded-full overflow-hidden border border-[#333]">
+      <div className="relative flex-1 h-1.5 bg-[#222] rounded-full overflow-hidden border border-[#333]">
         <div className="flex w-full h-full">
           {Array.from({ length: segments }).map((_, i) => (
             <div
               key={i}
-              className={`flex-1 ${i < filledSegments ? "bg-gradient-to-r from-[#edb900] to-[#f5d742]" : "bg-transparent"} ${i > 0 ? "border-l border-[#333]" : ""}`}
+              className={`flex-1 ${i < filledSegments ? "bg-gradient-to-r from-[#5a4500] to-[#edb900]" : "bg-transparent"} ${i > 0 ? "border-l border-[#333]" : ""}`}
             />
           ))}
         </div>
@@ -955,6 +955,7 @@ export default function PropFirmComparison() {
                 </span>
               </div>
 
+              {/* Update the table header and body cells to center content */}
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-[#333]">
@@ -977,10 +978,10 @@ export default function PropFirmComparison() {
                         )}
                       </button>
                     </th>
-                    <th className="p-1 text-left">
+                    <th className="p-1 text-center">
                       <button
                         onClick={() => handleSort("accountSize")}
-                        className="flex items-center gap-1 w-full hover:text-[#edb900] transition-colors"
+                        className="flex items-center justify-center gap-1 w-full hover:text-[#edb900] transition-colors"
                       >
                         <span className="text-[10px] font-[balboa] uppercase font-normal tracking-wider">ACC SIZE</span>
                         {sortColumn === "accountSize" ? (
@@ -994,10 +995,10 @@ export default function PropFirmComparison() {
                         )}
                       </button>
                     </th>
-                    <th className="p-1 text-left">
+                    <th className="p-1 text-center">
                       <button
                         onClick={() => handleSort("steps")}
-                        className="flex items-center gap-1 w-full hover:text-[#edb900] transition-colors"
+                        className="flex items-center justify-center gap-1 w-full hover:text-[#edb900] transition-colors"
                       >
                         <span className="text-[10px] font-[balboa] uppercase font-normal tracking-wider">PROGRAM</span>
                         {sortColumn === "steps" ? (
@@ -1011,10 +1012,10 @@ export default function PropFirmComparison() {
                         )}
                       </button>
                     </th>
-                    <th className="p-1 text-left">
+                    <th className="p-1 text-center">
                       <button
                         onClick={() => handleSort("profitTarget")}
-                        className="flex items-center gap-1 w-full hover:text-[#edb900] transition-colors"
+                        className="flex items-center justify-center gap-1 w-full hover:text-[#edb900] transition-colors"
                       >
                         <span className="text-[10px] font-[balboa] uppercase font-normal tracking-wider">
                           PROFIT TARGET
@@ -1030,10 +1031,10 @@ export default function PropFirmComparison() {
                         )}
                       </button>
                     </th>
-                    <th className="p-1 text-left">
+                    <th className="p-1 text-center">
                       <button
                         onClick={() => handleSort("maxDailyLoss")}
-                        className="flex items-center gap-1 w-full hover:text-[#edb900] transition-colors"
+                        className="flex items-center justify-center gap-1 w-full hover:text-[#edb900] transition-colors"
                       >
                         <span className="text-[10px] font-[balboa] uppercase font-normal tracking-wider">
                           DAILY LOSS
@@ -1049,10 +1050,10 @@ export default function PropFirmComparison() {
                         )}
                       </button>
                     </th>
-                    <th className="p-1 text-left">
+                    <th className="p-1 text-center">
                       <button
                         onClick={() => handleSort("maxTotalDrawdown")}
-                        className="flex items-center gap-1 w-full hover:text-[#edb900] transition-colors"
+                        className="flex items-center justify-center gap-1 w-full hover:text-[#edb900] transition-colors"
                       >
                         <span className="text-[10px] font-[balboa] uppercase font-normal tracking-wider">MAX LOSS</span>
                         {sortColumn === "maxTotalDrawdown" ? (
@@ -1066,10 +1067,10 @@ export default function PropFirmComparison() {
                         )}
                       </button>
                     </th>
-                    <th className="p-1 text-left">
+                    <th className="p-1 text-center">
                       <button
                         onClick={() => handleSort("profitSplit")}
-                        className="flex items-center gap-1 w-full hover:text-[#edb900] transition-colors"
+                        className="flex items-center justify-center gap-1 w-full hover:text-[#edb900] transition-colors"
                       >
                         <span className="text-[10px] font-[balboa] uppercase font-normal tracking-wider">
                           PROFIT SPLIT
@@ -1085,10 +1086,10 @@ export default function PropFirmComparison() {
                         )}
                       </button>
                     </th>
-                    <th className="p-1 text-left">
+                    <th className="p-1 text-center">
                       <button
                         onClick={() => handleSort("payoutFrequency")}
-                        className="flex items-center gap-1 w-full hover:text-[#edb900] transition-colors"
+                        className="flex items-center justify-center gap-1 w-full hover:text-[#edb900] transition-colors"
                       >
                         <span className="text-[10px] font-[balboa] uppercase font-normal tracking-wider">
                           PAYOUT FREQ.
@@ -1104,10 +1105,10 @@ export default function PropFirmComparison() {
                         )}
                       </button>
                     </th>
-                    <th className="p-1 text-left">
+                    <th className="p-1 text-center">
                       <button
                         onClick={() => handleSort("loyaltyPoints")}
-                        className="flex items-center gap-1 w-full hover:text-[#edb900] transition-colors"
+                        className="flex items-center justify-center gap-1 w-full hover:text-[#edb900] transition-colors"
                       >
                         <span className="text-[10px] font-[balboa] uppercase font-normal tracking-wider">
                           LOYALTY PTS
@@ -1123,10 +1124,10 @@ export default function PropFirmComparison() {
                         )}
                       </button>
                     </th>
-                    <th className="p-1 text-left">
+                    <th className="p-1 text-center">
                       <button
                         onClick={() => handleSort("price")}
-                        className="flex items-center gap-1 w-full hover:text-[#edb900] transition-colors"
+                        className="flex items-center justify-center gap-1 w-full hover:text-[#edb900] transition-colors"
                       >
                         <span className="text-[10px] font-[balboa] uppercase font-normal tracking-wider">PRICE</span>
                         {sortColumn === "price" ? (
@@ -1140,7 +1141,7 @@ export default function PropFirmComparison() {
                         )}
                       </button>
                     </th>
-                    <th className="p-1 text-left"></th>
+                    <th className="p-1 text-center"></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1182,34 +1183,34 @@ export default function PropFirmComparison() {
                           </div>
                         </div>
                       </td>
-                      <td className="p-3 font-medium">{offer.accountSize}</td>
-                      <td className="p-3">
-                        <div className="flex items-center gap-1">
+                      <td className="p-3 font-medium text-center">{offer.accountSize}</td>
+                      <td className="p-3 text-center">
+                        <div className="flex items-center justify-center gap-1">
                           <span>{offer.steps}</span>
                           <span className="text-gray-400 rounded-full border border-gray-600 w-4 h-4 flex items-center justify-center text-xs">
                             i
                           </span>
                         </div>
                       </td>
-                      <td className="p-3">
+                      <td className="p-3 text-center">
                         <div>
                           <span>{offer.profitTarget}</span>
                           <span className="text-gray-400 ml-2">{offer.phase2Target}</span>
                         </div>
                       </td>
-                      <td className="p-3">{offer.maxDailyLoss}</td>
-                      <td className="p-3">{offer.maxTotalDrawdown}</td>
-                      <td className="p-3">
-                        <div className="flex items-center">
-                          <span>{offer.profitSplit}</span>
-                          <div className="ml-2 w-20">
+                      <td className="p-3 text-center">{offer.maxDailyLoss}</td>
+                      <td className="p-3 text-center">{offer.maxTotalDrawdown}</td>
+                      <td className="p-3 text-center">
+                        <div className="flex items-center justify-center">
+                          <span className="mr-1">{offer.profitSplit}</span>
+                          <div className="w-16">
                             <SegmentedProgressBar value={offer.profitSplitValue} segments={5} />
                           </div>
                         </div>
                       </td>
-                      <td className="p-3">{offer.payoutFrequency}</td>
-                      <td className="p-3">
-                        <div className="flex items-center gap-1">
+                      <td className="p-3 text-center">{offer.payoutFrequency}</td>
+                      <td className="p-3 text-center">
+                        <div className="flex items-center justify-center gap-1">
                           <Image
                             src="/icons/logo_loyalty_points.png"
                             alt="Loyalty Points"
@@ -1220,13 +1221,13 @@ export default function PropFirmComparison() {
                           <span>{offer.loyaltyPoints}</span>
                         </div>
                       </td>
-                      <td className="p-3">
-                        <div className="flex flex-col">
+                      <td className="p-3 text-center">
+                        <div className="flex flex-col items-center">
                           <span>${offer.price.toFixed(2)}</span>
                           <span className="text-xs text-gray-400 line-through">${offer.originalPrice.toFixed(2)}</span>
                         </div>
                       </td>
-                      <td className="p-3">
+                      <td className="p-3 text-center">
                         <button
                           className="w-[50px] h-10 flex items-center justify-center bg-[#edb900] text-[#0f0f0f] rounded-[10px] hover:bg-[#c99e00] transition-colors"
                           onClick={(e) => {
