@@ -733,8 +733,8 @@ input:checked + .toggle-switch::after {
   left: 0;
   z-index: 5;
   background-color: #0f0f0f !important;
-  min-width: 250px; /* Increased width to ensure content fits */
-  width: 250px; /* Fixed width */
+  min-width: 200px; /* Increased width to ensure content fits */
+  width: 200px; /* Fixed width */
 }
 
 /* Sticky last two columns (price and buy button) */
