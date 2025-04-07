@@ -690,6 +690,7 @@ input:checked + .toggle-switch::after {
   position: relative;
   overflow-x: auto;
   max-width: 100%;
+  width: 100%; /* Set width to 100% of parent */
 }
 
 .sticky-table {
@@ -775,4 +776,20 @@ input:checked + .toggle-switch::after {
 
 .sticky-table-container::-webkit-scrollbar {
   display: none; /* Chrome, Safari, Opera */
+}
+
+/* Explicitly add border styles for table rows - override any other styles */
+.sticky-table tbody tr {
+  border-bottom: 1px solid #333 !important;
+}
+
+.sticky-table thead tr {
+  border-bottom: 1px solid #333 !important;
+}
+
+/* Additional helper for table wrapper to enforce container constraints */
+.table-wrapper {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
 }
