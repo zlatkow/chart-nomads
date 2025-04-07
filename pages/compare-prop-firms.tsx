@@ -445,7 +445,7 @@ export default function PropFirmComparison() {
         <Navbar />
         <Noise />
         <div className="relative container max-w-[1280px] mt-[200px] mb-[100px] mx-auto px-0 pt-[50px] pb-[50px] z-50">
-          <h1 className="text-5xl text-center mb-8 text-[#edb900]">COMPARE ALL PROP FIRMS IN ONE PLACE</h1>
+          <h1 className="text-7xl text-center mb-8 text-white mb-[100px]">COMPARE ALL PROP FIRMS IN ONE PLACE</h1>
           <div className="flex flex-col lg:flex-row relative">
             {/* Sidebar - Search */}
             <div className="relative">
@@ -801,7 +801,7 @@ export default function PropFirmComparison() {
             <div className="flex-1 bg-[#0f0f0f] p-6 px-10 rounded-b-lg lg:rounded-bl-none lg:rounded-r-lg">
               {/* Company Selection */}
               <div className="mb-[100px]">
-                <p className="text-md mb-4">Select company/companies from the list below:</p>
+                <p className="text-md mt-[100px] mb-4">Select company/companies from the list below:</p>
 
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 2xl:grid-cols-8 gap-4">
                   {mockFirms.map((firm) => (
