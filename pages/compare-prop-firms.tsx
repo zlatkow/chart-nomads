@@ -1170,7 +1170,7 @@ export default function PropFirmComparison() {
                       {sortedOffers.map((offer) => (
                         <tr
                           key={offer.id}
-                          className="border-b border-[#222] hover:bg-[#1a1a1a] cursor-pointer"
+                          className="border-b border-[#333]" /* Border color fixed here */
                           onClick={() => handleRowClick(offer)}
                         >
                           <td className="p-3">

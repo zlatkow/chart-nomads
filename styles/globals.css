@@ -695,7 +695,6 @@ input:checked + .toggle-switch::after {
 /* Table wrapper to enforce container constraints */
 .table-wrapper {
   width: 100%;
-  max-width: 100%; /* Changed from fixed 1280px to 100% */
   overflow: hidden;
   position: relative;
 }
@@ -705,7 +704,6 @@ input:checked + .toggle-switch::after {
   position: relative;
   overflow-x: auto;
   width: 100%;
-  max-width: 100%;
 }
 
 .sticky-table {
