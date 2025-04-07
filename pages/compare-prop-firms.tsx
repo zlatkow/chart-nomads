@@ -450,7 +450,7 @@ export default function PropFirmComparison() {
             <div className="relative">
               <div
                 className={`${
-                  sidebarExpanded ? "w-[300px]" : "w-[30px]"
+                  sidebarExpanded ? "w-[300px] p-6" : "w-[30px]"
                 } transition-all duration-300 ease-in-out overflow-hidden bg-[#edb900] text-[#0f0f0f] p-1 rounded-t-lg lg:rounded-tr-none lg:rounded-l-lg`}
               >
                 {/* Toggle button for sidebar - positioned on the right side */}
