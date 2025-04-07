@@ -3,7 +3,7 @@
 
 import type React from "react"
 import { useState } from "react"
-import { Search, ChevronDown, ChevronUp, Bookmark, ChevronLeft } from "lucide-react"
+import { Search, ChevronDown, ChevronUp, Bookmark, ChevronLeft, ChevronRight, SlidersHorizontal } from 'lucide-react'
 import { FaShoppingCart } from "react-icons/fa"
 import ChallengeDetailsSidebar from "@/components/challenge-details-sidebar"
 import Navbar from "../components/Navbar"
@@ -26,7 +26,6 @@ export default function PropFirmComparison() {
   const [searchQuery, setSearchQuery] = useState("")
 
   // Add this state after the other useState declarations
-  // Change the sidebar width when expanded from 350px to 400px
   const [sidebarExpanded, setSidebarExpanded] = useState(true)
 
   // Mock data for the design
@@ -448,367 +447,357 @@ export default function PropFirmComparison() {
         <div className="relative container max-w-[1280px] mt-[200px] mb-[100px] mx-auto px-0 pt-[50px] pb-[50px] z-50">
           <div className="flex flex-col lg:flex-row relative">
             {/* Sidebar - Search */}
-            {/* In the return statement, update the sidebar container div: */}
-            <div
-              className={`${
-                sidebarExpanded ? "lg:w-[400px]" : "lg:w-[10px]"
-              } w-full bg-[#edb900] text-[#0f0f0f] p-6 rounded-t-lg lg:rounded-tr-none lg:rounded-l-lg transition-all duration-300 ease-in-out overflow-hidden relative`}
-            >
-              {/* Toggle button for sidebar - moved to left side */}
-              <button
-                onClick={toggleSidebar}
-                className="absolute top-6 -left-4 bg-[#0f0f0f] text-[#edb900] rounded-full p-2 shadow-md hidden lg:flex items-center justify-center z-10 hover:bg-[#2a2a2a] transition-colors"
-                aria-label={sidebarExpanded ? "Collapse sidebar" : "Expand sidebar"}
+            <div className="relative">
+              <div
+                className={`${
+                  sidebarExpanded ? "w-[300px]" : "w-[30px]"
+                } transition-all duration-300 ease-in-out overflow-hidden bg-[#edb900] text-[#0f0f0f] p-6 rounded-t-lg lg:rounded-tr-none lg:rounded-l-lg`}
               >
-                {sidebarExpanded ? <ChevronLeft size={18} /> : <Search size={18} />}
-              </button>
-
-              <div className={`${!sidebarExpanded ? "lg:opacity-0" : "opacity-100"} transition-opacity duration-200`}>
-                <div className="mb-6">
-                  <div className="flex bg-[#1a1a1a] p-1 rounded-lg mb-4">
-                    <button
-                      onClick={() => setSearchMode("quick")}
-                      className={`flex-1 py-2 px-4 rounded-md text-center transition-all duration-200 font-medium text-sm ${
-                        searchMode === "quick" ? "bg-[#edb900] text-[#0f0f0f]" : "text-[#edb900] hover:bg-[#1f1f1f]"
-                      }`}
-                    >
-                      Quick Search
-                    </button>
-                    <button
-                      onClick={() => setSearchMode("advanced")}
-                      className={`flex-1 py-2 px-4 rounded-md text-center transition-all duration-200 font-medium text-sm ${
-                        searchMode === "advanced" ? "bg-[#edb900] text-[#0f0f0f]" : "text-[#edb900] hover:bg-[#1f1f1f]"
-                      }`}
-                    >
-                      Advanced Search
-                    </button>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <h2 className="text-xl">Filters</h2>
-                    <button className="text-sm font-medium hover:underline">Clear All</button>
-                  </div>
-                </div>
-
-                {/* Scrollable filter area */}
-                <div className="overflow-y-auto max-h-[calc(100vh-250px)] pr-2 -mr-2">
-                  {searchMode === "quick" ? (
-                    <>
-                      {/* Challenge Type Filter */}
-                      <div className="mb-6">
-                        <h3 className=" mb-3">Challenge type:</h3>
-                        {renderFilterButtons(challengeTypes, "2 Phases")}
-                      </div>
-
-                      {/* Account Size Filter */}
-                      <div className="mb-6">
-                        <h3 className="mb-3">Account size:</h3>
-                        {renderFilterButtons(accountSizes.slice(0, 9), "100k")}
-                      </div>
-
-                      {/* Trading Asset Class Filter */}
-                      <div className="mb-6">
-                        <h3 className=" mb-3">Trading asset class:</h3>
-                        {renderFilterButtons(assetClasses, "Forex")}
-                      </div>
-
-                      {/* Show Discounted Price Toggle */}
-                      <div className="mb-6">
-                        <h3 className=" mb-3">Show discounted price?</h3>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input type="checkbox" className="sr-only peer" />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#0f0f0f]"></div>
-                        </label>
-                      </div>
-                    </>
-                  ) : (
-                    // Advanced search content
-                    <div className="space-y-4">
-                      <FilterAccordion title="Trading Asset Class" section="tradingAssetClass">
-                        {renderFilterButtons(assetClasses)}
-                      </FilterAccordion>
-
-                      <FilterAccordion title="Account Size" section="accountSize">
-                        {renderFilterButtons(accountSizes)}
-                      </FilterAccordion>
-
-                      <FilterAccordion title="Challenge Type" section="challengeType">
-                        {renderFilterButtons(challengeTypes)}
-                      </FilterAccordion>
-
-                      <FilterAccordion title="Brokers" section="brokers">
-                        {renderFilterButtons(brokers)}
-                      </FilterAccordion>
-
-                      <FilterAccordion title="Platforms" section="platforms">
-                        {renderFilterButtons(platforms)}
-                      </FilterAccordion>
-
-                      <FilterAccordion title="Special Features" section="specialFeatures">
-                        {renderFilterButtons(specialFeatures)}
-                      </FilterAccordion>
-
-                      <FilterAccordion title="Countries" section="countries">
-                        {renderFilterButtons(countries)}
-                      </FilterAccordion>
-
-                      <FilterAccordion title="Advanced Filtering" section="advancedFiltering">
-                        <div className="space-y-4">
-                          {/* Price Range */}
-                          <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
-                            <label className="block mb-2 font-medium">Price $</label>
-                            <div className="flex items-center gap-2">
-                              <input
-                                type="range"
-                                min="0"
-                                max="2000"
-                                step="50"
-                                defaultValue="500"
-                                className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
-                              />
-                            </div>
-                            <div className="flex justify-between mt-1 text-xs">
-                              <span>$0</span>
-                              <span>$2,000</span>
-                            </div>
-                          </div>
-
-                          {/* Account Size K */}
-                          <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
-                            <label className="block mb-2 font-medium">Account Size K</label>
-                            <div className="flex items-center gap-2">
-                              <input
-                                type="range"
-                                min="0"
-                                max="400000"
-                                step="10000"
-                                defaultValue="100000"
-                                className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
-                              />
-                            </div>
-                            <div className="flex justify-between mt-1 text-xs">
-                              <span>$0</span>
-                              <span>$400,000</span>
-                            </div>
-                          </div>
-
-                          {/* Account Profit Split % */}
-                          <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
-                            <label className="block mb-2 font-medium">Account Profit Split %</label>
-                            <div className="flex items-center gap-2">
-                              <input
-                                type="range"
-                                min="0"
-                                max="100"
-                                step="5"
-                                defaultValue="80"
-                                className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
-                              />
-                            </div>
-                            <div className="flex justify-between mt-1 text-xs">
-                              <span>0%</span>
-                              <span>100%</span>
-                            </div>
-                          </div>
-
-                          {/* Profit Target % (Combined) */}
-                          <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
-                            <label className="block mb-2 font-medium">Profit Target % (Combined)</label>
-                            <div className="flex items-center gap-2">
-                              <input
-                                type="range"
-                                min="0"
-                                max="30"
-                                step="1"
-                                defaultValue="10"
-                                className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
-                              />
-                            </div>
-                            <div className="flex justify-between mt-1 text-xs">
-                              <span>0%</span>
-                              <span>30%</span>
-                            </div>
-                          </div>
-
-                          {/* Max Daily Loss % */}
-                          <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
-                            <label className="block mb-2 font-medium">Max Daily Loss %</label>
-                            <div className="flex items-center gap-2">
-                              <input
-                                type="range"
-                                min="0"
-                                max="10"
-                                step="0.5"
-                                defaultValue="5"
-                                className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
-                              />
-                            </div>
-                            <div className="flex justify-between mt-1 text-xs">
-                              <span>0%</span>
-                              <span>10%</span>
-                            </div>
-                          </div>
-
-                          {/* Account Max Total Drawdown % */}
-                          <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
-                            <label className="block mb-2 font-medium">Account Max Total Drawdown %</label>
-                            <div className="flex items-center gap-2">
-                              <input
-                                type="range"
-                                min="0"
-                                max="20"
-                                step="1"
-                                defaultValue="10"
-                                className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
-                              />
-                            </div>
-                            <div className="flex justify-between mt-1 text-xs">
-                              <span>0%</span>
-                              <span>20%</span>
-                            </div>
-                          </div>
-
-                          {/* Commission $ */}
-                          <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
-                            <label className="block mb-2 font-medium">Commission $</label>
-                            <div className="flex items-center gap-2">
-                              <input
-                                type="range"
-                                min="0"
-                                max="10"
-                                step="0.5"
-                                defaultValue="0"
-                                className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
-                              />
-                            </div>
-                            <div className="flex justify-between mt-1 text-xs">
-                              <span>$0</span>
-                              <span>$10</span>
-                            </div>
-                          </div>
-
-                          {/* Account PT:DD ratio */}
-                          <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
-                            <label className="block mb-2 font-medium">Account PT:DD ratio</label>
-                            <div className="flex items-center gap-2">
-                              <input
-                                type="range"
-                                min="0"
-                                max="1"
-                                step="0.1"
-                                defaultValue="0.5"
-                                className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
-                              />
-                            </div>
-                            <div className="flex justify-between mt-1 text-xs">
-                              <span>1:0</span>
-                              <span>1:1</span>
-                            </div>
-                          </div>
-
-                          {/* Payout Frequency (Days) */}
-                          <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
-                            <label className="block mb-2 font-medium">Payout Frequency (Days)</label>
-                            <div className="flex items-center gap-2">
-                              <input
-                                type="range"
-                                min="0"
-                                max="30"
-                                step="1"
-                                defaultValue="14"
-                                className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
-                              />
-                            </div>
-                            <div className="flex justify-between mt-1 text-xs">
-                              <span>0 Days</span>
-                              <span>30 Days</span>
-                            </div>
-                          </div>
-
-                          {/* Trust Pilot Rating */}
-                          <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
-                            <label className="block mb-2 font-medium">Trust Pilot Rating</label>
-                            <div className="flex items-center gap-2">
-                              <input
-                                type="range"
-                                min="1"
-                                max="5"
-                                step="0.1"
-                                defaultValue="4"
-                                className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
-                              />
-                            </div>
-                            <div className="flex justify-between mt-1 text-xs">
-                              <span>1</span>
-                              <span>5</span>
-                            </div>
-                          </div>
-
-                          {/* Years in Business */}
-                          <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
-                            <label className="block mb-2 font-medium">Years in Business</label>
-                            <div className="flex items-center gap-2">
-                              <input
-                                type="range"
-                                min="1"
-                                max="15"
-                                step="1"
-                                defaultValue="5"
-                                className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
-                              />
-                            </div>
-                            <div className="flex justify-between mt-1 text-xs">
-                              <span>1 Years</span>
-                              <span>15 Years</span>
-                            </div>
-                          </div>
-
-                          {/* Loyalty Points */}
-                          <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
-                            <label className="block mb-2 font-medium">Loyalty Points</label>
-                            <div className="flex items-center gap-2">
-                              <input
-                                type="range"
-                                min="0"
-                                max="5000"
-                                step="100"
-                                defaultValue="1000"
-                                className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
-                              />
-                            </div>
-                            <div className="flex justify-between mt-1 text-xs">
-                              <span>0 Points</span>
-                              <span>5,000 Points</span>
-                            </div>
-                          </div>
-                        </div>
-                      </FilterAccordion>
-                    </div>
-                  )}
-                </div>
-
-                {/* Search Button - Fixed at bottom */}
-                <div
-                  className={`mt-6 ${!sidebarExpanded ? "lg:opacity-0" : "opacity-100"} transition-opacity duration-200`}
+                {/* Toggle button for sidebar - positioned on the right side */}
+                <button
+                  onClick={toggleSidebar}
+                  className="absolute top-6 -right-4 w-8 h-8 bg-[#0f0f0f] text-[#edb900] rounded-full shadow-md flex items-center justify-center z-10 hover:bg-[#2a2a2a] transition-colors"
+                  aria-label={sidebarExpanded ? "Collapse sidebar" : "Expand sidebar"}
                 >
-                  <button className="w-full py-3 bg-[#0f0f0f] text-[#edb900] rounded-md flex items-center justify-center gap-2 hover:bg-[#2a2a2a] transition-colors">
-                    <Search size={18} />
-                    {searchMode === "quick" ? "Search" : "Advanced Search"}
-                  </button>
+                  {sidebarExpanded ? <ChevronLeft size={16} /> : <SlidersHorizontal size={16} />}
+                </button>
+
+                <div className={`${!sidebarExpanded ? "opacity-0" : "opacity-100"} transition-opacity duration-200`}>
+                  <div className="mb-6">
+                    <div className="flex bg-[#1a1a1a] p-1 rounded-lg mb-4">
+                      <button
+                        onClick={() => setSearchMode("quick")}
+                        className={`flex-1 py-2 px-4 rounded-md text-center transition-all duration-200 font-medium text-sm ${
+                          searchMode === "quick" ? "bg-[#edb900] text-[#0f0f0f]" : "text-[#edb900] hover:bg-[#1f1f1f]"
+                        }`}
+                      >
+                        Quick Search
+                      </button>
+                      <button
+                        onClick={() => setSearchMode("advanced")}
+                        className={`flex-1 py-2 px-4 rounded-md text-center transition-all duration-200 font-medium text-sm ${
+                          searchMode === "advanced" ? "bg-[#edb900] text-[#0f0f0f]" : "text-[#edb900] hover:bg-[#1f1f1f]"
+                        }`}
+                      >
+                        Advanced Search
+                      </button>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <h2 className="text-xl">Filters</h2>
+                      <button className="text-sm font-medium hover:underline">Clear All</button>
+                    </div>
+                  </div>
+
+                  {/* Scrollable filter area */}
+                  <div className="overflow-y-auto max-h-[calc(100vh-250px)] pr-2 -mr-2">
+                    {searchMode === "quick" ? (
+                      <>
+                        {/* Challenge Type Filter */}
+                        <div className="mb-6">
+                          <h3 className=" mb-3">Challenge type:</h3>
+                          {renderFilterButtons(challengeTypes, "2 Phases")}
+                        </div>
+
+                        {/* Account Size Filter */}
+                        <div className="mb-6">
+                          <h3 className="mb-3">Account size:</h3>
+                          {renderFilterButtons(accountSizes.slice(0, 9), "100k")}
+                        </div>
+
+                        {/* Trading Asset Class Filter */}
+                        <div className="mb-6">
+                          <h3 className=" mb-3">Trading asset class:</h3>
+                          {renderFilterButtons(assetClasses, "Forex")}
+                        </div>
+
+                        {/* Show Discounted Price Toggle */}
+                        <div className="mb-6">
+                          <h3 className=" mb-3">Show discounted price?</h3>
+                          <label className="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" className="sr-only peer" />
+                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#0f0f0f]"></div>
+                          </label>
+                        </div>
+                      </>
+                    ) : (
+                      // Advanced search content
+                      <div className="space-y-4">
+                        <FilterAccordion title="Trading Asset Class" section="tradingAssetClass">
+                          {renderFilterButtons(assetClasses)}
+                        </FilterAccordion>
+
+                        <FilterAccordion title="Account Size" section="accountSize">
+                          {renderFilterButtons(accountSizes)}
+                        </FilterAccordion>
+
+                        <FilterAccordion title="Challenge Type" section="challengeType">
+                          {renderFilterButtons(challengeTypes)}
+                        </FilterAccordion>
+
+                        <FilterAccordion title="Brokers" section="brokers">
+                          {renderFilterButtons(brokers)}
+                        </FilterAccordion>
+
+                        <FilterAccordion title="Platforms" section="platforms">
+                          {renderFilterButtons(platforms)}
+                        </FilterAccordion>
+
+                        <FilterAccordion title="Special Features" section="specialFeatures">
+                          {renderFilterButtons(specialFeatures)}
+                        </FilterAccordion>
+
+                        <FilterAccordion title="Countries" section="countries">
+                          {renderFilterButtons(countries)}
+                        </FilterAccordion>
+
+                        <FilterAccordion title="Advanced Filtering" section="advancedFiltering">
+                          <div className="space-y-4">
+                            {/* Price Range */}
+                            <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
+                              <label className="block mb-2 font-medium">Price $</label>
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="range"
+                                  min="0"
+                                  max="2000"
+                                  step="50"
+                                  defaultValue="500"
+                                  className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
+                                />
+                              </div>
+                              <div className="flex justify-between mt-1 text-xs">
+                                <span>$0</span>
+                                <span>$2,000</span>
+                              </div>
+                            </div>
+
+                            {/* Account Size K */}
+                            <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
+                              <label className="block mb-2 font-medium">Account Size K</label>
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="range"
+                                  min="0"
+                                  max="400000"
+                                  step="10000"
+                                  defaultValue="100000"
+                                  className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
+                                />
+                              </div>
+                              <div className="flex justify-between mt-1 text-xs">
+                                <span>$0</span>
+                                <span>$400,000</span>
+                              </div>
+                            </div>
+
+                            {/* Account Profit Split % */}
+                            <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
+                              <label className="block mb-2 font-medium">Account Profit Split %</label>
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="range"
+                                  min="0"
+                                  max="100"
+                                  step="5"
+                                  defaultValue="80"
+                                  className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
+                                />
+                              </div>
+                              <div className="flex justify-between mt-1 text-xs">
+                                <span>0%</span>
+                                <span>100%</span>
+                              </div>
+                            </div>
+
+                            {/* Profit Target % (Combined) */}
+                            <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
+                              <label className="block mb-2 font-medium">Profit Target % (Combined)</label>
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="range"
+                                  min="0"
+                                  max="30"
+                                  step="1"
+                                  defaultValue="10"
+                                  className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
+                                />
+                              </div>
+                              <div className="flex justify-between mt-1 text-xs">
+                                <span>0%</span>
+                                <span>30%</span>
+                              </div>
+                            </div>
+
+                            {/* Max Daily Loss % */}
+                            <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
+                              <label className="block mb-2 font-medium">Max Daily Loss %</label>
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="range"
+                                  min="0"
+                                  max="10"
+                                  step="0.5"
+                                  defaultValue="5"
+                                  className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
+                                />
+                              </div>
+                              <div className="flex justify-between mt-1 text-xs">
+                                <span>0%</span>
+                                <span>10%</span>
+                              </div>
+                            </div>
+
+                            {/* Account Max Total Drawdown % */}
+                            <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
+                              <label className="block mb-2 font-medium">Account Max Total Drawdown %</label>
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="range"
+                                  min="0"
+                                  max="20"
+                                  step="1"
+                                  defaultValue="10"
+                                  className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
+                                />
+                              </div>
+                              <div className="flex justify-between mt-1 text-xs">
+                                <span>0%</span>
+                                <span>20%</span>
+                              </div>
+                            </div>
+
+                            {/* Commission $ */}
+                            <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
+                              <label className="block mb-2 font-medium">Commission $</label>
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="range"
+                                  min="0"
+                                  max="10"
+                                  step="0.5"
+                                  defaultValue="0"
+                                  className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
+                                />
+                              </div>
+                              <div className="flex justify-between mt-1 text-xs">
+                                <span>$0</span>
+                                <span>$10</span>
+                              </div>
+                            </div>
+
+                            {/* Account PT:DD ratio */}
+                            <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
+                              <label className="block mb-2 font-medium">Account PT:DD ratio</label>
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="range"
+                                  min="0"
+                                  max="1"
+                                  step="0.1"
+                                  defaultValue="0.5"
+                                  className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
+                                />
+                              </div>
+                              <div className="flex justify-between mt-1 text-xs">
+                                <span>1:0</span>
+                                <span>1:1</span>
+                              </div>
+                            </div>
+
+                            {/* Payout Frequency (Days) */}
+                            <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
+                              <label className="block mb-2 font-medium">Payout Frequency (Days)</label>
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="range"
+                                  min="0"
+                                  max="30"
+                                  step="1"
+                                  defaultValue="14"
+                                  className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
+                                />
+                              </div>
+                              <div className="flex justify-between mt-1 text-xs">
+                                <span>0 Days</span>
+                                <span>30 Days</span>
+                              </div>
+                            </div>
+
+                            {/* Trust Pilot Rating */}
+                            <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
+                              <label className="block mb-2 font-medium">Trust Pilot Rating</label>
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="range"
+                                  min="1"
+                                  max="5"
+                                  step="0.1"
+                                  defaultValue="4"
+                                  className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
+                                />
+                              </div>
+                              <div className="flex justify-between mt-1 text-xs">
+                                <span>1</span>
+                                <span>5</span>
+                              </div>
+                            </div>
+
+                            {/* Years in Business */}
+                            <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
+                              <label className="block mb-2 font-medium">Years in Business</label>
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="range"
+                                  min="1"
+                                  max="15"
+                                  step="1"
+                                  defaultValue="5"
+                                  className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
+                                />
+                              </div>
+                              <div className="flex justify-between mt-1 text-xs">
+                                <span>1 Years</span>
+                                <span>15 Years</span>
+                              </div>
+                            </div>
+
+                            {/* Loyalty Points */}
+                            <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
+                              <label className="block mb-2 font-medium">Loyalty Points</label>
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="range"
+                                  min="0"
+                                  max="5000"
+                                  step="100"
+                                  defaultValue="1000"
+                                  className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
+                                />
+                              </div>
+                              <div className="flex justify-between mt-1 text-xs">
+                                <span>0 Points</span>
+                                <span>5,000 Points</span>
+                              </div>
+                            </div>
+                          </div>
+                        </FilterAccordion>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Search Button - Fixed at bottom */}
+                  <div className="mt-6">
+                    <button className="w-full py-3 bg-[#0f0f0f] text-[#edb900] rounded-md flex items-center justify-center gap-2 hover:bg-[#2a2a2a] transition-colors">
+                      <Search size={18} />
+                      {searchMode === "quick" ? "Search" : "Advanced Search"}
+                    </button>
+                  </div>
                 </div>
               </div>
-
-              {/* Update the collapsed sidebar view to remove the yellow background and use a filter icon */}
-              {!sidebarExpanded && (
-                <div className="hidden lg:flex flex-col items-center h-full">
-                  {/* No content needed in collapsed state */}
-                </div>
-              )}
             </div>
 
             {/* Main Content */}
-            <div
-              className={`flex-1 bg-[#0f0f0f] p-6 rounded-b-lg lg:rounded-bl-none lg:rounded-r-lg transition-all duration-300 ${!sidebarExpanded ? "lg:pl-8" : ""}`}
-            >
+            <div className="flex-1 bg-[#0f0f0f] p-6 rounded-b-lg lg:rounded-bl-none lg:rounded-r-lg">
               <h1 className="text-4xl text-center mb-8 text-[#edb900]">COMPARE ALL PROP FIRMS IN ONE PLACE</h1>
 
               {/* Company Selection */}
@@ -1013,4 +1002,3 @@ export default function PropFirmComparison() {
     </div>
   )
 }
-
