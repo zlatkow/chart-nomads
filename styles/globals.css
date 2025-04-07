@@ -733,17 +733,27 @@ input:checked + .toggle-switch::after {
   left: 0;
   z-index: 5;
   background-color: #0f0f0f;
+  min-width: 220px; /* Ensure enough width for the content */
+  max-width: 220px; /* Limit width to prevent overflow */
 }
 
 /* Sticky last two columns (price and buy button) */
 .sticky-table th:nth-last-child(2),
-.sticky-table td:nth-last-child(2),
+.sticky-table td:nth-last-child(2) {
+  position: sticky;
+  right: 60px; /* Width of the last column (buy button) */
+  z-index: 5;
+  background-color: #0f0f0f;
+  min-width: 100px;
+}
+
 .sticky-table th:last-child,
 .sticky-table td:last-child {
   position: sticky;
   right: 0;
   z-index: 5;
   background-color: #0f0f0f;
+  width: 60px;
 }
 
 /* Adjust z-index for the corner cells (header + sticky column) */
@@ -762,7 +772,7 @@ input:checked + .toggle-switch::after {
   content: "";
   position: absolute;
   top: 0;
-  right: -5px;
+  right: 0;
   bottom: 0;
   width: 5px;
   background: linear-gradient(to right, rgba(0, 0, 0, 0.1), transparent);
@@ -808,4 +818,3 @@ input:checked + .toggle-switch::after {
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE and Edge */
 }
-
