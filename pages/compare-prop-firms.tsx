@@ -3,7 +3,7 @@
 
 import type React from "react"
 import { useState } from "react"
-import { Search, ChevronDown, ChevronUp, Bookmark, ChevronLeft, ChevronRight, SlidersHorizontal } from 'lucide-react'
+import { Search, ChevronDown, ChevronUp, Bookmark, ChevronLeft, SlidersHorizontal } from "lucide-react"
 import { FaShoppingCart } from "react-icons/fa"
 import ChallengeDetailsSidebar from "@/components/challenge-details-sidebar"
 import Navbar from "../components/Navbar"
@@ -477,7 +477,9 @@ export default function PropFirmComparison() {
                       <button
                         onClick={() => setSearchMode("advanced")}
                         className={`flex-1 py-2 px-2 rounded-md text-center transition-all duration-200 font-medium text-xs ${
-                          searchMode === "advanced" ? "bg-[#edb900] text-[#0f0f0f]" : "text-[#edb900] hover:bg-[#1f1f1f]"
+                          searchMode === "advanced"
+                            ? "bg-[#edb900] text-[#0f0f0f]"
+                            : "text-[#edb900] hover:bg-[#1f1f1f]"
                         }`}
                       >
                         Advanced Search
@@ -801,7 +803,7 @@ export default function PropFirmComparison() {
             <div className="flex-1 bg-[#0f0f0f] p-6 px-10 rounded-b-lg lg:rounded-bl-none lg:rounded-r-lg">
               {/* Company Selection */}
               <div className="mb-[100px]">
-                <p className="text-md mt-[100px] mb-4">Select company/companies from the list below:</p>
+                <p className="text-md mt-[50px] mb-4">Select company/companies from the list below:</p>
 
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 2xl:grid-cols-8 gap-4">
                   {mockFirms.map((firm) => (
@@ -867,27 +869,67 @@ export default function PropFirmComparison() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-[#333]">
-                      <th className="p-3 text-left">
+                      <th className="p-2 text-left">
                         <div className="flex items-center gap-1">
-                          FIRM / RANK
-                          <ChevronUp size={16} className="text-[#edb900]" />
+                          <span className="text-xs font-[balboa] uppercase">FIRM / RANK</span>
+                          <ChevronUp size={14} className="text-[#edb900]" />
                         </div>
                       </th>
-                      <th className="p-3 text-left">
+                      <th className="p-2 text-left">
                         <div className="flex items-center gap-1">
-                          ACC SIZE
-                          <ChevronDown size={16} />
+                          <span className="text-xs font-[balboa] uppercase">ACC SIZE</span>
+                          <ChevronDown size={14} />
                         </div>
                       </th>
-                      <th className="p-3 text-left">PROGRAM</th>
-                      <th className="p-3 text-left">PROFIT TARGET</th>
-                      <th className="p-3 text-left">DAILY LOSS</th>
-                      <th className="p-3 text-left">MAX LOSS</th>
-                      <th className="p-3 text-left">PROFIT SPLIT</th>
-                      <th className="p-3 text-left">PAYOUT FREQ.</th>
-                      <th className="p-3 text-left">LOYALTY PTS</th>
-                      <th className="p-3 text-left">PRICE</th>
-                      <th className="p-3 text-left"></th>
+                      <th className="p-2 text-left">
+                        <div className="flex items-center gap-1">
+                          <span className="text-xs font-[balboa] uppercase">PROGRAM</span>
+                          <ChevronDown size={14} />
+                        </div>
+                      </th>
+                      <th className="p-2 text-left">
+                        <div className="flex items-center gap-1">
+                          <span className="text-xs font-[balboa] uppercase">PROFIT TARGET</span>
+                          <ChevronDown size={14} />
+                        </div>
+                      </th>
+                      <th className="p-2 text-left">
+                        <div className="flex items-center gap-1">
+                          <span className="text-xs font-[balboa] uppercase">DAILY LOSS</span>
+                          <ChevronDown size={14} />
+                        </div>
+                      </th>
+                      <th className="p-2 text-left">
+                        <div className="flex items-center gap-1">
+                          <span className="text-xs font-[balboa] uppercase">MAX LOSS</span>
+                          <ChevronDown size={14} />
+                        </div>
+                      </th>
+                      <th className="p-2 text-left">
+                        <div className="flex items-center gap-1">
+                          <span className="text-xs font-[balboa] uppercase">PROFIT SPLIT</span>
+                          <ChevronDown size={14} />
+                        </div>
+                      </th>
+                      <th className="p-2 text-left">
+                        <div className="flex items-center gap-1">
+                          <span className="text-xs font-[balboa] uppercase">PAYOUT FREQ.</span>
+                          <ChevronDown size={14} />
+                        </div>
+                      </th>
+                      <th className="p-2 text-left">
+                        <div className="flex items-center gap-1">
+                          <span className="text-xs font-[balboa] uppercase">LOYALTY PTS</span>
+                          <ChevronDown size={14} />
+                        </div>
+                      </th>
+                      <th className="p-2 text-left">
+                        <div className="flex items-center gap-1">
+                          <span className="text-xs font-[balboa] uppercase">PRICE</span>
+                          <ChevronDown size={14} />
+                        </div>
+                      </th>
+                      <th className="p-2 text-left"></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1001,3 +1043,4 @@ export default function PropFirmComparison() {
     </div>
   )
 }
+
