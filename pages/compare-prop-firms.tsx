@@ -445,6 +445,7 @@ export default function PropFirmComparison() {
         <Navbar />
         <Noise />
         <div className="relative container max-w-[1280px] mt-[200px] mb-[100px] mx-auto px-0 pt-[50px] pb-[50px] z-50">
+          <h1 className="text-5xl text-center mb-8 text-[#edb900]">COMPARE ALL PROP FIRMS IN ONE PLACE</h1>
           <div className="flex flex-col lg:flex-row relative">
             {/* Sidebar - Search */}
             <div className="relative">
@@ -798,8 +799,6 @@ export default function PropFirmComparison() {
 
             {/* Main Content */}
             <div className="flex-1 bg-[#0f0f0f] p-6 rounded-b-lg lg:rounded-bl-none lg:rounded-r-lg">
-              <h1 className="text-4xl text-center mb-8 text-[#edb900]">COMPARE ALL PROP FIRMS IN ONE PLACE</h1>
-
               {/* Company Selection */}
               <div className="mb-8">
                 <p className="text-lg mb-4">Select company/companies from the list below:</p>
