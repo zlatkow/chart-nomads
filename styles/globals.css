@@ -646,3 +646,30 @@ strong {
   text-align: center;
   margin-top: 0.5rem;
 }
+
+.toggle-switch::after {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: #888;
+  top: 2px;
+  left: 2px;
+  transition: all 0.3s;
+}
+
+input:checked + .toggle-switch {
+  background-color: #0f0f0f;
+}
+
+input:checked + .toggle-switch::after {
+  transform: translateX(20px);
+  background-color: #edb900;
+}
+
+/* Discount toggle specific styling */
+input:checked + .toggle-switch::after {
+  background-color: #edb900;
+  border: none;
+}
