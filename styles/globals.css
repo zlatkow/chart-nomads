@@ -700,7 +700,7 @@ input:checked + .toggle-switch::after {
   min-width: 1200px; /* Ensure table maintains minimum width */
 }
 
-/* Sticky header */
+/* Sticky header
 .sticky-table thead th {
   position: sticky;
   top: 0;
@@ -709,16 +709,16 @@ input:checked + .toggle-switch::after {
 }
 
 /* Sticky first column */
-.sticky-table th:first-child,
+/* .sticky-table th:first-child,
 .sticky-table td:first-child {
   position: sticky;
   left: 0;
   z-index: 5;
-  background-color: #0f0f0f;
-}
+  background-color: #0f0f0f; */
+/* } */ 
 
 /* Sticky last two columns (price and buy button) */
-.sticky-table th:nth-last-child(2),
+/* .sticky-table th:nth-last-child(2),
 .sticky-table td:nth-last-child(2),
 .sticky-table th:last-child,
 .sticky-table td:last-child {
@@ -726,7 +726,7 @@ input:checked + .toggle-switch::after {
   right: 0;
   z-index: 5;
   background-color: #0f0f0f;
-}
+} */
 
 /* Adjust z-index for the corner cells (header + sticky column) */
 .sticky-table th:first-child {
@@ -764,9 +764,9 @@ input:checked + .toggle-switch::after {
 }
 
 /* Ensure hover effect works with sticky columns */
-.sticky-table tbody tr:hover td {
+/* .sticky-table tbody tr:hover td {
   background-color: #1a1a1a !important;
-}
+} */
 
 /* Hide scrollbar but keep functionality */
 .sticky-table-container {
