@@ -12,6 +12,7 @@ import Noise from "../components/Noise"
 import Community from "../components/Community"
 import Newsletter from "../components/Newsletter"
 import Footer from "../components/Footer"
+import { Input } from "@/components/ui/input"
 
 export default function PropFirmComparison() {
   // State for the challenge details sidebar
@@ -799,12 +800,13 @@ export default function PropFirmComparison() {
 
               {/* Search and Results Count */}
               <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
-                <div className="relative w-[250px] justify-center z-20">
+                {/* ✅ Updated Search Bar with clear button */}
+                <div className="relative w-[250px] justify-center z-20 mb-4">
                   <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
-                  <input
+                  <Input
                     type="text"
                     placeholder="Search..."
-                    className="p-3 pl-8 bg-[#1a1a1a] border border-[#333] rounded-md text-white w-full focus:outline-none focus:ring-1 focus:ring-[#edb900]"
+                    className="searchDark w-full pl-8 bg-[#0f0f0f] border-gray-600 focus-visible:ring-[#edb900] h-10"
                     value={searchQuery}
                     onChange={handleSearch}
                   />
