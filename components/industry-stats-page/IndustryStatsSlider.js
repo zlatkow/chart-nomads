@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { DollarSign, Users, TrendingUp, BarChart2, Gem, Banknote } from "lucide-react"
 
 // Global cache for industry stats data
-let industryStatsCache = null
+let globalStatsData = null
 let lastFetchTime = null
 const CACHE_EXPIRY_TIME = 5 * 60 * 1000 // 5 minutes
 
@@ -46,93 +46,23 @@ const shimmerAnimation = `
 }
 `
 
-// Function to check if data is valid and ready to display
-const isDataReady = (statsData) => {
-  if (!statsData) return false
-
-  const slides = [statsData.last24Hours, statsData.last7Days, statsData.last30Days, statsData.sinceStart]
-
-  return slides.some(
-    (slide) =>
-      slide &&
-      // Check for non-zero values in key metrics
-      ((typeof slide.totalAmount === "number" && slide.totalAmount !== 0) ||
-        (typeof slide.totalTransactions === "number" && slide.totalTransactions !== 0) ||
-        (typeof slide.uniqueTraders === "number" && slide.uniqueTraders !== 0)),
-  )
-}
-
-// Function to save data to session storage
-const saveToSessionStorage = (data) => {
-  try {
-    sessionStorage.setItem("industryStatsData", JSON.stringify(data))
-    sessionStorage.setItem("industryStatsFetchTime", Date.now().toString())
-  } catch (e) {
-    console.warn("Failed to save industry stats to sessionStorage:", e)
-  }
-}
-
-// Function to load data from session storage
-const loadFromSessionStorage = () => {
+// Try to load cached data from sessionStorage when the module loads
+if (typeof window !== "undefined") {
   try {
     const cachedData = sessionStorage.getItem("industryStatsData")
     const cachedTime = sessionStorage.getItem("industryStatsFetchTime")
 
     if (cachedData && cachedTime) {
-      const parsedData = JSON.parse(cachedData)
-      const fetchTime = Number.parseInt(cachedTime)
-
-      // Check if cache is still valid
-      if (Date.now() - fetchTime < CACHE_EXPIRY_TIME) {
-        industryStatsCache = parsedData
-        lastFetchTime = fetchTime
-        console.log("Loaded industry stats from sessionStorage")
-        return parsedData
-      }
+      globalStatsData = JSON.parse(cachedData)
+      lastFetchTime = Number.parseInt(cachedTime)
+      console.log("Loaded industry stats from sessionStorage")
     }
   } catch (e) {
     console.warn("Failed to load industry stats from sessionStorage:", e)
   }
-  return null
 }
 
-// Loader component that can be included in the page to trigger prefetching
-export function IndustryStatsLoader({ fetchStatsFunction }) {
-  useEffect(() => {
-    const prefetchStats = async () => {
-      // Check if we already have fresh cached data
-      if (industryStatsCache && lastFetchTime && Date.now() - lastFetchTime < CACHE_EXPIRY_TIME) {
-        console.log("Using cached industry stats data")
-        return
-      }
-
-      // Try to load from session storage first
-      const cachedData = loadFromSessionStorage()
-      if (cachedData) return
-
-      // If no cached data, fetch fresh data
-      try {
-        console.log("Prefetching industry stats data")
-        const data = await fetchStatsFunction()
-
-        if (isDataReady(data)) {
-          industryStatsCache = data
-          lastFetchTime = Date.now()
-          saveToSessionStorage(data)
-        }
-      } catch (error) {
-        console.error("Error prefetching industry stats:", error)
-      }
-    }
-
-    prefetchStats()
-  }, [fetchStatsFunction])
-
-  return null
-}
-
-const IndustryStatsSlider = ({ statsData: propStatsData, fetchStats }) => {
-  const [statsData, setStatsData] = useState(propStatsData || industryStatsCache)
+const IndustryStatsSlider = ({ statsData }) => {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [loading, setLoading] = useState(true)
   const [isHovered, setIsHovered] = useState(false)
@@ -140,12 +70,36 @@ const IndustryStatsSlider = ({ statsData: propStatsData, fetchStats }) => {
   const minimumLoadingTime = 2300 // Minimum time to show loading state (ms)
   const isMounted = useRef(true)
 
-  const slides = statsData
-    ? [statsData.last24Hours, statsData.last7Days, statsData.last30Days, statsData.sinceStart]
+  // Use cached data if available and statsData is not provided
+  const effectiveStatsData = statsData || globalStatsData
+
+  const slides = effectiveStatsData
+    ? [
+        effectiveStatsData.last24Hours,
+        effectiveStatsData.last7Days,
+        effectiveStatsData.last30Days,
+        effectiveStatsData.sinceStart,
+      ]
     : []
 
   // Array of headings for each slide
   const slideHeadings = ["Last 24 Hours", "Last 7 Days", "Last 30 Days", "All Time"]
+
+  // Check if the data is actually valid and ready to display
+  const isDataReady = () => {
+    // First check if effectiveStatsData exists
+    if (!effectiveStatsData) return false
+
+    // Check if at least one slide has valid data
+    return slides.some(
+      (slide) =>
+        slide &&
+        // Check for non-zero values in key metrics
+        ((typeof slide.totalAmount === "number" && slide.totalAmount !== 0) ||
+          (typeof slide.totalTransactions === "number" && slide.totalTransactions !== 0) ||
+          (typeof slide.uniqueTraders === "number" && slide.uniqueTraders !== 0)),
+    )
+  }
 
   useEffect(() => {
     // Add the shimmer animation to the document
@@ -160,97 +114,96 @@ const IndustryStatsSlider = ({ statsData: propStatsData, fetchStats }) => {
     }
   }, [])
 
-  // Load data from cache or fetch new data
   useEffect(() => {
+    // Set isMounted to true when component mounts
     isMounted.current = true
 
-    const loadData = async () => {
-      // If we already have data from props or global cache, use it
-      if (statsData) {
-        if (isDataReady(statsData)) {
-          dataReadyTimestamp.current = Date.now()
+    // Reset loading state when statsData changes
+    setLoading(true)
 
-          // Wait minimum loading time for visual consistency
-          setTimeout(() => {
-            if (isMounted.current) {
-              setLoading(false)
-            }
-          }, minimumLoadingTime)
+    // Check if data is ready
+    if (isDataReady()) {
+      // Record when data became ready
+      dataReadyTimestamp.current = Date.now()
 
-          return
-        }
-      }
+      // Calculate how long to wait before showing content
+      const timeDataBecameReady = dataReadyTimestamp.current
+      const timeToWait = Math.max(0, minimumLoadingTime - (Date.now() - timeDataBecameReady))
 
-      // Try to load from session storage
-      const cachedData = loadFromSessionStorage()
-      if (cachedData) {
+      // Wait at least minimumLoadingTime before showing content
+      const timer = setTimeout(() => {
         if (isMounted.current) {
-          setStatsData(cachedData)
-          dataReadyTimestamp.current = Date.now()
+          setLoading(false)
 
-          // Wait minimum loading time for visual consistency
-          setTimeout(() => {
-            if (isMounted.current) {
-              setLoading(false)
-            }
-          }, minimumLoadingTime)
-        }
-        return
-      }
+          // Cache the data if it's not already cached
+          if (statsData && !globalStatsData) {
+            globalStatsData = statsData
+            lastFetchTime = Date.now()
 
-      // If no cached data, fetch fresh data
-      if (fetchStats) {
-        try {
-          const data = await fetchStats()
-
-          if (isMounted.current) {
-            setStatsData(data)
-
-            if (isDataReady(data)) {
-              // Update global cache
-              industryStatsCache = data
-              lastFetchTime = Date.now()
-              saveToSessionStorage(data)
-
-              dataReadyTimestamp.current = Date.now()
-
-              // Wait minimum loading time for visual consistency
-              setTimeout(() => {
-                if (isMounted.current) {
-                  setLoading(false)
-                }
-              }, minimumLoadingTime)
+            // Save to sessionStorage
+            try {
+              sessionStorage.setItem("industryStatsData", JSON.stringify(statsData))
+              sessionStorage.setItem("industryStatsFetchTime", lastFetchTime.toString())
+            } catch (e) {
+              console.warn("Failed to save industry stats to sessionStorage:", e)
             }
           }
-        } catch (error) {
-          console.error("Error fetching industry stats:", error)
         }
+      }, timeToWait)
+
+      return () => clearTimeout(timer)
+    } else {
+      // If data is not ready, set up a check every 100ms
+      const checkInterval = setInterval(() => {
+        if (isDataReady()) {
+          // Record when data became ready
+          dataReadyTimestamp.current = Date.now()
+          clearInterval(checkInterval)
+
+          // Wait at least minimumLoadingTime before showing content
+          const timer = setTimeout(() => {
+            if (isMounted.current) {
+              setLoading(false)
+
+              // Cache the data if it's not already cached
+              if (statsData && !globalStatsData) {
+                globalStatsData = statsData
+                lastFetchTime = Date.now()
+
+                // Save to sessionStorage
+                try {
+                  sessionStorage.setItem("industryStatsData", JSON.stringify(statsData))
+                  sessionStorage.setItem("industryStatsFetchTime", lastFetchTime.toString())
+                } catch (e) {
+                  console.warn("Failed to save industry stats to sessionStorage:", e)
+                }
+              }
+            }
+          }, minimumLoadingTime)
+        }
+      }, 100)
+
+      // Set a maximum loading time
+      const maxLoadingTimer = setTimeout(() => {
+        clearInterval(checkInterval)
+        if (isMounted.current && effectiveStatsData) {
+          setLoading(false)
+        }
+      }, 5000) // Maximum 5 seconds of loading
+
+      return () => {
+        clearInterval(checkInterval)
+        clearTimeout(maxLoadingTimer)
       }
     }
+  }, [statsData])
 
-    loadData()
-
-    // Set a maximum loading time
-    const maxLoadingTimer = setTimeout(() => {
-      if (isMounted.current && statsData) {
-        setLoading(false)
-      }
-    }, 5000) // Maximum 5 seconds of loading
-
+  // Cleanup when component unmounts
+  useEffect(() => {
     return () => {
       isMounted.current = false
-      clearTimeout(maxLoadingTimer)
     }
-  }, [propStatsData, fetchStats])
-
-  // Update cache when new data comes in from props
-  useEffect(() => {
-    if (propStatsData && isDataReady(propStatsData)) {
-      industryStatsCache = propStatsData
-      lastFetchTime = Date.now()
-      saveToSessionStorage(propStatsData)
-    }
-  }, [propStatsData])
+  }, [])
 
   const handleNext = () => setCurrentSlide((prev) => (prev + 1) % slides.length)
 
