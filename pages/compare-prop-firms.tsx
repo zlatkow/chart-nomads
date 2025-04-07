@@ -7,6 +7,11 @@ import { useState } from "react"
 import { Search, ChevronDown, ChevronUp, Bookmark } from "lucide-react"
 import { FaShoppingCart } from "react-icons/fa"
 import ChallengeDetailsSidebar from "@/components/challenge-details-sidebar"
+import Navbar from "../components/Navbar"
+import Noise from "../components/Noise"
+import Community from "../components/Community"
+import Newsletter from "../components/Newsletter"
+import Footer from "../components/Footer"
 
 export default function PropFirmComparison() {
   // State for the challenge details sidebar
@@ -305,7 +310,7 @@ export default function PropFirmComparison() {
       <div className="mb-4 bg-[#1a1a1a] rounded-lg overflow-hidden">
         <button
           onClick={() => toggleAccordion(section)}
-          className="w-full p-3 flex justify-between items-center font-bold text-left"
+          className="w-full p-3 flex justify-between items-center text-left"
         >
           {title}
           <ChevronDown size={18} className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
@@ -405,11 +410,10 @@ export default function PropFirmComparison() {
 
   return (
     <div className="min-h-screen bg-[#0f0f0f] text-white">
-      {/* Noise Effect Placeholder */}
-      <div className="fixed inset-0 z-10 pointer-events-none opacity-[0.03] bg-[url('/noise.png')]"></div>
-
       <div className="w-full">
-        <div className="relative container mx-auto px-0 pt-[50px] pb-[50px] z-50">
+      <Navbar/>
+      <Noise/>
+        <div className="relative container max-w-[1280px] mx-auto px-0 pt-[50px] pb-[50px] z-50">
           <div className="flex flex-col lg:flex-row">
             {/* Sidebar - Search */}
             <div className="w-full lg:w-[350px] bg-[#edb900] text-[#0f0f0f] p-6 rounded-t-lg lg:rounded-tr-none lg:rounded-l-lg">
@@ -433,7 +437,7 @@ export default function PropFirmComparison() {
                   </button>
                 </div>
                 <div className="flex justify-between items-center">
-                  <h2 className="text-xl font-bold">Filters</h2>
+                  <h2 className="text-xl">Filters</h2>
                   <button className="text-sm font-medium hover:underline">Clear All</button>
                 </div>
               </div>
@@ -444,25 +448,25 @@ export default function PropFirmComparison() {
                   <>
                     {/* Challenge Type Filter */}
                     <div className="mb-6">
-                      <h3 className="font-bold mb-3">Challenge type:</h3>
+                      <h3 className=" mb-3">Challenge type:</h3>
                       {renderFilterButtons(challengeTypes, "2 Phases")}
                     </div>
 
                     {/* Account Size Filter */}
                     <div className="mb-6">
-                      <h3 className="font-bold mb-3">Account size:</h3>
+                      <h3 className="mb-3">Account size:</h3>
                       {renderFilterButtons(accountSizes.slice(0, 9), "100k")}
                     </div>
 
                     {/* Trading Asset Class Filter */}
                     <div className="mb-6">
-                      <h3 className="font-bold mb-3">Trading asset class:</h3>
+                      <h3 className=" mb-3">Trading asset class:</h3>
                       {renderFilterButtons(assetClasses, "Forex")}
                     </div>
 
                     {/* Show Discounted Price Toggle */}
                     <div className="mb-6">
-                      <h3 className="font-bold mb-3">Show discounted price?</h3>
+                      <h3 className=" mb-3">Show discounted price?</h3>
                       <label className="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" className="sr-only peer" />
                         <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#0f0f0f]"></div>
@@ -737,7 +741,7 @@ export default function PropFirmComparison() {
 
               {/* Search Button - Fixed at bottom */}
               <div className="mt-6">
-                <button className="w-full py-3 bg-[#0f0f0f] text-[#edb900] rounded-md font-bold flex items-center justify-center gap-2 hover:bg-[#2a2a2a] transition-colors">
+                <button className="w-full py-3 bg-[#0f0f0f] text-[#edb900] rounded-md flex items-center justify-center gap-2 hover:bg-[#2a2a2a] transition-colors">
                   <Search size={18} />
                   {searchMode === "quick" ? "Search" : "Advanced Search"}
                 </button>
@@ -746,7 +750,7 @@ export default function PropFirmComparison() {
 
             {/* Main Content */}
             <div className="flex-1 bg-[#0f0f0f] p-6 rounded-b-lg lg:rounded-bl-none lg:rounded-r-lg">
-              <h1 className="text-4xl font-bold text-center mb-8 text-[#edb900]">
+              <h1 className="text-4xl text-center mb-8 text-[#edb900]">
                 COMPARE ALL PROP FIRMS IN ONE PLACE
               </h1>
 
@@ -764,7 +768,7 @@ export default function PropFirmComparison() {
                         className="w-16 h-16 mb-3 rounded-md flex items-center justify-center overflow-hidden"
                         style={{ backgroundColor: firm.color }}
                       >
-                        <span className="text-[#0f0f0f] font-bold text-2xl">
+                        <span className="text-[#0f0f0f] text-2xl">
                           {firm.name.substring(0, 2).toUpperCase()}
                         </span>
                       </div>
@@ -830,7 +834,7 @@ export default function PropFirmComparison() {
                               className="w-12 h-12 rounded-md flex items-center justify-center overflow-hidden"
                               style={{ backgroundColor: offer.firmColor }}
                             >
-                              <span className="text-[#0f0f0f] font-bold text-lg">{offer.firmName.substring(0, 1)}</span>
+                              <span className="text-[#0f0f0f] text-lg">{offer.firmName.substring(0, 1)}</span>
                             </div>
                             <div>
                               <div className="flex items-center gap-2">
@@ -849,7 +853,7 @@ export default function PropFirmComparison() {
                                 </button>
                               </div>
                               <div className="flex items-center gap-2">
-                                <span className="font-bold text-[#edb900]">{offer.rating.toFixed(1)}</span>
+                                <span className="text-[#edb900]">{offer.rating.toFixed(1)}</span>
                                 <div className="flex">{renderStars(offer.rating)}</div>
                                 <span className="text-xs text-gray-400">{offer.reviews}</span>
                               </div>
@@ -890,7 +894,7 @@ export default function PropFirmComparison() {
                         </td>
                         <td className="p-3">
                           <div className="flex flex-col">
-                            <span className="font-bold">${offer.price.toFixed(2)}</span>
+                            <span>${offer.price.toFixed(2)}</span>
                             <span className="text-xs text-gray-400 line-through">
                               ${offer.originalPrice.toFixed(2)}
                             </span>
@@ -914,6 +918,9 @@ export default function PropFirmComparison() {
               </div>
             </div>
           </div>
+          <Community/>
+          <Newsletter/>
+          <Footer/>
         </div>
       </div>
 
