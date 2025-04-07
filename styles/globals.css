@@ -732,9 +732,9 @@ input:checked + .toggle-switch::after {
   position: sticky;
   left: 0;
   z-index: 5;
-  background-color: #0f0f0f;
-  min-width: 220px; /* Ensure enough width for the content */
-  max-width: 220px; /* Limit width to prevent overflow */
+  background-color: #0f0f0f !important;
+  min-width: 250px; /* Increased width to ensure content fits */
+  width: 250px; /* Fixed width */
 }
 
 /* Sticky last two columns (price and buy button) */
@@ -743,8 +743,9 @@ input:checked + .toggle-switch::after {
   position: sticky;
   right: 60px; /* Width of the last column (buy button) */
   z-index: 5;
-  background-color: #0f0f0f;
+  background-color: #0f0f0f !important;
   min-width: 100px;
+  width: 100px;
 }
 
 .sticky-table th:last-child,
@@ -752,7 +753,7 @@ input:checked + .toggle-switch::after {
   position: sticky;
   right: 0;
   z-index: 5;
-  background-color: #0f0f0f;
+  background-color: #0f0f0f !important;
   width: 60px;
 }
 
@@ -775,7 +776,7 @@ input:checked + .toggle-switch::after {
   right: 0;
   bottom: 0;
   width: 5px;
-  background: linear-gradient(to right, rgba(0, 0, 0, 0.1), transparent);
+  background: linear-gradient(to right, rgba(15, 15, 15, 0.5), transparent);
   pointer-events: none;
 }
 
@@ -787,7 +788,7 @@ input:checked + .toggle-switch::after {
   left: -5px;
   bottom: 0;
   width: 5px;
-  background: linear-gradient(to left, rgba(0, 0, 0, 0.1), transparent);
+  background: linear-gradient(to left, rgba(15, 15, 15, 0.5), transparent);
   pointer-events: none;
 }
 
