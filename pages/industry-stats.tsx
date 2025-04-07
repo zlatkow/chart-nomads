@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import useFetchStats from "../webhooks/useFetchStats"
 import IndustryStatsSlider from "../components/industry-stats-page/IndustryStatsSlider"
 import Navbar from "../components/Navbar"
@@ -13,56 +13,63 @@ import StatsTabs from "../components/industry-stats-page/StatsTabs"
 import StatsTabContent from "../components/industry-stats-page/StatsTabContent"
 
 const StatsPage = () => {
-  const { stats } = useFetchStats() // Just get the stats, no loading state
+  const { stats, loading } = useFetchStats() // Now we use the loading state
   const [activeTab, setActiveTab] = useState("stats")
+  const [statsData, setStatsData] = useState(null)
 
-  const statsData = {
-    last24Hours: {
-      totalAmount: stats?.transactions24h?.[0]?.totalamount || 0,
-      totalAmountChange: stats?.transactions24h?.[0]?.totalamountchange || "0%",
-      totalTransactions: stats?.transactions24h?.[0]?.totaltransactions || 0,
-      totalTransactionsChange: stats?.transactions24h?.[0]?.totaltransactionschange || "0%",
-      uniqueTraders: stats?.transactions24h?.[0]?.uniquetraders || 0,
-      uniqueTradersChange: stats?.transactions24h?.[0]?.uniquetraderschange || "0%",
-      averagePayout: stats?.transactions24h?.[0]?.averagepayout || 0,
-      largestPayout: stats?.transactions24h?.[0]?.largestpayout || 0,
-      avgTransactionsPerTrader: stats?.transactions24h?.[0]?.avgtransactionspertrader || 0,
-      timeSinceLastTransaction: stats?.transactions24h?.[0]?.timesincelasttransaction || "N/A",
-    },
-    last7Days: {
-      totalAmount: stats?.transactions7d?.[0]?.totalamount || 0,
-      totalAmountChange: stats?.transactions7d?.[0]?.totalamountchange || "0%",
-      totalTransactions: stats?.transactions7d?.[0]?.totaltransactions || 0,
-      totalTransactionsChange: stats?.transactions7d?.[0]?.totaltransactionschange || "0%",
-      uniqueTraders: stats?.transactions7d?.[0]?.uniquetraders || 0,
-      uniqueTradersChange: stats?.transactions7d?.[0]?.uniquetraderschange || "0%",
-      averagePayout: stats?.transactions7d?.[0]?.averagepayout || 0,
-      largestPayout: stats?.transactions7d?.[0]?.largestpayout || 0,
-      avgTransactionsPerTrader: stats?.transactions7d?.[0]?.avgtransactionspertrader || 0,
-      timeSinceLastTransaction: stats?.transactions7d?.[0]?.timesincelasttransaction || "N/A",
-    },
-    last30Days: {
-      totalAmount: stats?.transactions30d?.[0]?.totalamount || 0,
-      totalAmountChange: stats?.transactions30d?.[0]?.totalamountchange || "0%",
-      totalTransactions: stats?.transactions30d?.[0]?.totaltransactions || 0,
-      totalTransactionsChange: stats?.transactions30d?.[0]?.totaltransactionschange || "0%",
-      uniqueTraders: stats?.transactions30d?.[0]?.uniquetraders || 0,
-      uniqueTradersChange: stats?.transactions30d?.[0]?.uniquetraderschange || "0%",
-      averagePayout: stats?.transactions30d?.[0]?.averagepayout || 0,
-      largestPayout: stats?.transactions30d?.[0]?.largestpayout || 0,
-      avgTransactionsPerTrader: stats?.transactions30d?.[0]?.avgtransactionspertrader || 0,
-      timeSinceLastTransaction: stats?.transactions30d?.[0]?.timesincelasttransaction || "N/A",
-    },
-    sinceStart: {
-      totalAmount: stats?.allTransactions?.[0]?.totalamount || 0,
-      totalTransactions: stats?.allTransactions?.[0]?.totaltransactions || 0,
-      uniqueTraders: stats?.allTransactions?.[0]?.uniquetraders || 0,
-      averagePayout: stats?.allTransactions?.[0]?.averagepayout || 0,
-      largestPayout: stats?.allTransactions?.[0]?.largestpayout || 0,
-      avgTransactionsPerTrader: stats?.allTransactions?.[0]?.avgtransactionspertrader || 0,
-      timeSinceLastTransaction: stats?.allTransactions?.[0]?.timesincelasttransaction || "N/A",
-    },
-  }
+  // Transform the raw stats into the format needed by IndustryStatsSlider
+  useEffect(() => {
+    if (stats) {
+      const formattedData = {
+        last24Hours: {
+          totalAmount: stats?.transactions24h?.[0]?.totalamount || 0,
+          totalAmountChange: stats?.transactions24h?.[0]?.totalamountchange || "0%",
+          totalTransactions: stats?.transactions24h?.[0]?.totaltransactions || 0,
+          totalTransactionsChange: stats?.transactions24h?.[0]?.totaltransactionschange || "0%",
+          uniqueTraders: stats?.transactions24h?.[0]?.uniquetraders || 0,
+          uniqueTradersChange: stats?.transactions24h?.[0]?.uniquetraderschange || "0%",
+          averagePayout: stats?.transactions24h?.[0]?.averagepayout || 0,
+          largestPayout: stats?.transactions24h?.[0]?.largestpayout || 0,
+          avgTransactionsPerTrader: stats?.transactions24h?.[0]?.avgtransactionspertrader || 0,
+          timeSinceLastTransaction: stats?.transactions24h?.[0]?.timesincelasttransaction || "N/A",
+        },
+        last7Days: {
+          totalAmount: stats?.transactions7d?.[0]?.totalamount || 0,
+          totalAmountChange: stats?.transactions7d?.[0]?.totalamountchange || "0%",
+          totalTransactions: stats?.transactions7d?.[0]?.totaltransactions || 0,
+          totalTransactionsChange: stats?.transactions7d?.[0]?.totaltransactionschange || "0%",
+          uniqueTraders: stats?.transactions7d?.[0]?.uniquetraders || 0,
+          uniqueTradersChange: stats?.transactions7d?.[0]?.uniquetraderschange || "0%",
+          averagePayout: stats?.transactions7d?.[0]?.averagepayout || 0,
+          largestPayout: stats?.transactions7d?.[0]?.largestpayout || 0,
+          avgTransactionsPerTrader: stats?.transactions7d?.[0]?.avgtransactionspertrader || 0,
+          timeSinceLastTransaction: stats?.transactions7d?.[0]?.timesincelasttransaction || "N/A",
+        },
+        last30Days: {
+          totalAmount: stats?.transactions30d?.[0]?.totalamount || 0,
+          totalAmountChange: stats?.transactions30d?.[0]?.totalamountchange || "0%",
+          totalTransactions: stats?.transactions30d?.[0]?.totaltransactions || 0,
+          totalTransactionsChange: stats?.transactions30d?.[0]?.totaltransactionschange || "0%",
+          uniqueTraders: stats?.transactions30d?.[0]?.uniquetraders || 0,
+          uniqueTradersChange: stats?.transactions30d?.[0]?.uniquetraderschange || "0%",
+          averagePayout: stats?.transactions30d?.[0]?.averagepayout || 0,
+          largestPayout: stats?.transactions30d?.[0]?.largestpayout || 0,
+          avgTransactionsPerTrader: stats?.transactions30d?.[0]?.avgtransactionspertrader || 0,
+          timeSinceLastTransaction: stats?.transactions30d?.[0]?.timesincelasttransaction || "N/A",
+        },
+        sinceStart: {
+          totalAmount: stats?.allTransactions?.[0]?.totalamount || 0,
+          totalTransactions: stats?.allTransactions?.[0]?.totaltransactions || 0,
+          uniqueTraders: stats?.allTransactions?.[0]?.uniquetraders || 0,
+          averagePayout: stats?.allTransactions?.[0]?.averagepayout || 0,
+          largestPayout: stats?.allTransactions?.[0]?.largestpayout || 0,
+          avgTransactionsPerTrader: stats?.allTransactions?.[0]?.avgtransactionspertrader || 0,
+          timeSinceLastTransaction: stats?.allTransactions?.[0]?.timesincelasttransaction || "N/A",
+        },
+      }
+      setStatsData(formattedData)
+    }
+  }, [stats])
 
   return (
     <div className="w-full min-h-screen flex flex-col">
@@ -88,17 +95,25 @@ const StatsPage = () => {
               </p>
             </Accordion>
           </div>
-          
-          {/* Pass the stats data directly to the components */}
-          <IndustryStatsSlider statsData={statsData} />
-          
-          <div className="w-full">
-            <div className="flex justify-left mx-auto">
-              <StatsTabs activeTab={activeTab} onTabChange={setActiveTab} />
+
+          {/* Pass the stats data and loading state to the components */}
+          {loading && !statsData ? (
+            <div className="w-full py-10 flex justify-center items-center">
+              <div className="w-8 h-8 border-4 border-[#edb900] border-t-transparent rounded-full animate-spin"></div>
             </div>
-            {/* Tab content */}
-            <StatsTabContent activeTab={activeTab} stats={stats} />
-          </div>
+          ) : (
+            <>
+              <IndustryStatsSlider statsData={statsData} />
+
+              <div className="w-full">
+                <div className="flex justify-left mx-auto">
+                  <StatsTabs activeTab={activeTab} onTabChange={setActiveTab} />
+                </div>
+                {/* Tab content */}
+                <StatsTabContent activeTab={activeTab} stats={stats} />
+              </div>
+            </>
+          )}
         </div>
       </div>
       <Community />
@@ -109,3 +124,4 @@ const StatsPage = () => {
 }
 
 export default StatsPage
+

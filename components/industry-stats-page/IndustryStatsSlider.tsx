@@ -58,9 +58,6 @@ const isDataValid = (data) => {
   })
 }
 
-// Create a cache key for this specific data
-const CACHE_KEY = "industry-stats-slider-data"
-
 const IndustryStatsSlider = ({ statsData }) => {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -91,121 +88,50 @@ const IndustryStatsSlider = ({ statsData }) => {
     }
   }, [])
 
-  // Handle data loading and caching
+  // Initialize data on mount
   useEffect(() => {
-    // Only run this logic once on initial mount
     if (!initialLoadComplete.current) {
       // Check if we have valid data from props
       if (statsData && isDataValid(statsData)) {
-        // We have valid data, use it and turn off loading
         setLoading(false)
         initialLoadComplete.current = true
+      } else {
+        // If no data available, show loading state
+        setLoading(true)
 
-        // Cache the data in sessionStorage
-        try {
-          sessionStorage.setItem(CACHE_KEY, JSON.stringify(statsData))
-        } catch (e) {
-          console.warn("Failed to cache stats data:", e)
-        }
-        return
-      }
+        // Wait for data to become available
+        const checkInterval = setInterval(() => {
+          if (statsData && isDataValid(statsData)) {
+            clearInterval(checkInterval)
 
-      // If we don't have valid props data, try to get from cache
-      try {
-        const cachedData = sessionStorage.getItem(CACHE_KEY)
-        if (cachedData) {
-          const parsedData = JSON.parse(cachedData)
-          if (isDataValid(parsedData)) {
-            // We have valid cached data, use it and turn off loading
-            setLoading(false)
-            initialLoadComplete.current = true
-            return
+            if (isMounted.current) {
+              setLoading(false)
+              initialLoadComplete.current = true
+            }
           }
-        }
-      } catch (e) {
-        console.warn("Failed to retrieve cached stats data:", e)
-      }
+        }, 200)
 
-      // If we reach here, we don't have valid data yet
-      // Keep loading state on until we get valid data
-      const checkInterval = setInterval(() => {
-        if (statsData && isDataValid(statsData)) {
+        // Set a maximum loading time
+        const maxLoadingTimer = setTimeout(() => {
           clearInterval(checkInterval)
-
           if (isMounted.current) {
             setLoading(false)
             initialLoadComplete.current = true
-
-            // Cache the data
-            try {
-              sessionStorage.setItem(CACHE_KEY, JSON.stringify(statsData))
-            } catch (e) {
-              console.warn("Failed to cache stats data:", e)
-            }
           }
-        }
-      }, 200)
+        }, 5000)
 
-      // Set a maximum loading time
-      const maxLoadingTimer = setTimeout(() => {
-        clearInterval(checkInterval)
-        if (isMounted.current) {
-          setLoading(false)
-          initialLoadComplete.current = true
+        return () => {
+          clearInterval(checkInterval)
+          clearTimeout(maxLoadingTimer)
         }
-      }, 5000)
-
-      return () => {
-        clearInterval(checkInterval)
-        clearTimeout(maxLoadingTimer)
       }
     }
   }, [statsData])
-
-  // Cache data when it changes after initial load
-  useEffect(() => {
-    if (initialLoadComplete.current && statsData && isDataValid(statsData)) {
-      try {
-        sessionStorage.setItem(CACHE_KEY, JSON.stringify(statsData))
-      } catch (e) {
-        console.warn("Failed to update cached stats data:", e)
-      }
-    }
-  }, [statsData])
-
-  // Get the data to display - either from props or from cache
-  const getDisplayData = () => {
-    // First try props
-    if (statsData && isDataValid(statsData)) {
-      return statsData
-    }
-
-    // Then try cache
-    try {
-      const cachedData = sessionStorage.getItem(CACHE_KEY)
-      if (cachedData) {
-        const parsedData = JSON.parse(cachedData)
-        if (isDataValid(parsedData)) {
-          return parsedData
-        }
-      }
-    } catch (e) {
-      console.warn("Failed to retrieve cached stats data:", e)
-    }
-
-    // Fallback to empty data structure
-    return {
-      last24Hours: {},
-      last7Days: {},
-      last30Days: {},
-      sinceStart: {},
-    }
-  }
-
-  const displayData = getDisplayData()
 
   // Get slides from display data
-  const slides = [displayData.last24Hours, displayData.last7Days, displayData.last30Days, displayData.sinceStart]
+  const slides = statsData
+    ? [statsData.last24Hours, statsData.last7Days, statsData.last30Days, statsData.sinceStart]
+    : []
 
   // Handle slide navigation
   const handleNext = () => setCurrentSlide((prev) => (prev + 1) % slides.length)
@@ -213,10 +139,10 @@ const IndustryStatsSlider = ({ statsData }) => {
   // Auto-advance slides
   useEffect(() => {
     const interval = setInterval(() => {
-      if (!loading && !isHovered) handleNext()
+      if (!loading && !isHovered && slides.length > 0) handleNext()
     }, 2000)
     return () => clearInterval(interval)
-  }, [currentSlide, loading, isHovered])
+  }, [currentSlide, loading, isHovered, slides.length])
 
   const PercentageBubble = ({ change }) => {
     if (change === null || change === undefined) return null
@@ -282,6 +208,8 @@ const IndustryStatsSlider = ({ statsData }) => {
       {/* Loading Indicator with Shimmer Effect */}
       {loading ? (
         renderSkeletonCards()
+      ) : !statsData || slides.length === 0 ? (
+        <div className="text-center py-10 text-white">No data available</div>
       ) : (
         <>
           {/* Slide Heading */}
@@ -382,7 +310,7 @@ const IndustryStatsSlider = ({ statsData }) => {
       )}
 
       {/* Time Since Last Payout */}
-      {!loading && (
+      {!loading && statsData && slides.length > 0 && (
         <div className="mt-4 text-gray-400 text-lg text-right px-10">
           <span className="text-white">Time Since Last Payout: </span>
           <span className="text-xl text-[#edb900]">
