@@ -12,6 +12,7 @@ import Community from "../components/Community"
 import Newsletter from "../components/Newsletter"
 import Footer from "@/components/Footer"
 import { Input } from "@/components/ui/input"
+import Image from "next/image"
 
 export default function PropFirmComparison() {
   // State for the challenge details sidebar
@@ -31,6 +32,9 @@ export default function PropFirmComparison() {
   // Add these state variables after the other useState declarations
   const [sortColumn, setSortColumn] = useState<string>("firmName")
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc")
+
+  // Add state for discount toggle
+  const [showDiscountedPrice, setShowDiscountedPrice] = useState(false)
 
   // Mock data for the design
   const mockFirms = [
@@ -552,10 +556,21 @@ export default function PropFirmComparison() {
 
                         {/* Show Discounted Price Toggle */}
                         <div className="mb-6">
-                          <h3 className=" mb-3">Show discounted price?</h3>
+                          <h3 className="mb-3">Show discounted price?</h3>
                           <label className="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" className="sr-only peer" />
-                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#0f0f0f]"></div>
+                            <input
+                              type="checkbox"
+                              className="sr-only peer"
+                              checked={showDiscountedPrice}
+                              onChange={() => setShowDiscountedPrice(!showDiscountedPrice)}
+                            />
+                            <div
+                              className="toggle-switch w-11 h-6 bg-[#0f0f0f] rounded-full peer 
+                              peer-checked:after:translate-x-full after:content-[''] after:absolute 
+                              after:top-[2px] after:left-[2px] after:bg-gray-300 after:border-gray-300 
+                              after:border after:rounded-full after:h-5 after:w-5 after:transition-all 
+                              peer-checked:after:bg-[#0f0f0f] peer-checked:after:border-[#0f0f0f]"
+                            ></div>
                           </label>
                         </div>
                       </>
@@ -1157,7 +1172,13 @@ export default function PropFirmComparison() {
                       <td className="p-3">{offer.payoutFrequency}</td>
                       <td className="p-3">
                         <div className="flex items-center gap-1">
-                          <span className="text-[#edb900]">$</span>
+                          <Image
+                            src="/icons/logo_loyalty_points.png"
+                            alt="Loyalty Points"
+                            width={16}
+                            height={16}
+                            className="object-contain"
+                          />
                           <span>{offer.loyaltyPoints}</span>
                         </div>
                       </td>
