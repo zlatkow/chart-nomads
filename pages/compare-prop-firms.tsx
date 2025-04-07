@@ -799,12 +799,12 @@ export default function PropFirmComparison() {
 
               {/* Search and Results Count */}
               <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
-                <div className="relative w-full md:w-auto">
+                <div className="relative w-[250px] justify-center z-20">
                   <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
                   <input
                     type="text"
                     placeholder="Search..."
-                    className="p-3 pl-8 bg-[#1a1a1a] border border-[#333] rounded-md text-white w-full md:w-[300px] focus:outline-none focus:ring-1 focus:ring-[#edb900]"
+                    className="p-3 pl-8 bg-[#1a1a1a] border border-[#333] rounded-md text-white w-full focus:outline-none focus:ring-1 focus:ring-[#edb900]"
                     value={searchQuery}
                     onChange={handleSearch}
                   />
