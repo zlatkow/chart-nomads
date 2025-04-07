@@ -949,7 +949,7 @@ export default function PropFirmComparison() {
                         </td>
                         <td className="p-3">
                           <button
-                            className="w-10 h-10 flex items-center justify-center bg-[#edb900] text-[#0f0f0f] rounded-full hover:bg-[#c99e00] transition-colors"
+                            className="w-[50px] h-10 flex items-center justify-center bg-[#edb900] text-[#0f0f0f] rounded-[10px] hover:bg-[#c99e00] transition-colors"
                             onClick={(e) => {
                               e.stopPropagation()
                               // Handle cart button click
