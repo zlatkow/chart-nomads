@@ -413,7 +413,7 @@ export default function PropFirmComparison() {
       <div className="w-full">
       <Navbar/>
       <Noise/>
-        <div className="relative container max-w-[1280px] mx-auto px-0 pt-[50px] pb-[50px] z-50">
+        <div className="relative container max-w-[1280px] mt-[200px] mb-[100px] mx-auto px-0 pt-[50px] pb-[50px] z-50">
           <div className="flex flex-col lg:flex-row">
             {/* Sidebar - Search */}
             <div className="w-full lg:w-[350px] bg-[#edb900] text-[#0f0f0f] p-6 rounded-t-lg lg:rounded-tr-none lg:rounded-l-lg">
@@ -918,10 +918,10 @@ export default function PropFirmComparison() {
               </div>
             </div>
           </div>
-          <Community/>
-          <Newsletter/>
-          <Footer/>
         </div>
+        <Community/>
+        <Newsletter/>
+        <Footer/>
       </div>
 
       {/* Challenge Details Sidebar */}
