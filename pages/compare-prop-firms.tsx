@@ -3,7 +3,7 @@
 
 import type React from "react"
 import { useState } from "react"
-import { Search, ChevronDown, ChevronUp, Bookmark, ChevronLeft, ChevronRight } from "lucide-react"
+import { Search, ChevronDown, ChevronUp, Bookmark, ChevronLeft } from "lucide-react"
 import { FaShoppingCart } from "react-icons/fa"
 import ChallengeDetailsSidebar from "@/components/challenge-details-sidebar"
 import Navbar from "../components/Navbar"
@@ -26,6 +26,7 @@ export default function PropFirmComparison() {
   const [searchQuery, setSearchQuery] = useState("")
 
   // Add this state after the other useState declarations
+  // Change the sidebar width when expanded from 350px to 400px
   const [sidebarExpanded, setSidebarExpanded] = useState(true)
 
   // Mock data for the design
@@ -447,18 +448,19 @@ export default function PropFirmComparison() {
         <div className="relative container max-w-[1280px] mt-[200px] mb-[100px] mx-auto px-0 pt-[50px] pb-[50px] z-50">
           <div className="flex flex-col lg:flex-row relative">
             {/* Sidebar - Search */}
+            {/* In the return statement, update the sidebar container div: */}
             <div
               className={`${
-                sidebarExpanded ? "lg:w-[350px]" : "lg:w-[60px]"
-              } w-full bg-[#edb900] text-[#0f0f0f] p-6 rounded-t-lg lg:rounded-tr-none lg:rounded-l-lg transition-all duration-300 ease-in-out overflow-hidden`}
+                sidebarExpanded ? "lg:w-[400px]" : "lg:w-[10px]"
+              } w-full bg-[#edb900] text-[#0f0f0f] p-6 rounded-t-lg lg:rounded-tr-none lg:rounded-l-lg transition-all duration-300 ease-in-out overflow-hidden relative`}
             >
-              {/* Toggle button for sidebar */}
+              {/* Toggle button for sidebar - moved to left side */}
               <button
                 onClick={toggleSidebar}
-                className="absolute top-6 -right-4 bg-[#edb900] text-[#0f0f0f] rounded-full p-2 shadow-md hidden lg:flex items-center justify-center z-10 hover:bg-[#c99e00] transition-colors"
+                className="absolute top-6 -left-4 bg-[#0f0f0f] text-[#edb900] rounded-full p-2 shadow-md hidden lg:flex items-center justify-center z-10 hover:bg-[#2a2a2a] transition-colors"
                 aria-label={sidebarExpanded ? "Collapse sidebar" : "Expand sidebar"}
               >
-                {sidebarExpanded ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
+                {sidebarExpanded ? <ChevronLeft size={18} /> : <Search size={18} />}
               </button>
 
               <div className={`${!sidebarExpanded ? "lg:opacity-0" : "opacity-100"} transition-opacity duration-200`}>
@@ -795,16 +797,10 @@ export default function PropFirmComparison() {
                 </div>
               </div>
 
+              {/* Update the collapsed sidebar view to remove the yellow background and use a filter icon */}
               {!sidebarExpanded && (
-                <div className="hidden lg:flex flex-col items-center pt-10 h-full">
-                  <div className="rotate-90 whitespace-nowrap text-sm font-bold mb-8">SEARCH FILTERS</div>
-                  <button
-                    onClick={() => setSidebarExpanded(true)}
-                    className="p-2 bg-[#0f0f0f] rounded-full text-[#edb900] hover:bg-[#2a2a2a] transition-colors"
-                    aria-label="Expand search filters"
-                  >
-                    <Search size={20} />
-                  </button>
+                <div className="hidden lg:flex flex-col items-center h-full">
+                  {/* No content needed in collapsed state */}
                 </div>
               )}
             </div>
