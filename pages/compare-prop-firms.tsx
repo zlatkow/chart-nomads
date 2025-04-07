@@ -28,6 +28,10 @@ export default function PropFirmComparison() {
   // Add this state after the other useState declarations
   const [sidebarExpanded, setSidebarExpanded] = useState(true)
 
+  // Add these state variables after the other useState declarations
+  const [sortColumn, setSortColumn] = useState<string>("firmName")
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc")
+
   // Mock data for the design
   const mockFirms = [
     { id: 1, name: "FTMO", logo: "/placeholder.svg", color: "#3366ff" },
@@ -433,6 +437,39 @@ export default function PropFirmComparison() {
 
     return name.includes(searchLower) || accountSize.includes(searchLower) || steps.includes(searchLower)
   })
+
+  // Add this function to handle sorting
+  const handleSort = (column: string) => {
+    if (sortColumn === column) {
+      // Toggle direction if clicking the same column
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc")
+    } else {
+      // Set new column and default to ascending
+      setSortColumn(column)
+      setSortDirection("asc")
+    }
+  }
+
+  // Add this function to get the sorted offers
+  const getSortedOffers = () => {
+    return [...filteredOffers].sort((a, b) => {
+      let valueA: any = a[sortColumn as keyof typeof a]
+      let valueB: any = b[sortColumn as keyof typeof b]
+
+      // Handle special cases
+      if (sortColumn === "price" || sortColumn === "rating") {
+        valueA = Number(valueA)
+        valueB = Number(valueB)
+      }
+
+      if (valueA < valueB) return sortDirection === "asc" ? -1 : 1
+      if (valueA > valueB) return sortDirection === "asc" ? 1 : -1
+      return 0
+    })
+  }
+
+  // Get the sorted offers
+  const sortedOffers = getSortedOffers()
 
   // Add this function to toggle the sidebar
   const toggleSidebar = () => {
@@ -865,168 +902,286 @@ export default function PropFirmComparison() {
                 </span>
               </div>
 
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-[#333]">
-                      <th className="p-2 text-left">
-                        <div className="flex items-center gap-1">
-                          <span className="text-xs font-[balboa] uppercase">FIRM / RANK</span>
-                          <ChevronUp size={14} className="text-[#edb900]" />
-                        </div>
-                      </th>
-                      <th className="p-2 text-left">
-                        <div className="flex items-center gap-1">
-                          <span className="text-xs font-[balboa] uppercase">ACC SIZE</span>
-                          <ChevronDown size={14} />
-                        </div>
-                      </th>
-                      <th className="p-2 text-left">
-                        <div className="flex items-center gap-1">
-                          <span className="text-xs font-[balboa] uppercase">PROGRAM</span>
-                          <ChevronDown size={14} />
-                        </div>
-                      </th>
-                      <th className="p-2 text-left">
-                        <div className="flex items-center gap-1">
-                          <span className="text-xs font-[balboa] uppercase">PROFIT TARGET</span>
-                          <ChevronDown size={14} />
-                        </div>
-                      </th>
-                      <th className="p-2 text-left">
-                        <div className="flex items-center gap-1">
-                          <span className="text-xs font-[balboa] uppercase">DAILY LOSS</span>
-                          <ChevronDown size={14} />
-                        </div>
-                      </th>
-                      <th className="p-2 text-left">
-                        <div className="flex items-center gap-1">
-                          <span className="text-xs font-[balboa] uppercase">MAX LOSS</span>
-                          <ChevronDown size={14} />
-                        </div>
-                      </th>
-                      <th className="p-2 text-left">
-                        <div className="flex items-center gap-1">
-                          <span className="text-xs font-[balboa] uppercase">PROFIT SPLIT</span>
-                          <ChevronDown size={14} />
-                        </div>
-                      </th>
-                      <th className="p-2 text-left">
-                        <div className="flex items-center gap-1">
-                          <span className="text-xs font-[balboa] uppercase">PAYOUT FREQ.</span>
-                          <ChevronDown size={14} />
-                        </div>
-                      </th>
-                      <th className="p-2 text-left">
-                        <div className="flex items-center gap-1">
-                          <span className="text-xs font-[balboa] uppercase">LOYALTY PTS</span>
-                          <ChevronDown size={14} />
-                        </div>
-                      </th>
-                      <th className="p-2 text-left">
-                        <div className="flex items-center gap-1">
-                          <span className="text-xs font-[balboa] uppercase">PRICE</span>
-                          <ChevronDown size={14} />
-                        </div>
-                      </th>
-                      <th className="p-2 text-left"></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredOffers.map((offer) => (
-                      <tr
-                        key={offer.id}
-                        className="border-b border-[#222] hover:bg-[#1a1a1a] cursor-pointer"
-                        onClick={() => handleRowClick(offer)}
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-[#333]">
+                    <th className="p-1 text-left">
+                      <button
+                        onClick={() => handleSort("firmName")}
+                        className="flex items-center gap-1 w-full hover:text-[#edb900] transition-colors"
                       >
-                        <td className="p-3">
-                          <div className="flex items-center gap-3">
-                            <div
-                              className="w-12 h-12 rounded-md flex items-center justify-center overflow-hidden"
-                              style={{ backgroundColor: offer.firmColor }}
-                            >
-                              <span className="text-[#0f0f0f] text-lg">{offer.firmName.substring(0, 1)}</span>
-                            </div>
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <span className="font-medium">{offer.firmName}</span>
-                                <button
-                                  className="text-gray-400 hover:text-[#edb900]"
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    // Handle bookmark click
-                                  }}
-                                >
-                                  <Bookmark
-                                    size={16}
-                                    className={offer.isFavorite ? "fill-[#edb900] text-[#edb900]" : ""}
-                                  />
-                                </button>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="text-[#edb900]">{offer.rating.toFixed(1)}</span>
-                                <div className="flex">{renderStars(offer.rating)}</div>
-                                <span className="text-xs text-gray-400">{offer.reviews}</span>
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="p-3 font-medium">{offer.accountSize}</td>
-                        <td className="p-3">
-                          <div className="flex items-center gap-1">
-                            <span>{offer.steps}</span>
-                            <span className="text-gray-400 rounded-full border border-gray-600 w-4 h-4 flex items-center justify-center text-xs">
-                              i
-                            </span>
-                          </div>
-                        </td>
-                        <td className="p-3">
-                          <div>
-                            <span>{offer.profitTarget}</span>
-                            <span className="text-gray-400 ml-2">{offer.phase2Target}</span>
-                          </div>
-                        </td>
-                        <td className="p-3">{offer.maxDailyLoss}</td>
-                        <td className="p-3">{offer.maxTotalDrawdown}</td>
-                        <td className="p-3">
-                          <div className="flex items-center">
-                            <span>{offer.profitSplit}</span>
-                            <div className="ml-2 w-20 h-2 bg-[#333] rounded-full overflow-hidden">
-                              <div className="h-full bg-[#edb900]" style={{ width: "80%" }}></div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="p-3">{offer.payoutFrequency}</td>
-                        <td className="p-3">
-                          <div className="flex items-center gap-1">
-                            <span className="text-[#edb900]">$</span>
-                            <span>{offer.loyaltyPoints}</span>
-                          </div>
-                        </td>
-                        <td className="p-3">
-                          <div className="flex flex-col">
-                            <span>${offer.price.toFixed(2)}</span>
-                            <span className="text-xs text-gray-400 line-through">
-                              ${offer.originalPrice.toFixed(2)}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="p-3">
-                          <button
-                            className="w-[50px] h-10 flex items-center justify-center bg-[#edb900] text-[#0f0f0f] rounded-[10px] hover:bg-[#c99e00] transition-colors"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              // Handle cart button click
-                            }}
+                        <span className="text-[10px] font-[balboa] uppercase font-normal tracking-wider">
+                          FIRM / RANK
+                        </span>
+                        {sortColumn === "firmName" ? (
+                          sortDirection === "asc" ? (
+                            <ChevronUp size={12} className="text-[#edb900]" />
+                          ) : (
+                            <ChevronDown size={12} className="text-[#edb900]" />
+                          )
+                        ) : (
+                          <ChevronDown size={12} className="opacity-50" />
+                        )}
+                      </button>
+                    </th>
+                    <th className="p-1 text-left">
+                      <button
+                        onClick={() => handleSort("accountSize")}
+                        className="flex items-center gap-1 w-full hover:text-[#edb900] transition-colors"
+                      >
+                        <span className="text-[10px] font-[balboa] uppercase font-normal tracking-wider">ACC SIZE</span>
+                        {sortColumn === "accountSize" ? (
+                          sortDirection === "asc" ? (
+                            <ChevronUp size={12} className="text-[#edb900]" />
+                          ) : (
+                            <ChevronDown size={12} className="text-[#edb900]" />
+                          )
+                        ) : (
+                          <ChevronDown size={12} className="opacity-50" />
+                        )}
+                      </button>
+                    </th>
+                    <th className="p-1 text-left">
+                      <button
+                        onClick={() => handleSort("steps")}
+                        className="flex items-center gap-1 w-full hover:text-[#edb900] transition-colors"
+                      >
+                        <span className="text-[10px] font-[balboa] uppercase font-normal tracking-wider">PROGRAM</span>
+                        {sortColumn === "steps" ? (
+                          sortDirection === "asc" ? (
+                            <ChevronUp size={12} className="text-[#edb900]" />
+                          ) : (
+                            <ChevronDown size={12} className="text-[#edb900]" />
+                          )
+                        ) : (
+                          <ChevronDown size={12} className="opacity-50" />
+                        )}
+                      </button>
+                    </th>
+                    <th className="p-1 text-left">
+                      <button
+                        onClick={() => handleSort("profitTarget")}
+                        className="flex items-center gap-1 w-full hover:text-[#edb900] transition-colors"
+                      >
+                        <span className="text-[10px] font-[balboa] uppercase font-normal tracking-wider">
+                          PROFIT TARGET
+                        </span>
+                        {sortColumn === "profitTarget" ? (
+                          sortDirection === "asc" ? (
+                            <ChevronUp size={12} className="text-[#edb900]" />
+                          ) : (
+                            <ChevronDown size={12} className="text-[#edb900]" />
+                          )
+                        ) : (
+                          <ChevronDown size={12} className="opacity-50" />
+                        )}
+                      </button>
+                    </th>
+                    <th className="p-1 text-left">
+                      <button
+                        onClick={() => handleSort("maxDailyLoss")}
+                        className="flex items-center gap-1 w-full hover:text-[#edb900] transition-colors"
+                      >
+                        <span className="text-[10px] font-[balboa] uppercase font-normal tracking-wider">
+                          DAILY LOSS
+                        </span>
+                        {sortColumn === "maxDailyLoss" ? (
+                          sortDirection === "asc" ? (
+                            <ChevronUp size={12} className="text-[#edb900]" />
+                          ) : (
+                            <ChevronDown size={12} className="text-[#edb900]" />
+                          )
+                        ) : (
+                          <ChevronDown size={12} className="opacity-50" />
+                        )}
+                      </button>
+                    </th>
+                    <th className="p-1 text-left">
+                      <button
+                        onClick={() => handleSort("maxTotalDrawdown")}
+                        className="flex items-center gap-1 w-full hover:text-[#edb900] transition-colors"
+                      >
+                        <span className="text-[10px] font-[balboa] uppercase font-normal tracking-wider">MAX LOSS</span>
+                        {sortColumn === "maxTotalDrawdown" ? (
+                          sortDirection === "asc" ? (
+                            <ChevronUp size={12} className="text-[#edb900]" />
+                          ) : (
+                            <ChevronDown size={12} className="text-[#edb900]" />
+                          )
+                        ) : (
+                          <ChevronDown size={12} className="opacity-50" />
+                        )}
+                      </button>
+                    </th>
+                    <th className="p-1 text-left">
+                      <button
+                        onClick={() => handleSort("profitSplit")}
+                        className="flex items-center gap-1 w-full hover:text-[#edb900] transition-colors"
+                      >
+                        <span className="text-[10px] font-[balboa] uppercase font-normal tracking-wider">
+                          PROFIT SPLIT
+                        </span>
+                        {sortColumn === "profitSplit" ? (
+                          sortDirection === "asc" ? (
+                            <ChevronUp size={12} className="text-[#edb900]" />
+                          ) : (
+                            <ChevronDown size={12} className="text-[#edb900]" />
+                          )
+                        ) : (
+                          <ChevronDown size={12} className="opacity-50" />
+                        )}
+                      </button>
+                    </th>
+                    <th className="p-1 text-left">
+                      <button
+                        onClick={() => handleSort("payoutFrequency")}
+                        className="flex items-center gap-1 w-full hover:text-[#edb900] transition-colors"
+                      >
+                        <span className="text-[10px] font-[balboa] uppercase font-normal tracking-wider">
+                          PAYOUT FREQ.
+                        </span>
+                        {sortColumn === "payoutFrequency" ? (
+                          sortDirection === "asc" ? (
+                            <ChevronUp size={12} className="text-[#edb900]" />
+                          ) : (
+                            <ChevronDown size={12} className="text-[#edb900]" />
+                          )
+                        ) : (
+                          <ChevronDown size={12} className="opacity-50" />
+                        )}
+                      </button>
+                    </th>
+                    <th className="p-1 text-left">
+                      <button
+                        onClick={() => handleSort("loyaltyPoints")}
+                        className="flex items-center gap-1 w-full hover:text-[#edb900] transition-colors"
+                      >
+                        <span className="text-[10px] font-[balboa] uppercase font-normal tracking-wider">
+                          LOYALTY PTS
+                        </span>
+                        {sortColumn === "loyaltyPoints" ? (
+                          sortDirection === "asc" ? (
+                            <ChevronUp size={12} className="text-[#edb900]" />
+                          ) : (
+                            <ChevronDown size={12} className="text-[#edb900]" />
+                          )
+                        ) : (
+                          <ChevronDown size={12} className="opacity-50" />
+                        )}
+                      </button>
+                    </th>
+                    <th className="p-1 text-left">
+                      <button
+                        onClick={() => handleSort("price")}
+                        className="flex items-center gap-1 w-full hover:text-[#edb900] transition-colors"
+                      >
+                        <span className="text-[10px] font-[balboa] uppercase font-normal tracking-wider">PRICE</span>
+                        {sortColumn === "price" ? (
+                          sortDirection === "asc" ? (
+                            <ChevronUp size={12} className="text-[#edb900]" />
+                          ) : (
+                            <ChevronDown size={12} className="text-[#edb900]" />
+                          )
+                        ) : (
+                          <ChevronDown size={12} className="opacity-50" />
+                        )}
+                      </button>
+                    </th>
+                    <th className="p-1 text-left"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sortedOffers.map((offer) => (
+                    <tr
+                      key={offer.id}
+                      className="border-b border-[#222] hover:bg-[#1a1a1a] cursor-pointer"
+                      onClick={() => handleRowClick(offer)}
+                    >
+                      <td className="p-3">
+                        <div className="flex items-center gap-3">
+                          <div
+                            className="w-12 h-12 rounded-md flex items-center justify-center overflow-hidden"
+                            style={{ backgroundColor: offer.firmColor }}
                           >
-                            <FaShoppingCart size={16} />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                            <span className="text-[#0f0f0f] text-lg">{offer.firmName.substring(0, 1)}</span>
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium">{offer.firmName}</span>
+                              <button
+                                className="text-gray-400 hover:text-[#edb900]"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  // Handle bookmark click
+                                }}
+                              >
+                                <Bookmark
+                                  size={16}
+                                  className={offer.isFavorite ? "fill-[#edb900] text-[#edb900]" : ""}
+                                />
+                              </button>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-[#edb900]">{offer.rating.toFixed(1)}</span>
+                              <div className="flex">{renderStars(offer.rating)}</div>
+                              <span className="text-xs text-gray-400">{offer.reviews}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="p-3 font-medium">{offer.accountSize}</td>
+                      <td className="p-3">
+                        <div className="flex items-center gap-1">
+                          <span>{offer.steps}</span>
+                          <span className="text-gray-400 rounded-full border border-gray-600 w-4 h-4 flex items-center justify-center text-xs">
+                            i
+                          </span>
+                        </div>
+                      </td>
+                      <td className="p-3">
+                        <div>
+                          <span>{offer.profitTarget}</span>
+                          <span className="text-gray-400 ml-2">{offer.phase2Target}</span>
+                        </div>
+                      </td>
+                      <td className="p-3">{offer.maxDailyLoss}</td>
+                      <td className="p-3">{offer.maxTotalDrawdown}</td>
+                      <td className="p-3">
+                        <div className="flex items-center">
+                          <span>{offer.profitSplit}</span>
+                          <div className="ml-2 w-20 h-2 bg-[#333] rounded-full overflow-hidden">
+                            <div className="h-full bg-[#edb900]" style={{ width: "80%" }}></div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="p-3">{offer.payoutFrequency}</td>
+                      <td className="p-3">
+                        <div className="flex items-center gap-1">
+                          <span className="text-[#edb900]">$</span>
+                          <span>{offer.loyaltyPoints}</span>
+                        </div>
+                      </td>
+                      <td className="p-3">
+                        <div className="flex flex-col">
+                          <span>${offer.price.toFixed(2)}</span>
+                          <span className="text-xs text-gray-400 line-through">${offer.originalPrice.toFixed(2)}</span>
+                        </div>
+                      </td>
+                      <td className="p-3">
+                        <button
+                          className="w-[50px] h-10 flex items-center justify-center bg-[#edb900] text-[#0f0f0f] rounded-[10px] hover:bg-[#c99e00] transition-colors"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            // Handle cart button click
+                          }}
+                        >
+                          <FaShoppingCart size={16} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
