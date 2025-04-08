@@ -523,7 +523,10 @@ export default function PropFirmComparison() {
           <h1 className="text-7xl text-center mb-8 text-white mb-[100px]">COMPARE ALL PROP FIRMS IN ONE PLACE</h1>
           <div className="flex flex-col lg:flex-row relative">
             {/* Sidebar - Search */}
-            <div className="relative sticky" style={{ top: "90px" }}>
+            <div
+              className="relative"
+              style={{ position: "sticky", top: "90px", height: "fit-content", alignSelf: "flex-start" }}
+            >
               <div
                 className={`${
                   sidebarExpanded ? "w-[300px] p-6" : "w-[30px]"
