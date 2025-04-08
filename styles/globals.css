@@ -712,7 +712,7 @@ input:checked + .toggle-switch::after {
   border-collapse: separate;
   border-spacing: 0;
   width: 100%;
-  width: 1200px; /* Minimum width of table */
+  min-width: 1200px; /* Changed from width to min-width */
   table-layout: fixed; /* This helps with column width control */
   background-color: #0f0f0f;
 }
@@ -805,6 +805,20 @@ input:checked + .toggle-switch::after {
   z-index: 1;
 }
 
+/* FIX: Add bottom border to sticky cells to match row borders */
+.sticky-table tbody tr:not(:last-child) td:first-child::before,
+.sticky-table tbody tr:not(:last-child) td:nth-last-child(2)::before,
+.sticky-table tbody tr:not(:last-child) td:last-child::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background-color: #333;
+  z-index: 7;
+}
+
 /* Vertical dividers between cells */
 .sticky-table td,
 .sticky-table th {
@@ -847,6 +861,13 @@ input:checked + .toggle-switch::after {
   background-color: #1a1a1a !important;
 }
 
+/* FIX: Ensure sticky columns maintain background on hover */
+.sticky-table tbody tr:hover td:first-child,
+.sticky-table tbody tr:hover td:nth-last-child(2),
+.sticky-table tbody tr:hover td:last-child {
+  background-color: #1a1a1a !important;
+}
+
 /* Hide scrollbar but keep functionality */
 .sticky-table-container::-webkit-scrollbar {
   display: none; /* Chrome, Safari, Opera */
@@ -855,47 +876,4 @@ input:checked + .toggle-switch::after {
 .sticky-table-container {
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE and Edge */
-}
-
-/* Ensure the logo container doesn't shrink */
-.sticky-table td:first-child .flex .w-12 {
-  flex-shrink: 0;
-}
-
-/* Style for the firm logo square */
-.firm-logo-square {
-  width: 48px;
-  height: 48px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  font-size: 20px;
-  font-weight: bold;
-  color: #0f0f0f;
-}
-
-/* Style for the rating badge */
-.rating-badge {
-  background-color: #333;
-  border-radius: 999px;
-  padding: 2px 8px;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-/* Buy button styling */
-.buy-button {
-  background-color: #edb900;
-  color: #0f0f0f;
-  border-radius: 10px;
-  padding: 8px 16px;
-  font-weight: 600;
-  transition: background-color 0.2s;
-}
-
-.buy-button:hover {
-  background-color: #c99e00;
 }
