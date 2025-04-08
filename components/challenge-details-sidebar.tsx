@@ -546,8 +546,8 @@ export default function ChallengeDetailsSidebar({ challenge, isOpen, onClose }: 
               {/* Sticky Buy Button with gradient background */}
               <div className="absolute bottom-0 left-0 right-0 w-full">
                 <div className="h-20 bg-gradient-to-t from-[#0f0f0f] via-[#0f0f0f] to-transparent"></div>
-                <div className="absolute bottom-0 left-0 right-0 p-3">
-                  <button className="w-full py-2.5 bg-[#edb900] text-[#0f0f0f] rounded-md font-bold flex items-center justify-center gap-2 hover:bg-[#c99e00] transition-colors">
+                <div className="absolute bottom-0 left-0 right-0 flex justify-center px-10 mb-[75px]">
+                  <button className="w-[200px] py-2.5 bg-[#edb900] text-[#0f0f0f] rounded-md font-bold flex items-center justify-center gap-2 hover:bg-[#c99e00] transition-colors">
                     <FaShoppingCart size={16} />
                     Buy Challenge
                   </button>
