@@ -782,6 +782,12 @@ input:checked + .toggle-switch::after {
   border-bottom: 1px solid #333 !important;
 }
 
+/* Add horizontal divider for header */
+.sticky-table thead th {
+  position: relative;
+  border-bottom: 1px solid #333 !important;
+}
+
 /* Make sure sticky cells show their borders too */
 .sticky-table tbody td:first-child,
 .sticky-table tbody td:nth-last-child(2),
