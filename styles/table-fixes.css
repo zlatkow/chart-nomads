@@ -1,0 +1,123 @@
+/* New CSS file for table fixes */
+
+/* Table wrapper to enforce container constraints */
+.table-wrapper {
+  width: 100%;
+  max-width: 1280px !important;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Sticky table container with horizontal scroll */
+.sticky-table-container {
+  position: relative;
+  overflow-x: auto;
+  width: 100%;
+  max-width: 100%;
+}
+
+.sticky-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  min-width: 1200px; /* Minimum width of table */
+  max-width: 100%;
+  table-layout: fixed; /* This helps with column width control */
+  background-color: #0f0f0f;
+}
+
+/* Sticky header */
+.sticky-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: #0f0f0f;
+  padding: 12px 16px;
+}
+
+/* Sticky first column */
+.sticky-table th:first-child,
+.sticky-table td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 5;
+  background-color: #0f0f0f;
+  min-width: 200px;
+  width: 200px;
+}
+
+/* Sticky last two columns (price and buy button) */
+.sticky-table th:nth-last-child(2),
+.sticky-table td:nth-last-child(2) {
+  position: sticky;
+  right: 60px; /* Width of the last column (buy button) */
+  z-index: 5;
+  background-color: #0f0f0f;
+  min-width: 100px;
+  width: 100px;
+}
+
+.sticky-table th:last-child,
+.sticky-table td:last-child {
+  position: sticky;
+  right: 0;
+  z-index: 5;
+  background-color: #0f0f0f;
+  width: 60px;
+}
+
+/* Adjust z-index for the corner cells (header + sticky column) */
+.sticky-table th:first-child {
+  z-index: 15;
+}
+
+.sticky-table th:nth-last-child(2),
+.sticky-table th:last-child {
+  z-index: 15;
+}
+
+/* Remove all default borders */
+.sticky-table tbody tr,
+.sticky-table tbody tr td,
+.sticky-table thead tr,
+.sticky-table th,
+.sticky-table td {
+  border: none;
+}
+
+/* Add cursor pointer to rows */
+.sticky-table tbody tr {
+  cursor: pointer;
+}
+
+/* Add horizontal dividers between rows */
+.sticky-table tbody tr {
+  border-bottom: 1px solid #333 !important;
+}
+
+/* Add vertical dividers between cells */
+.sticky-table td,
+.sticky-table th {
+  position: relative;
+}
+
+.sticky-table td:not(:last-child)::after,
+.sticky-table th:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 25%;
+  height: 50%;
+  width: 1px;
+  background-color: #333;
+}
+
+/* Ensure the logo container doesn't shrink */
+.sticky-table td:first-child .flex .w-12 {
+  flex-shrink: 0;
+}
+
+/* Hover effect */
+.sticky-table tbody tr:hover {
+  background-color: #1a1a1a;
+}
