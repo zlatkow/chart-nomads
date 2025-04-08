@@ -768,39 +768,17 @@ input:checked + .toggle-switch::after {
   z-index: 15;
 }
 
-/* Remove all default borders */
-.sticky-table tbody tr,
+/* Remove default borders but keep bottom borders */
 .sticky-table tbody tr td,
 .sticky-table thead tr,
 .sticky-table th,
 .sticky-table td {
-  border: none !important;
+  border: none;
 }
 
 /* Add horizontal divider for header */
 .sticky-table thead tr {
   position: relative;
-}
-
-.sticky-table thead tr::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 1px;
-  background-color: #333;
-  z-index: 20;
-}
-
-/* Add horizontal dividers between rows */
-.sticky-table tbody tr {
-  position: relative;
-  cursor: pointer;
-}
-
-/* Add bottom border to each cell individually */
-.sticky-table tbody td {
   border-bottom: 1px solid #333 !important;
 }
 
@@ -809,6 +787,25 @@ input:checked + .toggle-switch::after {
 .sticky-table tbody td:nth-last-child(2),
 .sticky-table tbody td:last-child {
   border-bottom: 1px solid #333 !important;
+}
+
+/* Add horizontal dividers between rows - use a different approach */
+.sticky-table tbody tr {
+  position: relative;
+  cursor: pointer;
+}
+
+/* Use a pseudo-element for the row border that spans the full width */
+.sticky-table tbody tr::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background-color: #333;
+  z-index: 1;
+  pointer-events: none;
 }
 
 /* Vertical dividers between cells */
@@ -867,4 +864,9 @@ input:checked + .toggle-switch::after {
 /* Ensure the logo container doesn't shrink */
 .sticky-table td:first-child .flex .w-12 {
   flex-shrink: 0;
+}
+
+/* Make sure the row border is visible on hover */
+.sticky-table tbody tr:hover::after {
+  background-color: #333;
 }
