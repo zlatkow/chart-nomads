@@ -985,7 +985,7 @@ export default function PropFirmComparison() {
                       <col style={{ width: "60px" }} /> {/* Buy Button */}
                     </colgroup>
                     <thead>
-                      <tr className="border-b border-[#333]">
+                      <tr>
                         <th className="p-3 text-left relative">
                           <button
                             onClick={() => handleSort("firmName")}
@@ -1193,7 +1193,7 @@ export default function PropFirmComparison() {
                       {sortedOffers.map((offer) => (
                         <tr
                           key={offer.id}
-                          className="border-b border-[#333] cursor-pointer" /* Added cursor-pointer */
+                          className="cursor-pointer" /* Added cursor-pointer */
                           onClick={() => handleRowClick(offer)}
                         >
                           <td className="p-3 relative">
