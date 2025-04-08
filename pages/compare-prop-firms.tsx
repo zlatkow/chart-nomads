@@ -13,6 +13,7 @@ import Newsletter from "../components/Newsletter"
 import Footer from "@/components/Footer"
 import { Input } from "@/components/ui/input"
 import Image from "next/image"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 
 // Update the SegmentedProgressBar component to have individual segment colors
 const SegmentedProgressBar = ({
@@ -65,6 +66,8 @@ export default function PropFirmComparison() {
 
   // State for search mode toggle
   const [searchMode, setSearchMode] = useState<"quick" | "advanced">("quick")
+
+  // Add this state after the other  setSearchMode] = useState<"quick" | "advanced">("quick")
 
   // Add this state after the other useState declarations
   const [searchTerm, setSearchTerm] = useState("")
@@ -359,38 +362,6 @@ export default function PropFirmComparison() {
     }))
   }
 
-  // Create a reusable accordion component for filter categories
-  const FilterAccordion = ({
-    title,
-    section,
-    children,
-  }: {
-    title: string
-    section: string
-    children: React.ReactNode
-  }) => {
-    const isOpen = openAccordions[section]
-
-    return (
-      <div className="mb-4 bg-[#1a1a1a] rounded-lg overflow-hidden">
-        <button
-          onClick={() => toggleAccordion(section)}
-          className="w-full p-3 flex justify-between items-center text-left"
-        >
-          {title}
-          <ChevronDown size={18} className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
-        </button>
-        <div
-          className={`transition-all duration-200 overflow-hidden ${
-            isOpen ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"
-          }`}
-        >
-          <div className="p-3 pt-0">{children}</div>
-        </div>
-      </div>
-    )
-  }
-
   // Function to render star rating
   const renderStars = (rating: number) => {
     const fullStars = Math.floor(rating)
@@ -614,278 +585,329 @@ export default function PropFirmComparison() {
                               checked={showDiscountedPrice}
                               onChange={() => setShowDiscountedPrice(!showDiscountedPrice)}
                             />
-                            <div className="toggle-switch w-12 h-6 bg-black rounded-full peer relative">
-                              {showDiscountedPrice && (
-                                <span className="absolute left-1.5 top-1/2 -translate-y-1/2 text-white text-xs z-10">
-                                  ✓
-                                </span>
-                              )}
-                            </div>
+                            <div className="toggle-switch"></div>
                           </label>
                         </div>
                       </>
                     ) : (
                       // Advanced search content
                       <div className="space-y-4">
-                        <FilterAccordion title="Trading Asset Class" section="tradingAssetClass">
-                          {renderFilterButtons(assetClasses)}
-                        </FilterAccordion>
+                        <Accordion type="single" collapsible defaultValue="tradingAssetClass" className="space-y-2">
+                          <AccordionItem
+                            value="tradingAssetClass"
+                            className="border-0 bg-[#1a1a1a] rounded-lg overflow-hidden"
+                          >
+                            <AccordionTrigger className="px-3 py-2 text-[#edb900] hover:bg-[#222] hover:no-underline">
+                              Trading Asset Class
+                            </AccordionTrigger>
+                            <AccordionContent className="px-3 pb-3 pt-0">
+                              {renderFilterButtons(assetClasses)}
+                            </AccordionContent>
+                          </AccordionItem>
 
-                        <FilterAccordion title="Account Size" section="accountSize">
-                          {renderFilterButtons(accountSizes)}
-                        </FilterAccordion>
+                          <AccordionItem
+                            value="accountSize"
+                            className="border-0 bg-[#1a1a1a] rounded-lg overflow-hidden"
+                          >
+                            <AccordionTrigger className="px-3 py-2 text-[#edb900] hover:bg-[#222] hover:no-underline">
+                              Account Size
+                            </AccordionTrigger>
+                            <AccordionContent className="px-3 pb-3 pt-0">
+                              {renderFilterButtons(accountSizes)}
+                            </AccordionContent>
+                          </AccordionItem>
 
-                        <FilterAccordion title="Challenge Type" section="challengeType">
-                          {renderFilterButtons(challengeTypes)}
-                        </FilterAccordion>
+                          <AccordionItem
+                            value="challengeType"
+                            className="border-0 bg-[#1a1a1a] rounded-lg overflow-hidden"
+                          >
+                            <AccordionTrigger className="px-3 py-2 text-[#edb900] hover:bg-[#222] hover:no-underline">
+                              Challenge Type
+                            </AccordionTrigger>
+                            <AccordionContent className="px-3 pb-3 pt-0">
+                              {renderFilterButtons(challengeTypes)}
+                            </AccordionContent>
+                          </AccordionItem>
 
-                        <FilterAccordion title="Brokers" section="brokers">
-                          {renderFilterButtons(brokers)}
-                        </FilterAccordion>
+                          <AccordionItem value="brokers" className="border-0 bg-[#1a1a1a] rounded-lg overflow-hidden">
+                            <AccordionTrigger className="px-3 py-2 text-[#edb900] hover:bg-[#222] hover:no-underline">
+                              Brokers
+                            </AccordionTrigger>
+                            <AccordionContent className="px-3 pb-3 pt-0">
+                              {renderFilterButtons(brokers)}
+                            </AccordionContent>
+                          </AccordionItem>
 
-                        <FilterAccordion title="Platforms" section="platforms">
-                          {renderFilterButtons(platforms)}
-                        </FilterAccordion>
+                          <AccordionItem value="platforms" className="border-0 bg-[#1a1a1a] rounded-lg overflow-hidden">
+                            <AccordionTrigger className="px-3 py-2 text-[#edb900] hover:bg-[#222] hover:no-underline">
+                              Platforms
+                            </AccordionTrigger>
+                            <AccordionContent className="px-3 pb-3 pt-0">
+                              {renderFilterButtons(platforms)}
+                            </AccordionContent>
+                          </AccordionItem>
 
-                        <FilterAccordion title="Special Features" section="specialFeatures">
-                          {renderFilterButtons(specialFeatures)}
-                        </FilterAccordion>
+                          <AccordionItem
+                            value="specialFeatures"
+                            className="border-0 bg-[#1a1a1a] rounded-lg overflow-hidden"
+                          >
+                            <AccordionTrigger className="px-3 py-2 text-[#edb900] hover:bg-[#222] hover:no-underline">
+                              Special Features
+                            </AccordionTrigger>
+                            <AccordionContent className="px-3 pb-3 pt-0">
+                              {renderFilterButtons(specialFeatures)}
+                            </AccordionContent>
+                          </AccordionItem>
 
-                        <FilterAccordion title="Countries" section="countries">
-                          {renderFilterButtons(countries)}
-                        </FilterAccordion>
+                          <AccordionItem value="countries" className="border-0 bg-[#1a1a1a] rounded-lg overflow-hidden">
+                            <AccordionTrigger className="px-3 py-2 text-[#edb900] hover:bg-[#222] hover:no-underline">
+                              Countries
+                            </AccordionTrigger>
+                            <AccordionContent className="px-3 pb-3 pt-0">
+                              {renderFilterButtons(countries)}
+                            </AccordionContent>
+                          </AccordionItem>
 
-                        <FilterAccordion title="Advanced Filtering" section="advancedFiltering">
-                          <div className="space-y-4">
-                            {/* Price Range */}
-                            <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
-                              <label className="block mb-2 font-medium">Price $</label>
-                              <div className="flex items-center gap-2">
-                                <input
-                                  type="range"
-                                  min="0"
-                                  max="2000"
-                                  step="50"
-                                  defaultValue="500"
-                                  className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
-                                />
-                              </div>
-                              <div className="flex justify-between mt-1 text-xs">
-                                <span>$0</span>
-                                <span>$2,000</span>
-                              </div>
-                            </div>
+                          <AccordionItem
+                            value="advancedFiltering"
+                            className="border-0 bg-[#1a1a1a] rounded-lg overflow-hidden"
+                          >
+                            <AccordionTrigger className="px-3 py-2 text-[#edb900] hover:bg-[#222] hover:no-underline">
+                              Advanced Filtering
+                            </AccordionTrigger>
+                            <AccordionContent className="px-3 pb-3 pt-0">
+                              <div className="space-y-4">
+                                {/* Price Range */}
+                                <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
+                                  <label className="block mb-2 font-medium">Price $</label>
+                                  <div className="flex items-center gap-2">
+                                    <input
+                                      type="range"
+                                      min="0"
+                                      max="2000"
+                                      step="50"
+                                      defaultValue="500"
+                                      className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
+                                    />
+                                  </div>
+                                  <div className="flex justify-between mt-1 text-xs">
+                                    <span>$0</span>
+                                    <span>$2,000</span>
+                                  </div>
+                                </div>
 
-                            {/* Account Size K */}
-                            <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
-                              <label className="block mb-2 font-medium">Account Size K</label>
-                              <div className="flex items-center gap-2">
-                                <input
-                                  type="range"
-                                  min="0"
-                                  max="400000"
-                                  step="10000"
-                                  defaultValue="100000"
-                                  className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
-                                />
-                              </div>
-                              <div className="flex justify-between mt-1 text-xs">
-                                <span>$0</span>
-                                <span>$400,000</span>
-                              </div>
-                            </div>
+                                {/* Account Size K */}
+                                <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
+                                  <label className="block mb-2 font-medium">Account Size K</label>
+                                  <div className="flex items-center gap-2">
+                                    <input
+                                      type="range"
+                                      min="0"
+                                      max="400000"
+                                      step="10000"
+                                      defaultValue="100000"
+                                      className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
+                                    />
+                                  </div>
+                                  <div className="flex justify-between mt-1 text-xs">
+                                    <span>$0</span>
+                                    <span>$400,000</span>
+                                  </div>
+                                </div>
 
-                            {/* Account Profit Split % */}
-                            <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
-                              <label className="block mb-2 font-medium">Account Profit Split %</label>
-                              <div className="flex items-center gap-2">
-                                <input
-                                  type="range"
-                                  min="0"
-                                  max="100"
-                                  step="5"
-                                  defaultValue="80"
-                                  className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
-                                />
-                              </div>
-                              <div className="flex justify-between mt-1 text-xs">
-                                <span>0%</span>
-                                <span>100%</span>
-                              </div>
-                            </div>
+                                {/* Account Profit Split % */}
+                                <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
+                                  <label className="block mb-2 font-medium">Account Profit Split %</label>
+                                  <div className="flex items-center gap-2">
+                                    <input
+                                      type="range"
+                                      min="0"
+                                      max="100"
+                                      step="5"
+                                      defaultValue="80"
+                                      className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
+                                    />
+                                  </div>
+                                  <div className="flex justify-between mt-1 text-xs">
+                                    <span>0%</span>
+                                    <span>100%</span>
+                                  </div>
+                                </div>
 
-                            {/* Profit Target % (Combined) */}
-                            <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
-                              <label className="block mb-2 font-medium">Profit Target % (Combined)</label>
-                              <div className="flex items-center gap-2">
-                                <input
-                                  type="range"
-                                  min="0"
-                                  max="30"
-                                  step="1"
-                                  defaultValue="10"
-                                  className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
-                                />
-                              </div>
-                              <div className="flex justify-between mt-1 text-xs">
-                                <span>0%</span>
-                                <span>30%</span>
-                              </div>
-                            </div>
+                                {/* Profit Target % (Combined) */}
+                                <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
+                                  <label className="block mb-2 font-medium">Profit Target % (Combined)</label>
+                                  <div className="flex items-center gap-2">
+                                    <input
+                                      type="range"
+                                      min="0"
+                                      max="30"
+                                      step="1"
+                                      defaultValue="10"
+                                      className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
+                                    />
+                                  </div>
+                                  <div className="flex justify-between mt-1 text-xs">
+                                    <span>0%</span>
+                                    <span>30%</span>
+                                  </div>
+                                </div>
 
-                            {/* Max Daily Loss % */}
-                            <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
-                              <label className="block mb-2 font-medium">Max Daily Loss %</label>
-                              <div className="flex items-center gap-2">
-                                <input
-                                  type="range"
-                                  min="0"
-                                  max="10"
-                                  step="0.5"
-                                  defaultValue="5"
-                                  className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
-                                />
-                              </div>
-                              <div className="flex justify-between mt-1 text-xs">
-                                <span>0%</span>
-                                <span>10%</span>
-                              </div>
-                            </div>
+                                {/* Max Daily Loss % */}
+                                <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
+                                  <label className="block mb-2 font-medium">Max Daily Loss %</label>
+                                  <div className="flex items-center gap-2">
+                                    <input
+                                      type="range"
+                                      min="0"
+                                      max="10"
+                                      step="0.5"
+                                      defaultValue="5"
+                                      className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
+                                    />
+                                  </div>
+                                  <div className="flex justify-between mt-1 text-xs">
+                                    <span>0%</span>
+                                    <span>10%</span>
+                                  </div>
+                                </div>
 
-                            {/* Account Max Total Drawdown % */}
-                            <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
-                              <label className="block mb-2 font-medium">Account Max Total Drawdown %</label>
-                              <div className="flex items-center gap-2">
-                                <input
-                                  type="range"
-                                  min="0"
-                                  max="20"
-                                  step="1"
-                                  defaultValue="10"
-                                  className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
-                                />
-                              </div>
-                              <div className="flex justify-between mt-1 text-xs">
-                                <span>0%</span>
-                                <span>20%</span>
-                              </div>
-                            </div>
+                                {/* Account Max Total Drawdown % */}
+                                <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
+                                  <label className="block mb-2 font-medium">Account Max Total Drawdown %</label>
+                                  <div className="flex items-center gap-2">
+                                    <input
+                                      type="range"
+                                      min="0"
+                                      max="20"
+                                      step="1"
+                                      defaultValue="10"
+                                      className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
+                                    />
+                                  </div>
+                                  <div className="flex justify-between mt-1 text-xs">
+                                    <span>0%</span>
+                                    <span>20%</span>
+                                  </div>
+                                </div>
 
-                            {/* Commission $ */}
-                            <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
-                              <label className="block mb-2 font-medium">Commission $</label>
-                              <div className="flex items-center gap-2">
-                                <input
-                                  type="range"
-                                  min="0"
-                                  max="10"
-                                  step="0.5"
-                                  defaultValue="0"
-                                  className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
-                                />
-                              </div>
-                              <div className="flex justify-between mt-1 text-xs">
-                                <span>$0</span>
-                                <span>$10</span>
-                              </div>
-                            </div>
+                                {/* Commission $ */}
+                                <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
+                                  <label className="block mb-2 font-medium">Commission $</label>
+                                  <div className="flex items-center gap-2">
+                                    <input
+                                      type="range"
+                                      min="0"
+                                      max="10"
+                                      step="0.5"
+                                      defaultValue="0"
+                                      className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
+                                    />
+                                  </div>
+                                  <div className="flex justify-between mt-1 text-xs">
+                                    <span>$0</span>
+                                    <span>$10</span>
+                                  </div>
+                                </div>
 
-                            {/* Account PT:DD ratio */}
-                            <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
-                              <label className="block mb-2 font-medium">Account PT:DD ratio</label>
-                              <div className="flex items-center gap-2">
-                                <input
-                                  type="range"
-                                  min="0"
-                                  max="1"
-                                  step="0.1"
-                                  defaultValue="0.5"
-                                  className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
-                                />
-                              </div>
-                              <div className="flex justify-between mt-1 text-xs">
-                                <span>1:0</span>
-                                <span>1:1</span>
-                              </div>
-                            </div>
+                                {/* Account PT:DD ratio */}
+                                <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
+                                  <label className="block mb-2 font-medium">Account PT:DD ratio</label>
+                                  <div className="flex items-center gap-2">
+                                    <input
+                                      type="range"
+                                      min="0"
+                                      max="1"
+                                      step="0.1"
+                                      defaultValue="0.5"
+                                      className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
+                                    />
+                                  </div>
+                                  <div className="flex justify-between mt-1 text-xs">
+                                    <span>1:0</span>
+                                    <span>1:1</span>
+                                  </div>
+                                </div>
 
-                            {/* Payout Frequency (Days) */}
-                            <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
-                              <label className="block mb-2 font-medium">Payout Frequency (Days)</label>
-                              <div className="flex items-center gap-2">
-                                <input
-                                  type="range"
-                                  min="0"
-                                  max="30"
-                                  step="1"
-                                  defaultValue="14"
-                                  className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
-                                />
-                              </div>
-                              <div className="flex justify-between mt-1 text-xs">
-                                <span>0 Days</span>
-                                <span>30 Days</span>
-                              </div>
-                            </div>
+                                {/* Payout Frequency (Days) */}
+                                <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
+                                  <label className="block mb-2 font-medium">Payout Frequency (Days)</label>
+                                  <div className="flex items-center gap-2">
+                                    <input
+                                      type="range"
+                                      min="0"
+                                      max="30"
+                                      step="1"
+                                      defaultValue="14"
+                                      className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
+                                    />
+                                  </div>
+                                  <div className="flex justify-between mt-1 text-xs">
+                                    <span>0 Days</span>
+                                    <span>30 Days</span>
+                                  </div>
+                                </div>
 
-                            {/* Trust Pilot Rating */}
-                            <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
-                              <label className="block mb-2 font-medium">Trust Pilot Rating</label>
-                              <div className="flex items-center gap-2">
-                                <input
-                                  type="range"
-                                  min="1"
-                                  max="5"
-                                  step="0.1"
-                                  defaultValue="4"
-                                  className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
-                                />
-                              </div>
-                              <div className="flex justify-between mt-1 text-xs">
-                                <span>1</span>
-                                <span>5</span>
-                              </div>
-                            </div>
+                                {/* Trust Pilot Rating */}
+                                <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
+                                  <label className="block mb-2 font-medium">Trust Pilot Rating</label>
+                                  <div className="flex items-center gap-2">
+                                    <input
+                                      type="range"
+                                      min="1"
+                                      max="5"
+                                      step="0.1"
+                                      defaultValue="4"
+                                      className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
+                                    />
+                                  </div>
+                                  <div className="flex justify-between mt-1 text-xs">
+                                    <span>1</span>
+                                    <span>5</span>
+                                  </div>
+                                </div>
 
-                            {/* Years in Business */}
-                            <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
-                              <label className="block mb-2 font-medium">Years in Business</label>
-                              <div className="flex items-center gap-2">
-                                <input
-                                  type="range"
-                                  min="1"
-                                  max="15"
-                                  step="1"
-                                  defaultValue="5"
-                                  className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
-                                />
-                              </div>
-                              <div className="flex justify-between mt-1 text-xs">
-                                <span>1 Years</span>
-                                <span>15 Years</span>
-                              </div>
-                            </div>
+                                {/* Years in Business */}
+                                <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
+                                  <label className="block mb-2 font-medium">Years in Business</label>
+                                  <div className="flex items-center gap-2">
+                                    <input
+                                      type="range"
+                                      min="1"
+                                      max="15"
+                                      step="1"
+                                      defaultValue="5"
+                                      className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
+                                    />
+                                  </div>
+                                  <div className="flex justify-between mt-1 text-xs">
+                                    <span>1 Years</span>
+                                    <span>15 Years</span>
+                                  </div>
+                                </div>
 
-                            {/* Loyalty Points */}
-                            <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
-                              <label className="block mb-2 font-medium">Loyalty Points</label>
-                              <div className="flex items-center gap-2">
-                                <input
-                                  type="range"
-                                  min="0"
-                                  max="5000"
-                                  step="100"
-                                  defaultValue="1000"
-                                  className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
-                                />
+                                {/* Loyalty Points */}
+                                <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
+                                  <label className="block mb-2 font-medium">Loyalty Points</label>
+                                  <div className="flex items-center gap-2">
+                                    <input
+                                      type="range"
+                                      min="0"
+                                      max="5000"
+                                      step="100"
+                                      defaultValue="1000"
+                                      className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
+                                    />
+                                  </div>
+                                  <div className="flex justify-between mt-1 text-xs">
+                                    <span>0 Points</span>
+                                    <span>5,000 Points</span>
+                                  </div>
+                                </div>
                               </div>
-                              <div className="flex justify-between mt-1 text-xs">
-                                <span>0 Points</span>
-                                <span>5,000 Points</span>
-                              </div>
-                            </div>
-                          </div>
-                        </FilterAccordion>
+                            </AccordionContent>
+                          </AccordionItem>
+                        </Accordion>
                       </div>
                     )}
                   </div>
@@ -1166,7 +1188,7 @@ export default function PropFirmComparison() {
                           </button>
                         </th>
                         <th className="p-3 text-center relative">
-                        <div className="absolute left-0 top-1/4 z-15 h-1/2 w-px bg-[#333]"></div>
+                          <div className="absolute left-0 top-1/4 z-15 h-1/2 w-px bg-[#333]"></div>
                           <button
                             onClick={() => handleSort("price")}
                             className="flex items-center justify-center gap-1 w-full hover:text-[#edb900] transition-colors"
@@ -1279,7 +1301,7 @@ export default function PropFirmComparison() {
                             </div>
                           </td>
                           <td className="p-3 text-center relative">
-                          <div className="absolute left-0 top-1/4 z-15 h-1/2 w-px bg-[#333]"></div>
+                            <div className="absolute left-0 top-1/4 z-15 h-1/2 w-px bg-[#333]"></div>
                             <div className="flex flex-col items-center">
                               <span>${offer.price.toFixed(2)}</span>
                               <span className="text-xs text-gray-400 line-through">
