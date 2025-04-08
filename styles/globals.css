@@ -724,7 +724,6 @@ input:checked + .toggle-switch::after {
   top: 0;
   z-index: 10;
   background-color: #0f0f0f;
-  border-bottom: 1px solid #333 !important;
   padding: 12px 16px;
 }
 
@@ -735,9 +734,8 @@ input:checked + .toggle-switch::after {
   left: 0;
   z-index: 5;
   background-color: #0f0f0f !important;
-  min-width: 250px; /* Increased width to ensure content fits */
-  width: 250px; /* Fixed width */
-  border-right: 1px solid #333 !important;
+  min-width: 200px; /* Increased width to ensure content fits */
+  width: 200px; /* Fixed width */
 }
 
 /* Sticky last two columns (price and buy button) */
@@ -749,7 +747,6 @@ input:checked + .toggle-switch::after {
   background-color: #0f0f0f !important;
   min-width: 100px;
   width: 100px;
-  border-left: 1px solid #333 !important;
 }
 
 .sticky-table th:last-child,
@@ -771,31 +768,33 @@ input:checked + .toggle-switch::after {
   z-index: 15;
 }
 
-/* Add these styles to replace the full borders with partial-height dividers */
-
-/* Remove the existing border styles */
+/* Remove all default borders */
 .sticky-table tbody tr,
 .sticky-table tbody tr td,
-.sticky-table thead tr {
-  border-bottom: none !important;
+.sticky-table thead tr,
+.sticky-table th,
+.sticky-table td {
+  border: none !important;
 }
 
-.sticky-table th:first-child,
-.sticky-table td:first-child {
-  border-right: none !important;
+/* Add horizontal divider for header */
+.sticky-table thead tr::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background-color: #333;
+  z-index: 20;
 }
 
-.sticky-table th:nth-last-child(2),
-.sticky-table td:nth-last-child(2) {
-  border-left: none !important;
-}
-
-/* Add the new partial-height divider styles */
+/* Add horizontal dividers between rows */
 .sticky-table tbody tr {
   position: relative;
+  cursor: pointer;
 }
 
-/* Horizontal dividers between rows */
 .sticky-table tbody tr:not(:last-child)::after {
   content: "";
   position: absolute;
@@ -804,14 +803,18 @@ input:checked + .toggle-switch::after {
   bottom: 0;
   height: 1px;
   background-color: #333;
+  z-index: 1;
 }
 
 /* Vertical dividers between cells */
-.sticky-table td {
+.sticky-table td,
+.sticky-table th {
   position: relative;
 }
 
-.sticky-table td:not(:last-child)::after {
+/* Standard vertical dividers */
+.sticky-table td:not(:last-child)::after,
+.sticky-table th:not(:last-child)::after {
   content: "";
   position: absolute;
   right: 0;
@@ -821,52 +824,29 @@ input:checked + .toggle-switch::after {
   background-color: #333;
 }
 
-/* Special handling for sticky columns */
-.sticky-table td:first-child::after {
-  content: "";
-  position: absolute;
+/* Fix for sticky first column */
+.sticky-table td:first-child::after,
+.sticky-table th:first-child::after {
+  z-index: 6;
+}
+
+/* Fix for sticky right columns */
+.sticky-table td:nth-last-child(2)::after,
+.sticky-table th:nth-last-child(2)::after {
   right: 0;
-  top: 25%;
-  height: 50%;
-  width: 1px;
-  background-color: #333;
   z-index: 6;
 }
 
-.sticky-table td:nth-last-child(2)::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 25%;
-  height: 50%;
-  width: 1px;
-  background-color: #333;
-  z-index: 6;
+/* Remove vertical divider from the last column */
+.sticky-table td:last-child::after,
+.sticky-table th:last-child::after {
+  display: none;
 }
 
-/* Add pointer cursor to all rows */
-.sticky-table tbody tr {
-  cursor: pointer;
-}
-
-/* Force borders on table rows - with !important to override any other styles */
-/*.sticky-table tbody tr {
-  border-bottom: 1px solid #333 !important;
-  cursor: pointer; /* Add pointer cursor to rows */
-/*}
-
+/* Hover effect */
 .sticky-table tbody tr:hover {
   background-color: #1a1a1a !important;
 }
-
-.sticky-table tbody tr td {
-  border-bottom: 1px solid #333 !important;
-  padding: 12px 16px;
-}
-
-.sticky-table thead tr {
-  border-bottom: 1px solid #333 !important;
-}*/
 
 /* Hide scrollbar but keep functionality */
 .sticky-table-container::-webkit-scrollbar {
