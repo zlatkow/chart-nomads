@@ -14,6 +14,7 @@ import Footer from "@/components/Footer"
 import { Input } from "@/components/ui/input"
 import Image from "next/image"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { Switch } from "@/components/ui/switch" 
 
 // Update the SegmentedProgressBar component to have individual segment colors
 const SegmentedProgressBar = ({
@@ -578,15 +579,7 @@ export default function PropFirmComparison() {
                         {/* Show Discounted Price Toggle */}
                         <div className="mb-6">
                           <h3 className="mb-3">Show discounted price?</h3>
-                          <label className="relative inline-flex items-center cursor-pointer">
-                            <input
-                              type="checkbox"
-                              className="sr-only peer"
-                              checked={showDiscountedPrice}
-                              onChange={() => setShowDiscountedPrice(!showDiscountedPrice)}
-                            />
-                            <div className="toggle-switch"></div>
-                          </label>
+                          <Switch checked={showDiscountedPrice} onCheckedChange={setShowDiscountedPrice} />
                         </div>
                       </>
                     ) : (
