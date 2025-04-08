@@ -1,4 +1,3 @@
-/* eslint-disable */
 "use client"
 
 import type React from "react"
@@ -12,8 +11,10 @@ import Community from "../components/Community"
 import Newsletter from "../components/Newsletter"
 import Footer from "@/components/Footer"
 import { Input } from "@/components/ui/input"
-import Image from "next/image"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { Switch } from "@/components/ui/switch" // Import Switch from shadcn/ui
+// Update the renderFilterButtons function to use our custom component
+import { CustomFilterToggle } from "@/components/custom-filter-toggle"
 
 // Update the SegmentedProgressBar component to have individual segment colors
 const SegmentedProgressBar = ({
@@ -426,19 +427,12 @@ export default function PropFirmComparison() {
     setIsSidebarOpen(true)
   }
 
-  // Function to render filter buttons
+  // Replace the renderFilterButtons function with this:
   const renderFilterButtons = (options: { value: string; label: string }[], selectedValue?: string) => {
     return (
       <div className="flex flex-wrap gap-2">
         {options.map((option) => (
-          <button
-            key={option.value}
-            className={`px-3 py-1 rounded-full border border-[#0f0f0f] text-xs ${
-              option.value === selectedValue ? "bg-[#0f0f0f] text-[#edb900]" : "bg-transparent"
-            }`}
-          >
-            {option.label}
-          </button>
+          <CustomFilterToggle key={option.value} label={option.label} selected={option.value === selectedValue} />
         ))}
       </div>
     )
@@ -575,18 +569,12 @@ export default function PropFirmComparison() {
                           {renderFilterButtons(assetClasses, "Forex")}
                         </div>
 
-                        {/* Show Discounted Price Toggle */}
+                        {/* Show Discounted Price Toggle - Updated to use Switch component */}
                         <div className="mb-6">
-                          <h3 className="mb-3">Show discounted price?</h3>
-                          <label className="relative inline-flex items-center cursor-pointer">
-                            <input
-                              type="checkbox"
-                              className="sr-only peer"
-                              checked={showDiscountedPrice}
-                              onChange={() => setShowDiscountedPrice(!showDiscountedPrice)}
-                            />
-                            <div className="toggle-switch"></div>
-                          </label>
+                          <div className="flex items-center justify-between">
+                            <h3 className="mb-0">Show discounted price?</h3>
+                            <Switch checked={showDiscountedPrice} onCheckedChange={setShowDiscountedPrice} />
+                          </div>
                         </div>
                       </>
                     ) : (
@@ -649,7 +637,7 @@ export default function PropFirmComparison() {
 
                           <AccordionItem
                             value="specialFeatures"
-                            className="border-0 bg-[#1a1a1a] rounded-lg overflow-hidden"
+                            className="border-0 bg-[#1a1a1a rounded-lg overflow-hidden"
                           >
                             <AccordionTrigger className="px-3 py-2 text-[#edb900] hover:bg-[#222] hover:no-underline">
                               Special Features
@@ -677,7 +665,7 @@ export default function PropFirmComparison() {
                             </AccordionTrigger>
                             <AccordionContent className="px-3 pb-3 pt-0">
                               <div className="space-y-4">
-                                {/* Price Range */}
+                                {/* Price Range - Updated slider styling */}
                                 <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
                                   <label className="block mb-2 font-medium">Price $</label>
                                   <div className="flex items-center gap-2">
@@ -696,7 +684,7 @@ export default function PropFirmComparison() {
                                   </div>
                                 </div>
 
-                                {/* Account Size K */}
+                                {/* Account Size K - Updated slider styling */}
                                 <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
                                   <label className="block mb-2 font-medium">Account Size K</label>
                                   <div className="flex items-center gap-2">
@@ -715,7 +703,7 @@ export default function PropFirmComparison() {
                                   </div>
                                 </div>
 
-                                {/* Account Profit Split % */}
+                                {/* Account Profit Split % - Updated slider styling */}
                                 <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
                                   <label className="block mb-2 font-medium">Account Profit Split %</label>
                                   <div className="flex items-center gap-2">
@@ -734,7 +722,7 @@ export default function PropFirmComparison() {
                                   </div>
                                 </div>
 
-                                {/* Profit Target % (Combined) */}
+                                {/* Profit Target % (Combined) - Updated slider styling */}
                                 <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
                                   <label className="block mb-2 font-medium">Profit Target % (Combined)</label>
                                   <div className="flex items-center gap-2">
@@ -753,7 +741,7 @@ export default function PropFirmComparison() {
                                   </div>
                                 </div>
 
-                                {/* Max Daily Loss % */}
+                                {/* Max Daily Loss % - Updated slider styling */}
                                 <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
                                   <label className="block mb-2 font-medium">Max Daily Loss %</label>
                                   <div className="flex items-center gap-2">
@@ -772,7 +760,7 @@ export default function PropFirmComparison() {
                                   </div>
                                 </div>
 
-                                {/* Account Max Total Drawdown % */}
+                                {/* Account Max Total Drawdown % - Updated slider styling */}
                                 <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
                                   <label className="block mb-2 font-medium">Account Max Total Drawdown %</label>
                                   <div className="flex items-center gap-2">
@@ -791,7 +779,7 @@ export default function PropFirmComparison() {
                                   </div>
                                 </div>
 
-                                {/* Commission $ */}
+                                {/* Commission $ - Updated slider styling */}
                                 <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
                                   <label className="block mb-2 font-medium">Commission $</label>
                                   <div className="flex items-center gap-2">
@@ -810,7 +798,7 @@ export default function PropFirmComparison() {
                                   </div>
                                 </div>
 
-                                {/* Account PT:DD ratio */}
+                                {/* Account PT:DD ratio - Updated slider styling */}
                                 <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
                                   <label className="block mb-2 font-medium">Account PT:DD ratio</label>
                                   <div className="flex items-center gap-2">
@@ -829,7 +817,7 @@ export default function PropFirmComparison() {
                                   </div>
                                 </div>
 
-                                {/* Payout Frequency (Days) */}
+                                {/* Payout Frequency (Days) - Updated slider styling */}
                                 <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
                                   <label className="block mb-2 font-medium">Payout Frequency (Days)</label>
                                   <div className="flex items-center gap-2">
@@ -848,7 +836,7 @@ export default function PropFirmComparison() {
                                   </div>
                                 </div>
 
-                                {/* Trust Pilot Rating */}
+                                {/* Trust Pilot Rating - Updated slider styling */}
                                 <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
                                   <label className="block mb-2 font-medium">Trust Pilot Rating</label>
                                   <div className="flex items-center gap-2">
@@ -867,7 +855,7 @@ export default function PropFirmComparison() {
                                   </div>
                                 </div>
 
-                                {/* Years in Business */}
+                                {/* Years in Business - Updated slider styling */}
                                 <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
                                   <label className="block mb-2 font-medium">Years in Business</label>
                                   <div className="flex items-center gap-2">
@@ -886,7 +874,7 @@ export default function PropFirmComparison() {
                                   </div>
                                 </div>
 
-                                {/* Loyalty Points */}
+                                {/* Loyalty Points - Updated slider styling */}
                                 <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
                                   <label className="block mb-2 font-medium">Loyalty Points</label>
                                   <div className="flex items-center gap-2">
@@ -1261,10 +1249,7 @@ export default function PropFirmComparison() {
                             <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
                           </td>
                           <td className="p-3 text-center relative">
-                            <div>
-                              <span>{offer.profitTarget}</span>
-                              <span className="text-gray-400 ml-2">{offer.phase2Target}</span>
-                            </div>
+                            {offer.profitTarget}
                             <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
                           </td>
                           <td className="p-3 text-center relative">
@@ -1276,49 +1261,34 @@ export default function PropFirmComparison() {
                             <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
                           </td>
                           <td className="p-3 text-center relative">
-                            <div className="flex items-center justify-center">
-                              <span className="mr-1">{offer.profitSplit}</span>
-                              <div className="w-16">
-                                <SegmentedProgressBar value={offer.profitSplitValue} segments={5} />
-                              </div>
-                            </div>
+                            {offer.profitSplit}
                             <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
                           </td>
                           <td className="p-3 text-center relative">
                             {offer.payoutFrequency}
                             <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
                           </td>
+                          <td className="p-3 text-center relative">{offer.loyaltyPoints}</td>
                           <td className="p-3 text-center relative">
-                            <div className="flex items-center justify-center gap-1">
-                              <Image
-                                src="/icons/logo_loyalty_points.png"
-                                alt="Loyalty Points"
-                                width={16}
-                                height={16}
-                                className="object-contain"
-                              />
-                              <span>{offer.loyaltyPoints}</span>
-                            </div>
-                          </td>
-                          <td className="p-3 text-center relative">
-                            <div className="absolute left-0 top-1/4 z-15 h-1/2 w-px bg-[#333]"></div>
-                            <div className="flex flex-col items-center">
-                              <span>${offer.price.toFixed(2)}</span>
-                              <span className="text-xs text-gray-400 line-through">
-                                ${offer.originalPrice.toFixed(2)}
-                              </span>
-                            </div>
+                            {showDiscountedPrice && offer.originalPrice ? (
+                              <div className="flex flex-col items-center">
+                                <span className="text-gray-400 line-through">${offer.originalPrice}</span>
+                                <span className="font-medium">${offer.price}</span>
+                              </div>
+                            ) : (
+                              <span className="font-medium">${offer.price}</span>
+                            )}
                           </td>
                           <td className="p-3 text-center">
-                            {/* <div className="absolute left-0 top-1/4 z-15 h-1/2 w-px bg-[#333]"></div> */}
                             <button
-                              className="w-[50px] h-10 flex items-center justify-center bg-[#edb900] text-[#0f0f0f] rounded-[10px] hover:bg-[#c99e00] transition-colors"
+                              className="bg-[#edb900] text-[#0f0f0f] rounded-md py-2 px-4 hover:bg-[#c69a00] transition-colors flex items-center gap-2"
                               onClick={(e) => {
                                 e.stopPropagation()
-                                // Handle cart button click
+                                // Handle buy button click
                               }}
                             >
                               <FaShoppingCart size={16} />
+                              Buy
                             </button>
                           </td>
                         </tr>
@@ -1334,11 +1304,12 @@ export default function PropFirmComparison() {
         <Newsletter />
         <Footer />
       </div>
+
       {/* Challenge Details Sidebar */}
       <ChallengeDetailsSidebar
-        challenge={selectedChallenge}
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
+        challenge={selectedChallenge}
       />
     </div>
   )
