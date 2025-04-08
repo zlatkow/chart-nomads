@@ -1186,9 +1186,7 @@ export default function PropFirmComparison() {
                             )}
                           </button>
                         </th>
-                        <th className="p-3 text-center">
-                            <div className="absolute left-0 top-1/4 z-15 h-1/2 w-px bg-[#333]"></div>
-                        </th>
+                        <th className="p-3 text-center"></th>
                       </tr>
                     </thead>
                     <tbody>
