@@ -250,20 +250,20 @@ export default function ChallengeDetailsSidebar({ challenge, isOpen, onClose }: 
                         className="w-full h-full object-contain p-1"
                       />
                     ) : (
-                      <span className="text-[#0f0f0f] font-bold text-lg">{challenge.firm.name.substring(0, 1)}</span>
+                      <span className="text-[#0f0f0f] text-lg">{challenge.firm.name.substring(0, 1)}</span>
                     )}
                   </div>
                   <div>
-                    <h2 className="font-bold text-lg">{challenge.firm.name}</h2>
+                    <h2 className=" text-lg">{challenge.firm.name}</h2>
                     <div className="flex items-center gap-1">
-                      <span className="text-[#edb900] font-bold text-sm">{challenge.firm.rating.toFixed(1)}</span>
+                      <span className="text-[#edb900] text-sm">{challenge.firm.rating.toFixed(1)}</span>
                       <div className="flex">{renderStars(challenge.firm.rating)}</div>
                       <span className="text-xs text-gray-400">({challenge.firm.reviews})</span>
                     </div>
                   </div>
                 </div>
                 <div className="flex flex-col items-end">
-                  <div className="text-lg font-bold text-[#edb900]">${challenge.price.toFixed(2)}</div>
+                  <div className="text-lg text-[#edb900]">${challenge.price.toFixed(2)}</div>
                   <div className="text-xs text-gray-400 line-through">${challenge.originalPrice.toFixed(2)}</div>
                 </div>
                 <button
@@ -280,11 +280,11 @@ export default function ChallengeDetailsSidebar({ challenge, isOpen, onClose }: 
                 <div className="p-10 space-y-4">
                   {/* Firm Overview - Moved to the top */}
                   <div>
-                    <h3 className="text-base font-bold mb-2">Firm Overview</h3>
+                    <h3 className="text-base mb-2">Firm Overview</h3>
                     <div className="bg-[#1a1a1a] rounded-lg p-3 space-y-2 text-sm">
                       <div className="flex justify-between items-center">
                         <div>Company Category:</div>
-                        <div className="bg-[#edb900] text-[#0f0f0f] px-2 py-0.5 rounded-full font-bold text-xs">
+                        <div className="bg-[#edb900] text-[#0f0f0f] px-2 py-0.5 rounded-full text-xs">
                           {challenge.firm.category || "Gold"}
                         </div>
                       </div>
@@ -432,7 +432,7 @@ export default function ChallengeDetailsSidebar({ challenge, isOpen, onClose }: 
 
                   {/* Challenge Trading Overview */}
                   <div>
-                    <h3 className="text-base font-bold mb-2">Challenge Trading Overview</h3>
+                    <h3 className="text-base mb-2">Challenge Trading Overview</h3>
                     <div className="bg-[#1a1a1a] rounded-lg p-3 space-y-2 text-sm">
                       {challenge.tradingOverview ? (
                         challenge.tradingOverview.map((item, index) => (
@@ -499,7 +499,7 @@ export default function ChallengeDetailsSidebar({ challenge, isOpen, onClose }: 
 
                   {/* Payout Overview - Moved to the bottom */}
                   <div>
-                    <h3 className="text-base font-bold mb-2">Payout Overview</h3>
+                    <h3 className="text-base mb-2">Payout Overview</h3>
                     <div className="bg-[#1a1a1a] rounded-lg p-3 space-y-2 text-sm">
                       {challenge.payoutOverview ? (
                         <>
@@ -547,7 +547,7 @@ export default function ChallengeDetailsSidebar({ challenge, isOpen, onClose }: 
               <div className="absolute bottom-0 left-0 right-0 w-full">
                 <div className="h-20 bg-gradient-to-t from-[#0f0f0f] via-[#0f0f0f] to-transparent"></div>
                 <div className="absolute bottom-0 left-0 right-0 flex justify-center px-10 mb-[75px]">
-                  <button className="w-[200px] py-2.5 bg-[#edb900] text-[#0f0f0f] rounded-md font-bold flex items-center justify-center gap-2 hover:bg-[#c99e00] transition-colors">
+                  <button className="w-[200px] py-2.5 bg-[#edb900] text-[#0f0f0f] rounded-md flex items-center justify-center gap-2 hover:bg-[#c99e00] transition-colors">
                     <FaShoppingCart size={16} />
                     Buy Challenge
                   </button>
