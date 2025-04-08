@@ -1,0 +1,18 @@
+/* Custom styles for the Switch component */
+.shadcn-switch {
+  background-color: white;
+  border: 2px solid #edb900;
+}
+
+.shadcn-switch[data-state="checked"] {
+  background-color: white;
+}
+
+.shadcn-switch[data-state="checked"] .shadcn-switch-thumb {
+  transform: translateX(100%);
+  background-color: #edb900;
+}
+
+.shadcn-switch-thumb {
+  background-color: #edb900;
+}

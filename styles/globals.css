@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 @import "../styles/slider-styles.css";
+@import "../styles/switch-styles.css";
 
 @font-face {
   font-family: "Balboa";
