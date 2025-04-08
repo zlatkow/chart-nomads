@@ -690,7 +690,7 @@ input:checked + .toggle-switch::after {
   border: none;
 }
 
-/* Replace your sticky table CSS with this updated version */
+/* Updated table styles to match the reference design */
 
 /* Table wrapper to enforce container constraints */
 .table-wrapper {
@@ -715,6 +715,7 @@ input:checked + .toggle-switch::after {
   min-width: 1200px; /* Minimum width of table */
   max-width: 100%;
   table-layout: fixed; /* This helps with column width control */
+  background-color: #0f0f0f;
 }
 
 /* Sticky header */
@@ -724,6 +725,7 @@ input:checked + .toggle-switch::after {
   z-index: 10;
   background-color: #0f0f0f;
   border-bottom: 1px solid #333 !important;
+  padding: 12px 16px;
 }
 
 /* Sticky first column */
@@ -733,8 +735,9 @@ input:checked + .toggle-switch::after {
   left: 0;
   z-index: 5;
   background-color: #0f0f0f !important;
-  min-width: 200px; /* Increased width to ensure content fits */
-  width: 200px; /* Fixed width */
+  min-width: 250px; /* Increased width to ensure content fits */
+  width: 250px; /* Fixed width */
+  border-right: 1px solid #333 !important;
 }
 
 /* Sticky last two columns (price and buy button) */
@@ -746,6 +749,7 @@ input:checked + .toggle-switch::after {
   background-color: #0f0f0f !important;
   min-width: 100px;
   width: 100px;
+  border-left: 1px solid #333 !important;
 }
 
 .sticky-table th:last-child,
@@ -767,47 +771,23 @@ input:checked + .toggle-switch::after {
   z-index: 15;
 }
 
-/* Add shadow effect to indicate scrollable content */
-.sticky-table td:first-child::after,
-.sticky-table th:first-child::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: 5px;
-  background: linear-gradient(to right, rgba(133, 133, 133, 0.5), transparent);
-  pointer-events: none;
-}
-
-.sticky-table td:nth-last-child(2)::before,
-.sticky-table th:nth-last-child(2)::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -5px;
-  bottom: 0;
-  width: 5px;
-  background: linear-gradient(to left, rgba(114, 114, 114, 0.5), transparent);
-  pointer-events: none;
-}
-
 /* Force borders on table rows - with !important to override any other styles */
 .sticky-table tbody tr {
   border-bottom: 1px solid #333 !important;
+  cursor: pointer; /* Add pointer cursor to rows */
+}
+
+.sticky-table tbody tr:hover {
+  background-color: #1a1a1a !important;
 }
 
 .sticky-table tbody tr td {
   border-bottom: 1px solid #333 !important;
+  padding: 12px 16px;
 }
 
 .sticky-table thead tr {
   border-bottom: 1px solid #333 !important;
-}
-
-/* Ensure hover effect works with sticky columns */
-.sticky-table tbody tr:hover td {
-  background-color: #1a1a1a !important;
 }
 
 /* Hide scrollbar but keep functionality */
@@ -818,4 +798,47 @@ input:checked + .toggle-switch::after {
 .sticky-table-container {
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE and Edge */
+}
+
+/* Ensure the logo container doesn't shrink */
+.sticky-table td:first-child .flex .w-12 {
+  flex-shrink: 0;
+}
+
+/* Style for the firm logo square */
+.firm-logo-square {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-size: 20px;
+  font-weight: bold;
+  color: #0f0f0f;
+}
+
+/* Style for the rating badge */
+.rating-badge {
+  background-color: #333;
+  border-radius: 999px;
+  padding: 2px 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Buy button styling */
+.buy-button {
+  background-color: #edb900;
+  color: #0f0f0f;
+  border-radius: 10px;
+  padding: 8px 16px;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.buy-button:hover {
+  background-color: #c99e00;
 }
