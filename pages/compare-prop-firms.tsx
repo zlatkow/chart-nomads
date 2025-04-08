@@ -1164,7 +1164,6 @@ export default function PropFirmComparison() {
                               <ChevronDown size={12} className="opacity-50" />
                             )}
                           </button>
-                          <div className="absolute right-0 top-1/4 z-15 h-1/2 w-px bg-[#333]"></div>
                         </th>
                         <th className="p-3 text-center relative">
                         <div className="absolute left-0 top-1/4 z-15 h-1/2 w-px bg-[#333]"></div>
@@ -1278,7 +1277,6 @@ export default function PropFirmComparison() {
                               />
                               <span>{offer.loyaltyPoints}</span>
                             </div>
-                            <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
                           </td>
                           <td className="p-3 text-center relative">
                           <div className="absolute left-0 top-1/4 z-15 h-1/2 w-px bg-[#333]"></div>
