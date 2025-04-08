@@ -355,7 +355,7 @@ export default function ChallengeDetailsSidebar({ challenge, isOpen, onClose }: 
                             </div>
                             <div className="mt-1 h-1.5 bg-[#333] rounded-full overflow-hidden">
                               <div
-                                className="h-full bg-gradient-to-r from-red-500 via-yellow-500 to-green-500"
+                                className="h-full bg-gradient-to-r from-[#0f0f0f] to-[#edb900]"
                                 style={{ width: "100%" }}
                               ></div>
                             </div>
