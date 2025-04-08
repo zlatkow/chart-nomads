@@ -718,14 +718,14 @@ input:checked + .toggle-switch::after {
   background-color: #0f0f0f;
 }
 
-/* Sticky header */
+/* Sticky header
 .sticky-table thead th {
   position: sticky;
   top: 0;
   z-index: 10;
   background-color: #0f0f0f;
   padding: 12px 16px;
-}
+} */
 
 /* Sticky first column */
 .sticky-table th:first-child,
@@ -742,11 +742,11 @@ input:checked + .toggle-switch::after {
 .sticky-table th:nth-last-child(2),
 .sticky-table td:nth-last-child(2) {
   position: sticky;
-  right: 65px; /* Width of the last column (buy button) */
+  right: 60px; /* Width of the last column (buy button) */
   z-index: 5;
   background-color: #0f0f0f;
-  min-width: 110px;
-  width: 110px;
+  min-width: 100px;
+  width: 100px;
 }
 
 .sticky-table th:last-child,
