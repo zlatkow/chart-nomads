@@ -690,6 +690,8 @@ input:checked + .toggle-switch::after {
   border: none;
 }
 
+/* Updated table styles to match the reference design */
+
 /* Table wrapper to enforce container constraints */
 .table-wrapper {
   width: 100%;
@@ -710,18 +712,9 @@ input:checked + .toggle-switch::after {
   border-collapse: separate;
   border-spacing: 0;
   width: 100%;
-  min-width: 1200px; /* Minimum width of table */
-  max-width: 100%;
+  width: 1200px; /* Minimum width of table */
   table-layout: fixed; /* This helps with column width control */
   background-color: #0f0f0f;
-}
-
-/* Reset all borders */
-.sticky-table,
-.sticky-table tr,
-.sticky-table th,
-.sticky-table td {
-  border: none;
 }
 
 /* Sticky header */
@@ -739,9 +732,9 @@ input:checked + .toggle-switch::after {
   position: sticky;
   left: 0;
   z-index: 5;
-  background-color: #0f0f0f;
-  min-width: 250px;
-  width: 250px;
+  background-color: #0f0f0f !important;
+  min-width: 200px; /* Increased width to ensure content fits */
+  width: 200px; /* Fixed width */
 }
 
 /* Sticky last two columns (price and buy button) */
@@ -750,7 +743,7 @@ input:checked + .toggle-switch::after {
   position: sticky;
   right: 60px; /* Width of the last column (buy button) */
   z-index: 5;
-  background-color: #0f0f0f;
+  background-color: #0f0f0f !important;
   min-width: 100px;
   width: 100px;
 }
@@ -760,7 +753,7 @@ input:checked + .toggle-switch::after {
   position: sticky;
   right: 0;
   z-index: 5;
-  background-color: #0f0f0f;
+  background-color: #0f0f0f !important;
   width: 60px;
 }
 
@@ -774,65 +767,17 @@ input:checked + .toggle-switch::after {
   z-index: 15;
 }
 
-/* Add cursor pointer to rows */
-.sticky-table tbody tr {
-  cursor: pointer;
-}
-
-/* Row hover effect */
-.sticky-table tbody tr:hover {
-  background-color: #1a1a1a;
-}
-
-/* Hide scrollbar but keep functionality */
-.sticky-table-container::-webkit-scrollbar {
-  display: none;
-}
-
-.sticky-table-container {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-/* Ensure the logo container doesn't shrink */
-.sticky-table td:first-child .flex .w-12 {
-  flex-shrink: 0;
-}
-
-/* Add the row dividers */
-.sticky-table tbody tr {
-  position: relative;
-}
-
-.sticky-table tbody tr::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 1px;
-  background-color: #333;
-}
-
-/* Add the column dividers */
+/* Remove all default borders */
+.sticky-table tbody tr,
+.sticky-table tbody tr td,
+.sticky-table thead tr,
 .sticky-table th,
 .sticky-table td {
-  position: relative;
+  border: none !important;
 }
 
-.sticky-table th:not(:last-child)::after,
-.sticky-table td:not(:last-child)::after {
-  content: "";
-  position: absolute;
-  top: 25%;
-  right: 0;
-  height: 50%;
-  width: 1px;
-  background-color: #333;
-}
-
-/* Fix for the header bottom border */
-.sticky-table thead::after {
+/* Add horizontal divider for header */
+.sticky-table thead tr::after {
   content: "";
   position: absolute;
   left: 0;
@@ -843,18 +788,102 @@ input:checked + .toggle-switch::after {
   z-index: 20;
 }
 
-/* Fix for the sticky columns */
-.sticky-table td:first-child::after {
+/* Add horizontal dividers between rows */
+.sticky-table tbody tr {
+  position: relative;
+  cursor: pointer;
+}
+
+.sticky-table tbody tr:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background-color: #333;
+  z-index: 1;
+}
+
+/* Vertical dividers between cells */
+.sticky-table td,
+.sticky-table th {
+  position: relative;
+}
+
+/* Standard vertical dividers */
+.sticky-table td:not(:last-child)::after,
+.sticky-table th:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 25%;
+  height: 50%;
+  width: 1px;
+  background-color: #333;
+}
+
+/* Fix for sticky first column */
+.sticky-table td:first-child::after,
+.sticky-table th:first-child::after {
   z-index: 6;
 }
 
-.sticky-table td:nth-last-child(2)::after {
+/* Fix for sticky right columns */
+.sticky-table td:nth-last-child(2)::after,
+.sticky-table th:nth-last-child(2)::after {
+  right: 0;
   z-index: 6;
 }
 
-/* Remove the divider from the last column */
-.sticky-table td:last-child::after {
+/* Remove vertical divider from the last column */
+.sticky-table td:last-child::after,
+.sticky-table th:last-child::after {
   display: none;
+}
+
+/* Hover effect */
+.sticky-table tbody tr:hover {
+  background-color: #1a1a1a !important;
+}
+
+/* Hide scrollbar but keep functionality */
+.sticky-table-container::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+.sticky-table-container {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+/* Ensure the logo container doesn't shrink */
+.sticky-table td:first-child .flex .w-12 {
+  flex-shrink: 0;
+}
+
+/* Style for the firm logo square */
+.firm-logo-square {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-size: 20px;
+  font-weight: bold;
+  color: #0f0f0f;
+}
+
+/* Style for the rating badge */
+.rating-badge {
+  background-color: #333;
+  border-radius: 999px;
+  padding: 2px 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 /* Buy button styling */
