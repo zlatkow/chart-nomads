@@ -202,6 +202,11 @@ input[type="checkbox"]:checked::after {
   transform: translate(-50%, -50%);
 }
 
+/* Toggle switch specific styling - override the checkmark for toggle switches */
+input[type="checkbox"]:checked + .toggle-switch::after {
+  content: none;
+}
+
 .country-name {
   color: black !important; /* Ensure text is white */
 }
@@ -392,6 +397,14 @@ strong {
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
   }
   .dark {
     --background: 0 0% 3.9%;
@@ -418,6 +431,14 @@ strong {
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
 
@@ -653,41 +674,83 @@ strong {
   margin-top: 0.5rem;
 }
 
-/* Custom toggle switch styling */
+/* Custom toggle switch styling - Updated to match reference image */
 .toggle-switch {
   position: relative;
   display: inline-block;
   width: 44px;
   height: 24px;
-  background-color: #0f0f0f;
+  background-color: #1a1a1a;
   border-radius: 12px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
 .toggle-switch::after {
   content: "";
   position: absolute;
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   background-color: #888;
-  top: 2px;
-  left: 2px;
+  top: 3px;
+  left: 3px;
   transition: all 0.3s;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
 input:checked + .toggle-switch {
-  background-color: #0f0f0f;
+  background-color: #1a1a1a;
 }
 
 input:checked + .toggle-switch::after {
   transform: translateX(20px);
   background-color: #edb900;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
-/* Discount toggle specific styling */
-input:checked + .toggle-switch::after {
-  background-color: #edb900;
-  border: none;
+/* Improved accordion styling for advanced search */
+.search-accordion {
+  margin-bottom: 0.75rem;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+}
+
+.search-accordion-header {
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  font-family: "Balboa", sans-serif;
+  font-size: 0.9rem;
+  color: #edb900;
+  background-color: #1a1a1a;
+  transition: background-color 0.2s;
+}
+
+.search-accordion-header:hover {
+  background-color: #222;
+}
+
+.search-accordion-content {
+  transition: all 0.3s;
+  overflow: hidden;
+  padding: 0 1rem;
+}
+
+.search-accordion-content.open {
+  padding: 0 1rem 1rem;
+  max-height: 1000px;
+  opacity: 1;
+}
+
+.search-accordion-content.closed {
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  opacity: 0;
 }
 
 /* Updated table styles to match the reference design */
@@ -717,15 +780,6 @@ input:checked + .toggle-switch::after {
   table-layout: fixed; /* This helps with column width control */
   background-color: #0f0f0f;
 }
-
-/* Sticky header
-.sticky-table thead th {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background-color: #0f0f0f;
-  padding: 12px 16px;
-} */
 
 /* Sticky first column */
 .sticky-table th:first-child,
