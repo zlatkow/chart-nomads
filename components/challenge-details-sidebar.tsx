@@ -228,7 +228,7 @@ export default function ChallengeDetailsSidebar({ challenge, isOpen, onClose }: 
             {/* Sidebar with animation */}
             <div
               ref={sidebarRef}
-              className="fixed top-0 bottom-0 p-2 right-0 w-full max-w-md bg-[#0f0f0f] text-white shadow-2xl transition-transform duration-300 ease-out flex flex-col"
+              className="fixed top-0 bottom-0 p-2 right-0 w-full max-w-[500px] bg-[#0f0f0f] text-white shadow-2xl transition-transform duration-300 ease-out flex flex-col"
               style={{
                 transform: sidebarVisible ? "translateX(0)" : "translateX(100%)",
                 boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
@@ -308,8 +308,7 @@ export default function ChallengeDetailsSidebar({ challenge, isOpen, onClose }: 
                       <div className="flex justify-between items-center">
                         <div>Liked By:</div>
                         <div className="flex items-center gap-1">
-                          <span className="text-red-500">❤</span>
-                          <span>{challenge.firm.favorites || "3906"}</span>
+                          <span>{challenge.firm.favorites || "3906"} people</span>
                         </div>
                       </div>
                       <div className="flex justify-between items-center">
