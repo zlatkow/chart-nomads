@@ -776,7 +776,7 @@ input:checked + .toggle-switch::after {
   right: 0;
   bottom: 0;
   width: 5px;
-  background: linear-gradient(to right, rgba(15, 15, 15, 0.5), transparent);
+  background: linear-gradient(to right, rgba(133, 133, 133, 0.5), transparent);
   pointer-events: none;
 }
 
@@ -788,7 +788,7 @@ input:checked + .toggle-switch::after {
   left: -5px;
   bottom: 0;
   width: 5px;
-  background: linear-gradient(to left, rgba(15, 15, 15, 0.5), transparent);
+  background: linear-gradient(to left, rgba(114, 114, 114, 0.5), transparent);
   pointer-events: none;
 }
 
