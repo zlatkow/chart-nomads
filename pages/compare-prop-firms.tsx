@@ -973,7 +973,7 @@ export default function PropFirmComparison() {
                   <table className="sticky-table text-sm">
                     <thead>
                       <tr className="border-b border-[#333]">
-                        <th className="p-3 text-left">
+                        <th className="p-3 text-left relative">
                           <button
                             onClick={() => handleSort("firmName")}
                             className="flex items-center gap-1 w-full hover:text-[#edb900] transition-colors"
@@ -991,8 +991,9 @@ export default function PropFirmComparison() {
                               <ChevronDown size={12} className="opacity-50" />
                             )}
                           </button>
+                          <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
                         </th>
-                        <th className="p-3 text-center">
+                        <th className="p-3 text-center relative">
                           <button
                             onClick={() => handleSort("accountSize")}
                             className="flex items-center justify-center gap-1 w-full hover:text-[#edb900] transition-colors"
@@ -1010,8 +1011,9 @@ export default function PropFirmComparison() {
                               <ChevronDown size={12} className="opacity-50" />
                             )}
                           </button>
+                          <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
                         </th>
-                        <th className="p-3 text-center">
+                        <th className="p-3 text-center relative">
                           <button
                             onClick={() => handleSort("steps")}
                             className="flex items-center justify-center gap-1 w-full hover:text-[#edb900] transition-colors"
@@ -1029,8 +1031,9 @@ export default function PropFirmComparison() {
                               <ChevronDown size={12} className="opacity-50" />
                             )}
                           </button>
+                          <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
                         </th>
-                        <th className="p-3 text-center">
+                        <th className="p-3 text-center relative">
                           <button
                             onClick={() => handleSort("profitTarget")}
                             className="flex items-center justify-center gap-1 w-full hover:text-[#edb900] transition-colors"
@@ -1048,8 +1051,9 @@ export default function PropFirmComparison() {
                               <ChevronDown size={12} className="opacity-50" />
                             )}
                           </button>
+                          <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
                         </th>
-                        <th className="p-3 text-center">
+                        <th className="p-3 text-center relative">
                           <button
                             onClick={() => handleSort("maxDailyLoss")}
                             className="flex items-center justify-center gap-1 w-full hover:text-[#edb900] transition-colors"
@@ -1067,8 +1071,9 @@ export default function PropFirmComparison() {
                               <ChevronDown size={12} className="opacity-50" />
                             )}
                           </button>
+                          <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
                         </th>
-                        <th className="p-3 text-center">
+                        <th className="p-3 text-center relative">
                           <button
                             onClick={() => handleSort("maxTotalDrawdown")}
                             className="flex items-center justify-center gap-1 w-full hover:text-[#edb900] transition-colors"
@@ -1086,8 +1091,9 @@ export default function PropFirmComparison() {
                               <ChevronDown size={12} className="opacity-50" />
                             )}
                           </button>
+                          <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
                         </th>
-                        <th className="p-3 text-center">
+                        <th className="p-3 text-center relative">
                           <button
                             onClick={() => handleSort("profitSplit")}
                             className="flex items-center justify-center gap-1 w-full hover:text-[#edb900] transition-colors"
@@ -1105,8 +1111,9 @@ export default function PropFirmComparison() {
                               <ChevronDown size={12} className="opacity-50" />
                             )}
                           </button>
+                          <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
                         </th>
-                        <th className="p-3 text-center">
+                        <th className="p-3 text-center relative">
                           <button
                             onClick={() => handleSort("payoutFrequency")}
                             className="flex items-center justify-center gap-1 w-full hover:text-[#edb900] transition-colors"
@@ -1124,8 +1131,9 @@ export default function PropFirmComparison() {
                               <ChevronDown size={12} className="opacity-50" />
                             )}
                           </button>
+                          <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
                         </th>
-                        <th className="p-3 text-center">
+                        <th className="p-3 text-center relative">
                           <button
                             onClick={() => handleSort("loyaltyPoints")}
                             className="flex items-center justify-center gap-1 w-full hover:text-[#edb900] transition-colors"
@@ -1143,8 +1151,9 @@ export default function PropFirmComparison() {
                               <ChevronDown size={12} className="opacity-50" />
                             )}
                           </button>
+                          <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
                         </th>
-                        <th className="p-3 text-center">
+                        <th className="p-3 text-center relative">
                           <button
                             onClick={() => handleSort("price")}
                             className="flex items-center justify-center gap-1 w-full hover:text-[#edb900] transition-colors"
@@ -1162,6 +1171,7 @@ export default function PropFirmComparison() {
                               <ChevronDown size={12} className="opacity-50" />
                             )}
                           </button>
+                          <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
                         </th>
                         <th className="p-3 text-center"></th>
                       </tr>
@@ -1170,13 +1180,13 @@ export default function PropFirmComparison() {
                       {sortedOffers.map((offer) => (
                         <tr
                           key={offer.id}
-                          className="border-b border-[#333]" /* Border color fixed here */
+                          className="border-b border-[#333] cursor-pointer" /* Added cursor-pointer */
                           onClick={() => handleRowClick(offer)}
                         >
-                          <td className="p-3">
+                          <td className="p-3 relative">
                             <div className="flex items-center gap-3">
                               <div
-                                className="w-12 h-12 rounded-md flex items-center justify-center overflow-hidden"
+                                className="w-12 h-12 rounded-md flex items-center justify-center overflow-hidden flex-shrink-0"
                                 style={{ backgroundColor: offer.firmColor }}
                               >
                                 <span className="text-[#0f0f0f] text-lg">{offer.firmName.substring(0, 1)}</span>
@@ -1204,34 +1214,50 @@ export default function PropFirmComparison() {
                                 </div>
                               </div>
                             </div>
+                            <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
                           </td>
-                          <td className="p-3 font-medium text-center">{offer.accountSize}</td>
-                          <td className="p-3 text-center">
+                          <td className="p-3 font-medium text-center relative">
+                            {offer.accountSize}
+                            <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
+                          </td>
+                          <td className="p-3 text-center relative">
                             <div className="flex items-center justify-center gap-1">
                               <span>{offer.steps}</span>
                               <span className="text-gray-400 rounded-full border border-gray-600 w-4 h-4 flex items-center justify-center text-xs">
                                 i
                               </span>
                             </div>
+                            <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
                           </td>
-                          <td className="p-3 text-center">
+                          <td className="p-3 text-center relative">
                             <div>
                               <span>{offer.profitTarget}</span>
                               <span className="text-gray-400 ml-2">{offer.phase2Target}</span>
                             </div>
+                            <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
                           </td>
-                          <td className="p-3 text-center">{offer.maxDailyLoss}</td>
-                          <td className="p-3 text-center">{offer.maxTotalDrawdown}</td>
-                          <td className="p-3 text-center">
+                          <td className="p-3 text-center relative">
+                            {offer.maxDailyLoss}
+                            <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
+                          </td>
+                          <td className="p-3 text-center relative">
+                            {offer.maxTotalDrawdown}
+                            <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
+                          </td>
+                          <td className="p-3 text-center relative">
                             <div className="flex items-center justify-center">
                               <span className="mr-1">{offer.profitSplit}</span>
                               <div className="w-16">
                                 <SegmentedProgressBar value={offer.profitSplitValue} segments={5} />
                               </div>
                             </div>
+                            <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
                           </td>
-                          <td className="p-3 text-center">{offer.payoutFrequency}</td>
-                          <td className="p-3 text-center">
+                          <td className="p-3 text-center relative">
+                            {offer.payoutFrequency}
+                            <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
+                          </td>
+                          <td className="p-3 text-center relative">
                             <div className="flex items-center justify-center gap-1">
                               <Image
                                 src="/icons/logo_loyalty_points.png"
@@ -1242,14 +1268,16 @@ export default function PropFirmComparison() {
                               />
                               <span>{offer.loyaltyPoints}</span>
                             </div>
+                            <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
                           </td>
-                          <td className="p-3 text-center">
+                          <td className="p-3 text-center relative">
                             <div className="flex flex-col items-center">
                               <span>${offer.price.toFixed(2)}</span>
                               <span className="text-xs text-gray-400 line-through">
                                 ${offer.originalPrice.toFixed(2)}
                               </span>
                             </div>
+                            <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
                           </td>
                           <td className="p-3 text-center">
                             <button
@@ -1284,4 +1312,3 @@ export default function PropFirmComparison() {
     </div>
   )
 }
-

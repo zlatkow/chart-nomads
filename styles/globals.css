@@ -771,11 +771,89 @@ input:checked + .toggle-switch::after {
   z-index: 15;
 }
 
-/* Force borders on table rows - with !important to override any other styles */
+/* Add these styles to replace the full borders with partial-height dividers */
+
+/* Remove the existing border styles */
+.sticky-table tbody tr,
+.sticky-table tbody tr td,
+.sticky-table thead tr {
+  border-bottom: none !important;
+}
+
+.sticky-table th:first-child,
+.sticky-table td:first-child {
+  border-right: none !important;
+}
+
+.sticky-table th:nth-last-child(2),
+.sticky-table td:nth-last-child(2) {
+  border-left: none !important;
+}
+
+/* Add the new partial-height divider styles */
 .sticky-table tbody tr {
+  position: relative;
+}
+
+/* Horizontal dividers between rows */
+.sticky-table tbody tr:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background-color: #333;
+}
+
+/* Vertical dividers between cells */
+.sticky-table td {
+  position: relative;
+}
+
+.sticky-table td:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 25%;
+  height: 50%;
+  width: 1px;
+  background-color: #333;
+}
+
+/* Special handling for sticky columns */
+.sticky-table td:first-child::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 25%;
+  height: 50%;
+  width: 1px;
+  background-color: #333;
+  z-index: 6;
+}
+
+.sticky-table td:nth-last-child(2)::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 25%;
+  height: 50%;
+  width: 1px;
+  background-color: #333;
+  z-index: 6;
+}
+
+/* Add pointer cursor to all rows */
+.sticky-table tbody tr {
+  cursor: pointer;
+}
+
+/* Force borders on table rows - with !important to override any other styles */
+/*.sticky-table tbody tr {
   border-bottom: 1px solid #333 !important;
   cursor: pointer; /* Add pointer cursor to rows */
-}
+/*}
 
 .sticky-table tbody tr:hover {
   background-color: #1a1a1a !important;
@@ -788,7 +866,7 @@ input:checked + .toggle-switch::after {
 
 .sticky-table thead tr {
   border-bottom: 1px solid #333 !important;
-}
+}*/
 
 /* Hide scrollbar but keep functionality */
 .sticky-table-container::-webkit-scrollbar {
