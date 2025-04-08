@@ -692,13 +692,7 @@ input:checked + .toggle-switch::after {
 
 /* Updated table styles to match the reference design */
 
-/* Table wrapper to enforce container constraints */
-.table-wrapper {
-  width: 100%;
-  max-width: 100%;
-  overflow: hidden;
-  position: relative;
-}
+/* Update the sticky table styles to fix the bottom borders and horizontal scrolling issues */
 
 /* Sticky table container with horizontal scroll */
 .sticky-table-container {
@@ -732,7 +726,7 @@ input:checked + .toggle-switch::after {
   position: sticky;
   left: 0;
   z-index: 5;
-  background-color: #0f0f0f !important;
+  background-color: #0f0f0f;
   min-width: 200px; /* Increased width to ensure content fits */
   width: 200px; /* Fixed width */
 }
@@ -743,7 +737,7 @@ input:checked + .toggle-switch::after {
   position: sticky;
   right: 60px; /* Width of the last column (buy button) */
   z-index: 5;
-  background-color: #0f0f0f !important;
+  background-color: #0f0f0f;
   min-width: 100px;
   width: 100px;
 }
@@ -753,7 +747,7 @@ input:checked + .toggle-switch::after {
   position: sticky;
   right: 0;
   z-index: 5;
-  background-color: #0f0f0f !important;
+  background-color: #0f0f0f;
   width: 60px;
 }
 
@@ -777,6 +771,10 @@ input:checked + .toggle-switch::after {
 }
 
 /* Add horizontal divider for header */
+.sticky-table thead tr {
+  position: relative;
+}
+
 .sticky-table thead tr::after {
   content: "";
   position: absolute;
@@ -792,31 +790,17 @@ input:checked + .toggle-switch::after {
 .sticky-table tbody tr {
   position: relative;
   cursor: pointer;
+  border-bottom: 1px solid #333 !important;
 }
 
-.sticky-table tbody tr:not(:last-child)::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 1px;
-  background-color: #333;
-  z-index: 1;
+/* FIX: Remove the after pseudo-element that was causing issues */
+.sticky-table tbody tr::after {
+  display: none;
 }
 
-/* FIX: Add bottom border to sticky cells to match row borders */
-.sticky-table tbody tr:not(:last-child) td:first-child::before,
-.sticky-table tbody tr:not(:last-child) td:nth-last-child(2)::before,
-.sticky-table tbody tr:not(:last-child) td:last-child::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 1px;
-  background-color: #333;
-  z-index: 7;
+/* FIX: Ensure consistent styling for all cells including sticky ones */
+.sticky-table td {
+  background-color: #0f0f0f;
 }
 
 /* Vertical dividers between cells */
@@ -835,6 +819,7 @@ input:checked + .toggle-switch::after {
   height: 50%;
   width: 1px;
   background-color: #333;
+  z-index: 2;
 }
 
 /* Fix for sticky first column */
@@ -856,14 +841,20 @@ input:checked + .toggle-switch::after {
   display: none;
 }
 
-/* Hover effect */
-.sticky-table tbody tr:hover {
+/* Hover effect - FIX: Apply background color directly to cells instead of row */
+.sticky-table tbody tr:hover td {
   background-color: #1a1a1a !important;
 }
 
-/* FIX: Ensure sticky columns maintain background on hover */
-.sticky-table tbody tr:hover td:first-child,
-.sticky-table tbody tr:hover td:nth-last-child(2),
+/* FIX: Ensure sticky columns maintain proper background on hover */
+.sticky-table tbody tr:hover td:first-child {
+  background-color: #1a1a1a !important;
+}
+
+.sticky-table tbody tr:hover td:nth-last-child(2) {
+  background-color: #1a1a1a !important;
+}
+
 .sticky-table tbody tr:hover td:last-child {
   background-color: #1a1a1a !important;
 }
@@ -876,4 +867,47 @@ input:checked + .toggle-switch::after {
 .sticky-table-container {
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE and Edge */
+}
+
+/* Ensure the logo container doesn't shrink */
+.sticky-table td:first-child .flex .w-12 {
+  flex-shrink: 0;
+}
+
+/* Style for the firm logo square */
+.firm-logo-square {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-size: 20px;
+  font-weight: bold;
+  color: #0f0f0f;
+}
+
+/* Style for the rating badge */
+.rating-badge {
+  background-color: #333;
+  border-radius: 999px;
+  padding: 2px 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Buy button styling */
+.buy-button {
+  background-color: #edb900;
+  color: #0f0f0f;
+  border-radius: 10px;
+  padding: 8px 16px;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.buy-button:hover {
+  background-color: #c99e00;
 }
