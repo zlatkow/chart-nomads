@@ -28,8 +28,19 @@ const SegmentedProgressBar = ({
   className?: string
   showPercentage?: boolean
 }) => {
-  // Calculate how many segments should be filled
-  const filledSegments = Math.round((value / 100) * segments)
+  // Calculate how many segments should be filled based on the percentage
+  // For example, if value is 85% and segments is 5, we should fill 4.25 segments, which rounds to 4
+  // But we want 85% to show 5 segments (all filled), so we need to adjust the calculation
+
+  // For 5 segments:
+  // 0-20% = 1 segment
+  // 21-40% = 2 segments
+  // 41-60% = 3 segments
+  // 61-80% = 4 segments
+  // 81-100% = 5 segments
+
+  const segmentSize = 100 / segments
+  const filledSegments = Math.ceil(value / segmentSize)
 
   // Define segment colors from darker to lighter yellow
   const segmentColors = [
