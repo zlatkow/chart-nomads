@@ -785,7 +785,8 @@ input:checked + .toggle-switch::after {
 /* Make sure sticky cells show their borders too */
 .sticky-table tbody td:first-child,
 .sticky-table tbody td:nth-last-child(2),
-.sticky-table tbody td:last-child {
+.sticky-table tbody td:last-child,
+.sticky-table tbody td {
   border-bottom: 1px solid #333 !important;
 }
 
