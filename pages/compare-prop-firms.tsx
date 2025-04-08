@@ -1167,7 +1167,6 @@ export default function PropFirmComparison() {
                           <div className="absolute right-0 top-1/4 z-15 h-1/2 w-px bg-[#333]"></div>
                         </th>
                         <th className="p-3 text-center relative">
-                          <div className="absolute left-0 top-1/4 z-15 h-1/2 w-px bg-[#333]"></div>
                           <button
                             onClick={() => handleSort("price")}
                             className="flex items-center justify-center gap-1 w-full hover:text-[#edb900] transition-colors"
@@ -1187,8 +1186,9 @@ export default function PropFirmComparison() {
                           </button>
                           <div className="absolute right-0 top-1/4 z-15 h-1/2 w-px bg-[#333]"></div>
                         </th>
-                        <div className="absolute left-0 top-1/4 z-15 h-1/2 w-px bg-[#333]"></div>
-                        <th className="p-3 text-center"></th>
+                        <th className="p-3 text-center">
+                            <div className="absolute left-0 top-1/4 z-15 h-1/2 w-px bg-[#333]"></div>
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
@@ -1290,7 +1290,6 @@ export default function PropFirmComparison() {
                                 ${offer.originalPrice.toFixed(2)}
                               </span>
                             </div>
-                            <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
                           </td>
                           <td className="p-3 text-center">
                             <div className="absolute left-0 top-1/4 z-15 h-1/2 w-px bg-[#333]"></div>
