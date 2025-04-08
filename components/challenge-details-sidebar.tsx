@@ -240,7 +240,7 @@ export default function ChallengeDetailsSidebar({ challenge, isOpen, onClose }: 
               <div className="flex h-[100px] items-center justify-between p-3 border-b border-[#222]">
                 <div className="flex items-center gap-2">
                   <div
-                    className="w-15 h-15 rounded-md flex items-center justify-center overflow-hidden"
+                    className="w-[60px] h-[60px] rounded-[10px] flex items-center justify-center overflow-hidden"
                     style={{ backgroundColor: challenge.firm.color }}
                   >
                     {challenge.firm.logo ? (
