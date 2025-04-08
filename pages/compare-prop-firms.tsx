@@ -50,7 +50,8 @@ const SegmentedProgressBar = ({
               key={i}
               className={`flex-1 ${i > 0 ? "border-l border-[#333]" : ""}`}
               style={{
-                backgroundColor: i < filledSegments ? segmentColors[i] : "transparent",
+                backgroundColor:
+                  i < filledSegments ? segmentColors[Math.min(i, segmentColors.length - 1)] : "transparent",
               }}
             />
           ))}
@@ -1309,7 +1310,7 @@ export default function PropFirmComparison() {
                                 </>
                               ) : (
                                 <>
-                                  <span className="text-[#edb900] font-medium">${offer.originalPrice.toFixed(2)}</span>
+                                  <span className="text-white font-medium">${offer.originalPrice.toFixed(2)}</span>
                                 </>
                               )}
                             </div>
