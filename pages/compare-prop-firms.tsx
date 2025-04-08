@@ -12,9 +12,8 @@ import Community from "../components/Community"
 import Newsletter from "../components/Newsletter"
 import Footer from "@/components/Footer"
 import { Input } from "@/components/ui/input"
-import Image from "next/image"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { Switch } from "@/components/ui/switch" 
+import { CustomSwitch } from "@/components/custom-switch" // Import the Switch component
 
 // Update the SegmentedProgressBar component to have individual segment colors
 const SegmentedProgressBar = ({
@@ -434,8 +433,10 @@ export default function PropFirmComparison() {
         {options.map((option) => (
           <button
             key={option.value}
-            className={`px-3 py-1 rounded-full border border-[#0f0f0f] text-xs ${
-              option.value === selectedValue ? "bg-[#0f0f0f] text-[#edb900]" : "bg-transparent"
+            className={`px-3 py-1 rounded-full border text-xs ${
+              option.value === selectedValue
+                ? "bg-[#edb900] text-[#0f0f0f] border-[#edb900] shadow-md"
+                : "bg-transparent border-[#edb900] text-[#edb900]"
             }`}
           >
             {option.label}
@@ -579,7 +580,7 @@ export default function PropFirmComparison() {
                         {/* Show Discounted Price Toggle */}
                         <div className="mb-6">
                           <h3 className="mb-3">Show discounted price?</h3>
-                          <Switch checked={showDiscountedPrice} onCheckedChange={setShowDiscountedPrice} />
+                          <CustomSwitch checked={showDiscountedPrice} onCheckedChange={setShowDiscountedPrice} />
                         </div>
                       </>
                     ) : (
@@ -1269,49 +1270,27 @@ export default function PropFirmComparison() {
                             <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
                           </td>
                           <td className="p-3 text-center relative">
-                            <div className="flex items-center justify-center">
-                              <span className="mr-1">{offer.profitSplit}</span>
-                              <div className="w-16">
-                                <SegmentedProgressBar value={offer.profitSplitValue} segments={5} />
-                              </div>
-                            </div>
-                            <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
+                            {offer.profitSplit}%<div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
                           </td>
                           <td className="p-3 text-center relative">
                             {offer.payoutFrequency}
                             <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
                           </td>
+                          <td className="p-3 text-center relative">{offer.loyaltyPoints}</td>
                           <td className="p-3 text-center relative">
-                            <div className="flex items-center justify-center gap-1">
-                              <Image
-                                src="/icons/logo_loyalty_points.png"
-                                alt="Loyalty Points"
-                                width={16}
-                                height={16}
-                                className="object-contain"
-                              />
-                              <span>{offer.loyaltyPoints}</span>
-                            </div>
-                          </td>
-                          <td className="p-3 text-center relative">
-                            <div className="absolute left-0 top-1/4 z-15 h-1/2 w-px bg-[#333]"></div>
-                            <div className="flex flex-col items-center">
-                              <span>${offer.price.toFixed(2)}</span>
-                              <span className="text-xs text-gray-400 line-through">
-                                ${offer.originalPrice.toFixed(2)}
-                              </span>
-                            </div>
+                            {showDiscountedPrice && offer.originalPrice ? (
+                              <>
+                                <span className="line-through mr-1 text-gray-400">${offer.originalPrice}</span>
+                                <span>${offer.price}</span>
+                              </>
+                            ) : (
+                              <span>${offer.price}</span>
+                            )}
                           </td>
                           <td className="p-3 text-center">
-                            {/* <div className="absolute left-0 top-1/4 z-15 h-1/2 w-px bg-[#333]"></div> */}
-                            <button
-                              className="w-[50px] h-10 flex items-center justify-center bg-[#edb900] text-[#0f0f0f] rounded-[10px] hover:bg-[#c99e00] transition-colors"
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                // Handle cart button click
-                              }}
-                            >
+                            <button className="bg-[#edb900] text-[#0f0f0f] py-2 px-4 rounded-md hover:bg-[#c69a00] transition-colors flex items-center justify-center gap-2">
                               <FaShoppingCart size={16} />
+                              Buy
                             </button>
                           </td>
                         </tr>
@@ -1327,11 +1306,12 @@ export default function PropFirmComparison() {
         <Newsletter />
         <Footer />
       </div>
+
       {/* Challenge Details Sidebar */}
       <ChallengeDetailsSidebar
-        challenge={selectedChallenge}
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
+        challenge={selectedChallenge}
       />
     </div>
   )
