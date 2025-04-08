@@ -742,11 +742,11 @@ input:checked + .toggle-switch::after {
 .sticky-table th:nth-last-child(2),
 .sticky-table td:nth-last-child(2) {
   position: sticky;
-  right: 60px; /* Width of the last column (buy button) */
+  right: 65px; /* Width of the last column (buy button) */
   z-index: 5;
   background-color: #0f0f0f;
-  min-width: 100px;
-  width: 100px;
+  min-width: 110px;
+  width: 110px;
 }
 
 .sticky-table th:last-child,
