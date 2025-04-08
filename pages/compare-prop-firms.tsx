@@ -14,7 +14,7 @@ import Footer from "@/components/Footer"
 import { Input } from "@/components/ui/input"
 import Image from "next/image"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { CustomSwitch } from "@/components/custom-switch";
+import { CustomSwitch } from "@/components/custom-switch"
 
 // Update the SegmentedProgressBar component to have individual segment colors
 const SegmentedProgressBar = ({
@@ -82,7 +82,7 @@ export default function PropFirmComparison() {
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc")
 
   // Add state for discount toggle
-  const [showDiscountedPrice, setShowDiscountedPrice] = useState(false)
+  const [showDiscountedPrice, setShowDiscountedPrice] = useState(true)
 
   // Mock data for the design
   const mockFirms = [
@@ -579,7 +579,11 @@ export default function PropFirmComparison() {
                         {/* Show Discounted Price Toggle */}
                         <div className="mb-6">
                           <h3 className="mb-3">Show discounted price?</h3>
-                          <CustomSwitch checked={showDiscountedPrice} defaultChecked={true} onCheckedChange={setShowDiscountedPrice} />
+                          <CustomSwitch
+                            checked={showDiscountedPrice}
+                            defaultChecked={true}
+                            onCheckedChange={setShowDiscountedPrice}
+                          />
                         </div>
                       </>
                     ) : (
@@ -1296,10 +1300,18 @@ export default function PropFirmComparison() {
                           <td className="p-3 text-center relative">
                             <div className="absolute left-0 top-1/4 z-15 h-1/2 w-px bg-[#333]"></div>
                             <div className="flex flex-col items-center">
-                              <span>${offer.price.toFixed(2)}</span>
-                              <span className="text-xs text-gray-400 line-through">
-                                ${offer.originalPrice.toFixed(2)}
-                              </span>
+                              {showDiscountedPrice ? (
+                                <>
+                                  <span>${offer.price.toFixed(2)}</span>
+                                  <span className="text-xs text-gray-400 line-through">
+                                    ${offer.originalPrice.toFixed(2)}
+                                  </span>
+                                </>
+                              ) : (
+                                <>
+                                  <span className="text-[#edb900] font-medium">${offer.originalPrice.toFixed(2)}</span>
+                                </>
+                              )}
                             </div>
                           </td>
                           <td className="p-3 text-center">
