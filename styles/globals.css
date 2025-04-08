@@ -694,6 +694,14 @@ input:checked + .toggle-switch::after {
 
 /* Update the sticky table styles to fix the bottom borders and horizontal scrolling issues */
 
+/* Table wrapper to enforce container constraints */
+.table-wrapper {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
 /* Sticky table container with horizontal scroll */
 .sticky-table-container {
   position: relative;
@@ -705,8 +713,7 @@ input:checked + .toggle-switch::after {
 .sticky-table {
   border-collapse: separate;
   border-spacing: 0;
-  width: 100%;
-  min-width: 1200px; /* Changed from width to min-width */
+  width: auto; /* Changed from min-width to auto to prevent extra space */
   table-layout: fixed; /* This helps with column width control */
   background-color: #0f0f0f;
 }
@@ -790,17 +797,10 @@ input:checked + .toggle-switch::after {
 .sticky-table tbody tr {
   position: relative;
   cursor: pointer;
+}
+
+.sticky-table tbody tr:not(:last-child) {
   border-bottom: 1px solid #333 !important;
-}
-
-/* FIX: Remove the after pseudo-element that was causing issues */
-.sticky-table tbody tr::after {
-  display: none;
-}
-
-/* FIX: Ensure consistent styling for all cells including sticky ones */
-.sticky-table td {
-  background-color: #0f0f0f;
 }
 
 /* Vertical dividers between cells */
@@ -841,21 +841,8 @@ input:checked + .toggle-switch::after {
   display: none;
 }
 
-/* Hover effect - FIX: Apply background color directly to cells instead of row */
+/* Hover effect */
 .sticky-table tbody tr:hover td {
-  background-color: #1a1a1a !important;
-}
-
-/* FIX: Ensure sticky columns maintain proper background on hover */
-.sticky-table tbody tr:hover td:first-child {
-  background-color: #1a1a1a !important;
-}
-
-.sticky-table tbody tr:hover td:nth-last-child(2) {
-  background-color: #1a1a1a !important;
-}
-
-.sticky-table tbody tr:hover td:last-child {
   background-color: #1a1a1a !important;
 }
 
@@ -872,42 +859,4 @@ input:checked + .toggle-switch::after {
 /* Ensure the logo container doesn't shrink */
 .sticky-table td:first-child .flex .w-12 {
   flex-shrink: 0;
-}
-
-/* Style for the firm logo square */
-.firm-logo-square {
-  width: 48px;
-  height: 48px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  font-size: 20px;
-  font-weight: bold;
-  color: #0f0f0f;
-}
-
-/* Style for the rating badge */
-.rating-badge {
-  background-color: #333;
-  border-radius: 999px;
-  padding: 2px 8px;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-/* Buy button styling */
-.buy-button {
-  background-color: #edb900;
-  color: #0f0f0f;
-  border-radius: 10px;
-  padding: 8px 16px;
-  font-weight: 600;
-  transition: background-color 0.2s;
-}
-
-.buy-button:hover {
-  background-color: #c99e00;
 }

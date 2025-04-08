@@ -971,6 +971,19 @@ export default function PropFirmComparison() {
               <div className="table-wrapper w-full max-w-full">
                 <div className="sticky-table-container">
                   <table className="sticky-table text-sm">
+                    <colgroup>
+                      <col style={{ width: "200px" }} /> {/* Firm/Rank */}
+                      <col style={{ width: "80px" }} /> {/* Account Size */}
+                      <col style={{ width: "80px" }} /> {/* Program */}
+                      <col style={{ width: "100px" }} /> {/* Profit Target */}
+                      <col style={{ width: "80px" }} /> {/* Daily Loss */}
+                      <col style={{ width: "80px" }} /> {/* Max Loss */}
+                      <col style={{ width: "100px" }} /> {/* Profit Split */}
+                      <col style={{ width: "120px" }} /> {/* Payout Freq */}
+                      <col style={{ width: "100px" }} /> {/* Loyalty Pts */}
+                      <col style={{ width: "100px" }} /> {/* Price */}
+                      <col style={{ width: "60px" }} /> {/* Buy Button */}
+                    </colgroup>
                     <thead>
                       <tr className="border-b border-[#333]">
                         <th className="p-3 text-left relative">
