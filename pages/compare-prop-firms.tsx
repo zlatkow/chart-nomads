@@ -579,10 +579,7 @@ export default function PropFirmComparison() {
                         {/* Show Discounted Price Toggle */}
                         <div className="mb-6">
                           <h3 className="mb-3">Show discounted price?</h3>
-                            <CustomSwitch 
-                            checked={showDiscountedPrice}
-                            onCheckedChange={setShowDiscountedPrice}
-                            />
+                          <CustomSwitch checked={showDiscountedPrice} defaultChecked={true} onCheckedChange={setShowDiscountedPrice} />
                         </div>
                       </>
                     ) : (
