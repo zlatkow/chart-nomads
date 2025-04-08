@@ -1236,9 +1236,6 @@ export default function PropFirmComparison() {
                           <td className="p-3 text-center relative">
                             <div className="flex items-center justify-center gap-1">
                               <span>{offer.steps}</span>
-                              <span className="text-gray-400 rounded-full border border-gray-600 w-4 h-4 flex items-center justify-center text-xs">
-                                i
-                              </span>
                             </div>
                             <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
                           </td>
