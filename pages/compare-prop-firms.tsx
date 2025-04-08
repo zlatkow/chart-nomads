@@ -18,7 +18,7 @@ import { CustomSwitch } from "@/components/custom-switch"
 
 // Update the SegmentedProgressBar component to have individual segment colors
 const SegmentedProgressBar = ({
-  value = 80,
+  value = 0,
   segments = 5,
   className = "",
   showPercentage = false,
@@ -1277,7 +1277,7 @@ export default function PropFirmComparison() {
                             <div className="flex items-center justify-center">
                               <span className="mr-1">{offer.profitSplit}</span>
                               <div className="w-16">
-                                <SegmentedProgressBar value={Number.parseInt(offer.profitSplitValue)} segments={5} />
+                                <SegmentedProgressBar value={offer.profitSplitValue} segments={5} />
                               </div>
                             </div>
                             <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
