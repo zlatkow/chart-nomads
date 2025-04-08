@@ -13,6 +13,7 @@ import Newsletter from "../components/Newsletter"
 import Footer from "@/components/Footer"
 import { Input } from "@/components/ui/input"
 import Image from "next/image"
+import "../styles/table-fixes.css"
 
 // Update the SegmentedProgressBar component to have individual segment colors
 const SegmentedProgressBar = ({
