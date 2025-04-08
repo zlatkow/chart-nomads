@@ -228,7 +228,7 @@ export default function ChallengeDetailsSidebar({ challenge, isOpen, onClose }: 
             {/* Sidebar with animation */}
             <div
               ref={sidebarRef}
-              className="fixed top-0 bottom-0 right-0 w-full max-w-md bg-[#0f0f0f] text-white shadow-2xl transition-transform duration-300 ease-out flex flex-col"
+              className="fixed top-0 bottom-0 p-2 right-0 w-full max-w-md bg-[#0f0f0f] text-white shadow-2xl transition-transform duration-300 ease-out flex flex-col"
               style={{
                 transform: sidebarVisible ? "translateX(0)" : "translateX(100%)",
                 boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
@@ -240,7 +240,7 @@ export default function ChallengeDetailsSidebar({ challenge, isOpen, onClose }: 
               <div className="flex items-center justify-between p-3 border-b border-[#222]">
                 <div className="flex items-center gap-2">
                   <div
-                    className="w-10 h-10 rounded-md flex items-center justify-center overflow-hidden"
+                    className="w-15 h-15 rounded-md flex items-center justify-center overflow-hidden"
                     style={{ backgroundColor: challenge.firm.color }}
                   >
                     {challenge.firm.logo ? (
@@ -277,7 +277,7 @@ export default function ChallengeDetailsSidebar({ challenge, isOpen, onClose }: 
 
               {/* Scrollable Content Area */}
               <div className="flex-1 overflow-y-auto pb-20">
-                <div className="p-3 space-y-4">
+                <div className="p-10 space-y-4">
                   {/* Firm Overview - Moved to the top */}
                   <div>
                     <h3 className="text-base font-bold mb-2">Firm Overview</h3>
