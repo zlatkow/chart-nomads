@@ -1187,6 +1187,7 @@ export default function PropFirmComparison() {
                           </button>
                           <div className="absolute right-0 top-1/4 z-15 h-1/2 w-px bg-[#333]"></div>
                         </th>
+                        <div className="absolute left-0 top-1/4 z-15 h-1/2 w-px bg-[#333]"></div>
                         <th className="p-3 text-center"></th>
                       </tr>
                     </thead>
@@ -1292,6 +1293,7 @@ export default function PropFirmComparison() {
                             <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
                           </td>
                           <td className="p-3 text-center">
+                            <div className="absolute left-0 top-1/4 z-15 h-1/2 w-px bg-[#333]"></div>
                             <button
                               className="w-[50px] h-10 flex items-center justify-center bg-[#edb900] text-[#0f0f0f] rounded-[10px] hover:bg-[#c99e00] transition-colors"
                               onClick={(e) => {
