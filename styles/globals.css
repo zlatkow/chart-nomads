@@ -780,26 +780,13 @@ input:checked + .toggle-switch::after {
 /* Add horizontal divider for header */
 .sticky-table thead tr {
   position: relative;
-}
-
-.sticky-table thead tr::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 1px;
-  background-color: #333;
-  z-index: 20;
+  border-bottom: 1px solid #333 !important;
 }
 
 /* Add horizontal dividers between rows */
 .sticky-table tbody tr {
   position: relative;
   cursor: pointer;
-}
-
-.sticky-table tbody tr:not(:last-child) {
   border-bottom: 1px solid #333 !important;
 }
 
@@ -859,4 +846,16 @@ input:checked + .toggle-switch::after {
 /* Ensure the logo container doesn't shrink */
 .sticky-table td:first-child .flex .w-12 {
   flex-shrink: 0;
+}
+
+/* Make sure borders are visible by increasing their specificity */
+.sticky-table tbody tr {
+  border-bottom: 1px solid #333 !important;
+}
+
+/* Ensure borders are visible on sticky columns too */
+.sticky-table tbody tr td:first-child,
+.sticky-table tbody tr td:nth-last-child(2),
+.sticky-table tbody tr td:last-child {
+  border-bottom: 1px solid #333 !important;
 }
