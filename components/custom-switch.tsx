@@ -1,12 +1,15 @@
 "use client"
 
-import * as React from "react"
+import type * as React from "react"
 import { Switch } from "@/components/ui/switch"
 import { cn } from "@/lib/utils"
 
-interface CustomSwitchProps extends React.ComponentPropsWithoutRef<typeof Switch> {}
+// Fixed interface to avoid the empty interface error
+type CustomSwitchProps = React.ComponentPropsWithoutRef<typeof Switch>
 
-export function CustomSwitch({ className, ...props }: CustomSwitchProps) {
+export function CustomSwitch(props: CustomSwitchProps) {
+  const { className, ...rest } = props
+
   return (
     <>
       <style jsx global>{`
@@ -21,7 +24,7 @@ export function CustomSwitch({ className, ...props }: CustomSwitchProps) {
           background-color: #edb900 !important;
         }
       `}</style>
-      <Switch className={cn("custom-switch", className)} {...props} />
+      <Switch className={cn("custom-switch", className)} {...rest} />
     </>
   )
 }
