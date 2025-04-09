@@ -13,18 +13,18 @@ import Footer from "@/components/Footer"
 import { Input } from "@/components/ui/input"
 import Image from "next/image"
 import { PropFirmFiltersSidebar } from "@/components/prop-firm-filters-sidebar"
+import { SegmentedProgressBar } from "@/components/segmented-progress-bar"
 
 // Types
 export type SearchMode = "quick" | "advanced"
 
-// Update the FilterOptions interface to support multiple selections
 export interface FilterOptions {
   searchMode: SearchMode
   searchTerm: string
   showDiscountedPrice: boolean
-  challengeTypes?: string[]
-  accountSizes?: string[]
-  assetClasses?: string[]
+  challengeType?: string
+  accountSize?: string
+  assetClass?: string
   selectedFirmIds?: number[]
 }
 
@@ -68,9 +68,6 @@ export default function PropFirmComparison() {
     searchTerm: "",
     showDiscountedPrice: true,
     selectedFirmIds: [],
-    challengeTypes: [],
-    accountSizes: [],
-    assetClasses: [],
   })
   const [searchTerm, setSearchTerm] = useState("")
 
@@ -93,7 +90,7 @@ export default function PropFirmComparison() {
     const numPrice = typeof price === "string" ? Number.parseFloat(price) : price
     if (isNaN(numPrice)) return "$0.00"
 
-    return `${numPrice.toFixed(2)}`
+    return `$${numPrice.toFixed(2)}`
   }
 
   // Fetch data from API
@@ -248,28 +245,16 @@ export default function PropFirmComparison() {
     }
 
     // Challenge type filter
-    if (filters.challengeTypes && filters.challengeTypes.length > 0) {
-      if (!filters.challengeTypes.includes(offer.accountType || "")) {
-        return false
-      }
+    if (filters.challengeType && offer.accountType !== filters.challengeType) {
+      return false
     }
 
     // Account size filter
-    if (filters.accountSizes && filters.accountSizes.length > 0) {
-      // Extract just the number part for comparison (e.g. "10k" -> "10")
-      const offerSizeBase = offer.accountSize.replace(/[^0-9]/g, "")
-      const matchesSize = filters.accountSizes.some((size) => {
-        const sizeBase = size.replace(/[^0-9]/g, "")
-        return offerSizeBase === sizeBase
-      })
-
-      if (!matchesSize) {
-        return false
-      }
+    if (filters.accountSize && offer.accountSize !== filters.accountSize) {
+      return false
     }
 
     // Asset class filter would go here if we had that data
-    // For now, we'll skip this filter since we don't have asset class data in the offers
 
     return true
   })
@@ -853,7 +838,12 @@ export default function PropFirmComparison() {
                               <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
                             </td>
                             <td className="p-3 text-center relative">
-                              {offer.profitSplit}
+                              <div className="flex items-center justify-center">
+                                <span className="mr-1">{offer.profitSplit}</span>
+                                <div className="w-16">
+                                  <SegmentedProgressBar value={offer.profitSplitValue} segments={5} />
+                                </div>
+                              </div>
                               <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
                             </td>
                             <td className="p-3 text-center relative">
@@ -861,31 +851,51 @@ export default function PropFirmComparison() {
                               <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
                             </td>
                             <td className="p-3 text-center relative">
-                              {offer.loyaltyPoints}
-                              <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
+                              <div className="flex items-center justify-center gap-1">
+                                <Image
+                                  src="/icons/logo_loyalty_points.png"
+                                  alt="Loyalty Points"
+                                  width={16}
+                                  height={16}
+                                  className="object-contain"
+                                />
+                                <span>{offer.loyaltyPoints}</span>
+                              </div>
                             </td>
                             <td className="p-3 text-center relative">
-                              {formatPrice(offer.price)}
-                              <div className="absolute left-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
+                              <div className="absolute left-0 top-1/4 z-15 h-1/2 w-px bg-[#333]"></div>
+                              <div className="flex flex-col items-center">
+                                {filters.showDiscountedPrice ? (
+                                  <>
+                                    <span>{formatPrice(offer.price)}</span>
+                                    <span className="text-xs text-gray-400 line-through">
+                                      {formatPrice(offer.originalPrice)}
+                                    </span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <span className="text-white font-medium">{formatPrice(offer.originalPrice)}</span>
+                                  </>
+                                )}
+                              </div>
                             </td>
                             <td className="p-3 text-center">
                               <button
-                                className="bg-[#1a1a1a] hover:bg-[#2a2a2a] text-white font-bold py-2 px-4 rounded transition-colors"
+                                className="w-[50px] h-10 flex items-center justify-center bg-[#edb900] text-[#0f0f0f] rounded-[10px] hover:bg-[#c99e00] transition-colors"
                                 onClick={(e) => {
                                   e.stopPropagation()
-                                  // Handle buy click
+                                  // Handle cart button click
                                 }}
                               >
-                                <FaShoppingCart className="inline-block mr-2" />
-                                Buy
+                                <FaShoppingCart size={16} />
                               </button>
                             </td>
                           </tr>
                         ))
                       ) : (
                         <tr>
-                          <td colSpan={11} className="p-4 text-center">
-                            No offers match your criteria.
+                          <td colSpan={11} className="p-6 text-center">
+                            No results found. Try adjusting your filters.
                           </td>
                         </tr>
                       )}
@@ -900,7 +910,6 @@ export default function PropFirmComparison() {
         <Newsletter />
         <Footer />
       </div>
-
       {/* Challenge Details Sidebar */}
       <ChallengeDetailsSidebar
         challenge={selectedChallenge}
