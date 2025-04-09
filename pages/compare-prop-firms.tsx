@@ -1,7 +1,6 @@
-/* eslint-disable */
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Search, ChevronDown, ChevronUp, Bookmark } from "lucide-react"
 import { FaShoppingCart } from "react-icons/fa"
 import ChallengeDetailsSidebar from "@/components/challenge-details-sidebar"
@@ -13,29 +12,226 @@ import Footer from "@/components/Footer"
 import { Input } from "@/components/ui/input"
 import Image from "next/image"
 import { PropFirmFiltersSidebar } from "@/components/prop-firm-filters-sidebar"
-import { usePropFirmFilters, type PropFirmOffer } from "@/hooks/use-prop-firm-filters"
 import { SegmentedProgressBar } from "@/components/segmented-progress-bar"
+
+// Types
+export type SearchMode = "quick" | "advanced"
+
+export interface FilterOptions {
+  searchMode: SearchMode
+  searchTerm: string
+  showDiscountedPrice: boolean
+  challengeType?: string
+  accountSize?: string
+  assetClass?: string
+}
+
+export interface PropFirmOffer {
+  id: number
+  firmId: number
+  firmName: string
+  firmLogo: string
+  firmColor: string
+  rating: number
+  reviews: number
+  price: number
+  originalPrice: number
+  accountSize: string
+  steps: string
+  profitTarget: string
+  phase2Target: string
+  maxDailyLoss: string
+  maxTotalDrawdown: string
+  profitSplit: string
+  profitSplitValue: number
+  payoutFrequency: string
+  loyaltyPoints: number
+  isFavorite: boolean
+  accountType?: string
+}
 
 export default function PropFirmComparison() {
   // State for the challenge details sidebar
   const [selectedChallenge, setSelectedChallenge] = useState<any>(null)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
-  // Use our custom hook for filtering and sorting
-  const {
-    filters,
-    updateFilters,
-    searchTerm,
-    setSearchTerm,
-    filteredOffers,
-    sortColumn,
-    sortDirection,
-    handleSort,
-    sortedOffers,
-    handleSearch,
-    isLoading,
-    propFirms,
-  } = usePropFirmFilters()
+  // Data states
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [propFirms, setPropFirms] = useState<PropFirmOffer[]>([])
+
+  // Filter states
+  const [filters, setFilters] = useState<FilterOptions>({
+    searchMode: "quick",
+    searchTerm: "",
+    showDiscountedPrice: true,
+  })
+  const [searchTerm, setSearchTerm] = useState("")
+
+  // Sort states
+  const [sortColumn, setSortColumn] = useState<string>("firmName")
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc")
+
+  // Filter options
+  const [challengeTypes, setChallengeTypes] = useState<{ value: string; label: string }[]>([])
+  const [accountSizes, setAccountSizes] = useState<{ value: string; label: string }[]>([])
+
+  // Fetch data from API
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true)
+
+      try {
+        const response = await fetch("/api/prop-firm-challenges")
+
+        if (!response.ok) {
+          throw new Error(`API responded with status: ${response.status}`)
+        }
+
+        const data = await response.json()
+
+        // Process firms and challenges
+        const firms = data.firms || []
+        const challenges = data.challenges || []
+
+        // Map challenges to our PropFirmOffer format
+        const offers = challenges.map((challenge: any) => {
+          const firm = firms.find((f: any) => f.id === challenge.prop_firm_id) || {
+            propfirm_name: "Unknown",
+            logo_url: "/placeholder.svg",
+            brand_colour: "#333333",
+            rating: 0,
+            reviews_count: 0,
+          }
+
+          // Determine the number of steps based on profit targets
+          let steps = "1 Phase"
+          if (challenge.profit_target_p3) {
+            steps = "3 Phases"
+          } else if (challenge.profit_target_p2) {
+            steps = "2 Phases"
+          } else if (challenge.account_type === "Instant Funding") {
+            steps = "Instant Funding"
+          }
+
+          return {
+            id: challenge.id,
+            firmId: firm.id,
+            firmName: firm.propfirm_name,
+            firmLogo: firm.logo_url || "/placeholder.svg",
+            firmColor: firm.brand_colour || "#333333",
+            rating: firm.rating || 0,
+            reviews: firm.reviews_count || 0,
+            price: challenge.discounted_price || challenge.original_price,
+            originalPrice: challenge.original_price,
+            accountSize: challenge.account_size,
+            steps: steps,
+            profitTarget: `${challenge.profit_target_p1 || 0}%`,
+            phase2Target: challenge.profit_target_p2 ? `${challenge.profit_target_p2}%` : "",
+            maxDailyLoss: `${challenge.max_daily_loss || 0}%`,
+            maxTotalDrawdown: `${challenge.max_total_drawdown || 0}%`,
+            profitSplit: `${challenge.profit_split || 0}%`,
+            profitSplitValue: challenge.profit_split || 0,
+            payoutFrequency: `${challenge.payout_frequency || "N/A"}`,
+            loyaltyPoints: 0, // Default value if not available
+            isFavorite: false,
+            accountType: challenge.account_type,
+          }
+        })
+
+        setPropFirms(offers)
+
+        // Extract filter options - SIMPLIFIED APPROACH
+        const typeSet = new Set<string>()
+        const sizeSet = new Set<string>()
+
+        challenges.forEach((challenge: any) => {
+          if (challenge.account_type) typeSet.add(challenge.account_type)
+          if (challenge.account_size) sizeSet.add(challenge.account_size)
+        })
+
+        const typeOptions = Array.from(typeSet).map((type) => ({ value: type, label: type }))
+        const sizeOptions = Array.from(sizeSet).map((size) => ({ value: size, label: size }))
+
+        setChallengeTypes(typeOptions)
+        setAccountSizes(sizeOptions)
+
+        console.log(`Successfully loaded ${offers.length} prop firm challenges`)
+      } catch (err) {
+        console.error("Error fetching data:", err)
+        setError(err instanceof Error ? err.message : "Failed to load data")
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [])
+
+  // Update filters
+  const updateFilters = (newFilters: Partial<FilterOptions>) => {
+    setFilters((prev) => ({ ...prev, ...newFilters }))
+  }
+
+  // Handle search
+  const handleSearch = () => {
+    setSearchTerm(filters.searchTerm)
+  }
+
+  // Filter offers based on search term and filters
+  const filteredOffers = propFirms.filter((offer) => {
+    // Text search
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase()
+      const name = offer.firmName.toLowerCase()
+      const accountSize = offer.accountSize.toLowerCase()
+      const steps = offer.steps.toLowerCase()
+
+      if (!name.includes(searchLower) && !accountSize.includes(searchLower) && !steps.includes(searchLower)) {
+        return false
+      }
+    }
+
+    // Challenge type filter
+    if (filters.challengeType && offer.accountType !== filters.challengeType) {
+      return false
+    }
+
+    // Account size filter
+    if (filters.accountSize && offer.accountSize !== filters.accountSize) {
+      return false
+    }
+
+    return true
+  })
+
+  // Handle sorting
+  const handleSort = (column: string) => {
+    if (sortColumn === column) {
+      // Toggle direction if clicking the same column
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc")
+    } else {
+      // Set new column and default to ascending
+      setSortColumn(column)
+      setSortDirection("asc")
+    }
+  }
+
+  // Get sorted offers
+  const sortedOffers = [...filteredOffers].sort((a, b) => {
+    let valueA: any = a[sortColumn as keyof typeof a]
+    let valueB: any = b[sortColumn as keyof typeof b]
+
+    // Handle special cases
+    if (sortColumn === "price" || sortColumn === "rating") {
+      valueA = Number(valueA)
+      valueB = Number(valueB)
+    }
+
+    if (valueA < valueB) return sortDirection === "asc" ? -1 : 1
+    if (valueA > valueB) return sortDirection === "asc" ? 1 : -1
+    return 0
+  })
 
   // Function to render star rating
   const renderStars = (rating: number) => {
@@ -150,6 +346,21 @@ export default function PropFirmComparison() {
       ))
   }
 
+  // Render skeleton for company grid
+  const renderCompanySkeletons = () => {
+    return Array(8)
+      .fill(0)
+      .map((_, index) => (
+        <div
+          key={`company-skeleton-${index}`}
+          className="bg-[#1a1a1a] rounded-lg p-4 aspect-square flex flex-col items-center justify-center animate-pulse"
+        >
+          <div className="w-16 h-16 mb-3 rounded-md bg-gray-700"></div>
+          <div className="h-4 w-20 bg-gray-700 rounded"></div>
+        </div>
+      ))
+  }
+
   return (
     <div className="min-h-screen bg-[#0f0f0f] text-white">
       <div className="w-full">
@@ -157,19 +368,29 @@ export default function PropFirmComparison() {
         <Noise />
         <div className="relative container max-w-[1280px] mt-[200px] mb-[100px] mx-auto px-4 pt-[50px] pb-[50px] z-50 overflow-hidden">
           <h1 className="text-7xl text-center mb-8 text-white mb-[100px]">COMPARE ALL PROP FIRMS IN ONE PLACE</h1>
+
           <div className="flex flex-col lg:flex-row relative">
             {/* Sidebar - Search */}
-            <PropFirmFiltersSidebar filters={filters} onFilterChange={updateFilters} onSearch={handleSearch} />
+            <PropFirmFiltersSidebar
+              filters={filters}
+              onFilterChange={updateFilters}
+              onSearch={handleSearch}
+              challengeTypes={challengeTypes}
+              accountSizes={accountSizes}
+              isLoading={isLoading}
+            />
 
             {/* Main Content */}
             <div className="flex-1 bg-[#0f0f0f] p-6 px-4 lg:px-10 rounded-b-lg lg:rounded-bl-none lg:rounded-r-lg overflow-hidden w-full">
               {/* Company Selection */}
-              {!isLoading && (
-                <div className="mb-[100px]">
-                  <p className="text-md mt-[50px] mb-4">Select company/companies from the list below:</p>
+              <div className="mb-[100px]">
+                <p className="text-md mt-[50px] mb-4">Select company/companies from the list below:</p>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 2xl:grid-cols-8 gap-4">
-                    {Array.from(new Set(propFirms.map((offer) => offer.firmId))).map((firmId) => {
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 2xl:grid-cols-8 gap-4">
+                  {isLoading ? (
+                    renderCompanySkeletons()
+                  ) : propFirms.length > 0 ? (
+                    Array.from(new Set(propFirms.map((offer) => offer.firmId))).map((firmId) => {
                       const firm = propFirms.find((offer) => offer.firmId === firmId)
                       if (!firm) return null
 
@@ -189,10 +410,14 @@ export default function PropFirmComparison() {
                           <h3 className="text-sm font-medium text-center">{firm.firmName}</h3>
                         </div>
                       )
-                    })}
-                  </div>
+                    })
+                  ) : (
+                    <div className="col-span-full text-center py-8">
+                      <p>No companies found. Please check your database connection.</p>
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
 
               {/* Search and Results Count */}
               <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
@@ -455,123 +680,131 @@ export default function PropFirmComparison() {
                       </tr>
                     </thead>
                     <tbody>
-                      {isLoading
-                        ? renderSkeletonCards()
-                        : sortedOffers.map((offer) => (
-                            <tr key={offer.id} className="cursor-pointer" onClick={() => handleRowClick(offer)}>
-                              <td className="p-3 relative">
-                                <div className="flex items-center gap-3">
-                                  <div
-                                    className="w-12 h-12 rounded-md flex items-center justify-center overflow-hidden flex-shrink-0"
-                                    style={{ backgroundColor: offer.firmColor }}
-                                  >
-                                    <span className="text-[#0f0f0f] text-lg">{offer.firmName.substring(0, 1)}</span>
-                                  </div>
-                                  <div>
-                                    <div className="flex items-center gap-2">
-                                      <span className="font-medium">{offer.firmName}</span>
-                                      <button
-                                        className="text-gray-400 hover:text-[#edb900]"
-                                        onClick={(e) => {
-                                          e.stopPropagation()
-                                          // Handle bookmark click
-                                        }}
-                                      >
-                                        <Bookmark
-                                          size={16}
-                                          className={offer.isFavorite ? "fill-[#edb900] text-[#edb900]" : ""}
-                                        />
-                                      </button>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                      <span className="text-[#edb900]">{offer.rating.toFixed(1)}</span>
-                                      <div className="flex">{renderStars(offer.rating)}</div>
-                                      <span className="text-xs text-gray-400">{offer.reviews}</span>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
-                              </td>
-                              <td className="p-3 font-medium text-center relative">
-                                {offer.accountSize}
-                                <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
-                              </td>
-                              <td className="p-3 text-center relative">
-                                <div className="flex items-center justify-center gap-1">
-                                  <span>{offer.steps}</span>
-                                </div>
-                                <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
-                              </td>
-                              <td className="p-3 text-center relative">
-                                <div>
-                                  <span>{offer.profitTarget}</span>
-                                  <span className="text-gray-400 ml-2">{offer.phase2Target}</span>
-                                </div>
-                                <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
-                              </td>
-                              <td className="p-3 text-center relative">
-                                {offer.maxDailyLoss}
-                                <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
-                              </td>
-                              <td className="p-3 text-center relative">
-                                {offer.maxTotalDrawdown}
-                                <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
-                              </td>
-                              <td className="p-3 text-center relative">
-                                <div className="flex items-center justify-center">
-                                  <span className="mr-1">{offer.profitSplit}</span>
-                                  <div className="w-16">
-                                    <SegmentedProgressBar value={offer.profitSplitValue} segments={5} />
-                                  </div>
-                                </div>
-                                <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
-                              </td>
-                              <td className="p-3 text-center relative">
-                                {offer.payoutFrequency}
-                                <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
-                              </td>
-                              <td className="p-3 text-center relative">
-                                <div className="flex items-center justify-center gap-1">
-                                  <Image
-                                    src="/icons/logo_loyalty_points.png"
-                                    alt="Loyalty Points"
-                                    width={16}
-                                    height={16}
-                                    className="object-contain"
-                                  />
-                                  <span>{offer.loyaltyPoints}</span>
-                                </div>
-                              </td>
-                              <td className="p-3 text-center relative">
-                                <div className="absolute left-0 top-1/4 z-15 h-1/2 w-px bg-[#333]"></div>
-                                <div className="flex flex-col items-center">
-                                  {filters.showDiscountedPrice ? (
-                                    <>
-                                      <span>${offer.price.toFixed(2)}</span>
-                                      <span className="text-xs text-gray-400 line-through">
-                                        ${offer.originalPrice.toFixed(2)}
-                                      </span>
-                                    </>
-                                  ) : (
-                                    <>
-                                      <span className="text-white font-medium">${offer.originalPrice.toFixed(2)}</span>
-                                    </>
-                                  )}
-                                </div>
-                              </td>
-                              <td className="p-3 text-center">
-                                <button
-                                  className="w-[50px] h-10 flex items-center justify-center bg-[#edb900] text-[#0f0f0f] rounded-[10px] hover:bg-[#c99e00] transition-colors"
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    // Handle cart button click
-                                  }}
+                      {isLoading ? (
+                        renderSkeletonCards()
+                      ) : sortedOffers.length > 0 ? (
+                        sortedOffers.map((offer) => (
+                          <tr key={offer.id} className="cursor-pointer" onClick={() => handleRowClick(offer)}>
+                            <td className="p-3 relative">
+                              <div className="flex items-center gap-3">
+                                <div
+                                  className="w-12 h-12 rounded-md flex items-center justify-center overflow-hidden flex-shrink-0"
+                                  style={{ backgroundColor: offer.firmColor }}
                                 >
-                                  <FaShoppingCart size={16} />
-                                </button>
-                              </td>
-                            </tr>
-                          ))}
+                                  <span className="text-[#0f0f0f] text-lg">{offer.firmName.substring(0, 1)}</span>
+                                </div>
+                                <div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-medium">{offer.firmName}</span>
+                                    <button
+                                      className="text-gray-400 hover:text-[#edb900]"
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        // Handle bookmark click
+                                      }}
+                                    >
+                                      <Bookmark
+                                        size={16}
+                                        className={offer.isFavorite ? "fill-[#edb900] text-[#edb900]" : ""}
+                                      />
+                                    </button>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-[#edb900]">{offer.rating.toFixed(1)}</span>
+                                    <div className="flex">{renderStars(offer.rating)}</div>
+                                    <span className="text-xs text-gray-400">{offer.reviews}</span>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
+                            </td>
+                            <td className="p-3 font-medium text-center relative">
+                              {offer.accountSize}
+                              <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
+                            </td>
+                            <td className="p-3 text-center relative">
+                              <div className="flex items-center justify-center gap-1">
+                                <span>{offer.steps}</span>
+                              </div>
+                              <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
+                            </td>
+                            <td className="p-3 text-center relative">
+                              <div>
+                                <span>{offer.profitTarget}</span>
+                                <span className="text-gray-400 ml-2">{offer.phase2Target}</span>
+                              </div>
+                              <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
+                            </td>
+                            <td className="p-3 text-center relative">
+                              {offer.maxDailyLoss}
+                              <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
+                            </td>
+                            <td className="p-3 text-center relative">
+                              {offer.maxTotalDrawdown}
+                              <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
+                            </td>
+                            <td className="p-3 text-center relative">
+                              <div className="flex items-center justify-center">
+                                <span className="mr-1">{offer.profitSplit}</span>
+                                <div className="w-16">
+                                  <SegmentedProgressBar value={offer.profitSplitValue} segments={5} />
+                                </div>
+                              </div>
+                              <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
+                            </td>
+                            <td className="p-3 text-center relative">
+                              {offer.payoutFrequency}
+                              <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
+                            </td>
+                            <td className="p-3 text-center relative">
+                              <div className="flex items-center justify-center gap-1">
+                                <Image
+                                  src="/icons/logo_loyalty_points.png"
+                                  alt="Loyalty Points"
+                                  width={16}
+                                  height={16}
+                                  className="object-contain"
+                                />
+                                <span>{offer.loyaltyPoints}</span>
+                              </div>
+                            </td>
+                            <td className="p-3 text-center relative">
+                              <div className="absolute left-0 top-1/4 z-15 h-1/2 w-px bg-[#333]"></div>
+                              <div className="flex flex-col items-center">
+                                {filters.showDiscountedPrice ? (
+                                  <>
+                                    <span>${offer.price.toFixed(2)}</span>
+                                    <span className="text-xs text-gray-400 line-through">
+                                      ${offer.originalPrice.toFixed(2)}
+                                    </span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <span className="text-white font-medium">${offer.originalPrice.toFixed(2)}</span>
+                                  </>
+                                )}
+                              </div>
+                            </td>
+                            <td className="p-3 text-center">
+                              <button
+                                className="w-[50px] h-10 flex items-center justify-center bg-[#edb900] text-[#0f0f0f] rounded-[10px] hover:bg-[#c99e00] transition-colors"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  // Handle cart button click
+                                }}
+                              >
+                                <FaShoppingCart size={16} />
+                              </button>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={11} className="p-6 text-center">
+                            No results found. Try adjusting your filters.
+                          </td>
+                        </tr>
+                      )}
                     </tbody>
                   </table>
                 </div>

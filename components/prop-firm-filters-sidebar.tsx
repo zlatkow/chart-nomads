@@ -1,11 +1,9 @@
-/* eslint-disable */
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Search, ChevronLeft, SlidersHorizontal } from "lucide-react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { CustomSwitch } from "@/components/custom-switch"
-import { supabase } from "@/lib/supabase"
 
 // Types for the filters
 export type SearchMode = "quick" | "advanced"
@@ -24,56 +22,30 @@ interface PropFirmFiltersSidebarProps {
   filters: FilterOptions
   onFilterChange: (filters: Partial<FilterOptions>) => void
   onSearch: () => void
+  challengeTypes: { value: string; label: string }[]
+  accountSizes: { value: string; label: string }[]
+  isLoading: boolean
 }
 
-export const PropFirmFiltersSidebar = ({ filters, onFilterChange, onSearch }: PropFirmFiltersSidebarProps) => {
+export const PropFirmFiltersSidebar = ({
+  filters,
+  onFilterChange,
+  onSearch,
+  challengeTypes,
+  accountSizes,
+  isLoading,
+}: PropFirmFiltersSidebarProps) => {
   const [sidebarExpanded, setSidebarExpanded] = useState(true)
-  const [challengeTypes, setChallengTypes] = useState<{ value: string; label: string }[]>([])
-  const [accountSizes, setAccountSizes] = useState<{ value: string; label: string }[]>([])
-  const [assetClasses, setAssetClasses] = useState<{ value: string; label: string }[]>([])
 
-  // Fetch filter options from database
-  useEffect(() => {
-    const fetchFilterOptions = async () => {
-      // Fetch unique challenge types
-      const { data: accountTypeData } = await supabase
-        .from("propfirm_challenges")
-        .select("account_type")
-        .order("account_type")
-
-      if (accountTypeData) {
-        const uniqueTypes = [...new Set(accountTypeData.map((item) => item.account_type))]
-          .filter(Boolean)
-          .map((type) => ({ value: type, label: type }))
-        setChallengTypes(uniqueTypes)
-      }
-
-      // Fetch unique account sizes
-      const { data: accountSizeData } = await supabase
-        .from("propfirm_challenges")
-        .select("account_size")
-        .order("account_size_whole_number")
-
-      if (accountSizeData) {
-        const uniqueSizes = [...new Set(accountSizeData.map((item) => item.account_size))]
-          .filter(Boolean)
-          .map((size) => ({ value: size, label: size }))
-        setAccountSizes(uniqueSizes)
-      }
-
-      // For asset classes, we'll use a predefined list since it might not be directly in the table
-      setAssetClasses([
-        { value: "Forex", label: "Forex" },
-        { value: "Futures", label: "Futures" },
-        { value: "Crypto", label: "Crypto" },
-        { value: "Stocks", label: "Stocks" },
-        { value: "Indices", label: "Indices" },
-        { value: "Commodities", label: "Commodities" },
-      ])
-    }
-
-    fetchFilterOptions()
-  }, [])
+  // Asset classes - hardcoded since they might not be directly in the database
+  const assetClasses = [
+    { value: "Forex", label: "Forex" },
+    { value: "Futures", label: "Futures" },
+    { value: "Crypto", label: "Crypto" },
+    { value: "Stocks", label: "Stocks" },
+    { value: "Indices", label: "Indices" },
+    { value: "Commodities", label: "Commodities" },
+  ]
 
   // Brokers options
   const brokers = [
@@ -139,6 +111,20 @@ export const PropFirmFiltersSidebar = ({ filters, onFilterChange, onSearch }: Pr
 
   // Function to render filter buttons
   const renderFilterButtons = (options: { value: string; label: string }[], selectedValue?: string) => {
+    if (isLoading) {
+      return (
+        <div className="flex flex-wrap gap-2">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="h-6 w-16 bg-gray-700 rounded-full animate-pulse"></div>
+          ))}
+        </div>
+      )
+    }
+
+    if (options.length === 0) {
+      return <p className="text-xs text-red-500">No options available</p>
+    }
+
     return (
       <div className="flex flex-wrap gap-2">
         {options.map((option) => (
@@ -339,9 +325,6 @@ export const PropFirmFiltersSidebar = ({ filters, onFilterChange, onSearch }: Pr
                             <span>$2,000</span>
                           </div>
                         </div>
-
-                        {/* More advanced filters... */}
-                        {/* I've shortened this for brevity, but you can include all the original advanced filters */}
                       </div>
                     </AccordionContent>
                   </AccordionItem>
