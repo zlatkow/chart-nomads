@@ -326,8 +326,8 @@ export default function PropFirmComparison() {
         yearsInOperation: 5, // Default value
         availablePlatforms: ["MT4", "MT5", "cTrader"], // Default platforms
       },
-      price: offer.price,
-      originalPrice: offer.originalPrice,
+      price: Number.parseFloat(offer.price) || 0,
+      originalPrice: Number.parseFloat(offer.originalPrice) || 0,
       accountSize: offer.accountSize,
       maxDrawdown: offer.maxTotalDrawdown,
       profitTarget: {
