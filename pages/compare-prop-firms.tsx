@@ -440,11 +440,11 @@ export default function PropFirmComparison() {
   const uniqueFirms = Array.from(new Map(propFirms.map((offer) => [offer.firmId, offer])).values())
 
   // State for controlling the number of items to show
-  const [itemsToShow, setItemsToShow] = useState(25)
+  const [itemsToShow, setItemsToShow] = useState(10)
 
   // Function to handle loading more items
   const handleLoadMore = () => {
-    setItemsToShow((prevItemsToShow) => prevItemsToShow + 25)
+    setItemsToShow((prevItemsToShow) => prevItemsToShow + 10)
   }
 
   // Slice the sorted offers based on the number of items to show
@@ -933,7 +933,7 @@ export default function PropFirmComparison() {
                   <div className="flex justify-center mt-8">
                     <button
                       onClick={handleLoadMore}
-                      className="bg-[#edb900] text-[#0f0f0f] font-medium px-8 py-3 rounded-md hover:bg-[#c99e00] transition-colors"
+                      className="bg-[#edb900] text-[#0f0f0f] font-medium px-3 py-1 rounded-[10px] text-sm hover:bg-[#c99e00] transition-colors"
                     >
                       Load More
                     </button>
