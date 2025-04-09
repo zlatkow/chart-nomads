@@ -498,10 +498,10 @@ export default function PropFirmComparison() {
                               />
                             ) : (
                               <span className="text-[#0f0f0f] text-2xl">
+                                {firm.firmName.substring(0, 2).toUpperCase()}
                               </span>
                             )}
                           </div>
-                          <h3 className="text-sm font-medium text-center">{firm.firmName}</h3>
                         </div>
                       )
                     })
