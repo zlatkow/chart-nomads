@@ -9,6 +9,7 @@ import { CustomSwitch } from "@/components/custom-switch"
 // Types for the filters
 export type SearchMode = "quick" | "advanced"
 
+// Update the FilterOptions interface to support arrays for multiple selections
 export interface FilterOptions {
   searchMode: SearchMode
   searchTerm: string
@@ -17,7 +18,10 @@ export interface FilterOptions {
   accountSizes?: string[]
   assetClasses?: string[]
   selectedFirmIds?: number[]
-  // Add other filter options as needed
+  // Keep backward compatibility with single-select options
+  challengeType?: string
+  accountSize?: string
+  assetClass?: string
 }
 
 interface PropFirmFiltersSidebarProps {
@@ -39,7 +43,7 @@ export const PropFirmFiltersSidebar = ({
 }: PropFirmFiltersSidebarProps) => {
   const [sidebarExpanded, setSidebarExpanded] = useState(true)
 
-  // Static challenge types in the correct order
+  // Static filter options inside the component
   const staticChallengeTypes = [
     { value: "Instant Funding", label: "Instant Funding" },
     { value: "1 Phase", label: "1 Phase" },
@@ -47,38 +51,37 @@ export const PropFirmFiltersSidebar = ({
     { value: "3 Phases", label: "3 Phases" },
   ]
 
-  // Static account sizes in the correct order
+  // Static account sizes in ascending order
   const staticAccountSizes = [
-    { value: "$2.5K", label: "2.5k" },
-    { value: "$5K", label: "5k" },
-    { value: "$6K", label: "6k" },
-    { value: "$10K", label: "10k" },
-    { value: "$12.5K", label: "12.5k" },
-    { value: "$15K", label: "15k" },
-    { value: "$25K", label: "25k" },
-    { value: "$50K", label: "50k" },
-    { value: "$60K", label: "60k" },
-    { value: "$75K", label: "75k" },
-    { value: "$100K", label: "100k" },
-    { value: "$150K", label: "150k" },
-    { value: "$200K", label: "200k" },
-    { value: "$300K", label: "300k" },
-    { value: "$400K", label: "400k" },
+    { value: "2.5k", label: "2.5k" },
+    { value: "5k", label: "5k" },
+    { value: "10k", label: "10k" },
+    { value: "15k", label: "15k" },
+    { value: "25k", label: "25k" },
+    { value: "50k", label: "50k" },
+    { value: "75k", label: "75k" },
+    { value: "100k", label: "100k" },
+    { value: "150k", label: "150k" },
+    { value: "200k", label: "200k" },
+    { value: "300k", label: "300k" },
+    { value: "400k", label: "400k" },
+    { value: "500k", label: "500k" },
+    { value: "600k", label: "600k" },
   ]
 
-  // Quick search account sizes (only major ones)
+  // Quick search major account sizes
   const quickSearchAccountSizes = [
-    { value: "$5K", label: "5k" },
-    { value: "$10K", label: "10k" },
-    { value: "$25K", label: "25k" },
-    { value: "$50K", label: "50k" },
-    { value: "$100K", label: "100k" },
-    { value: "$150K", label: "150k" },
-    { value: "$200K", label: "200k" },
+    { value: "5k", label: "5k" },
+    { value: "10k", label: "10k" },
+    { value: "25k", label: "25k" },
+    { value: "50k", label: "50k" },
+    { value: "100k", label: "100k" },
+    { value: "200k", label: "200k" },
+    { value: "300k", label: "300k" },
   ]
 
-  // Asset classes - hardcoded
-  const assetClasses = [
+  // Static asset classes
+  const staticAssetClasses = [
     { value: "Forex", label: "Forex" },
     { value: "Futures", label: "Futures" },
     { value: "Crypto", label: "Crypto" },
@@ -149,28 +152,19 @@ export const PropFirmFiltersSidebar = ({
     setSidebarExpanded(!sidebarExpanded)
   }
 
-  // Check if any filters are active
-  const hasActiveFilters =
-    (filters.selectedFirmIds && filters.selectedFirmIds.length > 0) ||
-    (filters.challengeTypes && filters.challengeTypes.length > 0) ||
-    (filters.accountSizes && filters.accountSizes.length > 0) ||
-    (filters.assetClasses && filters.assetClasses.length > 0)
-
-  // Function to toggle a value in an array filter
-  const toggleArrayFilter = (filterName: "challengeTypes" | "accountSizes" | "assetClasses", value: string) => {
-    const currentValues = filters[filterName] || []
-    const newValues = currentValues.includes(value)
-      ? currentValues.filter((v) => v !== value)
-      : [...currentValues, value]
-
-    onFilterChange({ [filterName]: newValues.length > 0 ? newValues : undefined })
+  // Add this function to toggle filter values
+  const toggleFilterValue = (filterType: "challengeTypes" | "accountSizes" | "assetClasses", value: string) => {
+    onFilterChange({
+      [filterType]: filters[filterType]?.includes(value)
+        ? filters[filterType]?.filter((v) => v !== value)
+        : [...(filters[filterType] || []), value],
+    })
   }
 
-  // Function to render filter buttons with multiple selection
+  // Replace the renderFilterButtons function with this multi-select version
   const renderFilterButtons = (
     options: { value: string; label: string }[],
-    selectedValues?: string[],
-    filterType: "challengeTypes" | "accountSizes" | "assetClasses" = "challengeTypes",
+    filterType: "challengeTypes" | "accountSizes" | "assetClasses",
   ) => {
     if (isLoading) {
       return (
@@ -182,14 +176,10 @@ export const PropFirmFiltersSidebar = ({
       )
     }
 
-    if (options.length === 0) {
-      return <p className="text-xs text-red-500">No options available</p>
-    }
-
     return (
       <div className="flex flex-wrap gap-2">
         {options.map((option) => {
-          const isSelected = selectedValues?.includes(option.value) || false
+          const isSelected = filters[filterType]?.includes(option.value)
 
           // Different styling for advanced search mode
           const buttonClass =
@@ -204,7 +194,7 @@ export const PropFirmFiltersSidebar = ({
           return (
             <button
               key={option.value}
-              onClick={() => toggleArrayFilter(filterType, option.value)}
+              onClick={() => toggleFilterValue(filterType, option.value)}
               className={`px-3 py-1 rounded-full text-xs ${buttonClass}`}
             >
               {option.label}
@@ -214,6 +204,16 @@ export const PropFirmFiltersSidebar = ({
       </div>
     )
   }
+
+  // Update the hasActiveFilters check
+  const hasActiveFilters =
+    (filters.selectedFirmIds && filters.selectedFirmIds.length > 0) ||
+    (filters.challengeTypes && filters.challengeTypes.length > 0) ||
+    (filters.accountSizes && filters.accountSizes.length > 0) ||
+    (filters.assetClasses && filters.assetClasses.length > 0) ||
+    filters.challengeType ||
+    filters.accountSize ||
+    filters.assetClass
 
   // Render selected companies
   const renderSelectedCompanies = () => {
@@ -296,12 +296,16 @@ export const PropFirmFiltersSidebar = ({
               {hasActiveFilters && (
                 <button
                   className="text-sm font-medium hover:underline flex items-center gap-1"
+                  // Update the Clear All button onClick handler
                   onClick={() =>
                     onFilterChange({
                       challengeTypes: undefined,
                       accountSizes: undefined,
                       assetClasses: undefined,
                       selectedFirmIds: undefined,
+                      challengeType: undefined,
+                      accountSize: undefined,
+                      assetClass: undefined,
                     })
                   }
                 >
@@ -320,19 +324,19 @@ export const PropFirmFiltersSidebar = ({
                 {/* Challenge Type Filter */}
                 <div className="mb-6">
                   <h3 className="mb-3">Challenge type:</h3>
-                  {renderFilterButtons(staticChallengeTypes, filters.challengeTypes, "challengeTypes")}
+                  {renderFilterButtons(staticChallengeTypes, "challengeTypes")}
                 </div>
 
                 {/* Account Size Filter */}
                 <div className="mb-6">
                   <h3 className="mb-3">Account size:</h3>
-                  {renderFilterButtons(quickSearchAccountSizes, filters.accountSizes, "accountSizes")}
+                  {renderFilterButtons(quickSearchAccountSizes, "accountSizes")}
                 </div>
 
                 {/* Trading Asset Class Filter */}
                 <div className="mb-6">
                   <h3 className="mb-3">Trading asset class:</h3>
-                  {renderFilterButtons(assetClasses, filters.assetClasses, "assetClasses")}
+                  {renderFilterButtons(staticAssetClasses, "assetClasses")}
                 </div>
 
                 {/* Show Discounted Price Toggle */}
@@ -354,7 +358,7 @@ export const PropFirmFiltersSidebar = ({
                       Trading Asset Class
                     </AccordionTrigger>
                     <AccordionContent className="px-3 pb-3 pt-0">
-                      {renderFilterButtons(assetClasses, filters.assetClasses, "assetClasses")}
+                      {renderFilterButtons(staticAssetClasses, "assetClasses")}
                     </AccordionContent>
                   </AccordionItem>
 
@@ -363,7 +367,7 @@ export const PropFirmFiltersSidebar = ({
                       Account Size
                     </AccordionTrigger>
                     <AccordionContent className="px-3 pb-3 pt-0">
-                      {renderFilterButtons(staticAccountSizes, filters.accountSizes, "accountSizes")}
+                      {renderFilterButtons(staticAccountSizes, "accountSizes")}
                     </AccordionContent>
                   </AccordionItem>
 
@@ -372,7 +376,7 @@ export const PropFirmFiltersSidebar = ({
                       Challenge Type
                     </AccordionTrigger>
                     <AccordionContent className="px-3 pb-3 pt-0">
-                      {renderFilterButtons(staticChallengeTypes, filters.challengeTypes, "challengeTypes")}
+                      {renderFilterButtons(staticChallengeTypes, "challengeTypes")}
                     </AccordionContent>
                   </AccordionItem>
 
@@ -381,7 +385,16 @@ export const PropFirmFiltersSidebar = ({
                       Brokers
                     </AccordionTrigger>
                     <AccordionContent className="px-3 pb-3 pt-0">
-                      {renderFilterButtons(brokers, [], "challengeTypes")}
+                      <div className="flex flex-wrap gap-2">
+                        {brokers.map((option) => (
+                          <button
+                            key={option.value}
+                            className="px-3 py-1 rounded-full text-xs bg-transparent text-[#edb900] border border-[#edb900] hover:bg-[#edb900]/10"
+                          >
+                            {option.label}
+                          </button>
+                        ))}
+                      </div>
                     </AccordionContent>
                   </AccordionItem>
 
@@ -390,7 +403,16 @@ export const PropFirmFiltersSidebar = ({
                       Platforms
                     </AccordionTrigger>
                     <AccordionContent className="px-3 pb-3 pt-0">
-                      {renderFilterButtons(platforms, [], "challengeTypes")}
+                      <div className="flex flex-wrap gap-2">
+                        {platforms.map((option) => (
+                          <button
+                            key={option.value}
+                            className="px-3 py-1 rounded-full text-xs bg-transparent text-[#edb900] border border-[#edb900] hover:bg-[#edb900]/10"
+                          >
+                            {option.label}
+                          </button>
+                        ))}
+                      </div>
                     </AccordionContent>
                   </AccordionItem>
 
@@ -399,7 +421,16 @@ export const PropFirmFiltersSidebar = ({
                       Special Features
                     </AccordionTrigger>
                     <AccordionContent className="px-3 pb-3 pt-0">
-                      {renderFilterButtons(specialFeatures, [], "challengeTypes")}
+                      <div className="flex flex-wrap gap-2">
+                        {specialFeatures.map((option) => (
+                          <button
+                            key={option.value}
+                            className="px-3 py-1 rounded-full text-xs bg-transparent text-[#edb900] border border-[#edb900] hover:bg-[#edb900]/10"
+                          >
+                            {option.label}
+                          </button>
+                        ))}
+                      </div>
                     </AccordionContent>
                   </AccordionItem>
 
@@ -408,7 +439,16 @@ export const PropFirmFiltersSidebar = ({
                       Countries
                     </AccordionTrigger>
                     <AccordionContent className="px-3 pb-3 pt-0">
-                      {renderFilterButtons(countries, [], "challengeTypes")}
+                      <div className="flex flex-wrap gap-2">
+                        {countries.map((option) => (
+                          <button
+                            key={option.value}
+                            className="px-3 py-1 rounded-full text-xs bg-transparent text-[#edb900] border border-[#edb900] hover:bg-[#edb900]/10"
+                          >
+                            {option.label}
+                          </button>
+                        ))}
+                      </div>
                     </AccordionContent>
                   </AccordionItem>
 

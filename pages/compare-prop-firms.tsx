@@ -4,7 +4,6 @@
 import { useState, useEffect } from "react"
 import { Search, ChevronDown, ChevronUp, Bookmark } from "lucide-react"
 import { FaShoppingCart } from "react-icons/fa"
-import ChallengeDetailsSidebar from "@/components/challenge-details-sidebar"
 import Navbar from "@/components/Navbar"
 import Noise from "@/components/Noise"
 import Community from "@/components/Community"
@@ -22,10 +21,14 @@ export interface FilterOptions {
   searchMode: SearchMode
   searchTerm: string
   showDiscountedPrice: boolean
+  challengeTypes?: string[]
+  accountSizes?: string[]
+  assetClasses?: string[]
+  selectedFirmIds?: number[]
+  // Keep backward compatibility with single-select options
   challengeType?: string
   accountSize?: string
   assetClass?: string
-  selectedFirmIds?: number[]
 }
 
 export interface PropFirmOffer {
@@ -244,17 +247,30 @@ export default function PropFirmComparison() {
       }
     }
 
-    // Challenge type filter
+    // Challenge type filter - support both single and multi-select
     if (filters.challengeType && offer.accountType !== filters.challengeType) {
       return false
     }
+    if (filters.challengeTypes && filters.challengeTypes.length > 0) {
+      if (!filters.challengeTypes.includes(offer.accountType || "")) {
+        return false
+      }
+    }
 
-    // Account size filter
+    // Account size filter - support both single and multi-select
     if (filters.accountSize && offer.accountSize !== filters.accountSize) {
       return false
     }
+    if (filters.accountSizes && filters.accountSizes.length > 0) {
+      if (!filters.accountSizes.includes(offer.accountSize)) {
+        return false
+      }
+    }
 
     // Asset class filter would go here if we had that data
+    if (filters.assetClass || (filters.assetClasses && filters.assetClasses.length > 0)) {
+      // Implement asset class filtering when data is available
+    }
 
     return true
   })
@@ -910,12 +926,6 @@ export default function PropFirmComparison() {
         <Newsletter />
         <Footer />
       </div>
-      {/* Challenge Details Sidebar */}
-      <ChallengeDetailsSidebar
-        challenge={selectedChallenge}
-        isOpen={isSidebarOpen}
-        onClose={() => setIsSidebarOpen(false)}
-      />
     </div>
   )
 }
