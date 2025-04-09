@@ -136,27 +136,70 @@ export const PropFirmFiltersSidebar = ({
       return <p className="text-xs text-red-500">No options available</p>
     }
 
+    // Sort challenge types in the specified order
+    if (options === challengeTypes || options.some((o) => o.value === "Instant Funding" || o.value === "1 Phase")) {
+      const orderMap: Record<string, number> = {
+        "Instant Funding": 1,
+        "1 Phase": 2,
+        "2 Phases": 3,
+        "3 Phases": 4,
+      }
+
+      options = [...options].sort((a, b) => {
+        const orderA = orderMap[a.value] || 999
+        const orderB = orderMap[b.value] || 999
+        return orderA - orderB
+      })
+    }
+
+    // Sort account sizes in ascending order
+    if (options === accountSizes || options.some((o) => o.value?.includes("$"))) {
+      options = [...options].sort((a, b) => {
+        const valueA = Number.parseInt(a.value.replace(/[^0-9]/g, "")) || 0
+        const valueB = Number.parseInt(b.value.replace(/[^0-9]/g, "")) || 0
+        return valueA - valueB
+      })
+
+      // For quick search, filter to only show major account sizes
+      if (filters.searchMode === "quick") {
+        const majorSizes = ["$5K", "$10K", "$25K", "$50K", "$100K", "$200K", "$300K"]
+        options = options.filter((option) => majorSizes.some((size) => option.value.includes(size)))
+      }
+    }
+
     return (
       <div className="flex flex-wrap gap-2">
-        {options.map((option) => (
-          <button
-            key={option.value}
-            onClick={() => {
-              if (options === challengeTypes) {
-                onFilterChange({ challengeType: option.value === filters.challengeType ? undefined : option.value })
-              } else if (options === accountSizes) {
-                onFilterChange({ accountSize: option.value === filters.accountSize ? undefined : option.value })
-              } else if (options === assetClasses) {
-                onFilterChange({ assetClass: option.value === filters.assetClass ? undefined : option.value })
-              }
-            }}
-            className={`px-3 py-1 rounded-full border border-[#0f0f0f] text-xs ${
-              option.value === selectedValue ? "bg-[#0f0f0f] text-[#edb900]" : "bg-transparent"
-            }`}
-          >
-            {option.label}
-          </button>
-        ))}
+        {options.map((option) => {
+          const isSelected = option.value === selectedValue
+
+          // Different styling for advanced search mode
+          const buttonClass =
+            filters.searchMode === "advanced"
+              ? isSelected
+                ? "bg-[#edb900] text-[#0f0f0f] border border-[#edb900]"
+                : "bg-transparent text-[#edb900] border border-[#edb900] hover:bg-[#edb900]/10"
+              : isSelected
+                ? "bg-[#0f0f0f] text-[#edb900] border border-[#0f0f0f]"
+                : "bg-transparent border border-[#0f0f0f] hover:bg-[#0f0f0f]/10"
+
+          return (
+            <button
+              key={option.value}
+              onClick={() => {
+                if (options === challengeTypes) {
+                  onFilterChange({ challengeType: option.value === filters.challengeType ? undefined : option.value })
+                } else if (options === accountSizes) {
+                  onFilterChange({ accountSize: option.value === filters.accountSize ? undefined : option.value })
+                } else if (options === assetClasses) {
+                  onFilterChange({ assetClass: option.value === filters.assetClass ? undefined : option.value })
+                }
+              }}
+              className={`px-3 py-1 rounded-full text-xs ${buttonClass}`}
+            >
+              {option.label}
+            </button>
+          )
+        })}
       </div>
     )
   }
@@ -178,13 +221,13 @@ export const PropFirmFiltersSidebar = ({
                 key={`firm-filter-${firmId}`}
                 className="bg-[#0f0f0f] px-3 py-1 rounded-full flex items-center gap-1 text-xs"
               >
-                <span className="text-white">{firm.firmName}</span>
+                <span className="text-[#edb900]">{firm.firmName}</span>
                 <button
                   onClick={() => {
                     const newSelectedFirmIds = filters.selectedFirmIds?.filter((id) => id !== firmId) || []
                     onFilterChange({ selectedFirmIds: newSelectedFirmIds.length ? newSelectedFirmIds : undefined })
                   }}
-                  className="text-gray-400 hover:text-[#edb900]"
+                  className="text-[#edb900] hover:text-white transition-colors"
                 >
                   <X size={12} />
                 </button>
