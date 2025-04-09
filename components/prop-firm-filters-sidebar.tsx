@@ -1,10 +1,11 @@
 /* eslint-disable */
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Search, ChevronLeft, SlidersHorizontal } from "lucide-react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { CustomSwitch } from "@/components/custom-switch"
+import { supabase } from "@/lib/supabase"
 
 // Types for the filters
 export type SearchMode = "quick" | "advanced"
@@ -13,6 +14,9 @@ export interface FilterOptions {
   searchMode: SearchMode
   searchTerm: string
   showDiscountedPrice: boolean
+  challengeType?: string
+  accountSize?: string
+  assetClass?: string
   // Add other filter options as needed
 }
 
@@ -24,53 +28,52 @@ interface PropFirmFiltersSidebarProps {
 
 export const PropFirmFiltersSidebar = ({ filters, onFilterChange, onSearch }: PropFirmFiltersSidebarProps) => {
   const [sidebarExpanded, setSidebarExpanded] = useState(true)
+  const [challengeTypes, setChallengTypes] = useState<{ value: string; label: string }[]>([])
+  const [accountSizes, setAccountSizes] = useState<{ value: string; label: string }[]>([])
+  const [assetClasses, setAssetClasses] = useState<{ value: string; label: string }[]>([])
 
-  // Challenge type options
-  const challengeTypes = [
-    { value: "Instant Funding", label: "Instant Funding" },
-    { value: "1 Phase", label: "1 Phase" },
-    { value: "2 Phases", label: "2 Phases" },
-    { value: "3 Phases", label: "3 Phases" },
-  ]
+  // Fetch filter options from database
+  useEffect(() => {
+    const fetchFilterOptions = async () => {
+      // Fetch unique challenge types
+      const { data: accountTypeData } = await supabase
+        .from("propfirm_challenges")
+        .select("account_type")
+        .order("account_type")
 
-  // Account size options
-  const accountSizes = [
-    { value: "2k", label: "2k" },
-    { value: "2.5k", label: "2.5k" },
-    { value: "5k", label: "5k" },
-    { value: "6k", label: "6k" },
-    { value: "10k", label: "10k" },
-    { value: "15k", label: "15k" },
-    { value: "20k", label: "20k" },
-    { value: "25k", label: "25k" },
-    { value: "30k", label: "30k" },
-    { value: "40k", label: "40k" },
-    { value: "50k", label: "50k" },
-    { value: "60k", label: "60k" },
-    { value: "75k", label: "75k" },
-    { value: "100k", label: "100k" },
-    { value: "120k", label: "120k" },
-    { value: "140k", label: "140k" },
-    { value: "150k", label: "150k" },
-    { value: "20k", label: "20k" },
-    { value: "250k", label: "250k" },
-    { value: "300k", label: "300k" },
-    { value: "400k", label: "400k" },
-    { value: "500k", label: "500k" },
-    { value: "1M", label: "1M" },
-    { value: "2M", label: "2M" },
-    { value: "5M", label: "5M" },
-  ]
+      if (accountTypeData) {
+        const uniqueTypes = [...new Set(accountTypeData.map((item) => item.account_type))]
+          .filter(Boolean)
+          .map((type) => ({ value: type, label: type }))
+        setChallengTypes(uniqueTypes)
+      }
 
-  // Asset class options
-  const assetClasses = [
-    { value: "Forex", label: "Forex" },
-    { value: "Futures", label: "Futures" },
-    { value: "Crypto", label: "Crypto" },
-    { value: "Stocks", label: "Stocks" },
-    { value: "Indices", label: "Indices" },
-    { value: "Commodities", label: "Commodities" },
-  ]
+      // Fetch unique account sizes
+      const { data: accountSizeData } = await supabase
+        .from("propfirm_challenges")
+        .select("account_size")
+        .order("account_size_whole_number")
+
+      if (accountSizeData) {
+        const uniqueSizes = [...new Set(accountSizeData.map((item) => item.account_size))]
+          .filter(Boolean)
+          .map((size) => ({ value: size, label: size }))
+        setAccountSizes(uniqueSizes)
+      }
+
+      // For asset classes, we'll use a predefined list since it might not be directly in the table
+      setAssetClasses([
+        { value: "Forex", label: "Forex" },
+        { value: "Futures", label: "Futures" },
+        { value: "Crypto", label: "Crypto" },
+        { value: "Stocks", label: "Stocks" },
+        { value: "Indices", label: "Indices" },
+        { value: "Commodities", label: "Commodities" },
+      ])
+    }
+
+    fetchFilterOptions()
+  }, [])
 
   // Brokers options
   const brokers = [
@@ -141,6 +144,15 @@ export const PropFirmFiltersSidebar = ({ filters, onFilterChange, onSearch }: Pr
         {options.map((option) => (
           <button
             key={option.value}
+            onClick={() => {
+              if (options === challengeTypes) {
+                onFilterChange({ challengeType: option.value === filters.challengeType ? undefined : option.value })
+              } else if (options === accountSizes) {
+                onFilterChange({ accountSize: option.value === filters.accountSize ? undefined : option.value })
+              } else if (options === assetClasses) {
+                onFilterChange({ assetClass: option.value === filters.assetClass ? undefined : option.value })
+              }
+            }}
             className={`px-3 py-1 rounded-full border border-[#0f0f0f] text-xs ${
               option.value === selectedValue ? "bg-[#0f0f0f] text-[#edb900]" : "bg-transparent"
             }`}
@@ -195,7 +207,18 @@ export const PropFirmFiltersSidebar = ({ filters, onFilterChange, onSearch }: Pr
             </div>
             <div className="flex justify-between items-center">
               <h2 className="text-xl">Filters</h2>
-              <button className="text-sm font-medium hover:underline">Clear All</button>
+              <button
+                className="text-sm font-medium hover:underline"
+                onClick={() =>
+                  onFilterChange({
+                    challengeType: undefined,
+                    accountSize: undefined,
+                    assetClass: undefined,
+                  })
+                }
+              >
+                Clear All
+              </button>
             </div>
           </div>
 
@@ -206,19 +229,19 @@ export const PropFirmFiltersSidebar = ({ filters, onFilterChange, onSearch }: Pr
                 {/* Challenge Type Filter */}
                 <div className="mb-6">
                   <h3 className=" mb-3">Challenge type:</h3>
-                  {renderFilterButtons(challengeTypes, "2 Phases")}
+                  {renderFilterButtons(challengeTypes, filters.challengeType)}
                 </div>
 
                 {/* Account Size Filter */}
                 <div className="mb-6">
                   <h3 className="mb-3">Account size:</h3>
-                  {renderFilterButtons(accountSizes.slice(0, 9), "100k")}
+                  {renderFilterButtons(accountSizes.slice(0, 9), filters.accountSize)}
                 </div>
 
                 {/* Trading Asset Class Filter */}
                 <div className="mb-6">
                   <h3 className=" mb-3">Trading asset class:</h3>
-                  {renderFilterButtons(assetClasses, "Forex")}
+                  {renderFilterButtons(assetClasses, filters.assetClass)}
                 </div>
 
                 {/* Show Discounted Price Toggle */}
@@ -239,14 +262,18 @@ export const PropFirmFiltersSidebar = ({ filters, onFilterChange, onSearch }: Pr
                     <AccordionTrigger className="px-3 py-2 text-[#edb900] hover:bg-[#222] hover:no-underline">
                       Trading Asset Class
                     </AccordionTrigger>
-                    <AccordionContent className="px-3 pb-3 pt-0">{renderFilterButtons(assetClasses)}</AccordionContent>
+                    <AccordionContent className="px-3 pb-3 pt-0">
+                      {renderFilterButtons(assetClasses, filters.assetClass)}
+                    </AccordionContent>
                   </AccordionItem>
 
                   <AccordionItem value="accountSize" className="border-0 bg-[#1a1a1a] rounded-lg overflow-hidden">
                     <AccordionTrigger className="px-3 py-2 text-[#edb900] hover:bg-[#222] hover:no-underline">
                       Account Size
                     </AccordionTrigger>
-                    <AccordionContent className="px-3 pb-3 pt-0">{renderFilterButtons(accountSizes)}</AccordionContent>
+                    <AccordionContent className="px-3 pb-3 pt-0">
+                      {renderFilterButtons(accountSizes, filters.accountSize)}
+                    </AccordionContent>
                   </AccordionItem>
 
                   <AccordionItem value="challengeType" className="border-0 bg-[#1a1a1a] rounded-lg overflow-hidden">
@@ -254,7 +281,7 @@ export const PropFirmFiltersSidebar = ({ filters, onFilterChange, onSearch }: Pr
                       Challenge Type
                     </AccordionTrigger>
                     <AccordionContent className="px-3 pb-3 pt-0">
-                      {renderFilterButtons(challengeTypes)}
+                      {renderFilterButtons(challengeTypes, filters.challengeType)}
                     </AccordionContent>
                   </AccordionItem>
 
@@ -310,44 +337,6 @@ export const PropFirmFiltersSidebar = ({ filters, onFilterChange, onSearch }: Pr
                           <div className="flex justify-between mt-1 text-xs">
                             <span>$0</span>
                             <span>$2,000</span>
-                          </div>
-                        </div>
-
-                        {/* Account Size K */}
-                        <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
-                          <label className="block mb-2 font-medium">Account Size K</label>
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="range"
-                              min="0"
-                              max="400000"
-                              step="10000"
-                              defaultValue="100000"
-                              className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
-                            />
-                          </div>
-                          <div className="flex justify-between mt-1 text-xs">
-                            <span>$0</span>
-                            <span>$400,000</span>
-                          </div>
-                        </div>
-
-                        {/* Account Profit Split % */}
-                        <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
-                          <label className="block mb-2 font-medium">Account Profit Split %</label>
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="range"
-                              min="0"
-                              max="100"
-                              step="5"
-                              defaultValue="80"
-                              className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
-                            />
-                          </div>
-                          <div className="flex justify-between mt-1 text-xs">
-                            <span>0%</span>
-                            <span>100%</span>
                           </div>
                         </div>
 
