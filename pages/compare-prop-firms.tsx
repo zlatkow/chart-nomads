@@ -3,7 +3,7 @@
 
 import type React from "react"
 import { useState } from "react"
-import { Search, ChevronDown, ChevronUp, Bookmark } from "lucide-react"
+import { Search, ChevronDown, ChevronUp, Bookmark, ChevronLeft, SlidersHorizontal } from "lucide-react"
 import { FaShoppingCart } from "react-icons/fa"
 import ChallengeDetailsSidebar from "@/components/challenge-details-sidebar"
 import Navbar from "../components/Navbar"
@@ -13,7 +13,8 @@ import Newsletter from "../components/Newsletter"
 import Footer from "@/components/Footer"
 import { Input } from "@/components/ui/input"
 import Image from "next/image"
-import { StickySidebar } from "@/components/sticky-sidebar"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { CustomSwitch } from "@/components/custom-switch"
 
 // Update the SegmentedProgressBar component to have individual segment colors
 const SegmentedProgressBar = ({
@@ -77,7 +78,7 @@ export default function PropFirmComparison() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
   // State for search mode toggle
-  // const [searchMode, setSearchMode] = useState<"quick" | "advanced">("quick")
+  const [searchMode, setSearchMode] = useState<"quick" | "advanced">("quick")
 
   // Add this state after the other  setSearchMode] = useState<"quick" | "advanced">("quick")
 
@@ -86,7 +87,7 @@ export default function PropFirmComparison() {
   const [searchQuery, setSearchQuery] = useState("")
 
   // Add this state after the other useState declarations
-  // const [sidebarExpanded, setSidebarExpanded] = useState(true)
+  const [sidebarExpanded, setSidebarExpanded] = useState(true)
 
   // Add these state variables after the other useState declarations
   const [sortColumn, setSortColumn] = useState<string>("firmName")
@@ -250,6 +251,130 @@ export default function PropFirmComparison() {
     },
   ]
 
+  // Challenge type options
+  const challengeTypes = [
+    { value: "Instant Funding", label: "Instant Funding" },
+    { value: "1 Phase", label: "1 Phase" },
+    { value: "2 Phases", label: "2 Phases" },
+    { value: "3 Phases", label: "3 Phases" },
+  ]
+
+  // Account size options
+  const accountSizes = [
+    { value: "2k", label: "2k" },
+    { value: "2.5k", label: "2.5k" },
+    { value: "5k", label: "5k" },
+    { value: "6k", label: "6k" },
+    { value: "10k", label: "10k" },
+    { value: "15k", label: "15k" },
+    { value: "20k", label: "20k" },
+    { value: "25k", label: "25k" },
+    { value: "30k", label: "30k" },
+    { value: "40k", label: "40k" },
+    { value: "50k", label: "50k" },
+    { value: "60k", label: "60k" },
+    { value: "75k", label: "75k" },
+    { value: "100k", label: "100k" },
+    { value: "120k", label: "120k" },
+    { value: "140k", label: "140k" },
+    { value: "150k", label: "150k" },
+    { value: "20k", label: "20k" },
+    { value: "250k", label: "250k" },
+    { value: "300k", label: "300k" },
+    { value: "400k", label: "400k" },
+    { value: "500k", label: "500k" },
+    { value: "1M", label: "1M" },
+    { value: "2M", label: "2M" },
+    { value: "5M", label: "5M" },
+  ]
+
+  // Asset class options
+  const assetClasses = [
+    { value: "Forex", label: "Forex" },
+    { value: "Futures", label: "Futures" },
+    { value: "Crypto", label: "Crypto" },
+    { value: "Stocks", label: "Stocks" },
+    { value: "Indices", label: "Indices" },
+    { value: "Commodities", label: "Commodities" },
+  ]
+
+  // Brokers options
+  const brokers = [
+    { value: "ThinkMarkets", label: "ThinkMarkets" },
+    { value: "Purple Trading Seychelles", label: "Purple Trading Seychelles" },
+    { value: "Virtual Markets", label: "Virtual Markets" },
+    { value: "Capital Markets", label: "Capital Markets" },
+    { value: "Match Trade", label: "Match Trade" },
+    { value: "Finesse FX", label: "Finesse FX" },
+    { value: "FXPIG", label: "FXPIG" },
+    { value: "FXFlat", label: "FXFlat" },
+    { value: "GBE Brokers", label: "GBE Brokers" },
+    { value: "CBT Limited", label: "CBT Limited" },
+    { value: "Liquidity Provider / Own Broker", label: "Liquidity Provider / Own Broker" },
+  ]
+
+  // Platforms options
+  const platforms = [
+    { value: "MT4", label: "MT4" },
+    { value: "MT5", label: "MT5" },
+    { value: "cTrader", label: "cTrader" },
+    { value: "DXtrade", label: "DXtrade" },
+    { value: "TradeLocker", label: "TradeLocker" },
+    { value: "Match Trader", label: "Match Trader" },
+    { value: "ThinkTrader", label: "ThinkTrader" },
+    { value: "Other Platform", label: "Other Platform" },
+    { value: "Proprietary Platform", label: "Proprietary Platform" },
+  ]
+
+  // Special features options
+  const specialFeatures = [
+    { value: "Trade Copying", label: "Trade Copying" },
+    { value: "Expert Advisors", label: "Expert Advisors" },
+    { value: "In-house Technology", label: "In-house Technology" },
+    { value: "Refund Fee", label: "Refund Fee" },
+    { value: "Scaling Plan", label: "Scaling Plan" },
+    { value: "News Trading", label: "News Trading" },
+    { value: "Weekend Holding", label: "Weekend Holding" },
+    { value: "Auto-close", label: "Auto-close" },
+    { value: "Drawdown Blocker", label: "Drawdown Blocker" },
+    { value: "Swap Free Accounts", label: "Swap Free Accounts" },
+    { value: "Balance-based Daily Drawdown", label: "Balance-based Daily Drawdown" },
+  ]
+
+  // Countries options
+  const countries = [
+    { value: "USA", label: "USA" },
+    { value: "Pakistan", label: "Pakistan" },
+    { value: "India", label: "India" },
+    { value: "Vietnam", label: "Vietnam" },
+    { value: "Nigeria", label: "Nigeria" },
+    { value: "Iran", label: "Iran" },
+    { value: "Turkey", label: "Turkey" },
+    { value: "United Kingdom", label: "United Kingdom" },
+    { value: "United Arab Emirates", label: "United Arab Emirates" },
+    { value: "Kenya", label: "Kenya" },
+  ]
+
+  // Add a new state to track which accordion sections are open
+  const [openAccordions, setOpenAccordions] = useState<Record<string, boolean>>({
+    tradingAssetClass: true, // Open by default
+    accountSize: false,
+    challengeType: false,
+    brokers: false,
+    platforms: false,
+    specialFeatures: false,
+    countries: false,
+    advancedFiltering: false,
+  })
+
+  // Add a function to toggle accordion sections
+  const toggleAccordion = (section: string) => {
+    setOpenAccordions((prev) => ({
+      ...prev,
+      [section]: !prev[section],
+    }))
+  }
+
   // Function to render star rating
   const renderStars = (rating: number) => {
     const fullStars = Math.floor(rating)
@@ -314,6 +439,24 @@ export default function PropFirmComparison() {
     setIsSidebarOpen(true)
   }
 
+  // Function to render filter buttons
+  const renderFilterButtons = (options: { value: string; label: string }[], selectedValue?: string) => {
+    return (
+      <div className="flex flex-wrap gap-2">
+        {options.map((option) => (
+          <button
+            key={option.value}
+            className={`px-3 py-1 rounded-full border border-[#0f0f0f] text-xs ${
+              option.value === selectedValue ? "bg-[#0f0f0f] text-[#edb900]" : "bg-transparent"
+            }`}
+          >
+            {option.label}
+          </button>
+        ))}
+      </div>
+    )
+  }
+
   // Add this function to handle search
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value)
@@ -366,6 +509,11 @@ export default function PropFirmComparison() {
   // Get the sorted offers
   const sortedOffers = getSortedOffers()
 
+  // Add this function to toggle the sidebar
+  const toggleSidebar = () => {
+    setSidebarExpanded(!sidebarExpanded)
+  }
+
   return (
     <div className="min-h-screen bg-[#0f0f0f] text-white">
       <div className="w-full">
@@ -374,420 +522,829 @@ export default function PropFirmComparison() {
         <div className="relative container max-w-[1280px] mt-[200px] mb-[100px] mx-auto px-4 pt-[50px] pb-[50px] z-50 overflow-hidden">
           <h1 className="text-7xl text-center mb-8 text-white mb-[100px]">COMPARE ALL PROP FIRMS IN ONE PLACE</h1>
           <div className="flex flex-col lg:flex-row relative">
-            {/* Sidebar and Main Content Container */}
-            <div className="flex">
-              {/* Sticky Sidebar Component */}
-              <StickySidebar
-                showDiscountedPrice={showDiscountedPrice}
-                setShowDiscountedPrice={setShowDiscountedPrice}
-              />
+            {/* Sidebar - Search */}
+            <div
+              className="relative"
+              style={{ position: "sticky", top: "90px", height: "fit-content", alignSelf: "flex-start" }}
+            >
+              <div
+                className={`${
+                  sidebarExpanded ? "w-[300px] p-6" : "w-[30px]"
+                } transition-all duration-300 ease-in-out overflow-hidden bg-[#edb900] text-[#0f0f0f] p-1 rounded-t-lg lg:rounded-tr-none lg:rounded-l-lg`}
+              >
+                {/* Toggle button for sidebar - positioned on the right side */}
+                <button
+                  onClick={toggleSidebar}
+                  className="absolute border border-[#edb900] top-6 -right-4 w-8 h-8 bg-[#0f0f0f] text-[#edb900] rounded-full shadow-md flex items-center justify-center z-10 hover:bg-[#2a2a2a] transition-colors"
+                  aria-label={sidebarExpanded ? "Collapse sidebar" : "Expand sidebar"}
+                >
+                  {sidebarExpanded ? <ChevronLeft size={16} /> : <SlidersHorizontal size={16} />}
+                </button>
 
-              {/* Main Content */}
-              <div className="flex-1 bg-[#0f0f0f] p-6 px-4 lg:px-10 rounded-b-lg lg:rounded-bl-none lg:rounded-r-lg overflow-hidden w-full">
-                {/* Company Selection */}
-                <div className="mb-[100px]">
-                  <p className="text-md mt-[50px] mb-4">Select company/companies from the list below:</p>
-
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 2xl:grid-cols-8 gap-4">
-                    {mockFirms.map((firm) => (
-                      <div
-                        key={firm.id}
-                        className="bg-[#1a1a1a] rounded-lg p-4 aspect-square flex flex-col items-center justify-center hover:bg-[#2a2a2a] transition-colors cursor-pointer"
-                      >
-                        <div
-                          className="w-16 h-16 mb-3 rounded-md flex items-center justify-center overflow-hidden"
-                          style={{ backgroundColor: firm.color }}
-                        >
-                          <span className="text-[#0f0f0f] text-2xl">{firm.name.substring(0, 2).toUpperCase()}</span>
-                        </div>
-                        <h3 className="text-sm font-medium text-center">{firm.name}</h3>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Search and Results Count */}
-                <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
-                  {/* Search Bar with clear button */}
-                  <div className="relative w-[250px] justify-center z-20 mb-4">
-                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
-                    <Input
-                      type="text"
-                      placeholder="Search..."
-                      className="searchDark w-full pl-8 bg-[#0f0f0f] border-gray-600 focus-visible:ring-[#edb900] h-10"
-                      value={searchQuery}
-                      onChange={handleSearch}
-                    />
-                    {searchQuery && (
+                <div className={`${!sidebarExpanded ? "opacity-0" : "opacity-100"} transition-opacity duration-200`}>
+                  <div className="mb-6">
+                    <div className="flex bg-[#1a1a1a] p-1 rounded-lg mb-4">
                       <button
-                        type="button"
-                        onClick={() => {
-                          setSearchQuery("")
-                          setSearchTerm("")
-                        }}
-                        className="absolute right-2.5 top-2.5 h-4 w-4 text-[#edb900] hover:text-[#edb900]/80"
-                        aria-label="Clear search"
+                        onClick={() => setSearchMode("quick")}
+                        className={`flex-1 py-2 px-2 rounded-md text-center transition-all duration-200 font-medium text-xs ${
+                          searchMode === "quick" ? "bg-[#edb900] text-[#0f0f0f]" : "text-[#edb900] hover:bg-[#1f1f1f]"
+                        }`}
                       >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="h-4 w-4"
-                        >
-                          <path d="M18 6L6 18M6 6l12 12" />
-                        </svg>
+                        Quick Search
                       </button>
+                      <button
+                        onClick={() => setSearchMode("advanced")}
+                        className={`flex-1 py-2 px-2 rounded-md text-center transition-all duration-200 font-medium text-xs ${
+                          searchMode === "advanced"
+                            ? "bg-[#edb900] text-[#0f0f0f]"
+                            : "text-[#edb900] hover:bg-[#1f1f1f]"
+                        }`}
+                      >
+                        Advanced Search
+                      </button>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <h2 className="text-xl">Filters</h2>
+                      <button className="text-sm font-medium hover:underline">Clear All</button>
+                    </div>
+                  </div>
+
+                  {/* Scrollable filter area */}
+                  <div className="overflow-y-auto max-h-[calc(100vh-250px)] pr-2 -mr-2">
+                    {searchMode === "quick" ? (
+                      <>
+                        {/* Challenge Type Filter */}
+                        <div className="mb-6">
+                          <h3 className=" mb-3">Challenge type:</h3>
+                          {renderFilterButtons(challengeTypes, "2 Phases")}
+                        </div>
+
+                        {/* Account Size Filter */}
+                        <div className="mb-6">
+                          <h3 className="mb-3">Account size:</h3>
+                          {renderFilterButtons(accountSizes.slice(0, 9), "100k")}
+                        </div>
+
+                        {/* Trading Asset Class Filter */}
+                        <div className="mb-6">
+                          <h3 className=" mb-3">Trading asset class:</h3>
+                          {renderFilterButtons(assetClasses, "Forex")}
+                        </div>
+
+                        {/* Show Discounted Price Toggle */}
+                        <div className="mb-6">
+                          <h3 className="mb-3">Show discounted price?</h3>
+                          <CustomSwitch
+                            checked={showDiscountedPrice}
+                            defaultChecked={true}
+                            onCheckedChange={setShowDiscountedPrice}
+                          />
+                        </div>
+                      </>
+                    ) : (
+                      // Advanced search content
+                      <div className="space-y-4">
+                        <Accordion type="single" collapsible defaultValue="tradingAssetClass" className="space-y-2">
+                          <AccordionItem
+                            value="tradingAssetClass"
+                            className="border-0 bg-[#1a1a1a] rounded-lg overflow-hidden"
+                          >
+                            <AccordionTrigger className="px-3 py-2 text-[#edb900] hover:bg-[#222] hover:no-underline">
+                              Trading Asset Class
+                            </AccordionTrigger>
+                            <AccordionContent className="px-3 pb-3 pt-0">
+                              {renderFilterButtons(assetClasses)}
+                            </AccordionContent>
+                          </AccordionItem>
+
+                          <AccordionItem
+                            value="accountSize"
+                            className="border-0 bg-[#1a1a1a] rounded-lg overflow-hidden"
+                          >
+                            <AccordionTrigger className="px-3 py-2 text-[#edb900] hover:bg-[#222] hover:no-underline">
+                              Account Size
+                            </AccordionTrigger>
+                            <AccordionContent className="px-3 pb-3 pt-0">
+                              {renderFilterButtons(accountSizes)}
+                            </AccordionContent>
+                          </AccordionItem>
+
+                          <AccordionItem
+                            value="challengeType"
+                            className="border-0 bg-[#1a1a1a] rounded-lg overflow-hidden"
+                          >
+                            <AccordionTrigger className="px-3 py-2 text-[#edb900] hover:bg-[#222] hover:no-underline">
+                              Challenge Type
+                            </AccordionTrigger>
+                            <AccordionContent className="px-3 pb-3 pt-0">
+                              {renderFilterButtons(challengeTypes)}
+                            </AccordionContent>
+                          </AccordionItem>
+
+                          <AccordionItem value="brokers" className="border-0 bg-[#1a1a1a] rounded-lg overflow-hidden">
+                            <AccordionTrigger className="px-3 py-2 text-[#edb900] hover:bg-[#222] hover:no-underline">
+                              Brokers
+                            </AccordionTrigger>
+                            <AccordionContent className="px-3 pb-3 pt-0">
+                              {renderFilterButtons(brokers)}
+                            </AccordionContent>
+                          </AccordionItem>
+
+                          <AccordionItem value="platforms" className="border-0 bg-[#1a1a1a] rounded-lg overflow-hidden">
+                            <AccordionTrigger className="px-3 py-2 text-[#edb900] hover:bg-[#222] hover:no-underline">
+                              Platforms
+                            </AccordionTrigger>
+                            <AccordionContent className="px-3 pb-3 pt-0">
+                              {renderFilterButtons(platforms)}
+                            </AccordionContent>
+                          </AccordionItem>
+
+                          <AccordionItem
+                            value="specialFeatures"
+                            className="border-0 bg-[#1a1a1a] rounded-lg overflow-hidden"
+                          >
+                            <AccordionTrigger className="px-3 py-2 text-[#edb900] hover:bg-[#222] hover:no-underline">
+                              Special Features
+                            </AccordionTrigger>
+                            <AccordionContent className="px-3 pb-3 pt-0">
+                              {renderFilterButtons(specialFeatures)}
+                            </AccordionContent>
+                          </AccordionItem>
+
+                          <AccordionItem value="countries" className="border-0 bg-[#1a1a1a] rounded-lg overflow-hidden">
+                            <AccordionTrigger className="px-3 py-2 text-[#edb900] hover:bg-[#222] hover:no-underline">
+                              Countries
+                            </AccordionTrigger>
+                            <AccordionContent className="px-3 pb-3 pt-0">
+                              {renderFilterButtons(countries)}
+                            </AccordionContent>
+                          </AccordionItem>
+
+                          <AccordionItem
+                            value="advancedFiltering"
+                            className="border-0 bg-[#1a1a1a] rounded-lg overflow-hidden"
+                          >
+                            <AccordionTrigger className="px-3 py-2 text-[#edb900] hover:bg-[#222] hover:no-underline">
+                              Advanced Filtering
+                            </AccordionTrigger>
+                            <AccordionContent className="px-3 pb-3 pt-0">
+                              <div className="space-y-4">
+                                {/* Price Range */}
+                                <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
+                                  <label className="block mb-2 font-medium">Price $</label>
+                                  <div className="flex items-center gap-2">
+                                    <input
+                                      type="range"
+                                      min="0"
+                                      max="2000"
+                                      step="50"
+                                      defaultValue="500"
+                                      className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
+                                    />
+                                  </div>
+                                  <div className="flex justify-between mt-1 text-xs">
+                                    <span>$0</span>
+                                    <span>$2,000</span>
+                                  </div>
+                                </div>
+
+                                {/* Account Size K */}
+                                <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
+                                  <label className="block mb-2 font-medium">Account Size K</label>
+                                  <div className="flex items-center gap-2">
+                                    <input
+                                      type="range"
+                                      min="0"
+                                      max="400000"
+                                      step="10000"
+                                      defaultValue="100000"
+                                      className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
+                                    />
+                                  </div>
+                                  <div className="flex justify-between mt-1 text-xs">
+                                    <span>$0</span>
+                                    <span>$400,000</span>
+                                  </div>
+                                </div>
+
+                                {/* Account Profit Split % */}
+                                <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
+                                  <label className="block mb-2 font-medium">Account Profit Split %</label>
+                                  <div className="flex items-center gap-2">
+                                    <input
+                                      type="range"
+                                      min="0"
+                                      max="100"
+                                      step="5"
+                                      defaultValue="80"
+                                      className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
+                                    />
+                                  </div>
+                                  <div className="flex justify-between mt-1 text-xs">
+                                    <span>0%</span>
+                                    <span>100%</span>
+                                  </div>
+                                </div>
+
+                                {/* Profit Target % (Combined) */}
+                                <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
+                                  <label className="block mb-2 font-medium">Profit Target % (Combined)</label>
+                                  <div className="flex items-center gap-2">
+                                    <input
+                                      type="range"
+                                      min="0"
+                                      max="30"
+                                      step="1"
+                                      defaultValue="10"
+                                      className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
+                                    />
+                                  </div>
+                                  <div className="flex justify-between mt-1 text-xs">
+                                    <span>0%</span>
+                                    <span>30%</span>
+                                  </div>
+                                </div>
+
+                                {/* Max Daily Loss % */}
+                                <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
+                                  <label className="block mb-2 font-medium">Max Daily Loss %</label>
+                                  <div className="flex items-center gap-2">
+                                    <input
+                                      type="range"
+                                      min="0"
+                                      max="10"
+                                      step="0.5"
+                                      defaultValue="5"
+                                      className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
+                                    />
+                                  </div>
+                                  <div className="flex justify-between mt-1 text-xs">
+                                    <span>0%</span>
+                                    <span>10%</span>
+                                  </div>
+                                </div>
+
+                                {/* Account Max Total Drawdown % */}
+                                <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
+                                  <label className="block mb-2 font-medium">Account Max Total Drawdown %</label>
+                                  <div className="flex items-center gap-2">
+                                    <input
+                                      type="range"
+                                      min="0"
+                                      max="20"
+                                      step="1"
+                                      defaultValue="10"
+                                      className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
+                                    />
+                                  </div>
+                                  <div className="flex justify-between mt-1 text-xs">
+                                    <span>0%</span>
+                                    <span>20%</span>
+                                  </div>
+                                </div>
+
+                                {/* Commission $ */}
+                                <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
+                                  <label className="block mb-2 font-medium">Commission $</label>
+                                  <div className="flex items-center gap-2">
+                                    <input
+                                      type="range"
+                                      min="0"
+                                      max="10"
+                                      step="0.5"
+                                      defaultValue="0"
+                                      className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
+                                    />
+                                  </div>
+                                  <div className="flex justify-between mt-1 text-xs">
+                                    <span>$0</span>
+                                    <span>$10</span>
+                                  </div>
+                                </div>
+
+                                {/* Account PT:DD ratio */}
+                                <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
+                                  <label className="block mb-2 font-medium">Account PT:DD ratio</label>
+                                  <div className="flex items-center gap-2">
+                                    <input
+                                      type="range"
+                                      min="0"
+                                      max="1"
+                                      step="0.1"
+                                      defaultValue="0.5"
+                                      className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
+                                    />
+                                  </div>
+                                  <div className="flex justify-between mt-1 text-xs">
+                                    <span>1:0</span>
+                                    <span>1:1</span>
+                                  </div>
+                                </div>
+
+                                {/* Payout Frequency (Days) */}
+                                <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
+                                  <label className="block mb-2 font-medium">Payout Frequency (Days)</label>
+                                  <div className="flex items-center gap-2">
+                                    <input
+                                      type="range"
+                                      min="0"
+                                      max="30"
+                                      step="1"
+                                      defaultValue="14"
+                                      className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
+                                    />
+                                  </div>
+                                  <div className="flex justify-between mt-1 text-xs">
+                                    <span>0 Days</span>
+                                    <span>30 Days</span>
+                                  </div>
+                                </div>
+
+                                {/* Trust Pilot Rating */}
+                                <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
+                                  <label className="block mb-2 font-medium">Trust Pilot Rating</label>
+                                  <div className="flex items-center gap-2">
+                                    <input
+                                      type="range"
+                                      min="1"
+                                      max="5"
+                                      step="0.1"
+                                      defaultValue="4"
+                                      className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
+                                    />
+                                  </div>
+                                  <div className="flex justify-between mt-1 text-xs">
+                                    <span>1</span>
+                                    <span>5</span>
+                                  </div>
+                                </div>
+
+                                {/* Years in Business */}
+                                <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
+                                  <label className="block mb-2 font-medium">Years in Business</label>
+                                  <div className="flex items-center gap-2">
+                                    <input
+                                      type="range"
+                                      min="1"
+                                      max="15"
+                                      step="1"
+                                      defaultValue="5"
+                                      className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
+                                    />
+                                  </div>
+                                  <div className="flex justify-between mt-1 text-xs">
+                                    <span>1 Years</span>
+                                    <span>15 Years</span>
+                                  </div>
+                                </div>
+
+                                {/* Loyalty Points */}
+                                <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
+                                  <label className="block mb-2 font-medium">Loyalty Points</label>
+                                  <div className="flex items-center gap-2">
+                                    <input
+                                      type="range"
+                                      min="0"
+                                      max="5000"
+                                      step="100"
+                                      defaultValue="1000"
+                                      className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
+                                    />
+                                  </div>
+                                  <div className="flex justify-between mt-1 text-xs">
+                                    <span>0 Points</span>
+                                    <span>5,000 Points</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </AccordionContent>
+                          </AccordionItem>
+                        </Accordion>
+                      </div>
                     )}
                   </div>
-                  <span className="text-sm">
-                    Showing <span className="text-[#edb900]">{filteredOffers.length}</span> results.
-                  </span>
-                </div>
 
-                {/* Table with sticky columns and header */}
-                <div className="table-wrapper w-full max-w-full">
-                  <div className="sticky-table-container">
-                    <table className="sticky-table text-sm">
-                      <colgroup>
-                        <col style={{ width: "200px" }} /> {/* Firm/Rank */}
-                        <col style={{ width: "80px" }} /> {/* Account Size */}
-                        <col style={{ width: "80px" }} /> {/* Program */}
-                        <col style={{ width: "100px" }} /> {/* Profit Target */}
-                        <col style={{ width: "80px" }} /> {/* Daily Loss */}
-                        <col style={{ width: "80px" }} /> {/* Max Loss */}
-                        <col style={{ width: "100px" }} /> {/* Profit Split */}
-                        <col style={{ width: "120px" }} /> {/* Payout Freq */}
-                        <col style={{ width: "100px" }} /> {/* Loyalty Pts */}
-                        <col style={{ width: "100px" }} /> {/* Price */}
-                        <col style={{ width: "60px" }} /> {/* Buy Button */}
-                      </colgroup>
-                      <thead>
-                        <tr>
-                          <th className="p-3 text-left relative">
-                            <button
-                              onClick={() => handleSort("firmName")}
-                              className="flex items-center gap-1 w-full hover:text-[#edb900] transition-colors"
-                            >
-                              <span className="text-[10px] font-[balboa] uppercase font-normal tracking-wider">
-                                FIRM / RANK
-                              </span>
-                              {sortColumn === "firmName" ? (
-                                sortDirection === "asc" ? (
-                                  <ChevronUp size={12} className="text-[#edb900]" />
-                                ) : (
-                                  <ChevronDown size={12} className="text-[#edb900]" />
-                                )
-                              ) : (
-                                <ChevronDown size={12} className="opacity-50" />
-                              )}
-                            </button>
-                            <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
-                          </th>
-                          <th className="p-3 text-center relative">
-                            <button
-                              onClick={() => handleSort("accountSize")}
-                              className="flex items-center justify-center gap-1 w-full hover:text-[#edb900] transition-colors"
-                            >
-                              <span className="text-[10px] font-[balboa] uppercase font-normal tracking-wider">
-                                ACC SIZE
-                              </span>
-                              {sortColumn === "accountSize" ? (
-                                sortDirection === "asc" ? (
-                                  <ChevronUp size={12} className="text-[#edb900]" />
-                                ) : (
-                                  <ChevronDown size={12} className="text-[#edb900]" />
-                                )
-                              ) : (
-                                <ChevronDown size={12} className="opacity-50" />
-                              )}
-                            </button>
-                            <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
-                          </th>
-                          <th className="p-3 text-center relative">
-                            <button
-                              onClick={() => handleSort("steps")}
-                              className="flex items-center justify-center gap-1 w-full hover:text-[#edb900] transition-colors"
-                            >
-                              <span className="text-[10px] font-[balboa] uppercase font-normal tracking-wider">
-                                PROGRAM
-                              </span>
-                              {sortColumn === "steps" ? (
-                                sortDirection === "asc" ? (
-                                  <ChevronUp size={12} className="text-[#edb900]" />
-                                ) : (
-                                  <ChevronDown size={12} className="text-[#edb900]" />
-                                )
-                              ) : (
-                                <ChevronDown size={12} className="opacity-50" />
-                              )}
-                            </button>
-                            <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
-                          </th>
-                          <th className="p-3 text-center relative">
-                            <button
-                              onClick={() => handleSort("profitTarget")}
-                              className="flex items-center justify-center gap-1 w-full hover:text-[#edb900] transition-colors"
-                            >
-                              <span className="text-[10px] font-[balboa] uppercase font-normal tracking-wider">
-                                PROFIT TARGET
-                              </span>
-                              {sortColumn === "profitTarget" ? (
-                                sortDirection === "asc" ? (
-                                  <ChevronUp size={12} className="text-[#edb900]" />
-                                ) : (
-                                  <ChevronDown size={12} className="text-[#edb900]" />
-                                )
-                              ) : (
-                                <ChevronDown size={12} className="opacity-50" />
-                              )}
-                            </button>
-                            <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
-                          </th>
-                          <th className="p-3 text-center relative">
-                            <button
-                              onClick={() => handleSort("maxDailyLoss")}
-                              className="flex items-center justify-center gap-1 w-full hover:text-[#edb900] transition-colors"
-                            >
-                              <span className="text-[10px] font-[balboa] uppercase font-normal tracking-wider">
-                                DAILY LOSS
-                              </span>
-                              {sortColumn === "maxDailyLoss" ? (
-                                sortDirection === "asc" ? (
-                                  <ChevronUp size={12} className="text-[#edb900]" />
-                                ) : (
-                                  <ChevronDown size={12} className="text-[#edb900]" />
-                                )
-                              ) : (
-                                <ChevronDown size={12} className="opacity-50" />
-                              )}
-                            </button>
-                            <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
-                          </th>
-                          <th className="p-3 text-center relative">
-                            <button
-                              onClick={() => handleSort("maxTotalDrawdown")}
-                              className="flex items-center justify-center gap-1 w-full hover:text-[#edb900] transition-colors"
-                            >
-                              <span className="text-[10px] font-[balboa] uppercase font-normal tracking-wider">
-                                MAX LOSS
-                              </span>
-                              {sortColumn === "maxTotalDrawdown" ? (
-                                sortDirection === "asc" ? (
-                                  <ChevronUp size={12} className="text-[#edb900]" />
-                                ) : (
-                                  <ChevronDown size={12} className="text-[#edb900]" />
-                                )
-                              ) : (
-                                <ChevronDown size={12} className="opacity-50" />
-                              )}
-                            </button>
-                            <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
-                          </th>
-                          <th className="p-3 text-center relative">
-                            <button
-                              onClick={() => handleSort("profitSplit")}
-                              className="flex items-center justify-center gap-1 w-full hover:text-[#edb900] transition-colors"
-                            >
-                              <span className="text-[10px] font-[balboa] uppercase font-normal tracking-wider">
-                                PROFIT SPLIT
-                              </span>
-                              {sortColumn === "profitSplit" ? (
-                                sortDirection === "asc" ? (
-                                  <ChevronUp size={12} className="text-[#edb900]" />
-                                ) : (
-                                  <ChevronDown size={12} className="text-[#edb900]" />
-                                )
-                              ) : (
-                                <ChevronDown size={12} className="opacity-50" />
-                              )}
-                            </button>
-                            <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
-                          </th>
-                          <th className="p-3 text-center relative">
-                            <button
-                              onClick={() => handleSort("payoutFrequency")}
-                              className="flex items-center justify-center gap-1 w-full hover:text-[#edb900] transition-colors"
-                            >
-                              <span className="text-[10px] font-[balboa] uppercase font-normal tracking-wider">
-                                PAYOUT FREQ.
-                              </span>
-                              {sortColumn === "payoutFrequency" ? (
-                                sortDirection === "asc" ? (
-                                  <ChevronUp size={12} className="text-[#edb900]" />
-                                ) : (
-                                  <ChevronDown size={12} className="text-[#edb900]" />
-                                )
-                              ) : (
-                                <ChevronDown size={12} className="opacity-50" />
-                              )}
-                            </button>
-                            <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
-                          </th>
-                          <th className="p-3 text-center relative">
-                            <button
-                              onClick={() => handleSort("loyaltyPoints")}
-                              className="flex items-center justify-center gap-1 w-full hover:text-[#edb900] transition-colors"
-                            >
-                              <span className="text-[10px] font-[balboa] uppercase font-normal tracking-wider">
-                                LOYALTY PTS
-                              </span>
-                              {sortColumn === "loyaltyPoints" ? (
-                                sortDirection === "asc" ? (
-                                  <ChevronUp size={12} className="text-[#edb900]" />
-                                ) : (
-                                  <ChevronDown size={12} className="text-[#edb900]" />
-                                )
-                              ) : (
-                                <ChevronDown size={12} className="opacity-50" />
-                              )}
-                            </button>
-                          </th>
-                          <th className="p-3 text-center relative">
-                            <div className="absolute left-0 top-1/4 z-15 h-1/2 w-px bg-[#333]"></div>
-                            <button
-                              onClick={() => handleSort("price")}
-                              className="flex items-center justify-center gap-1 w-full hover:text-[#edb900] transition-colors"
-                            >
-                              <span className="text-[10px] font-[balboa] uppercase font-normal tracking-wider">
-                                PRICE
-                              </span>
-                              {sortColumn === "price" ? (
-                                sortDirection === "asc" ? (
-                                  <ChevronUp size={12} className="text-[#edb900]" />
-                                ) : (
-                                  <ChevronDown size={12} className="text-[#edb900]" />
-                                )
-                              ) : (
-                                <ChevronDown size={12} className="opacity-50" />
-                              )}
-                            </button>
-                          </th>
-                          <th className="p-3 text-center"></th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {sortedOffers.map((offer) => (
-                          <tr key={offer.id} className="cursor-pointer" onClick={() => handleRowClick(offer)}>
-                            <td className="p-3 relative">
-                              <div className="flex items-center gap-3">
-                                <div
-                                  className="w-12 h-12 rounded-md flex items-center justify-center overflow-hidden flex-shrink-0"
-                                  style={{ backgroundColor: offer.firmColor }}
-                                >
-                                  <span className="text-[#0f0f0f] text-lg">{offer.firmName.substring(0, 1)}</span>
-                                </div>
-                                <div>
-                                  <div className="flex items-center gap-2">
-                                    <span className="font-medium">{offer.firmName}</span>
-                                    <button
-                                      className="text-gray-400 hover:text-[#edb900]"
-                                      onClick={(e) => {
-                                        e.stopPropagation()
-                                        // Handle bookmark click
-                                      }}
-                                    >
-                                      <Bookmark
-                                        size={16}
-                                        className={offer.isFavorite ? "fill-[#edb900] text-[#edb900]" : ""}
-                                      />
-                                    </button>
-                                  </div>
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-[#edb900]">{offer.rating.toFixed(1)}</span>
-                                    <div className="flex">{renderStars(offer.rating)}</div>
-                                    <span className="text-xs text-gray-400">{offer.reviews}</span>
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
-                            </td>
-                            <td className="p-3 font-medium text-center relative">
-                              {offer.accountSize}
-                              <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
-                            </td>
-                            <td className="p-3 text-center relative">
-                              <div className="flex items-center justify-center gap-1">
-                                <span>{offer.steps}</span>
-                              </div>
-                              <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
-                            </td>
-                            <td className="p-3 text-center relative">
-                              <div>
-                                <span>{offer.profitTarget}</span>
-                                <span className="text-gray-400 ml-2">{offer.phase2Target}</span>
-                              </div>
-                              <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
-                            </td>
-                            <td className="p-3 text-center relative">
-                              {offer.maxDailyLoss}
-                              <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
-                            </td>
-                            <td className="p-3 text-center relative">
-                              {offer.maxTotalDrawdown}
-                              <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
-                            </td>
-                            <td className="p-3 text-center relative">
-                              <div className="flex items-center justify-center">
-                                <span className="mr-1">{offer.profitSplit}</span>
-                                <div className="w-16">
-                                  <SegmentedProgressBar value={offer.profitSplitValue} segments={5} />
-                                </div>
-                              </div>
-                              <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
-                            </td>
-                            <td className="p-3 text-center relative">
-                              {offer.payoutFrequency}
-                              <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
-                            </td>
-                            <td className="p-3 text-center relative">
-                              <div className="flex items-center justify-center gap-1">
-                                <Image
-                                  src="/icons/logo_loyalty_points.png"
-                                  alt="Loyalty Points"
-                                  width={16}
-                                  height={16}
-                                  className="object-contain"
-                                />
-                                <span>{offer.loyaltyPoints}</span>
-                              </div>
-                            </td>
-                            <td className="p-3 text-center relative">
-                              <div className="absolute left-0 top-1/4 z-15 h-1/2 w-px bg-[#333]"></div>
-                              <div className="flex flex-col items-center">
-                                {showDiscountedPrice ? (
-                                  <>
-                                    <span>${offer.price.toFixed(2)}</span>
-                                    <span className="text-xs text-gray-400 line-through">
-                                      ${offer.originalPrice.toFixed(2)}
-                                    </span>
-                                  </>
-                                ) : (
-                                  <>
-                                    <span className="text-white font-medium">${offer.originalPrice.toFixed(2)}</span>
-                                  </>
-                                )}
-                              </div>
-                            </td>
-                            <td className="p-3 text-center">
-                              <button
-                                className="w-[50px] h-10 flex items-center justify-center bg-[#edb900] text-[#0f0f0f] rounded-[10px] hover:bg-[#c99e00] transition-colors"
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  // Handle cart button click
-                                }}
-                              >
-                                <FaShoppingCart size={16} />
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                  {/* Search Button - Fixed at bottom */}
+                  <div className="mt-6">
+                    <button className="w-full py-3 bg-[#0f0f0f] text-[#edb900] rounded-md flex items-center justify-center gap-2 hover:bg-[#2a2a2a] transition-colors">
+                      <Search size={18} />
+                      {searchMode === "quick" ? "Search" : "Advanced Search"}
+                    </button>
                   </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Main Content */}
+            <div className="flex-1 bg-[#0f0f0f] p-6 px-4 lg:px-10 rounded-b-lg lg:rounded-bl-none lg:rounded-r-lg overflow-hidden w-full">
+              {/* Company Selection */}
+              <div className="mb-[100px]">
+                <p className="text-md mt-[50px] mb-4">Select company/companies from the list below:</p>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 2xl:grid-cols-8 gap-4">
+                  {mockFirms.map((firm) => (
+                    <div
+                      key={firm.id}
+                      className="bg-[#1a1a1a] rounded-lg p-4 aspect-square flex flex-col items-center justify-center hover:bg-[#2a2a2a] transition-colors cursor-pointer"
+                    >
+                      <div
+                        className="w-16 h-16 mb-3 rounded-md flex items-center justify-center overflow-hidden"
+                        style={{ backgroundColor: firm.color }}
+                      >
+                        <span className="text-[#0f0f0f] text-2xl">{firm.name.substring(0, 2).toUpperCase()}</span>
+                      </div>
+                      <h3 className="text-sm font-medium text-center">{firm.name}</h3>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Search and Results Count */}
+              <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
+                {/* Search Bar with clear button */}
+                <div className="relative w-[250px] justify-center z-20 mb-4">
+                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
+                  <Input
+                    type="text"
+                    placeholder="Search..."
+                    className="searchDark w-full pl-8 bg-[#0f0f0f] border-gray-600 focus-visible:ring-[#edb900] h-10"
+                    value={searchQuery}
+                    onChange={handleSearch}
+                  />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSearchQuery("")
+                        setSearchTerm("")
+                      }}
+                      className="absolute right-2.5 top-2.5 h-4 w-4 text-[#edb900] hover:text-[#edb900]/80"
+                      aria-label="Clear search"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="h-4 w-4"
+                      >
+                        <path d="M18 6L6 18M6 6l12 12" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
+                <span className="text-sm">
+                  Showing <span className="text-[#edb900]">{filteredOffers.length}</span> results.
+                </span>
+              </div>
+
+              {/* Table with sticky columns and header */}
+              <div className="table-wrapper w-full max-w-full">
+                <div className="sticky-table-container">
+                  <table className="sticky-table text-sm">
+                    <colgroup>
+                      <col style={{ width: "200px" }} /> {/* Firm/Rank */}
+                      <col style={{ width: "80px" }} /> {/* Account Size */}
+                      <col style={{ width: "80px" }} /> {/* Program */}
+                      <col style={{ width: "100px" }} /> {/* Profit Target */}
+                      <col style={{ width: "80px" }} /> {/* Daily Loss */}
+                      <col style={{ width: "80px" }} /> {/* Max Loss */}
+                      <col style={{ width: "100px" }} /> {/* Profit Split */}
+                      <col style={{ width: "120px" }} /> {/* Payout Freq */}
+                      <col style={{ width: "100px" }} /> {/* Loyalty Pts */}
+                      <col style={{ width: "100px" }} /> {/* Price */}
+                      <col style={{ width: "60px" }} /> {/* Buy Button */}
+                    </colgroup>
+                    <thead>
+                      <tr>
+                        <th className="p-3 text-left relative">
+                          <button
+                            onClick={() => handleSort("firmName")}
+                            className="flex items-center gap-1 w-full hover:text-[#edb900] transition-colors"
+                          >
+                            <span className="text-[10px] font-[balboa] uppercase font-normal tracking-wider">
+                              FIRM / RANK
+                            </span>
+                            {sortColumn === "firmName" ? (
+                              sortDirection === "asc" ? (
+                                <ChevronUp size={12} className="text-[#edb900]" />
+                              ) : (
+                                <ChevronDown size={12} className="text-[#edb900]" />
+                              )
+                            ) : (
+                              <ChevronDown size={12} className="opacity-50" />
+                            )}
+                          </button>
+                          <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
+                        </th>
+                        <th className="p-3 text-center relative">
+                          <button
+                            onClick={() => handleSort("accountSize")}
+                            className="flex items-center justify-center gap-1 w-full hover:text-[#edb900] transition-colors"
+                          >
+                            <span className="text-[10px] font-[balboa] uppercase font-normal tracking-wider">
+                              ACC SIZE
+                            </span>
+                            {sortColumn === "accountSize" ? (
+                              sortDirection === "asc" ? (
+                                <ChevronUp size={12} className="text-[#edb900]" />
+                              ) : (
+                                <ChevronDown size={12} className="text-[#edb900]" />
+                              )
+                            ) : (
+                              <ChevronDown size={12} className="opacity-50" />
+                            )}
+                          </button>
+                          <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
+                        </th>
+                        <th className="p-3 text-center relative">
+                          <button
+                            onClick={() => handleSort("steps")}
+                            className="flex items-center justify-center gap-1 w-full hover:text-[#edb900] transition-colors"
+                          >
+                            <span className="text-[10px] font-[balboa] uppercase font-normal tracking-wider">
+                              PROGRAM
+                            </span>
+                            {sortColumn === "steps" ? (
+                              sortDirection === "asc" ? (
+                                <ChevronUp size={12} className="text-[#edb900]" />
+                              ) : (
+                                <ChevronDown size={12} className="text-[#edb900]" />
+                              )
+                            ) : (
+                              <ChevronDown size={12} className="opacity-50" />
+                            )}
+                          </button>
+                          <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
+                        </th>
+                        <th className="p-3 text-center relative">
+                          <button
+                            onClick={() => handleSort("profitTarget")}
+                            className="flex items-center justify-center gap-1 w-full hover:text-[#edb900] transition-colors"
+                          >
+                            <span className="text-[10px] font-[balboa] uppercase font-normal tracking-wider">
+                              PROFIT TARGET
+                            </span>
+                            {sortColumn === "profitTarget" ? (
+                              sortDirection === "asc" ? (
+                                <ChevronUp size={12} className="text-[#edb900]" />
+                              ) : (
+                                <ChevronDown size={12} className="text-[#edb900]" />
+                              )
+                            ) : (
+                              <ChevronDown size={12} className="opacity-50" />
+                            )}
+                          </button>
+                          <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
+                        </th>
+                        <th className="p-3 text-center relative">
+                          <button
+                            onClick={() => handleSort("maxDailyLoss")}
+                            className="flex items-center justify-center gap-1 w-full hover:text-[#edb900] transition-colors"
+                          >
+                            <span className="text-[10px] font-[balboa] uppercase font-normal tracking-wider">
+                              DAILY LOSS
+                            </span>
+                            {sortColumn === "maxDailyLoss" ? (
+                              sortDirection === "asc" ? (
+                                <ChevronUp size={12} className="text-[#edb900]" />
+                              ) : (
+                                <ChevronDown size={12} className="text-[#edb900]" />
+                              )
+                            ) : (
+                              <ChevronDown size={12} className="opacity-50" />
+                            )}
+                          </button>
+                          <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
+                        </th>
+                        <th className="p-3 text-center relative">
+                          <button
+                            onClick={() => handleSort("maxTotalDrawdown")}
+                            className="flex items-center justify-center gap-1 w-full hover:text-[#edb900] transition-colors"
+                          >
+                            <span className="text-[10px] font-[balboa] uppercase font-normal tracking-wider">
+                              MAX LOSS
+                            </span>
+                            {sortColumn === "maxTotalDrawdown" ? (
+                              sortDirection === "asc" ? (
+                                <ChevronUp size={12} className="text-[#edb900]" />
+                              ) : (
+                                <ChevronDown size={12} className="text-[#edb900]" />
+                              )
+                            ) : (
+                              <ChevronDown size={12} className="opacity-50" />
+                            )}
+                          </button>
+                          <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
+                        </th>
+                        <th className="p-3 text-center relative">
+                          <button
+                            onClick={() => handleSort("profitSplit")}
+                            className="flex items-center justify-center gap-1 w-full hover:text-[#edb900] transition-colors"
+                          >
+                            <span className="text-[10px] font-[balboa] uppercase font-normal tracking-wider">
+                              PROFIT SPLIT
+                            </span>
+                            {sortColumn === "profitSplit" ? (
+                              sortDirection === "asc" ? (
+                                <ChevronUp size={12} className="text-[#edb900]" />
+                              ) : (
+                                <ChevronDown size={12} className="text-[#edb900]" />
+                              )
+                            ) : (
+                              <ChevronDown size={12} className="opacity-50" />
+                            )}
+                          </button>
+                          <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
+                        </th>
+                        <th className="p-3 text-center relative">
+                          <button
+                            onClick={() => handleSort("payoutFrequency")}
+                            className="flex items-center justify-center gap-1 w-full hover:text-[#edb900] transition-colors"
+                          >
+                            <span className="text-[10px] font-[balboa] uppercase font-normal tracking-wider">
+                              PAYOUT FREQ.
+                            </span>
+                            {sortColumn === "payoutFrequency" ? (
+                              sortDirection === "asc" ? (
+                                <ChevronUp size={12} className="text-[#edb900]" />
+                              ) : (
+                                <ChevronDown size={12} className="text-[#edb900]" />
+                              )
+                            ) : (
+                              <ChevronDown size={12} className="opacity-50" />
+                            )}
+                          </button>
+                          <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
+                        </th>
+                        <th className="p-3 text-center relative">
+                          <button
+                            onClick={() => handleSort("loyaltyPoints")}
+                            className="flex items-center justify-center gap-1 w-full hover:text-[#edb900] transition-colors"
+                          >
+                            <span className="text-[10px] font-[balboa] uppercase font-normal tracking-wider">
+                              LOYALTY PTS
+                            </span>
+                            {sortColumn === "loyaltyPoints" ? (
+                              sortDirection === "asc" ? (
+                                <ChevronUp size={12} className="text-[#edb900]" />
+                              ) : (
+                                <ChevronDown size={12} className="text-[#edb900]" />
+                              )
+                            ) : (
+                              <ChevronDown size={12} className="opacity-50" />
+                            )}
+                          </button>
+                        </th>
+                        <th className="p-3 text-center relative">
+                          <div className="absolute left-0 top-1/4 z-15 h-1/2 w-px bg-[#333]"></div>
+                          <button
+                            onClick={() => handleSort("price")}
+                            className="flex items-center justify-center gap-1 w-full hover:text-[#edb900] transition-colors"
+                          >
+                            <span className="text-[10px] font-[balboa] uppercase font-normal tracking-wider">
+                              PRICE
+                            </span>
+                            {sortColumn === "price" ? (
+                              sortDirection === "asc" ? (
+                                <ChevronUp size={12} className="text-[#edb900]" />
+                              ) : (
+                                <ChevronDown size={12} className="text-[#edb900]" />
+                              )
+                            ) : (
+                              <ChevronDown size={12} className="opacity-50" />
+                            )}
+                          </button>
+                        </th>
+                        <th className="p-3 text-center"></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {sortedOffers.map((offer) => (
+                        <tr
+                          key={offer.id}
+                          className="cursor-pointer" /* Added cursor-pointer */
+                          onClick={() => handleRowClick(offer)}
+                        >
+                          <td className="p-3 relative">
+                            <div className="flex items-center gap-3">
+                              <div
+                                className="w-12 h-12 rounded-md flex items-center justify-center overflow-hidden flex-shrink-0"
+                                style={{ backgroundColor: offer.firmColor }}
+                              >
+                                <span className="text-[#0f0f0f] text-lg">{offer.firmName.substring(0, 1)}</span>
+                              </div>
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <span className="font-medium">{offer.firmName}</span>
+                                  <button
+                                    className="text-gray-400 hover:text-[#edb900]"
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      // Handle bookmark click
+                                    }}
+                                  >
+                                    <Bookmark
+                                      size={16}
+                                      className={offer.isFavorite ? "fill-[#edb900] text-[#edb900]" : ""}
+                                    />
+                                  </button>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-[#edb900]">{offer.rating.toFixed(1)}</span>
+                                  <div className="flex">{renderStars(offer.rating)}</div>
+                                  <span className="text-xs text-gray-400">{offer.reviews}</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
+                          </td>
+                          <td className="p-3 font-medium text-center relative">
+                            {offer.accountSize}
+                            <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
+                          </td>
+                          <td className="p-3 text-center relative">
+                            <div className="flex items-center justify-center gap-1">
+                              <span>{offer.steps}</span>
+                            </div>
+                            <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
+                          </td>
+                          <td className="p-3 text-center relative">
+                            <div>
+                              <span>{offer.profitTarget}</span>
+                              <span className="text-gray-400 ml-2">{offer.phase2Target}</span>
+                            </div>
+                            <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
+                          </td>
+                          <td className="p-3 text-center relative">
+                            {offer.maxDailyLoss}
+                            <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
+                          </td>
+                          <td className="p-3 text-center relative">
+                            {offer.maxTotalDrawdown}
+                            <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
+                          </td>
+                          <td className="p-3 text-center relative">
+                            <div className="flex items-center justify-center">
+                              <span className="mr-1">{offer.profitSplit}</span>
+                              <div className="w-16">
+                                <SegmentedProgressBar value={offer.profitSplitValue} segments={5} />
+                              </div>
+                            </div>
+                            <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
+                          </td>
+                          <td className="p-3 text-center relative">
+                            {offer.payoutFrequency}
+                            <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
+                          </td>
+                          <td className="p-3 text-center relative">
+                            <div className="flex items-center justify-center gap-1">
+                              <Image
+                                src="/icons/logo_loyalty_points.png"
+                                alt="Loyalty Points"
+                                width={16}
+                                height={16}
+                                className="object-contain"
+                              />
+                              <span>{offer.loyaltyPoints}</span>
+                            </div>
+                          </td>
+                          <td className="p-3 text-center relative">
+                            <div className="absolute left-0 top-1/4 z-15 h-1/2 w-px bg-[#333]"></div>
+                            <div className="flex flex-col items-center">
+                              {showDiscountedPrice ? (
+                                <>
+                                  <span>${offer.price.toFixed(2)}</span>
+                                  <span className="text-xs text-gray-400 line-through">
+                                    ${offer.originalPrice.toFixed(2)}
+                                  </span>
+                                </>
+                              ) : (
+                                <>
+                                  <span className="text-white font-medium">${offer.originalPrice.toFixed(2)}</span>
+                                </>
+                              )}
+                            </div>
+                          </td>
+                          <td className="p-3 text-center">
+                            {/* <div className="absolute left-0 top-1/4 z-15 h-1/2 w-px bg-[#333]"></div> */}
+                            <button
+                              className="w-[50px] h-10 flex items-center justify-center bg-[#edb900] text-[#0f0f0f] rounded-[10px] hover:bg-[#c99e00] transition-colors"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                // Handle cart button click
+                              }}
+                            >
+                              <FaShoppingCart size={16} />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
