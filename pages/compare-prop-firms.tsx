@@ -439,6 +439,17 @@ export default function PropFirmComparison() {
   // Get unique firms for the company grid
   const uniqueFirms = Array.from(new Map(propFirms.map((offer) => [offer.firmId, offer])).values())
 
+  // State for controlling the number of items to show
+  const [itemsToShow, setItemsToShow] = useState(25)
+
+  // Function to handle loading more items
+  const handleLoadMore = () => {
+    setItemsToShow((prevItemsToShow) => prevItemsToShow + 25)
+  }
+
+  // Slice the sorted offers based on the number of items to show
+  const displayedOffers = sortedOffers.slice(0, itemsToShow)
+
   return (
     <div className="min-h-screen bg-[#0f0f0f] text-white">
       <div className="w-full">
@@ -777,8 +788,8 @@ export default function PropFirmComparison() {
                     <tbody>
                       {isLoading ? (
                         renderSkeletonCards()
-                      ) : sortedOffers.length > 0 ? (
-                        sortedOffers.map((offer) => (
+                      ) : displayedOffers.length > 0 ? (
+                        displayedOffers.map((offer) => (
                           <tr key={offer.id} className="cursor-pointer" onClick={() => handleRowClick(offer)}>
                             <td className="p-3 relative">
                               <div className="flex items-center gap-3">
@@ -918,6 +929,16 @@ export default function PropFirmComparison() {
                     </tbody>
                   </table>
                 </div>
+                {sortedOffers.length > itemsToShow && (
+                  <div className="flex justify-center mt-8">
+                    <button
+                      onClick={handleLoadMore}
+                      className="bg-[#edb900] text-[#0f0f0f] font-medium px-8 py-3 rounded-md hover:bg-[#c99e00] transition-colors"
+                    >
+                      Load More
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -926,12 +947,12 @@ export default function PropFirmComparison() {
         <Newsletter />
         <Footer />
       </div>
-        {/* Challenge Details Sidebar */}
-        <ChallengeDetailsSidebar
+      {/* Challenge Details Sidebar */}
+      <ChallengeDetailsSidebar
         challenge={selectedChallenge}
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
-        />
+      />
     </div>
   )
 }
