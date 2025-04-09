@@ -7,11 +7,16 @@ export async function GET() {
     console.log("Fetching prop firm challenges...")
 
     // Fetch challenges with their related prop firm data in a single query
-    const { data: challenges, error: challengesError } = await supabase
-      .from("propfirm_challenges")
-      .select(`
+    const { data: challenges, error: challengesError } = await supabase.from("propfirm_challenges").select(`
         *,
-        prop_firm:prop_firm (*)
+        prop_firm (
+          id,
+          propfirm_name,
+          logo_url,
+          brand_colour,
+          rating,
+          reviews_count
+        )
       `)
 
     if (challengesError) {
@@ -21,6 +26,7 @@ export async function GET() {
 
     // Log success for debugging
     console.log(`Successfully fetched ${challenges.length} challenges with their prop firm data`)
+    console.log("Sample challenge data:", challenges[0])
 
     return NextResponse.json({ challenges })
   } catch (error) {
@@ -28,4 +34,5 @@ export async function GET() {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
+
 
