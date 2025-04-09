@@ -428,7 +428,7 @@ export default function PropFirmComparison() {
                           className="bg-[#1a1a1a] rounded-lg p-4 aspect-square flex flex-col items-center justify-center hover:bg-[#2a2a2a] transition-colors cursor-pointer"
                         >
                           <div
-                            className="w-16 h-16 mb-3 rounded-md flex items-center justify-center overflow-hidden"
+                            className="w-16 h-16 mb-3 p-3 rounded-md flex items-center justify-center overflow-hidden"
                             style={{ backgroundColor: firm.firmColor }}
                           >
                             {firm.firmLogo && firm.firmLogo !== "/placeholder.svg" ? (
