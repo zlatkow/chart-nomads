@@ -1,4 +1,3 @@
-/* eslint-disable */
 "use client"
 
 import type React from "react"
@@ -156,7 +155,7 @@ export const StickySidebar: React.FC<StickySidebarProps> = ({ showDiscountedPric
   }
 
   return (
-    <div className="fixed top-[90px] left-0 z-10">
+    <div className="sticky top-[90px] self-start h-fit">
       <div
         className={`${
           sidebarExpanded ? "w-[300px] p-6" : "w-[30px]"
