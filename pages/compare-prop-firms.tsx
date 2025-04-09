@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input"
 import Image from "next/image"
 import { PropFirmFiltersSidebar } from "@/components/prop-firm-filters-sidebar"
 import { SegmentedProgressBar } from "@/components/segmented-progress-bar"
+import ChallengeDetailsSidebar from "@/components/challenge-details-sidebar"
 
 // Types
 export type SearchMode = "quick" | "advanced"
@@ -480,7 +481,7 @@ export default function PropFirmComparison() {
                           }`}
                         >
                           <div
-                            className="w-16 h-16 mb-3 p-3 rounded-md flex items-center justify-center overflow-hidden"
+                            className="w-16 h-16 p-3 rounded-md flex items-center justify-center overflow-hidden"
                             style={{ backgroundColor: firm.firmColor }}
                           >
                             {firm.firmLogo && firm.firmLogo !== "/placeholder.svg" ? (
@@ -925,6 +926,12 @@ export default function PropFirmComparison() {
         <Newsletter />
         <Footer />
       </div>
+        {/* Challenge Details Sidebar */}
+        <ChallengeDetailsSidebar
+        challenge={selectedChallenge}
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+        />
     </div>
   )
 }
