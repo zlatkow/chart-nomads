@@ -731,7 +731,7 @@ export default function PropFirmComparison() {
                             <td className="p-3 relative">
                               <div className="flex items-center gap-3">
                                 <div
-                                  className="w-12 h-12 rounded-md flex items-center justify-center overflow-hidden flex-shrink-0"
+                                  className="w-12 h-12 p-2 rounded-md flex items-center justify-center overflow-hidden flex-shrink-0"
                                   style={{ backgroundColor: offer.firmColor }}
                                 >
                                   {offer.firmLogo && offer.firmLogo !== "/placeholder.svg" ? (
