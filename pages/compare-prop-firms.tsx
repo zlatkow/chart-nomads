@@ -98,7 +98,7 @@ export default function PropFirmComparison() {
       setError(null)
 
       try {
-        const response = await fetch("/api/prop-firm-challenges")
+        const response = await fetch("/api/prop_firm_challenges")
 
         if (!response.ok) {
           throw new Error(`API responded with status: ${response.status}`)
@@ -117,6 +117,7 @@ export default function PropFirmComparison() {
         const offers = challenges.map((challenge: any) => {
           // Access prop firm data directly from the challenge
           const firm = challenge.prop_firm || {
+            id: 0,
             propfirm_name: "Unknown",
             logo_url: "/placeholder.svg",
             brand_colour: "#333333",
@@ -136,7 +137,7 @@ export default function PropFirmComparison() {
 
           return {
             id: challenge.id,
-            firmId: firm.id,
+            firmId: firm?.id || 0,
             firmName: firm.propfirm_name,
             firmLogo: firm.logo_url || "/placeholder.svg",
             firmColor: firm.brand_colour || "#333333",
@@ -177,6 +178,7 @@ export default function PropFirmComparison() {
         setAccountSizes(sizeOptions)
 
         console.log(`Successfully loaded ${offers.length} prop firm challenges`)
+        console.log("Sample challenge data:", challenges[0])
       } catch (err) {
         console.error("Error fetching data:", err)
         setError(err instanceof Error ? err.message : "Failed to load data")
@@ -429,9 +431,24 @@ export default function PropFirmComparison() {
                             className="w-16 h-16 mb-3 rounded-md flex items-center justify-center overflow-hidden"
                             style={{ backgroundColor: firm.firmColor }}
                           >
-                            <span className="text-[#0f0f0f] text-2xl">
-                              {firm.firmName.substring(0, 2).toUpperCase()}
-                            </span>
+                            {firm.firmLogo && firm.firmLogo !== "/placeholder.svg" ? (
+                              <Image
+                                src={firm.firmLogo || "/placeholder.svg"}
+                                alt={`${firm.firmName} logo`}
+                                width={64}
+                                height={64}
+                                className="object-contain w-full h-full"
+                                onError={(e) => {
+                                  // Fallback to initials if image fails to load
+                                  e.currentTarget.style.display = "none"
+                                  e.currentTarget.parentElement.innerHTML = `<span class="text-[#0f0f0f] text-2xl">${firm.firmName.substring(0, 2).toUpperCase()}</span>`
+                                }}
+                              />
+                            ) : (
+                              <span className="text-[#0f0f0f] text-2xl">
+                                {firm.firmName.substring(0, 2).toUpperCase()}
+                              </span>
+                            )}
                           </div>
                           <h3 className="text-sm font-medium text-center">{firm.firmName}</h3>
                         </div>
@@ -717,7 +734,22 @@ export default function PropFirmComparison() {
                                   className="w-12 h-12 rounded-md flex items-center justify-center overflow-hidden flex-shrink-0"
                                   style={{ backgroundColor: offer.firmColor }}
                                 >
-                                  <span className="text-[#0f0f0f] text-lg">{offer.firmName.substring(0, 1)}</span>
+                                  {offer.firmLogo && offer.firmLogo !== "/placeholder.svg" ? (
+                                    <Image
+                                      src={offer.firmLogo || "/placeholder.svg"}
+                                      alt={`${offer.firmName} logo`}
+                                      width={48}
+                                      height={48}
+                                      className="object-contain w-full h-full"
+                                      onError={(e) => {
+                                        // Fallback to initials if image fails to load
+                                        e.currentTarget.style.display = "none"
+                                        e.currentTarget.parentElement.innerHTML = `<span class="text-[#0f0f0f] text-lg">${offer.firmName.substring(0, 1)}</span>`
+                                      }}
+                                    />
+                                  ) : (
+                                    <span className="text-[#0f0f0f] text-lg">{offer.firmName.substring(0, 1)}</span>
+                                  )}
                                 </div>
                                 <div>
                                   <div className="flex items-center gap-2">
