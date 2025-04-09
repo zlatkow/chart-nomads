@@ -1,4 +1,3 @@
-/* eslint-disable */
 "use client"
 
 import { useState, useEffect } from "react"
@@ -81,6 +80,7 @@ export default function PropFirmComparison() {
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true)
+      setError(null)
 
       try {
         const response = await fetch("/api/prop-firm-challenges")
@@ -90,6 +90,10 @@ export default function PropFirmComparison() {
         }
 
         const data = await response.json()
+
+        if (data.error) {
+          throw new Error(data.error)
+        }
 
         // Process firms and challenges
         const firms = data.firms || []
@@ -202,6 +206,8 @@ export default function PropFirmComparison() {
     if (filters.accountSize && offer.accountSize !== filters.accountSize) {
       return false
     }
+
+    // Asset class filter would go here if we had that data
 
     return true
   })

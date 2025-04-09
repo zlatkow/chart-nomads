@@ -1,7 +1,11 @@
-import { NextResponse } from "next/server"
+import type { NextApiRequest, NextApiResponse } from "next"
 import { supabase } from "@/lib/supabase"
 
-export async function GET() {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== "GET") {
+    return res.status(405).json({ error: "Method not allowed" })
+  }
+
   try {
     console.log("Fetching prop firm challenges...")
 
@@ -13,7 +17,7 @@ export async function GET() {
 
     if (firmsError) {
       console.error("Error fetching prop firms:", firmsError)
-      return NextResponse.json({ error: "Failed to fetch prop firms" }, { status: 500 })
+      return res.status(500).json({ error: "Failed to fetch prop firms" })
     }
 
     // Then get all challenges
@@ -21,13 +25,15 @@ export async function GET() {
 
     if (challengesError) {
       console.error("Error fetching challenges:", challengesError)
-      return NextResponse.json({ error: "Failed to fetch challenges" }, { status: 500 })
+      return res.status(500).json({ error: "Failed to fetch challenges" })
     }
 
-    console.log(`Successfully fetched ${challenges.length} challenges`)
-    return NextResponse.json({ firms, challenges })
+    // Log success for debugging
+    console.log(`Successfully fetched ${firms.length} firms and ${challenges.length} challenges`)
+
+    return res.status(200).json({ firms, challenges })
   } catch (error) {
     console.error("Unexpected error in prop-firm-challenges API:", error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    return res.status(500).json({ error: "Internal server error" })
   }
 }
