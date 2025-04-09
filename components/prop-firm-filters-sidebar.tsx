@@ -13,9 +13,9 @@ export interface FilterOptions {
   searchMode: SearchMode
   searchTerm: string
   showDiscountedPrice: boolean
-  challengeType?: string
-  accountSize?: string
-  assetClass?: string
+  challengeTypes?: string[]
+  accountSizes?: string[]
+  assetClasses?: string[]
   selectedFirmIds?: number[]
   // Add other filter options as needed
 }
@@ -27,21 +27,57 @@ interface PropFirmFiltersSidebarProps {
   challengeTypes: { value: string; label: string }[]
   accountSizes: { value: string; label: string }[]
   isLoading: boolean
-  propFirms: any[] // Add this line to include propFirms
+  propFirms: any[]
 }
 
 export const PropFirmFiltersSidebar = ({
   filters,
   onFilterChange,
   onSearch,
-  challengeTypes,
-  accountSizes,
   isLoading,
   propFirms,
 }: PropFirmFiltersSidebarProps) => {
   const [sidebarExpanded, setSidebarExpanded] = useState(true)
 
-  // Asset classes - hardcoded since they might not be directly in the database
+  // Static challenge types in the correct order
+  const staticChallengeTypes = [
+    { value: "Instant Funding", label: "Instant Funding" },
+    { value: "1 Phase", label: "1 Phase" },
+    { value: "2 Phases", label: "2 Phases" },
+    { value: "3 Phases", label: "3 Phases" },
+  ]
+
+  // Static account sizes in the correct order
+  const staticAccountSizes = [
+    { value: "$2.5K", label: "2.5k" },
+    { value: "$5K", label: "5k" },
+    { value: "$6K", label: "6k" },
+    { value: "$10K", label: "10k" },
+    { value: "$12.5K", label: "12.5k" },
+    { value: "$15K", label: "15k" },
+    { value: "$25K", label: "25k" },
+    { value: "$50K", label: "50k" },
+    { value: "$60K", label: "60k" },
+    { value: "$75K", label: "75k" },
+    { value: "$100K", label: "100k" },
+    { value: "$150K", label: "150k" },
+    { value: "$200K", label: "200k" },
+    { value: "$300K", label: "300k" },
+    { value: "$400K", label: "400k" },
+  ]
+
+  // Quick search account sizes (only major ones)
+  const quickSearchAccountSizes = [
+    { value: "$5K", label: "5k" },
+    { value: "$10K", label: "10k" },
+    { value: "$25K", label: "25k" },
+    { value: "$50K", label: "50k" },
+    { value: "$100K", label: "100k" },
+    { value: "$150K", label: "150k" },
+    { value: "$200K", label: "200k" },
+  ]
+
+  // Asset classes - hardcoded
   const assetClasses = [
     { value: "Forex", label: "Forex" },
     { value: "Futures", label: "Futures" },
@@ -116,12 +152,26 @@ export const PropFirmFiltersSidebar = ({
   // Check if any filters are active
   const hasActiveFilters =
     (filters.selectedFirmIds && filters.selectedFirmIds.length > 0) ||
-    filters.challengeType ||
-    filters.accountSize ||
-    filters.assetClass
+    (filters.challengeTypes && filters.challengeTypes.length > 0) ||
+    (filters.accountSizes && filters.accountSizes.length > 0) ||
+    (filters.assetClasses && filters.assetClasses.length > 0)
 
-  // Function to render filter buttons
-  const renderFilterButtons = (options: { value: string; label: string }[], selectedValue?: string) => {
+  // Function to toggle a value in an array filter
+  const toggleArrayFilter = (filterName: "challengeTypes" | "accountSizes" | "assetClasses", value: string) => {
+    const currentValues = filters[filterName] || []
+    const newValues = currentValues.includes(value)
+      ? currentValues.filter((v) => v !== value)
+      : [...currentValues, value]
+
+    onFilterChange({ [filterName]: newValues.length > 0 ? newValues : undefined })
+  }
+
+  // Function to render filter buttons with multiple selection
+  const renderFilterButtons = (
+    options: { value: string; label: string }[],
+    selectedValues?: string[],
+    filterType: "challengeTypes" | "accountSizes" | "assetClasses" = "challengeTypes",
+  ) => {
     if (isLoading) {
       return (
         <div className="flex flex-wrap gap-2">
@@ -136,41 +186,10 @@ export const PropFirmFiltersSidebar = ({
       return <p className="text-xs text-red-500">No options available</p>
     }
 
-    // Sort challenge types in the specified order
-    if (options === challengeTypes || options.some((o) => o.value === "Instant Funding" || o.value === "1 Phase")) {
-      const orderMap: Record<string, number> = {
-        "Instant Funding": 1,
-        "1 Phase": 2,
-        "2 Phases": 3,
-        "3 Phases": 4,
-      }
-
-      options = [...options].sort((a, b) => {
-        const orderA = orderMap[a.value] || 999
-        const orderB = orderMap[b.value] || 999
-        return orderA - orderB
-      })
-    }
-
-    // Sort account sizes in ascending order
-    if (options === accountSizes || options.some((o) => o.value?.includes("$"))) {
-      options = [...options].sort((a, b) => {
-        const valueA = Number.parseInt(a.value.replace(/[^0-9]/g, "")) || 0
-        const valueB = Number.parseInt(b.value.replace(/[^0-9]/g, "")) || 0
-        return valueA - valueB
-      })
-
-      // For quick search, filter to only show major account sizes
-      if (filters.searchMode === "quick") {
-        const majorSizes = ["$5K", "$10K", "$25K", "$50K", "$100K", "$200K", "$300K"]
-        options = options.filter((option) => majorSizes.some((size) => option.value.includes(size)))
-      }
-    }
-
     return (
       <div className="flex flex-wrap gap-2">
         {options.map((option) => {
-          const isSelected = option.value === selectedValue
+          const isSelected = selectedValues?.includes(option.value) || false
 
           // Different styling for advanced search mode
           const buttonClass =
@@ -185,15 +204,7 @@ export const PropFirmFiltersSidebar = ({
           return (
             <button
               key={option.value}
-              onClick={() => {
-                if (options === challengeTypes) {
-                  onFilterChange({ challengeType: option.value === filters.challengeType ? undefined : option.value })
-                } else if (options === accountSizes) {
-                  onFilterChange({ accountSize: option.value === filters.accountSize ? undefined : option.value })
-                } else if (options === assetClasses) {
-                  onFilterChange({ assetClass: option.value === filters.assetClass ? undefined : option.value })
-                }
-              }}
+              onClick={() => toggleArrayFilter(filterType, option.value)}
               className={`px-3 py-1 rounded-full text-xs ${buttonClass}`}
             >
               {option.label}
@@ -287,9 +298,9 @@ export const PropFirmFiltersSidebar = ({
                   className="text-sm font-medium hover:underline flex items-center gap-1"
                   onClick={() =>
                     onFilterChange({
-                      challengeType: undefined,
-                      accountSize: undefined,
-                      assetClass: undefined,
+                      challengeTypes: undefined,
+                      accountSizes: undefined,
+                      assetClasses: undefined,
                       selectedFirmIds: undefined,
                     })
                   }
@@ -308,20 +319,20 @@ export const PropFirmFiltersSidebar = ({
               <>
                 {/* Challenge Type Filter */}
                 <div className="mb-6">
-                  <h3 className=" mb-3">Challenge type:</h3>
-                  {renderFilterButtons(challengeTypes, filters.challengeType)}
+                  <h3 className="mb-3">Challenge type:</h3>
+                  {renderFilterButtons(staticChallengeTypes, filters.challengeTypes, "challengeTypes")}
                 </div>
 
                 {/* Account Size Filter */}
                 <div className="mb-6">
                   <h3 className="mb-3">Account size:</h3>
-                  {renderFilterButtons(accountSizes.slice(0, 9), filters.accountSize)}
+                  {renderFilterButtons(quickSearchAccountSizes, filters.accountSizes, "accountSizes")}
                 </div>
 
                 {/* Trading Asset Class Filter */}
                 <div className="mb-6">
-                  <h3 className=" mb-3">Trading asset class:</h3>
-                  {renderFilterButtons(assetClasses, filters.assetClass)}
+                  <h3 className="mb-3">Trading asset class:</h3>
+                  {renderFilterButtons(assetClasses, filters.assetClasses, "assetClasses")}
                 </div>
 
                 {/* Show Discounted Price Toggle */}
@@ -343,7 +354,7 @@ export const PropFirmFiltersSidebar = ({
                       Trading Asset Class
                     </AccordionTrigger>
                     <AccordionContent className="px-3 pb-3 pt-0">
-                      {renderFilterButtons(assetClasses, filters.assetClass)}
+                      {renderFilterButtons(assetClasses, filters.assetClasses, "assetClasses")}
                     </AccordionContent>
                   </AccordionItem>
 
@@ -352,7 +363,7 @@ export const PropFirmFiltersSidebar = ({
                       Account Size
                     </AccordionTrigger>
                     <AccordionContent className="px-3 pb-3 pt-0">
-                      {renderFilterButtons(accountSizes, filters.accountSize)}
+                      {renderFilterButtons(staticAccountSizes, filters.accountSizes, "accountSizes")}
                     </AccordionContent>
                   </AccordionItem>
 
@@ -361,7 +372,7 @@ export const PropFirmFiltersSidebar = ({
                       Challenge Type
                     </AccordionTrigger>
                     <AccordionContent className="px-3 pb-3 pt-0">
-                      {renderFilterButtons(challengeTypes, filters.challengeType)}
+                      {renderFilterButtons(staticChallengeTypes, filters.challengeTypes, "challengeTypes")}
                     </AccordionContent>
                   </AccordionItem>
 
@@ -369,14 +380,18 @@ export const PropFirmFiltersSidebar = ({
                     <AccordionTrigger className="px-3 py-2 text-[#edb900] hover:bg-[#222] hover:no-underline">
                       Brokers
                     </AccordionTrigger>
-                    <AccordionContent className="px-3 pb-3 pt-0">{renderFilterButtons(brokers)}</AccordionContent>
+                    <AccordionContent className="px-3 pb-3 pt-0">
+                      {renderFilterButtons(brokers, [], "challengeTypes")}
+                    </AccordionContent>
                   </AccordionItem>
 
                   <AccordionItem value="platforms" className="border-0 bg-[#1a1a1a] rounded-lg overflow-hidden">
                     <AccordionTrigger className="px-3 py-2 text-[#edb900] hover:bg-[#222] hover:no-underline">
                       Platforms
                     </AccordionTrigger>
-                    <AccordionContent className="px-3 pb-3 pt-0">{renderFilterButtons(platforms)}</AccordionContent>
+                    <AccordionContent className="px-3 pb-3 pt-0">
+                      {renderFilterButtons(platforms, [], "challengeTypes")}
+                    </AccordionContent>
                   </AccordionItem>
 
                   <AccordionItem value="specialFeatures" className="border-0 bg-[#1a1a1a] rounded-lg overflow-hidden">
@@ -384,7 +399,7 @@ export const PropFirmFiltersSidebar = ({
                       Special Features
                     </AccordionTrigger>
                     <AccordionContent className="px-3 pb-3 pt-0">
-                      {renderFilterButtons(specialFeatures)}
+                      {renderFilterButtons(specialFeatures, [], "challengeTypes")}
                     </AccordionContent>
                   </AccordionItem>
 
@@ -392,7 +407,9 @@ export const PropFirmFiltersSidebar = ({
                     <AccordionTrigger className="px-3 py-2 text-[#edb900] hover:bg-[#222] hover:no-underline">
                       Countries
                     </AccordionTrigger>
-                    <AccordionContent className="px-3 pb-3 pt-0">{renderFilterButtons(countries)}</AccordionContent>
+                    <AccordionContent className="px-3 pb-3 pt-0">
+                      {renderFilterButtons(countries, [], "challengeTypes")}
+                    </AccordionContent>
                   </AccordionItem>
 
                   <AccordionItem value="advancedFiltering" className="border-0 bg-[#1a1a1a] rounded-lg overflow-hidden">
