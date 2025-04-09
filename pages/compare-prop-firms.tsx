@@ -2,7 +2,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Search, ChevronDown, ChevronUp, Bookmark } from "lucide-react"
+import { Search, ChevronDown, ChevronUp, Bookmark, X } from "lucide-react"
 import { FaShoppingCart } from "react-icons/fa"
 import ChallengeDetailsSidebar from "@/components/challenge-details-sidebar"
 import Navbar from "@/components/Navbar"
@@ -25,6 +25,7 @@ export interface FilterOptions {
   challengeType?: string
   accountSize?: string
   assetClass?: string
+  selectedFirmIds?: number[]
 }
 
 export interface PropFirmOffer {
@@ -66,6 +67,7 @@ export default function PropFirmComparison() {
     searchMode: "quick",
     searchTerm: "",
     showDiscountedPrice: true,
+    selectedFirmIds: [],
   })
   const [searchTerm, setSearchTerm] = useState("")
 
@@ -200,8 +202,44 @@ export default function PropFirmComparison() {
     setSearchTerm(filters.searchTerm)
   }
 
+  // Toggle company selection for filtering
+  const toggleCompanySelection = (firmId: number) => {
+    setFilters((prev) => {
+      const selectedFirmIds = prev.selectedFirmIds || []
+
+      if (selectedFirmIds.includes(firmId)) {
+        // Remove the firm if it's already selected
+        return {
+          ...prev,
+          selectedFirmIds: selectedFirmIds.filter((id) => id !== firmId),
+        }
+      } else {
+        // Add the firm if it's not selected
+        return {
+          ...prev,
+          selectedFirmIds: [...selectedFirmIds, firmId],
+        }
+      }
+    })
+  }
+
+  // Clear all selected companies
+  const clearSelectedCompanies = () => {
+    setFilters((prev) => ({
+      ...prev,
+      selectedFirmIds: [],
+    }))
+  }
+
   // Filter offers based on search term and filters
   const filteredOffers = propFirms.filter((offer) => {
+    // Company filter
+    if (filters.selectedFirmIds && filters.selectedFirmIds.length > 0) {
+      if (!filters.selectedFirmIds.includes(offer.firmId)) {
+        return false
+      }
+    }
+
     // Text search
     if (searchTerm) {
       const searchLower = searchTerm.toLowerCase()
@@ -389,6 +427,9 @@ export default function PropFirmComparison() {
       ))
   }
 
+  // Get unique firms for the company grid
+  const uniqueFirms = Array.from(new Map(propFirms.map((offer) => [offer.firmId, offer])).values())
+
   return (
     <div className="min-h-screen bg-[#0f0f0f] text-white">
       <div className="w-full">
@@ -411,21 +452,35 @@ export default function PropFirmComparison() {
             {/* Main Content */}
             <div className="flex-1 bg-[#0f0f0f] p-6 px-4 lg:px-10 rounded-b-lg lg:rounded-bl-none lg:rounded-r-lg overflow-hidden w-full">
               {/* Company Selection */}
-              <div className="mb-[100px]">
-                <p className="text-md mt-[50px] mb-4">Select company/companies from the list below:</p>
+              <div className="mb-[50px]">
+                <div className="flex justify-between items-center mb-4">
+                  <p className="text-md mt-[50px]">Select company/companies from the list below:</p>
+
+                  {filters.selectedFirmIds && filters.selectedFirmIds.length > 0 && (
+                    <button
+                      onClick={clearSelectedCompanies}
+                      className="flex items-center gap-1 text-sm text-[#edb900] hover:text-[#c99e00] transition-colors"
+                    >
+                      <X size={14} />
+                      Clear selection
+                    </button>
+                  )}
+                </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 2xl:grid-cols-8 gap-4">
                   {isLoading ? (
                     renderCompanySkeletons()
-                  ) : propFirms.length > 0 ? (
-                    Array.from(new Set(propFirms.map((offer) => offer.firmId))).map((firmId) => {
-                      const firm = propFirms.find((offer) => offer.firmId === firmId)
-                      if (!firm) return null
+                  ) : uniqueFirms.length > 0 ? (
+                    uniqueFirms.map((firm) => {
+                      const isSelected = filters.selectedFirmIds?.includes(firm.firmId)
 
                       return (
                         <div
                           key={firm.firmId}
-                          className="bg-[#1a1a1a] rounded-lg p-4 aspect-square flex flex-col items-center justify-center hover:bg-[#2a2a2a] transition-colors cursor-pointer"
+                          onClick={() => toggleCompanySelection(firm.firmId)}
+                          className={`bg-[#1a1a1a] rounded-lg p-4 aspect-square flex flex-col items-center justify-center hover:bg-[#2a2a2a] transition-colors cursor-pointer ${
+                            isSelected ? "ring-2 ring-[#edb900] bg-[#2a2a2a]" : ""
+                          }`}
                         >
                           <div
                             className="w-16 h-16 mb-3 p-3 rounded-md flex items-center justify-center overflow-hidden"
@@ -461,6 +516,34 @@ export default function PropFirmComparison() {
                   )}
                 </div>
               </div>
+
+              {/* Active Filters Display */}
+              {filters.selectedFirmIds && filters.selectedFirmIds.length > 0 && (
+                <div className="mb-6">
+                  <div className="flex flex-wrap gap-2 items-center">
+                    <span className="text-sm text-gray-400">Active filters:</span>
+                    {filters.selectedFirmIds.map((firmId) => {
+                      const firm = propFirms.find((offer) => offer.firmId === firmId)
+                      if (!firm) return null
+
+                      return (
+                        <div
+                          key={`filter-${firmId}`}
+                          className="bg-[#1a1a1a] px-3 py-1 rounded-full flex items-center gap-1 text-xs"
+                        >
+                          <span>{firm.firmName}</span>
+                          <button
+                            onClick={() => toggleCompanySelection(firmId)}
+                            className="text-gray-400 hover:text-[#edb900]"
+                          >
+                            <X size={12} />
+                          </button>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
 
               {/* Search and Results Count */}
               <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
