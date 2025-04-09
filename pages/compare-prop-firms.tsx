@@ -35,8 +35,8 @@ export interface PropFirmOffer {
   firmColor: string
   rating: number
   reviews: number
-  price: number
-  originalPrice: number
+  price: string
+  originalPrice: string
   accountSize: string
   steps: string
   profitTarget: string
@@ -76,6 +76,20 @@ export default function PropFirmComparison() {
   // Filter options
   const [challengeTypes, setChallengeTypes] = useState<{ value: string; label: string }[]>([])
   const [accountSizes, setAccountSizes] = useState<{ value: string; label: string }[]>([])
+
+  // Helper function to format price
+  const formatPrice = (price: string | number | null | undefined): string => {
+    if (price === null || price === undefined || price === "") return "$0.00"
+
+    // If it's already a string with a dollar sign, return it
+    if (typeof price === "string" && price.startsWith("$")) return price
+
+    // Try to convert to a number and format
+    const numPrice = typeof price === "string" ? Number.parseFloat(price) : price
+    if (isNaN(numPrice)) return "$0.00"
+
+    return `$${numPrice.toFixed(2)}`
+  }
 
   // Fetch data from API
   useEffect(() => {
@@ -128,8 +142,8 @@ export default function PropFirmComparison() {
             firmColor: firm.brand_colour || "#333333",
             rating: firm.rating || 0,
             reviews: firm.reviews_count || 0,
-            price: challenge.discounted_price || challenge.original_price,
-            originalPrice: challenge.original_price,
+            price: challenge.discounted_price || challenge.original_price || "0",
+            originalPrice: challenge.original_price || "0",
             accountSize: challenge.account_size,
             steps: steps,
             profitTarget: `${challenge.profit_target_p1 || 0}%`,
@@ -231,7 +245,11 @@ export default function PropFirmComparison() {
     let valueB: any = b[sortColumn as keyof typeof b]
 
     // Handle special cases
-    if (sortColumn === "price" || sortColumn === "rating") {
+    if (sortColumn === "price") {
+      // Convert string prices to numbers for sorting
+      valueA = Number.parseFloat(valueA) || 0
+      valueB = Number.parseFloat(valueB) || 0
+    } else if (sortColumn === "rating") {
       valueA = Number(valueA)
       valueB = Number(valueB)
     }
@@ -781,14 +799,14 @@ export default function PropFirmComparison() {
                               <div className="flex flex-col items-center">
                                 {filters.showDiscountedPrice ? (
                                   <>
-                                    <span>${offer.price.toFixed(2)}</span>
+                                    <span>{formatPrice(offer.price)}</span>
                                     <span className="text-xs text-gray-400 line-through">
-                                      ${offer.originalPrice.toFixed(2)}
+                                      {formatPrice(offer.originalPrice)}
                                     </span>
                                   </>
                                 ) : (
                                   <>
-                                    <span className="text-white font-medium">${offer.originalPrice.toFixed(2)}</span>
+                                    <span className="text-white font-medium">{formatPrice(offer.originalPrice)}</span>
                                   </>
                                 )}
                               </div>
