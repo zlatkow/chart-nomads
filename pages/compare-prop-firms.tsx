@@ -98,7 +98,7 @@ export default function PropFirmComparison() {
       setError(null)
 
       try {
-        const response = await fetch("/api/prop_firm_challenges")
+        const response = await fetch("/api/prop-firm-challenges")
 
         if (!response.ok) {
           throw new Error(`API responded with status: ${response.status}`)
