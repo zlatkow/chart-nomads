@@ -113,6 +113,13 @@ export const PropFirmFiltersSidebar = ({
     setSidebarExpanded(!sidebarExpanded)
   }
 
+  // Check if any filters are active
+  const hasActiveFilters =
+    (filters.selectedFirmIds && filters.selectedFirmIds.length > 0) ||
+    filters.challengeType ||
+    filters.accountSize ||
+    filters.assetClass
+
   // Function to render filter buttons
   const renderFilterButtons = (options: { value: string; label: string }[], selectedValue?: string) => {
     if (isLoading) {
@@ -154,20 +161,15 @@ export const PropFirmFiltersSidebar = ({
     )
   }
 
-  const renderActiveFilters = () => {
-    const hasActiveFilters =
-      (filters.selectedFirmIds && filters.selectedFirmIds.length > 0) ||
-      filters.challengeType ||
-      filters.accountSize ||
-      filters.assetClass
-
-    if (!hasActiveFilters) return null
+  // Render selected companies
+  const renderSelectedCompanies = () => {
+    if (!filters.selectedFirmIds || filters.selectedFirmIds.length === 0) return null
 
     return (
       <div className="mb-6 mt-2">
-        <p className="text-xs text-[#0f0f0f] mb-2">Active filters:</p>
+        <p className="text-xs text-[#0f0f0f] mb-2">Selected Companies:</p>
         <div className="flex flex-wrap gap-2">
-          {filters.selectedFirmIds?.map((firmId) => {
+          {filters.selectedFirmIds.map((firmId) => {
             const firm = propFirms.find((f) => f.firmId === firmId)
             if (!firm) return null
 
@@ -189,42 +191,6 @@ export const PropFirmFiltersSidebar = ({
               </div>
             )
           })}
-
-          {filters.challengeType && (
-            <div className="bg-[#0f0f0f] px-3 py-1 rounded-full flex items-center gap-1 text-xs">
-              <span className="text-white">{filters.challengeType}</span>
-              <button
-                onClick={() => onFilterChange({ challengeType: undefined })}
-                className="text-gray-400 hover:text-[#edb900]"
-              >
-                <X size={12} />
-              </button>
-            </div>
-          )}
-
-          {filters.accountSize && (
-            <div className="bg-[#0f0f0f] px-3 py-1 rounded-full flex items-center gap-1 text-xs">
-              <span className="text-white">{filters.accountSize}</span>
-              <button
-                onClick={() => onFilterChange({ accountSize: undefined })}
-                className="text-gray-400 hover:text-[#edb900]"
-              >
-                <X size={12} />
-              </button>
-            </div>
-          )}
-
-          {filters.assetClass && (
-            <div className="bg-[#0f0f0f] px-3 py-1 rounded-full flex items-center gap-1 text-xs">
-              <span className="text-white">{filters.assetClass}</span>
-              <button
-                onClick={() => onFilterChange({ assetClass: undefined })}
-                className="text-gray-400 hover:text-[#edb900]"
-              >
-                <X size={12} />
-              </button>
-            </div>
-          )}
         </div>
       </div>
     )
@@ -273,21 +239,24 @@ export const PropFirmFiltersSidebar = ({
             </div>
             <div className="flex justify-between items-center">
               <h2 className="text-xl">Filters</h2>
-              <button
-                className="text-sm font-medium hover:underline"
-                onClick={() =>
-                  onFilterChange({
-                    challengeType: undefined,
-                    accountSize: undefined,
-                    assetClass: undefined,
-                    selectedFirmIds: undefined,
-                  })
-                }
-              >
-                Clear All
-              </button>
+              {hasActiveFilters && (
+                <button
+                  className="text-sm font-medium hover:underline flex items-center gap-1"
+                  onClick={() =>
+                    onFilterChange({
+                      challengeType: undefined,
+                      accountSize: undefined,
+                      assetClass: undefined,
+                      selectedFirmIds: undefined,
+                    })
+                  }
+                >
+                  <X size={14} />
+                  Clear All
+                </button>
+              )}
             </div>
-            {renderActiveFilters()}
+            {renderSelectedCompanies()}
           </div>
 
           {/* Scrollable filter area */}

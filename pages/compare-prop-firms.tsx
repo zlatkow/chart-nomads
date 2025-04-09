@@ -2,7 +2,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Search, ChevronDown, ChevronUp, Bookmark, X } from "lucide-react"
+import { Search, ChevronDown, ChevronUp, Bookmark } from "lucide-react"
 import { FaShoppingCart } from "react-icons/fa"
 import ChallengeDetailsSidebar from "@/components/challenge-details-sidebar"
 import Navbar from "@/components/Navbar"
@@ -221,14 +221,6 @@ export default function PropFirmComparison() {
         }
       }
     })
-  }
-
-  // Clear all selected companies
-  const clearSelectedCompanies = () => {
-    setFilters((prev) => ({
-      ...prev,
-      selectedFirmIds: [],
-    }))
   }
 
   // Filter offers based on search term and filters
@@ -454,19 +446,7 @@ export default function PropFirmComparison() {
             <div className="flex-1 bg-[#0f0f0f] p-6 px-4 lg:px-10 rounded-b-lg lg:rounded-bl-none lg:rounded-r-lg overflow-hidden w-full">
               {/* Company Selection */}
               <div className="mb-[50px]">
-                <div className="flex justify-between items-center mb-4">
-                  <p className="text-md mt-[50px]">Select company/companies from the list below:</p>
-
-                  {filters.selectedFirmIds && filters.selectedFirmIds.length > 0 && (
-                    <button
-                      onClick={clearSelectedCompanies}
-                      className="flex items-center gap-1 text-sm text-[#edb900] hover:text-[#c99e00] transition-colors"
-                    >
-                      <X size={14} />
-                      Clear selection
-                    </button>
-                  )}
-                </div>
+                <p className="text-md mt-[50px] mb-4">Select company/companies from the list below:</p>
 
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 2xl:grid-cols-8 gap-4">
                   {isLoading ? (
