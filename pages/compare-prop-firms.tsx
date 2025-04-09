@@ -110,13 +110,13 @@ export default function PropFirmComparison() {
           throw new Error(data.error)
         }
 
-        // Process firms and challenges
-        const firms = data.firms || []
+        // Process challenges with their related prop firm data
         const challenges = data.challenges || []
 
         // Map challenges to our PropFirmOffer format
         const offers = challenges.map((challenge: any) => {
-          const firm = firms.find((f: any) => f.id === challenge.prop_firm_id) || {
+          // Access prop firm data directly from the challenge
+          const firm = challenge.prop_firm || {
             propfirm_name: "Unknown",
             logo_url: "/placeholder.svg",
             brand_colour: "#333333",
