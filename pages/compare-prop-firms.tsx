@@ -1,4 +1,3 @@
-/* eslint-disable */
 "use client"
 
 import { useState, useEffect } from "react"
@@ -447,6 +446,7 @@ export default function PropFirmComparison() {
               challengeTypes={challengeTypes}
               accountSizes={accountSizes}
               isLoading={isLoading}
+              propFirms={propFirms}
             />
 
             {/* Main Content */}
@@ -516,34 +516,6 @@ export default function PropFirmComparison() {
                   )}
                 </div>
               </div>
-
-              {/* Active Filters Display */}
-              {filters.selectedFirmIds && filters.selectedFirmIds.length > 0 && (
-                <div className="mb-6">
-                  <div className="flex flex-wrap gap-2 items-center">
-                    <span className="text-sm text-gray-400">Active filters:</span>
-                    {filters.selectedFirmIds.map((firmId) => {
-                      const firm = propFirms.find((offer) => offer.firmId === firmId)
-                      if (!firm) return null
-
-                      return (
-                        <div
-                          key={`filter-${firmId}`}
-                          className="bg-[#1a1a1a] px-3 py-1 rounded-full flex items-center gap-1 text-xs"
-                        >
-                          <span>{firm.firmName}</span>
-                          <button
-                            onClick={() => toggleCompanySelection(firmId)}
-                            className="text-gray-400 hover:text-[#edb900]"
-                          >
-                            <X size={12} />
-                          </button>
-                        </div>
-                      )
-                    })}
-                  </div>
-                </div>
-              )}
 
               {/* Search and Results Count */}
               <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">

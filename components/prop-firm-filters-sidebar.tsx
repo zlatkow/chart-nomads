@@ -1,8 +1,7 @@
-/* eslint-disable */
 "use client"
 
 import { useState } from "react"
-import { Search, ChevronLeft, SlidersHorizontal } from "lucide-react"
+import { Search, ChevronLeft, SlidersHorizontal, X } from "lucide-react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { CustomSwitch } from "@/components/custom-switch"
 
@@ -16,6 +15,7 @@ export interface FilterOptions {
   challengeType?: string
   accountSize?: string
   assetClass?: string
+  selectedFirmIds?: number[]
   // Add other filter options as needed
 }
 
@@ -26,6 +26,7 @@ interface PropFirmFiltersSidebarProps {
   challengeTypes: { value: string; label: string }[]
   accountSizes: { value: string; label: string }[]
   isLoading: boolean
+  propFirms: any[] // Add this line to include propFirms
 }
 
 export const PropFirmFiltersSidebar = ({
@@ -35,6 +36,7 @@ export const PropFirmFiltersSidebar = ({
   challengeTypes,
   accountSizes,
   isLoading,
+  propFirms,
 }: PropFirmFiltersSidebarProps) => {
   const [sidebarExpanded, setSidebarExpanded] = useState(true)
 
@@ -151,6 +153,82 @@ export const PropFirmFiltersSidebar = ({
     )
   }
 
+  const renderActiveFilters = () => {
+    const hasActiveFilters =
+      (filters.selectedFirmIds && filters.selectedFirmIds.length > 0) ||
+      filters.challengeType ||
+      filters.accountSize ||
+      filters.assetClass
+
+    if (!hasActiveFilters) return null
+
+    return (
+      <div className="mb-6 mt-2">
+        <p className="text-xs text-[#0f0f0f] mb-2">Active filters:</p>
+        <div className="flex flex-wrap gap-2">
+          {filters.selectedFirmIds?.map((firmId) => {
+            const firm = propFirms.find((f) => f.firmId === firmId)
+            if (!firm) return null
+
+            return (
+              <div
+                key={`firm-filter-${firmId}`}
+                className="bg-[#0f0f0f] px-3 py-1 rounded-full flex items-center gap-1 text-xs"
+              >
+                <span className="text-white">{firm.firmName}</span>
+                <button
+                  onClick={() => {
+                    const newSelectedFirmIds = filters.selectedFirmIds?.filter((id) => id !== firmId) || []
+                    onFilterChange({ selectedFirmIds: newSelectedFirmIds.length ? newSelectedFirmIds : undefined })
+                  }}
+                  className="text-gray-400 hover:text-[#edb900]"
+                >
+                  <X size={12} />
+                </button>
+              </div>
+            )
+          })}
+
+          {filters.challengeType && (
+            <div className="bg-[#0f0f0f] px-3 py-1 rounded-full flex items-center gap-1 text-xs">
+              <span className="text-white">{filters.challengeType}</span>
+              <button
+                onClick={() => onFilterChange({ challengeType: undefined })}
+                className="text-gray-400 hover:text-[#edb900]"
+              >
+                <X size={12} />
+              </button>
+            </div>
+          )}
+
+          {filters.accountSize && (
+            <div className="bg-[#0f0f0f] px-3 py-1 rounded-full flex items-center gap-1 text-xs">
+              <span className="text-white">{filters.accountSize}</span>
+              <button
+                onClick={() => onFilterChange({ accountSize: undefined })}
+                className="text-gray-400 hover:text-[#edb900]"
+              >
+                <X size={12} />
+              </button>
+            </div>
+          )}
+
+          {filters.assetClass && (
+            <div className="bg-[#0f0f0f] px-3 py-1 rounded-full flex items-center gap-1 text-xs">
+              <span className="text-white">{filters.assetClass}</span>
+              <button
+                onClick={() => onFilterChange({ assetClass: undefined })}
+                className="text-gray-400 hover:text-[#edb900]"
+              >
+                <X size={12} />
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div
       className="relative"
@@ -201,12 +279,14 @@ export const PropFirmFiltersSidebar = ({
                     challengeType: undefined,
                     accountSize: undefined,
                     assetClass: undefined,
+                    selectedFirmIds: undefined,
                   })
                 }
               >
                 Clear All
               </button>
             </div>
+            {renderActiveFilters()}
           </div>
 
           {/* Scrollable filter area */}
