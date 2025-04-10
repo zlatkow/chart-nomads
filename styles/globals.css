@@ -960,11 +960,13 @@ input:checked + .custom-toggle-switch::after {
 
 
 /*sidebar filters*/
-/* Sidebar container styles - this is the element that should be sticky */
+/* Sidebar container styles */
 .sidebar-container {
   position: sticky !important;
-  top: 90px !important;
-  height: fit-content;
+  top: 90px;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
   z-index: 10;
 }
 
@@ -982,16 +984,16 @@ input:checked + .custom-toggle-switch::after {
 .sidebar.expanded {
   width: 300px;
   padding: 1.5rem;
-  height: auto;
-  max-height: calc(100vh - 90px - 2rem);
-  overflow-y: visible;
+  height: auto !important;
+  max-height: calc(100vh - 90px);
+  overflow-y: auto;
 }
 
 /* Collapsed sidebar */
 .sidebar.collapsed {
   width: 30px;
   padding: 0.25rem;
-  height: 100vh;
+  height: 100% !important;
   min-height: calc(100vh - 90px);
 }
 
