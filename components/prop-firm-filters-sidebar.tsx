@@ -269,7 +269,7 @@ export const PropFirmFiltersSidebar = ({
         <label className="block mb-2 font-medium">{title}</label>
         <div className="py-2">
           <Slider
-            defaultValue={values}
+            defaultValue={[min, max]}
             value={values}
             min={min}
             max={max}
