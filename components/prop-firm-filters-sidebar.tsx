@@ -446,7 +446,7 @@ export const PropFirmFiltersSidebar = ({
               <h2 className="text-xl">Filters</h2>
               {hasActiveFilters && (
                 <button
-                  className="text-sm font-medium hover:underline flex items-center gap-1"
+                  className="text-sm font-[balboa] hover:underline flex items-center gap-1"
                   onClick={() =>
                     onFilterChange({
                       challengeTypes: undefined,

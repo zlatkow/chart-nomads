@@ -802,6 +802,26 @@ export default function PropFirmComparison() {
                         </th>
                         <th className="p-3 text-center relative">
                           <button
+                            onClick={() => handleSort("payoutFrequency")}
+                            className="flex items-center justify-center gap-1 w-full hover:text-[#edb900] transition-colors"
+                          >
+                            <span className="text-[10px] font-[balboa] uppercase font-normal tracking-wider">
+                              PAYOUT FREQ.
+                            </span>
+                            {sortColumn === "payoutFrequency" ? (
+                              sortDirection === "asc" ? (
+                                <ChevronUp size={12} className="text-[#edb900]" />
+                              ) : (
+                                <ChevronDown size={12} className="text-[#edb900]" />
+                              )
+                            ) : (
+                              <ChevronDown size={12} className="opacity-50" />
+                            )}
+                          </button>
+                          <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
+                        </th>
+                        <th className="p-3 text-center relative">
+                          <button
                             onClick={() => handleSort("loyaltyPoints")}
                             className="flex items-center justify-center gap-1 w-full hover:text-[#edb900] transition-colors"
                           >
