@@ -59,43 +59,19 @@ export const PropFirmFiltersSidebar = ({
 }: PropFirmFiltersSidebarProps) => {
   const [sidebarExpanded, setSidebarExpanded] = useState(true)
 
-  // Initialize state for slider values with default values
-  const [priceRange, setPriceRange] = useState<number>(
-    filters.priceRange?.[1] !== undefined ? filters.priceRange[1] : 2000,
-  )
-  const [accountSizeRange, setAccountSizeRange] = useState<number>(
-    filters.accountSizeRange?.[1] !== undefined ? filters.accountSizeRange[1] : 400000,
-  )
-  const [profitSplitRange, setProfitSplitRange] = useState<number>(
-    filters.profitSplitRange?.[1] !== undefined ? filters.profitSplitRange[1] : 100,
-  )
-  const [profitTargetRange, setProfitTargetRange] = useState<number>(
-    filters.profitTargetRange?.[1] !== undefined ? filters.profitTargetRange[1] : 30,
-  )
-  const [maxDailyLossRange, setMaxDailyLossRange] = useState<number>(
-    filters.maxDailyLossRange?.[1] !== undefined ? filters.maxDailyLossRange[1] : 10,
-  )
-  const [maxDrawdownRange, setMaxDrawdownRange] = useState<number>(
-    filters.maxDrawdownRange?.[1] !== undefined ? filters.maxDrawdownRange[1] : 20,
-  )
-  const [commissionRange, setCommissionRange] = useState<number>(
-    filters.commissionRange?.[1] !== undefined ? filters.commissionRange[1] : 10,
-  )
-  const [ptDdRatioRange, setPtDdRatioRange] = useState<number>(
-    filters.ptDdRatioRange?.[1] !== undefined ? filters.ptDdRatioRange[1] : 1,
-  )
-  const [payoutFrequencyRange, setPayoutFrequencyRange] = useState<number>(
-    filters.payoutFrequencyRange?.[1] !== undefined ? filters.payoutFrequencyRange[1] : 30,
-  )
-  const [trustPilotRange, setTrustPilotRange] = useState<number>(
-    filters.trustPilotRange?.[1] !== undefined ? filters.trustPilotRange[1] : 5,
-  )
-  const [yearsInBusinessRange, setYearsInBusinessRange] = useState<number>(
-    filters.yearsInBusinessRange?.[1] !== undefined ? filters.yearsInBusinessRange[1] : 15,
-  )
-  const [loyaltyPointsRange, setLoyaltyPointsRange] = useState<number>(
-    filters.loyaltyPointsRange?.[1] !== undefined ? filters.loyaltyPointsRange[1] : 5000,
-  )
+  // State for slider values
+  const [priceRange, setPriceRange] = useState<number>(filters.priceRange?.[1] || 2000)
+  const [accountSizeRange, setAccountSizeRange] = useState<number>(filters.accountSizeRange?.[1] || 400000)
+  const [profitSplitRange, setProfitSplitRange] = useState<number>(filters.profitSplitRange?.[1] || 100)
+  const [profitTargetRange, setProfitTargetRange] = useState<number>(filters.profitTargetRange?.[1] || 30)
+  const [maxDailyLossRange, setMaxDailyLossRange] = useState<number>(filters.maxDailyLossRange?.[1] || 10)
+  const [maxDrawdownRange, setMaxDrawdownRange] = useState<number>(filters.maxDrawdownRange?.[1] || 20)
+  const [commissionRange, setCommissionRange] = useState<number>(filters.commissionRange?.[1] || 10)
+  const [ptDdRatioRange, setPtDdRatioRange] = useState<number>(filters.ptDdRatioRange?.[1] || 1)
+  const [payoutFrequencyRange, setPayoutFrequencyRange] = useState<number>(filters.payoutFrequencyRange?.[1] || 30)
+  const [trustPilotRange, setTrustPilotRange] = useState<number>(filters.trustPilotRange?.[1] || 5)
+  const [yearsInBusinessRange, setYearsInBusinessRange] = useState<number>(filters.yearsInBusinessRange?.[1] || 15)
+  const [loyaltyPointsRange, setLoyaltyPointsRange] = useState<number>(filters.loyaltyPointsRange?.[1] || 5000)
 
   // Static filter options inside the component
   const staticChallengeTypes = [
@@ -285,17 +261,16 @@ export const PropFirmFiltersSidebar = ({
     return (
       <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
         <label className="block mb-2 font-medium">{title}</label>
-        <div className="py-2">
-          <Slider
-            defaultValue={[value]}
-            value={[value]}
-            min={min}
-            max={max}
-            step={step}
-            onValueChange={(values) => onChange(values[0])}
-            className="[&_[role=slider]]:h-4 [&_[role=slider]]:w-4 [&_[role=slider]]:bg-[#0f0f0f] [&_[role=slider]]:border-2 [&_[role=slider]]:border-[#edb900] [&_[data-orientation=horizontal]]:h-2 [&_[data-orientation=horizontal]]:bg-[#1a1a1a]"
-          />
-        </div>
+        <Slider
+          defaultValue={[value]}
+          min={min}
+          max={max}
+          step={step}
+          onValueChange={(values) => onChange(values[0])}
+          className="w-full"
+          thumbClassName="h-4 w-4 bg-[#0f0f0f]"
+          trackClassName="bg-[#1a1a1a] h-1"
+        />
         <div className="flex justify-between mt-1 text-xs">
           <span>{formatValue(value)}</span>
           <span>{formatValue(max)}</span>
