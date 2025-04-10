@@ -59,6 +59,7 @@ export const PropFirmFiltersSidebar = ({
 }: PropFirmFiltersSidebarProps) => {
   const [sidebarExpanded, setSidebarExpanded] = useState(true)
 
+  // Update the initial state values to have proper min/max pairs
   // State for slider values - now using [min, max] pairs
   const [priceRange, setPriceRange] = useState<[number, number]>(filters.priceRange || [0, 2000])
   const [accountSizeRange, setAccountSizeRange] = useState<[number, number]>(filters.accountSizeRange || [0, 400000])
@@ -273,13 +274,14 @@ export const PropFirmFiltersSidebar = ({
             min={min}
             max={max}
             step={step}
+            minStepsBetweenThumbs={1}
             onValueChange={(newValues) => onChange(newValues as [number, number])}
             className="w-full [&_[role=slider]]:h-3 [&_[role=slider]]:w-3 [&_[role=slider]]:bg-[#0f0f0f] [&_[data-orientation=horizontal]]:h-1 [&_[data-orientation=horizontal]]:bg-[#1a1a1a]"
           />
         </div>
         <div className="flex justify-between mt-1 text-xs">
-          <span>{formatValue(min)}</span>
-          <span>{formatValue(max)}</span>
+          <span>{formatValue(values[0])}</span>
+          <span>{formatValue(values[1])}</span>
         </div>
       </div>
     )
