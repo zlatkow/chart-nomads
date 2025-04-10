@@ -255,8 +255,7 @@ export const PropFirmFiltersSidebar = ({
     step: number,
     value: number,
     onChange: (value: number) => void,
-    minLabel: string,
-    maxLabel: string,
+    formatValue: (val: number) => string,
   ) => {
     return (
       <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
@@ -273,8 +272,8 @@ export const PropFirmFiltersSidebar = ({
           />
         </div>
         <div className="flex justify-between mt-1 text-xs">
-          <span>{minLabel}</span>
-          <span>{maxLabel}</span>
+          <span>{formatValue(value)}</span>
+          <span>{formatValue(max)}</span>
         </div>
       </div>
     )
@@ -555,7 +554,7 @@ export const PropFirmFiltersSidebar = ({
                     <AccordionTrigger className="px-3 py-2 text-[#edb900] hover:bg-[#222] hover:no-underline">
                       Advanced Filtering
                     </AccordionTrigger>
-                    <AccordionContent className="px-3 pb-3 pt-0">
+                    <AccordionContent className="px-3 pb-3 pt-0 bg-[#1a1a1a]">
                       <div className="space-y-4">
                         {/* Price Range */}
                         {renderSlider(
@@ -565,8 +564,7 @@ export const PropFirmFiltersSidebar = ({
                           50,
                           priceRange,
                           (value) => handleSliderChange(value, setPriceRange, "priceRange", 0),
-                          "$ 0",
-                          "$ 2,000",
+                          (val) => `$ ${val.toLocaleString()}`,
                         )}
 
                         {/* Account Size K */}
@@ -577,8 +575,7 @@ export const PropFirmFiltersSidebar = ({
                           10000,
                           accountSizeRange,
                           (value) => handleSliderChange(value, setAccountSizeRange, "accountSizeRange", 0),
-                          "$ 0",
-                          "$ 400,000",
+                          (val) => `$ ${val.toLocaleString()}`,
                         )}
 
                         {/* Account Profit Split % */}
@@ -589,8 +586,7 @@ export const PropFirmFiltersSidebar = ({
                           5,
                           profitSplitRange,
                           (value) => handleSliderChange(value, setProfitSplitRange, "profitSplitRange", 0),
-                          "0 %",
-                          "100 %",
+                          (val) => `${val} %`,
                         )}
 
                         {/* Profit Target % (Combined) */}
@@ -601,8 +597,7 @@ export const PropFirmFiltersSidebar = ({
                           1,
                           profitTargetRange,
                           (value) => handleSliderChange(value, setProfitTargetRange, "profitTargetRange", 0),
-                          "0 %",
-                          "30 %",
+                          (val) => `${val} %`,
                         )}
 
                         {/* Max Daily Loss % */}
@@ -613,8 +608,7 @@ export const PropFirmFiltersSidebar = ({
                           0.5,
                           maxDailyLossRange,
                           (value) => handleSliderChange(value, setMaxDailyLossRange, "maxDailyLossRange", 0),
-                          "0 %",
-                          "10 %",
+                          (val) => `${val} %`,
                         )}
 
                         {/* Account Max Total Drawdown % */}
@@ -625,8 +619,7 @@ export const PropFirmFiltersSidebar = ({
                           1,
                           maxDrawdownRange,
                           (value) => handleSliderChange(value, setMaxDrawdownRange, "maxDrawdownRange", 0),
-                          "0 %",
-                          "20 %",
+                          (val) => `${val} %`,
                         )}
 
                         {/* Commission $ */}
@@ -637,8 +630,7 @@ export const PropFirmFiltersSidebar = ({
                           0.5,
                           commissionRange,
                           (value) => handleSliderChange(value, setCommissionRange, "commissionRange", 0),
-                          "$ 0",
-                          "$ 10",
+                          (val) => `$ ${val}`,
                         )}
 
                         {/* Account PT:DD ratio */}
@@ -649,8 +641,7 @@ export const PropFirmFiltersSidebar = ({
                           0.1,
                           ptDdRatioRange,
                           (value) => handleSliderChange(value, setPtDdRatioRange, "ptDdRatioRange", 0),
-                          "1: 0",
-                          "1: 1",
+                          (val) => `1: ${val}`,
                         )}
 
                         {/* Payout Frequency (Days) */}
@@ -661,8 +652,7 @@ export const PropFirmFiltersSidebar = ({
                           1,
                           payoutFrequencyRange,
                           (value) => handleSliderChange(value, setPayoutFrequencyRange, "payoutFrequencyRange", 0),
-                          "0 Days",
-                          "30 Days",
+                          (val) => `${val} Days`,
                         )}
 
                         {/* Trust Pilot Rating */}
@@ -673,8 +663,7 @@ export const PropFirmFiltersSidebar = ({
                           0.5,
                           trustPilotRange,
                           (value) => handleSliderChange(value, setTrustPilotRange, "trustPilotRange", 1),
-                          "1",
-                          "5",
+                          (val) => `${val}`,
                         )}
 
                         {/* Years in Business */}
@@ -685,8 +674,7 @@ export const PropFirmFiltersSidebar = ({
                           1,
                           yearsInBusinessRange,
                           (value) => handleSliderChange(value, setYearsInBusinessRange, "yearsInBusinessRange", 1),
-                          "1 Years",
-                          "15 Years",
+                          (val) => `${val} Years`,
                         )}
 
                         {/* Loyalty Points */}
@@ -697,8 +685,7 @@ export const PropFirmFiltersSidebar = ({
                           500,
                           loyaltyPointsRange,
                           (value) => handleSliderChange(value, setLoyaltyPointsRange, "loyaltyPointsRange", 0),
-                          "0 Points",
-                          "5,000 Points",
+                          (val) => `${val} Points`,
                         )}
                       </div>
                     </AccordionContent>
