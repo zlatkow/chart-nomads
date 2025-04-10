@@ -7,7 +7,6 @@ import { useState } from "react"
 import { Search, ChevronLeft, SlidersHorizontal, X } from "lucide-react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { CustomSwitch } from "@/components/custom-switch"
-import { Slider } from "@/components/ui/slider"
 
 // Types for the filters
 export type SearchMode = "quick" | "advanced"
@@ -268,16 +267,68 @@ export const PropFirmFiltersSidebar = ({
       <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
         <label className="block mb-2 font-medium">{title}</label>
         <div className="py-2">
-          <Slider
-            defaultValue={[min, max]}
-            value={values}
-            min={min}
-            max={max}
-            step={step}
-            minStepsBetweenThumbs={1}
-            onValueChange={(newValues) => onChange(newValues as [number, number])}
-            className="w-full [&_[role=slider]]:h-3 [&_[role=slider]]:w-3 [&_[role=slider]]:bg-[#0f0f0f] [&_[data-orientation=horizontal]]:h-1 [&_[data-orientation=horizontal]]:bg-[#1a1a1a]"
-          />
+          <div className="relative w-full h-1 bg-[#1a1a1a] rounded-md">
+            {/* Track between thumbs */}
+            <div
+              className="absolute h-full bg-[#0f0f0f]"
+              style={{
+                left: `${((values[0] - min) / (max - min)) * 100}%`,
+                width: `${((values[1] - values[0]) / (max - min)) * 100}%`,
+              }}
+            />
+
+            {/* Left thumb */}
+            <div
+              className="absolute w-3 h-3 bg-[#0f0f0f] rounded-full -translate-x-1/2 cursor-pointer"
+              style={{ left: `${((values[0] - min) / (max - min)) * 100}%`, top: "-4px" }}
+              onMouseDown={(e) => {
+                e.preventDefault()
+                const slider = e.currentTarget.parentElement
+                if (!slider) return
+
+                const handleMouseMove = (moveEvent: MouseEvent) => {
+                  const rect = slider.getBoundingClientRect()
+                  const percent = Math.min(Math.max(0, (moveEvent.clientX - rect.left) / rect.width), 1)
+                  const newValue = Math.min(values[1] - step, min + Math.round(((max - min) * percent) / step) * step)
+                  onChange([newValue, values[1]])
+                }
+
+                const handleMouseUp = () => {
+                  document.removeEventListener("mousemove", handleMouseMove)
+                  document.removeEventListener("mouseup", handleMouseUp)
+                }
+
+                document.addEventListener("mousemove", handleMouseMove)
+                document.addEventListener("mouseup", handleMouseUp)
+              }}
+            />
+
+            {/* Right thumb */}
+            <div
+              className="absolute w-3 h-3 bg-[#0f0f0f] rounded-full -translate-x-1/2 cursor-pointer"
+              style={{ left: `${((values[1] - min) / (max - min)) * 100}%`, top: "-4px" }}
+              onMouseDown={(e) => {
+                e.preventDefault()
+                const slider = e.currentTarget.parentElement
+                if (!slider) return
+
+                const handleMouseMove = (moveEvent: MouseEvent) => {
+                  const rect = slider.getBoundingClientRect()
+                  const percent = Math.min(Math.max(0, (moveEvent.clientX - rect.left) / rect.width), 1)
+                  const newValue = Math.max(values[0] + step, min + Math.round(((max - min) * percent) / step) * step)
+                  onChange([values[0], Math.min(max, newValue)])
+                }
+
+                const handleMouseUp = () => {
+                  document.removeEventListener("mousemove", handleMouseMove)
+                  document.removeEventListener("mouseup", handleMouseUp)
+                }
+
+                document.addEventListener("mousemove", handleMouseMove)
+                document.addEventListener("mouseup", handleMouseUp)
+              }}
+            />
+          </div>
         </div>
         <div className="flex justify-between mt-1 text-xs">
           <span>{formatValue(values[0])}</span>
