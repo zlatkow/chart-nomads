@@ -62,37 +62,43 @@ export const PropFirmFiltersSidebar = ({
 
   // Update the initial state values to have proper min/max pairs
   // State for slider values - now using [min, max] pairs
-  const [priceRange, setPriceRange] = useState<[number, number]>(filters.priceRange || [0, 2000])
-  const [accountSizeRange, setAccountSizeRange] = useState<[number, number]>(filters.accountSizeRange || [0, 400000])
-  const [profitSplitRange, setProfitSplitRange] = useState<[number, number]>(filters.profitSplitRange || [0, 100])
-  const [profitTargetRange, setProfitTargetRange] = useState<[number, number]>(filters.profitTargetRange || [0, 30])
-  const [maxDailyLossRange, setMaxDailyLossRange] = useState<[number, number]>(filters.maxDailyLossRange || [0, 10])
-  const [maxDrawdownRange, setMaxDrawdownRange] = useState<[number, number]>(filters.maxDrawdownRange || [0, 20])
-  const [commissionRange, setCommissionRange] = useState<[number, number]>(filters.commissionRange || [0, 10])
-  const [ptDdRatioRange, setPtDdRatioRange] = useState<[number, number]>(filters.ptDdRatioRange || [0, 1])
-  const [payoutFrequencyRange, setPayoutFrequencyRange] = useState<[number, number]>(
-    filters.payoutFrequencyRange || [0, 30],
+  const [priceRange, setPriceRange] = useState<[number, number]>(() => filters.priceRange || [0, 2000])
+  const [accountSizeRange, setAccountSizeRange] = useState<[number, number]>(
+    () => filters.accountSizeRange || [0, 400000],
   )
-  const [trustPilotRange, setTrustPilotRange] = useState<[number, number]>(filters.trustPilotRange || [1, 5])
+  const [profitSplitRange, setProfitSplitRange] = useState<[number, number]>(() => filters.profitSplitRange || [0, 100])
+  const [profitTargetRange, setProfitTargetRange] = useState<[number, number]>(
+    () => filters.profitTargetRange || [0, 30],
+  )
+  const [maxDailyLossRange, setMaxDailyLossRange] = useState<[number, number]>(
+    () => filters.maxDailyLossRange || [0, 10],
+  )
+  const [maxDrawdownRange, setMaxDrawdownRange] = useState<[number, number]>(() => filters.maxDrawdownRange || [0, 20])
+  const [commissionRange, setCommissionRange] = useState<[number, number]>(() => filters.commissionRange || [0, 10])
+  const [ptDdRatioRange, setPtDdRatioRange] = useState<[number, number]>(() => filters.ptDdRatioRange || [0, 1])
+  const [payoutFrequencyRange, setPayoutFrequencyRange] = useState<[number, number]>(
+    () => filters.payoutFrequencyRange || [0, 30],
+  )
+  const [trustPilotRange, setTrustPilotRange] = useState<[number, number]>(() => filters.trustPilotRange || [1, 5])
   const [yearsInBusinessRange, setYearsInBusinessRange] = useState<[number, number]>(
-    filters.yearsInBusinessRange || [1, 15],
+    () => filters.yearsInBusinessRange || [1, 15],
   )
   const [loyaltyPointsRange, setLoyaltyPointsRange] = useState<[number, number]>(
-    filters.loyaltyPointsRange || [0, 5000],
+    () => filters.loyaltyPointsRange || [0, 5000],
   )
 
-  // Effect to update sidebar height based on parent container
+  // Update the useEffect for sidebar height
   useEffect(() => {
     const updateSidebarHeight = () => {
       if (!containerRef.current || !sidebarRef.current) return
 
-      if (!sidebarExpanded) {
+      if (sidebarExpanded) {
+        // When expanded, let it be auto height (just enough to show content)
+        sidebarRef.current.style.height = "auto"
+      } else {
         // When collapsed, set height to 100% of parent
         const parentHeight = containerRef.current.parentElement?.clientHeight || window.innerHeight
         sidebarRef.current.style.height = `${parentHeight}px`
-      } else {
-        // When expanded, let it be auto height
-        sidebarRef.current.style.height = "auto"
       }
     }
 
@@ -424,7 +430,7 @@ export const PropFirmFiltersSidebar = ({
     )
   }
 
-  // Replace the entire return statement with this updated implementation
+  // Update the container and sidebar elements
   return (
     <div
       ref={containerRef}
@@ -433,7 +439,6 @@ export const PropFirmFiltersSidebar = ({
         position: "sticky",
         top: "90px",
         alignSelf: "stretch",
-        height: sidebarExpanded ? "auto" : "100%",
         display: "flex",
         flexDirection: "column",
       }}
@@ -442,10 +447,9 @@ export const PropFirmFiltersSidebar = ({
         ref={sidebarRef}
         className={`${
           sidebarExpanded ? "w-[300px] p-6" : "w-[30px]"
-        } transition-all duration-300 ease-in-out overflow-hidden bg-[#edb900] text-[#0f0f0f] p-1 rounded-t-lg lg:rounded-tr-none lg:rounded-l-lg flex-grow`}
+        } transition-all duration-300 ease-in-out overflow-hidden bg-[#edb900] text-[#0f0f0f] p-1 rounded-t-lg lg:rounded-tr-none lg:rounded-l-lg`}
         style={{
           height: sidebarExpanded ? "auto" : "100%",
-          minHeight: sidebarExpanded ? "auto" : "calc(100vh - 90px)",
         }}
       >
         {/* Toggle button for sidebar - positioned on the right side */}
