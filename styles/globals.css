@@ -962,7 +962,7 @@ input:checked + .custom-toggle-switch::after {
 /*sidebar filters*/
 /* Sidebar container styles */
 .sidebar-container {
-  position: sticky;
+  position: sticky !important;
   top: 90px;
   align-self: stretch;
   display: flex;
