@@ -261,16 +261,17 @@ export const PropFirmFiltersSidebar = ({
     return (
       <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
         <label className="block mb-2 font-medium">{title}</label>
-        <Slider
-          defaultValue={[value]}
-          min={min}
-          max={max}
-          step={step}
-          onValueChange={(values) => onChange(values[0])}
-          className="w-full"
-          thumbClassName="h-4 w-4 bg-[#0f0f0f]"
-          trackClassName="bg-[#1a1a1a] h-1"
-        />
+        <div className="py-2">
+          <Slider
+            defaultValue={[value]}
+            value={[value]}
+            min={min}
+            max={max}
+            step={step}
+            onValueChange={(values) => onChange(values[0])}
+            className="w-full [&_[role=slider]]:h-4 [&_[role=slider]]:w-4 [&_[role=slider]]:bg-[#0f0f0f] [&_[data-orientation=horizontal]]:h-1 [&_[data-orientation=horizontal]]:bg-[#1a1a1a]"
+          />
+        </div>
         <div className="flex justify-between mt-1 text-xs">
           <span>{formatValue(value)}</span>
           <span>{formatValue(max)}</span>
