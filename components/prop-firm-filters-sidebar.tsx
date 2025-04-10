@@ -619,7 +619,7 @@ export const PropFirmFiltersSidebar = ({
                     <AccordionTrigger className="px-3 py-2 text-[#edb900] hover:bg-[#222] hover:no-underline">
                       Advanced Filtering
                     </AccordionTrigger>
-                    <AccordionContent className="px-3 pb-3 pt-2 bg-[#1a1a1a]">
+                    <AccordionContent className="text-xs px-3 pb-3 pt-2 bg-[#1a1a1a]">
                       <div className="space-y-4">
                         {/* Price Range */}
                         {renderRangeSlider(
