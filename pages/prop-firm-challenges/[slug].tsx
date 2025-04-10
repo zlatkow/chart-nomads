@@ -67,7 +67,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   try {
     // Fetch all challenges from your API
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/prop-firm-challenges`)
+    const res = await fetch("/api/prop-firm-challenges")
     const data = await res.json()
 
     if (!data.challenges) {
