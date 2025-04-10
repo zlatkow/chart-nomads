@@ -1,6 +1,8 @@
 /* eslint-disable */
 "use client"
 
+import type React from "react"
+
 import { useState } from "react"
 import { Search, ChevronLeft, SlidersHorizontal, X } from "lucide-react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
@@ -22,6 +24,19 @@ export interface FilterOptions {
   challengeType?: string
   accountSize?: string
   assetClass?: string
+  // Advanced filter sliders
+  priceRange?: [number, number]
+  accountSizeRange?: [number, number]
+  profitSplitRange?: [number, number]
+  profitTargetRange?: [number, number]
+  maxDailyLossRange?: [number, number]
+  maxDrawdownRange?: [number, number]
+  commissionRange?: [number, number]
+  ptDdRatioRange?: [number, number]
+  payoutFrequencyRange?: [number, number]
+  trustPilotRange?: [number, number]
+  yearsInBusinessRange?: [number, number]
+  loyaltyPointsRange?: [number, number]
 }
 
 interface PropFirmFiltersSidebarProps {
@@ -42,6 +57,20 @@ export const PropFirmFiltersSidebar = ({
   propFirms,
 }: PropFirmFiltersSidebarProps) => {
   const [sidebarExpanded, setSidebarExpanded] = useState(true)
+
+  // State for slider values
+  const [priceRange, setPriceRange] = useState<number>(filters.priceRange?.[1] || 2000)
+  const [accountSizeRange, setAccountSizeRange] = useState<number>(filters.accountSizeRange?.[1] || 400000)
+  const [profitSplitRange, setProfitSplitRange] = useState<number>(filters.profitSplitRange?.[1] || 100)
+  const [profitTargetRange, setProfitTargetRange] = useState<number>(filters.profitTargetRange?.[1] || 30)
+  const [maxDailyLossRange, setMaxDailyLossRange] = useState<number>(filters.maxDailyLossRange?.[1] || 10)
+  const [maxDrawdownRange, setMaxDrawdownRange] = useState<number>(filters.maxDrawdownRange?.[1] || 20)
+  const [commissionRange, setCommissionRange] = useState<number>(filters.commissionRange?.[1] || 10)
+  const [ptDdRatioRange, setPtDdRatioRange] = useState<number>(filters.ptDdRatioRange?.[1] || 1)
+  const [payoutFrequencyRange, setPayoutFrequencyRange] = useState<number>(filters.payoutFrequencyRange?.[1] || 30)
+  const [trustPilotRange, setTrustPilotRange] = useState<number>(filters.trustPilotRange?.[1] || 5)
+  const [yearsInBusinessRange, setYearsInBusinessRange] = useState<number>(filters.yearsInBusinessRange?.[1] || 15)
+  const [loyaltyPointsRange, setLoyaltyPointsRange] = useState<number>(filters.loyaltyPointsRange?.[1] || 5000)
 
   // Static filter options inside the component
   const staticChallengeTypes = [
@@ -161,6 +190,19 @@ export const PropFirmFiltersSidebar = ({
     })
   }
 
+  // Handle slider change
+  const handleSliderChange = (
+    value: number,
+    setter: React.Dispatch<React.SetStateAction<number>>,
+    filterKey: keyof FilterOptions,
+    min: number,
+  ) => {
+    setter(value)
+    onFilterChange({
+      [filterKey]: [min, value],
+    })
+  }
+
   // Replace the renderFilterButtons function with this multi-select version
   const renderFilterButtons = (
     options: { value: string; label: string }[],
@@ -205,6 +247,39 @@ export const PropFirmFiltersSidebar = ({
     )
   }
 
+  // Render a slider component
+  const renderSlider = (
+    title: string,
+    min: number,
+    max: number,
+    step: number,
+    value: number,
+    onChange: (value: number) => void,
+    minLabel: string,
+    maxLabel: string,
+  ) => {
+    return (
+      <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
+        <label className="block mb-2 font-medium">{title}</label>
+        <div className="flex items-center gap-2">
+          <input
+            type="range"
+            min={min}
+            max={max}
+            step={step}
+            value={value}
+            onChange={(e) => onChange(Number(e.target.value))}
+            className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
+          />
+        </div>
+        <div className="flex justify-between mt-1 text-xs">
+          <span>{minLabel}</span>
+          <span>{maxLabel}</span>
+        </div>
+      </div>
+    )
+  }
+
   // Update the hasActiveFilters check
   const hasActiveFilters =
     (filters.selectedFirmIds && filters.selectedFirmIds.length > 0) ||
@@ -213,7 +288,19 @@ export const PropFirmFiltersSidebar = ({
     (filters.assetClasses && filters.assetClasses.length > 0) ||
     filters.challengeType ||
     filters.accountSize ||
-    filters.assetClass
+    filters.assetClass ||
+    filters.priceRange ||
+    filters.accountSizeRange ||
+    filters.profitSplitRange ||
+    filters.profitTargetRange ||
+    filters.maxDailyLossRange ||
+    filters.maxDrawdownRange ||
+    filters.commissionRange ||
+    filters.ptDdRatioRange ||
+    filters.payoutFrequencyRange ||
+    filters.trustPilotRange ||
+    filters.yearsInBusinessRange ||
+    filters.loyaltyPointsRange
 
   // Render selected companies
   const renderSelectedCompanies = () => {
@@ -306,6 +393,18 @@ export const PropFirmFiltersSidebar = ({
                       challengeType: undefined,
                       accountSize: undefined,
                       assetClass: undefined,
+                      priceRange: undefined,
+                      accountSizeRange: undefined,
+                      profitSplitRange: undefined,
+                      profitTargetRange: undefined,
+                      maxDailyLossRange: undefined,
+                      maxDrawdownRange: undefined,
+                      commissionRange: undefined,
+                      ptDdRatioRange: undefined,
+                      payoutFrequencyRange: undefined,
+                      trustPilotRange: undefined,
+                      yearsInBusinessRange: undefined,
+                      loyaltyPointsRange: undefined,
                     })
                   }
                 >
@@ -459,23 +558,148 @@ export const PropFirmFiltersSidebar = ({
                     <AccordionContent className="px-3 pb-3 pt-0">
                       <div className="space-y-4">
                         {/* Price Range */}
-                        <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
-                          <label className="block mb-2 font-medium">Price $</label>
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="range"
-                              min="0"
-                              max="2000"
-                              step="50"
-                              defaultValue="500"
-                              className="w-full h-2 bg-[#1a1a1a] rounded-lg appearance-none cursor-pointer accent-[#0f0f0f]"
-                            />
-                          </div>
-                          <div className="flex justify-between mt-1 text-xs">
-                            <span>$0</span>
-                            <span>$2,000</span>
-                          </div>
-                        </div>
+                        {renderSlider(
+                          "Price $",
+                          0,
+                          2000,
+                          50,
+                          priceRange,
+                          (value) => handleSliderChange(value, setPriceRange, "priceRange", 0),
+                          "$ 0",
+                          "$ 2,000",
+                        )}
+
+                        {/* Account Size K */}
+                        {renderSlider(
+                          "Account Size K",
+                          0,
+                          400000,
+                          10000,
+                          accountSizeRange,
+                          (value) => handleSliderChange(value, setAccountSizeRange, "accountSizeRange", 0),
+                          "$ 0",
+                          "$ 400,000",
+                        )}
+
+                        {/* Account Profit Split % */}
+                        {renderSlider(
+                          "Account Profit Split %",
+                          0,
+                          100,
+                          5,
+                          profitSplitRange,
+                          (value) => handleSliderChange(value, setProfitSplitRange, "profitSplitRange", 0),
+                          "0 %",
+                          "100 %",
+                        )}
+
+                        {/* Profit Target % (Combined) */}
+                        {renderSlider(
+                          "Profit Target % (Combined)",
+                          0,
+                          30,
+                          1,
+                          profitTargetRange,
+                          (value) => handleSliderChange(value, setProfitTargetRange, "profitTargetRange", 0),
+                          "0 %",
+                          "30 %",
+                        )}
+
+                        {/* Max Daily Loss % */}
+                        {renderSlider(
+                          "Max Daily Loss %",
+                          0,
+                          10,
+                          0.5,
+                          maxDailyLossRange,
+                          (value) => handleSliderChange(value, setMaxDailyLossRange, "maxDailyLossRange", 0),
+                          "0 %",
+                          "10 %",
+                        )}
+
+                        {/* Account Max Total Drawdown % */}
+                        {renderSlider(
+                          "Account Max Total Drawdown %",
+                          0,
+                          20,
+                          1,
+                          maxDrawdownRange,
+                          (value) => handleSliderChange(value, setMaxDrawdownRange, "maxDrawdownRange", 0),
+                          "0 %",
+                          "20 %",
+                        )}
+
+                        {/* Commission $ */}
+                        {renderSlider(
+                          "Commission $",
+                          0,
+                          10,
+                          0.5,
+                          commissionRange,
+                          (value) => handleSliderChange(value, setCommissionRange, "commissionRange", 0),
+                          "$ 0",
+                          "$ 10",
+                        )}
+
+                        {/* Account PT:DD ratio */}
+                        {renderSlider(
+                          "Account PT:DD ratio",
+                          0,
+                          1,
+                          0.1,
+                          ptDdRatioRange,
+                          (value) => handleSliderChange(value, setPtDdRatioRange, "ptDdRatioRange", 0),
+                          "1: 0",
+                          "1: 1",
+                        )}
+
+                        {/* Payout Frequency (Days) */}
+                        {renderSlider(
+                          "Payout Frequency (Days)",
+                          0,
+                          30,
+                          1,
+                          payoutFrequencyRange,
+                          (value) => handleSliderChange(value, setPayoutFrequencyRange, "payoutFrequencyRange", 0),
+                          "0 Days",
+                          "30 Days",
+                        )}
+
+                        {/* Trust Pilot Rating */}
+                        {renderSlider(
+                          "Trust Pilot Rating",
+                          1,
+                          5,
+                          0.5,
+                          trustPilotRange,
+                          (value) => handleSliderChange(value, setTrustPilotRange, "trustPilotRange", 1),
+                          "1",
+                          "5",
+                        )}
+
+                        {/* Years in Business */}
+                        {renderSlider(
+                          "Years in Business",
+                          1,
+                          15,
+                          1,
+                          yearsInBusinessRange,
+                          (value) => handleSliderChange(value, setYearsInBusinessRange, "yearsInBusinessRange", 1),
+                          "1 Years",
+                          "15 Years",
+                        )}
+
+                        {/* Loyalty Points */}
+                        {renderSlider(
+                          "Loyalty Points",
+                          0,
+                          5000,
+                          500,
+                          loyaltyPointsRange,
+                          (value) => handleSliderChange(value, setLoyaltyPointsRange, "loyaltyPointsRange", 0),
+                          "0 Points",
+                          "5,000 Points",
+                        )}
                       </div>
                     </AccordionContent>
                   </AccordionItem>
