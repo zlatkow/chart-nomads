@@ -769,7 +769,7 @@ export const PropFirmFiltersSidebar = ({
                 setTimeout(() => {
                   const resultsSection = document.querySelector(".sticky-table-container")
                   if (resultsSection) {
-                    const headerOffset = 100
+                    const headerOffset = 150
                     const elementPosition = resultsSection.getBoundingClientRect().top
                     const offsetPosition = elementPosition + window.pageYOffset - headerOffset
 
