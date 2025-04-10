@@ -440,7 +440,7 @@ export const PropFirmFiltersSidebar = ({
               <h2 className="text-xl">Filters</h2>
               {hasActiveFilters && (
                 <button
-                  className="text-sm font-medium hover:underline flex items-center gap-1"
+                  className="text-sm font-[balboa] hover:underline flex items-center gap-1"
                   // Update the Clear All button onClick handler
                   onClick={() =>
                     onFilterChange({
@@ -514,7 +514,7 @@ export const PropFirmFiltersSidebar = ({
                     <AccordionTrigger className="px-3 py-2 text-[#edb900] hover:bg-[#222] hover:no-underline">
                       Trading Asset Class
                     </AccordionTrigger>
-                    <AccordionContent className="px-3 pb-3 pt-0">
+                    <AccordionContent className="px-3 pb-3 pt-2">
                       {renderFilterButtons(staticAssetClasses, "assetClasses")}
                     </AccordionContent>
                   </AccordionItem>
@@ -523,7 +523,7 @@ export const PropFirmFiltersSidebar = ({
                     <AccordionTrigger className="px-3 py-2 text-[#edb900] hover:bg-[#222] hover:no-underline">
                       Account Size
                     </AccordionTrigger>
-                    <AccordionContent className="px-3 pb-3 pt-0">
+                    <AccordionContent className="px-3 pb-3 pt-2">
                       {renderFilterButtons(staticAccountSizes, "accountSizes")}
                     </AccordionContent>
                   </AccordionItem>
@@ -532,7 +532,7 @@ export const PropFirmFiltersSidebar = ({
                     <AccordionTrigger className="px-3 py-2 text-[#edb900] hover:bg-[#222] hover:no-underline">
                       Challenge Type
                     </AccordionTrigger>
-                    <AccordionContent className="px-3 pb-3 pt-0">
+                    <AccordionContent className="px-3 pb-3 pt-2">
                       {renderFilterButtons(staticChallengeTypes, "challengeTypes")}
                     </AccordionContent>
                   </AccordionItem>
@@ -541,7 +541,7 @@ export const PropFirmFiltersSidebar = ({
                     <AccordionTrigger className="px-3 py-2 text-[#edb900] hover:bg-[#222] hover:no-underline">
                       Brokers
                     </AccordionTrigger>
-                    <AccordionContent className="px-3 pb-3 pt-0">
+                    <AccordionContent className="px-3 pb-3 pt-2">
                       <div className="flex flex-wrap gap-2">
                         {brokers.map((option) => (
                           <button
@@ -559,7 +559,7 @@ export const PropFirmFiltersSidebar = ({
                     <AccordionTrigger className="px-3 py-2 text-[#edb900] hover:bg-[#222] hover:no-underline">
                       Platforms
                     </AccordionTrigger>
-                    <AccordionContent className="px-3 pb-3 pt-0">
+                    <AccordionContent className="px-3 pb-3 pt-2">
                       <div className="flex flex-wrap gap-2">
                         {platforms.map((option) => (
                           <button
@@ -577,7 +577,7 @@ export const PropFirmFiltersSidebar = ({
                     <AccordionTrigger className="px-3 py-2 text-[#edb900] hover:bg-[#222] hover:no-underline">
                       Special Features
                     </AccordionTrigger>
-                    <AccordionContent className="px-3 pb-3 pt-0">
+                    <AccordionContent className="px-3 pb-3 pt-2">
                       <div className="flex flex-wrap gap-2">
                         {specialFeatures.map((option) => (
                           <button
@@ -595,7 +595,7 @@ export const PropFirmFiltersSidebar = ({
                     <AccordionTrigger className="px-3 py-2 text-[#edb900] hover:bg-[#222] hover:no-underline">
                       Countries
                     </AccordionTrigger>
-                    <AccordionContent className="px-3 pb-3 pt-0">
+                    <AccordionContent className="px-3 pb-3 pt-2">
                       <div className="flex flex-wrap gap-2">
                         {countries.map((option) => (
                           <button
@@ -613,7 +613,7 @@ export const PropFirmFiltersSidebar = ({
                     <AccordionTrigger className="px-3 py-2 text-[#edb900] hover:bg-[#222] hover:no-underline">
                       Advanced Filtering
                     </AccordionTrigger>
-                    <AccordionContent className="px-3 pb-3 pt-0 bg-[#1a1a1a]">
+                    <AccordionContent className="px-3 pb-3 pt-2 bg-[#1a1a1a]">
                       <div className="space-y-4">
                         {/* Price Range */}
                         {renderRangeSlider(
@@ -758,10 +758,10 @@ export const PropFirmFiltersSidebar = ({
           <div className="mt-6">
             <button
               onClick={onSearch}
-              className="w-full py-3 bg-[#0f0f0f] text-[#edb900] rounded-md flex items-center justify-center gap-2 hover:bg-[#2a2a2a] transition-colors"
+              className="w-full py-2 bg-[#0f0f0f] text-[#edb900] rounded-[10px] flex items-center justify-center gap-2 hover:bg-[#2a2a2a] transition-colors"
             >
               <Search size={18} />
-              {filters.searchMode === "quick" ? "Search" : "Advanced Search"}
+              {filters.searchMode === "quick" ? "Search" : "Search"}
             </button>
           </div>
         </div>

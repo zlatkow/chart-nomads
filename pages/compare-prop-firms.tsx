@@ -590,7 +590,7 @@ export default function PropFirmComparison() {
               {/* Search and Results Count */}
               <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
                 {/* Search Bar with clear button */}
-                <div className="relative w-[250px] justify-center z-20 mb-4">
+                <div className="relative w-[250px] justify-center z-20">
                   <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
                   <Input
                     type="text"
