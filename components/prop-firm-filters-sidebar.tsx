@@ -267,7 +267,7 @@ export const PropFirmFiltersSidebar = ({
       <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
         <label className="block mb-2 font-medium">{title}</label>
         <div className="py-2">
-          <div className="relative w-full h-1 bg-[#c9b100] rounded-md">
+          <div className="relative w-full h-1 bg-[#b38b00] rounded-md">
             {/* Track between thumbs - darker color */}
             <div
               className="absolute h-full bg-[#0f0f0f] rounded-md"
