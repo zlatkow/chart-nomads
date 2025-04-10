@@ -3,7 +3,7 @@
 
 import type React from "react"
 
-import { useState, useEffect, useRef } from "react"
+import { useState } from "react"
 import { Search, ChevronLeft, SlidersHorizontal, X } from "lucide-react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { CustomSwitch } from "@/components/custom-switch"
@@ -57,8 +57,6 @@ export const PropFirmFiltersSidebar = ({
   propFirms,
 }: PropFirmFiltersSidebarProps) => {
   const [sidebarExpanded, setSidebarExpanded] = useState(true)
-  const sidebarRef = useRef<HTMLDivElement>(null)
-  const containerRef = useRef<HTMLDivElement>(null)
 
   // Update the initial state values to have proper min/max pairs
   // State for slider values - now using [min, max] pairs
@@ -86,33 +84,6 @@ export const PropFirmFiltersSidebar = ({
   const [loyaltyPointsRange, setLoyaltyPointsRange] = useState<[number, number]>(
     () => filters.loyaltyPointsRange || [0, 5000],
   )
-
-  // Update the useEffect for sidebar height
-  useEffect(() => {
-    const updateSidebarHeight = () => {
-      if (!containerRef.current || !sidebarRef.current) return
-
-      if (sidebarExpanded) {
-        // When expanded, let it be auto height (just enough to show content)
-        sidebarRef.current.style.height = "auto"
-      } else {
-        // When collapsed, set height to 100% of parent
-        const parentHeight = containerRef.current.parentElement?.clientHeight || window.innerHeight
-        sidebarRef.current.style.height = `${parentHeight}px`
-      }
-    }
-
-    // Initial update
-    updateSidebarHeight()
-
-    // Update on window resize
-    window.addEventListener("resize", updateSidebarHeight)
-
-    // Cleanup
-    return () => {
-      window.removeEventListener("resize", updateSidebarHeight)
-    }
-  }, [sidebarExpanded])
 
   // Static filter options inside the component
   const staticChallengeTypes = [
@@ -430,38 +401,20 @@ export const PropFirmFiltersSidebar = ({
     )
   }
 
-  // Update the container and sidebar elements
+  // Update the container and sidebar elements using the new CSS classes
   return (
-    <div
-      ref={containerRef}
-      className="relative"
-      style={{
-        position: "sticky",
-        top: "90px",
-        alignSelf: "stretch",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
-      <div
-        ref={sidebarRef}
-        className={`${
-          sidebarExpanded ? "w-[300px] p-6" : "w-[30px]"
-        } transition-all duration-300 ease-in-out overflow-hidden bg-[#edb900] text-[#0f0f0f] p-1 rounded-t-lg lg:rounded-tr-none lg:rounded-l-lg`}
-        style={{
-          height: sidebarExpanded ? "auto" : "100%",
-        }}
-      >
-        {/* Toggle button for sidebar - positioned on the right side */}
+    <div className="sidebar-container">
+      <div className={`sidebar ${sidebarExpanded ? "expanded" : "collapsed"}`}>
+        {/* Toggle button for sidebar */}
         <button
           onClick={toggleSidebar}
-          className="absolute border border-[#edb900] top-6 -right-4 w-8 h-8 bg-[#0f0f0f] text-[#edb900] rounded-full shadow-md flex items-center justify-center z-10 hover:bg-[#2a2a2a] transition-colors"
+          className="sidebar-toggle"
           aria-label={sidebarExpanded ? "Collapse sidebar" : "Expand sidebar"}
         >
           {sidebarExpanded ? <ChevronLeft size={16} /> : <SlidersHorizontal size={16} />}
         </button>
 
-        <div className={`${!sidebarExpanded ? "opacity-0" : "opacity-100"} transition-opacity duration-200 h-full`}>
+        <div className="sidebar-content">
           <div className="mb-6">
             <div className="flex bg-[#1a1a1a] p-1 rounded-lg mb-4">
               <button
@@ -527,7 +480,7 @@ export const PropFirmFiltersSidebar = ({
           </div>
 
           {/* Scrollable filter area */}
-          <div className="overflow-y-auto max-h-[calc(100vh-250px)] pr-2 -mr-2">
+          <div className="sidebar-scrollable">
             {filters.searchMode === "quick" ? (
               <>
                 {/* Challenge Type Filter */}

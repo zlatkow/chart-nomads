@@ -957,3 +957,87 @@ input:checked + .custom-toggle-switch::after {
 .sticky-table tbody tr:hover::after {
   background-color: #333;
 }
+
+
+/*sidebar filters*/
+/* Sidebar container styles */
+.sidebar-container {
+  position: sticky;
+  top: 90px;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
+}
+
+/* Sidebar styles */
+.sidebar {
+  transition: all 300ms ease-in-out;
+  overflow: hidden;
+  background-color: #edb900;
+  color: #0f0f0f;
+  border-top-left-radius: 0.5rem;
+  border-bottom-left-radius: 0.5rem;
+}
+
+/* Expanded sidebar */
+.sidebar.expanded {
+  width: 300px;
+  padding: 1.5rem;
+  height: auto !important;
+  max-height: calc(100vh - 90px);
+  overflow-y: auto;
+}
+
+/* Collapsed sidebar */
+.sidebar.collapsed {
+  width: 30px;
+  padding: 0.25rem;
+  height: 100% !important;
+  min-height: calc(100vh - 90px);
+}
+
+/* Toggle button */
+.sidebar-toggle {
+  position: absolute;
+  top: 1.5rem;
+  right: -1rem;
+  width: 2rem;
+  height: 2rem;
+  background-color: #0f0f0f;
+  color: #edb900;
+  border: 1px solid #edb900;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: background-color 200ms;
+}
+
+.sidebar-toggle:hover {
+  background-color: #2a2a2a;
+}
+
+/* Content visibility */
+.sidebar-content {
+  transition: opacity 200ms;
+}
+
+.sidebar.collapsed .sidebar-content {
+  opacity: 0;
+}
+
+.sidebar.expanded .sidebar-content {
+  opacity: 1;
+}
+
+/* Scrollable area */
+.sidebar-scrollable {
+  overflow-y: auto;
+  max-height: calc(100vh - 250px);
+  padding-right: 0.5rem;
+  margin-right: -0.5rem;
+}
