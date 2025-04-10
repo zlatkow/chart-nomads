@@ -509,7 +509,7 @@ export const PropFirmFiltersSidebar = ({
             ) : (
               // Advanced search content
               <div className="space-y-4">
-                <Accordion type="single" collapsible defaultValue="tradingAssetClass" className="space-y-2">
+                <Accordion type="single" collapsible className="space-y-2">
                   <AccordionItem value="tradingAssetClass" className="border-0 bg-[#1a1a1a] rounded-lg overflow-hidden">
                     <AccordionTrigger className="px-3 py-2 text-[#edb900] hover:bg-[#222] hover:no-underline">
                       Trading Asset Class
@@ -757,7 +757,14 @@ export const PropFirmFiltersSidebar = ({
           {/* Search Button - Fixed at bottom */}
           <div className="mt-6">
             <button
-              onClick={onSearch}
+              onClick={() => {
+                onSearch()
+                // Scroll to results section
+                const resultsSection = document.querySelector(".table-wrapper")
+                if (resultsSection) {
+                  resultsSection.scrollIntoView({ behavior: "smooth", block: "start" })
+                }
+              }}
               className="w-full py-2 bg-[#0f0f0f] text-sm text-[#edb900] rounded-[10px] flex items-center justify-center gap-2 hover:bg-[#2a2a2a] transition-colors"
             >
               <Search size={18} />

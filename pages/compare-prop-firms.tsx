@@ -212,6 +212,14 @@ export default function PropFirmComparison() {
     setSearchTerm(filters.searchTerm)
   }
 
+  // Scroll to results section after a short delay to ensure the DOM has updated
+  setTimeout(() => {
+    const resultsSection = document.querySelector(".table-wrapper")
+    if (resultsSection) {
+        resultsSection.scrollIntoView({ behavior: "smooth", block: "start" })
+    }
+    }, 100)  
+
   // Toggle company selection for filtering
   const toggleCompanySelection = (firmId: number) => {
     setFilters((prev) => {
