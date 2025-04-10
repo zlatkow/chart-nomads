@@ -59,19 +59,25 @@ export const PropFirmFiltersSidebar = ({
 }: PropFirmFiltersSidebarProps) => {
   const [sidebarExpanded, setSidebarExpanded] = useState(true)
 
-  // State for slider values
-  const [priceRange, setPriceRange] = useState<number>(filters.priceRange?.[1] || 0)
-  const [accountSizeRange, setAccountSizeRange] = useState<number>(filters.accountSizeRange?.[1] || 0)
-  const [profitSplitRange, setProfitSplitRange] = useState<number>(filters.profitSplitRange?.[1] || 0)
-  const [profitTargetRange, setProfitTargetRange] = useState<number>(filters.profitTargetRange?.[1] || 0)
-  const [maxDailyLossRange, setMaxDailyLossRange] = useState<number>(filters.maxDailyLossRange?.[1] || 0)
-  const [maxDrawdownRange, setMaxDrawdownRange] = useState<number>(filters.maxDrawdownRange?.[1] || 0)
-  const [commissionRange, setCommissionRange] = useState<number>(filters.commissionRange?.[1] || 0)
-  const [ptDdRatioRange, setPtDdRatioRange] = useState<number>(filters.ptDdRatioRange?.[1] || 0)
-  const [payoutFrequencyRange, setPayoutFrequencyRange] = useState<number>(filters.payoutFrequencyRange?.[1] || 0)
-  const [trustPilotRange, setTrustPilotRange] = useState<number>(filters.trustPilotRange?.[1] || 1)
-  const [yearsInBusinessRange, setYearsInBusinessRange] = useState<number>(filters.yearsInBusinessRange?.[1] || 1)
-  const [loyaltyPointsRange, setLoyaltyPointsRange] = useState<number>(filters.loyaltyPointsRange?.[1] || 0)
+  // State for slider values - now using [min, max] pairs
+  const [priceRange, setPriceRange] = useState<[number, number]>(filters.priceRange || [0, 2000])
+  const [accountSizeRange, setAccountSizeRange] = useState<[number, number]>(filters.accountSizeRange || [0, 400000])
+  const [profitSplitRange, setProfitSplitRange] = useState<[number, number]>(filters.profitSplitRange || [0, 100])
+  const [profitTargetRange, setProfitTargetRange] = useState<[number, number]>(filters.profitTargetRange || [0, 30])
+  const [maxDailyLossRange, setMaxDailyLossRange] = useState<[number, number]>(filters.maxDailyLossRange || [0, 10])
+  const [maxDrawdownRange, setMaxDrawdownRange] = useState<[number, number]>(filters.maxDrawdownRange || [0, 20])
+  const [commissionRange, setCommissionRange] = useState<[number, number]>(filters.commissionRange || [0, 10])
+  const [ptDdRatioRange, setPtDdRatioRange] = useState<[number, number]>(filters.ptDdRatioRange || [0, 1])
+  const [payoutFrequencyRange, setPayoutFrequencyRange] = useState<[number, number]>(
+    filters.payoutFrequencyRange || [0, 30],
+  )
+  const [trustPilotRange, setTrustPilotRange] = useState<[number, number]>(filters.trustPilotRange || [1, 5])
+  const [yearsInBusinessRange, setYearsInBusinessRange] = useState<[number, number]>(
+    filters.yearsInBusinessRange || [1, 15],
+  )
+  const [loyaltyPointsRange, setLoyaltyPointsRange] = useState<[number, number]>(
+    filters.loyaltyPointsRange || [0, 5000],
+  )
 
   // Static filter options inside the component
   const staticChallengeTypes = [
@@ -191,16 +197,15 @@ export const PropFirmFiltersSidebar = ({
     })
   }
 
-  // Handle slider change
-  const handleSliderChange = (
-    value: number,
-    setter: React.Dispatch<React.SetStateAction<number>>,
+  // Handle slider change for range sliders
+  const handleRangeSliderChange = (
+    values: [number, number],
+    setter: React.Dispatch<React.SetStateAction<[number, number]>>,
     filterKey: keyof FilterOptions,
-    min: number,
   ) => {
-    setter(value)
+    setter(values)
     onFilterChange({
-      [filterKey]: [min, value],
+      [filterKey]: values,
     })
   }
 
@@ -248,14 +253,14 @@ export const PropFirmFiltersSidebar = ({
     )
   }
 
-  // Render a slider component
-  const renderSlider = (
+  // Render a range slider component
+  const renderRangeSlider = (
     title: string,
     min: number,
     max: number,
     step: number,
-    value: number,
-    onChange: (value: number) => void,
+    values: [number, number],
+    onChange: (values: [number, number]) => void,
     formatValue: (val: number) => string,
   ) => {
     return (
@@ -263,18 +268,17 @@ export const PropFirmFiltersSidebar = ({
         <label className="block mb-2 font-medium">{title}</label>
         <div className="py-2">
           <Slider
-            defaultValue={[value]}
-            value={[value]}
+            defaultValue={values}
+            value={values}
             min={min}
             max={max}
             step={step}
-            onValueChange={(values) => onChange(values[0])}
+            onValueChange={(newValues) => onChange(newValues as [number, number])}
             className="w-full [&_[role=slider]]:h-3 [&_[role=slider]]:w-3 [&_[role=slider]]:bg-[#0f0f0f] [&_[data-orientation=horizontal]]:h-1 [&_[data-orientation=horizontal]]:bg-[#1a1a1a]"
           />
         </div>
         <div className="flex justify-between mt-1 text-xs">
           <span>{formatValue(min)}</span>
-          <span>{formatValue(value)}</span>
           <span>{formatValue(max)}</span>
         </div>
       </div>
@@ -559,134 +563,134 @@ export const PropFirmFiltersSidebar = ({
                     <AccordionContent className="px-3 pb-3 pt-0 bg-[#1a1a1a]">
                       <div className="space-y-4">
                         {/* Price Range */}
-                        {renderSlider(
+                        {renderRangeSlider(
                           "Price $",
                           0,
                           2000,
                           50,
                           priceRange,
-                          (value) => handleSliderChange(value, setPriceRange, "priceRange", 0),
+                          (values) => handleRangeSliderChange(values, setPriceRange, "priceRange"),
                           (val) => `$ ${val.toLocaleString()}`,
                         )}
 
                         {/* Account Size K */}
-                        {renderSlider(
+                        {renderRangeSlider(
                           "Account Size K",
                           0,
                           400000,
                           10000,
                           accountSizeRange,
-                          (value) => handleSliderChange(value, setAccountSizeRange, "accountSizeRange", 0),
+                          (values) => handleRangeSliderChange(values, setAccountSizeRange, "accountSizeRange"),
                           (val) => `$ ${val.toLocaleString()}`,
                         )}
 
                         {/* Account Profit Split % */}
-                        {renderSlider(
+                        {renderRangeSlider(
                           "Account Profit Split %",
                           0,
                           100,
                           5,
                           profitSplitRange,
-                          (value) => handleSliderChange(value, setProfitSplitRange, "profitSplitRange", 0),
+                          (values) => handleRangeSliderChange(values, setProfitSplitRange, "profitSplitRange"),
                           (val) => `${val} %`,
                         )}
 
                         {/* Profit Target % (Combined) */}
-                        {renderSlider(
+                        {renderRangeSlider(
                           "Profit Target % (Combined)",
                           0,
                           30,
                           1,
                           profitTargetRange,
-                          (value) => handleSliderChange(value, setProfitTargetRange, "profitTargetRange", 0),
+                          (values) => handleRangeSliderChange(values, setProfitTargetRange, "profitTargetRange"),
                           (val) => `${val} %`,
                         )}
 
                         {/* Max Daily Loss % */}
-                        {renderSlider(
+                        {renderRangeSlider(
                           "Max Daily Loss %",
                           0,
                           10,
                           0.5,
                           maxDailyLossRange,
-                          (value) => handleSliderChange(value, setMaxDailyLossRange, "maxDailyLossRange", 0),
+                          (values) => handleRangeSliderChange(values, setMaxDailyLossRange, "maxDailyLossRange"),
                           (val) => `${val} %`,
                         )}
 
                         {/* Account Max Total Drawdown % */}
-                        {renderSlider(
+                        {renderRangeSlider(
                           "Account Max Total Drawdown %",
                           0,
                           20,
                           1,
                           maxDrawdownRange,
-                          (value) => handleSliderChange(value, setMaxDrawdownRange, "maxDrawdownRange", 0),
+                          (values) => handleRangeSliderChange(values, setMaxDrawdownRange, "maxDrawdownRange"),
                           (val) => `${val} %`,
                         )}
 
                         {/* Commission $ */}
-                        {renderSlider(
+                        {renderRangeSlider(
                           "Commission $",
                           0,
                           10,
                           0.5,
                           commissionRange,
-                          (value) => handleSliderChange(value, setCommissionRange, "commissionRange", 0),
+                          (values) => handleRangeSliderChange(values, setCommissionRange, "commissionRange"),
                           (val) => `$ ${val}`,
                         )}
 
                         {/* Account PT:DD ratio */}
-                        {renderSlider(
+                        {renderRangeSlider(
                           "Account PT:DD ratio",
                           0,
                           1,
                           0.1,
                           ptDdRatioRange,
-                          (value) => handleSliderChange(value, setPtDdRatioRange, "ptDdRatioRange", 0),
+                          (values) => handleRangeSliderChange(values, setPtDdRatioRange, "ptDdRatioRange"),
                           (val) => `1: ${val}`,
                         )}
 
                         {/* Payout Frequency (Days) */}
-                        {renderSlider(
+                        {renderRangeSlider(
                           "Payout Frequency (Days)",
                           0,
                           30,
                           1,
                           payoutFrequencyRange,
-                          (value) => handleSliderChange(value, setPayoutFrequencyRange, "payoutFrequencyRange", 0),
+                          (values) => handleRangeSliderChange(values, setPayoutFrequencyRange, "payoutFrequencyRange"),
                           (val) => `${val} Days`,
                         )}
 
                         {/* Trust Pilot Rating */}
-                        {renderSlider(
+                        {renderRangeSlider(
                           "Trust Pilot Rating",
                           1,
                           5,
                           0.5,
                           trustPilotRange,
-                          (value) => handleSliderChange(value, setTrustPilotRange, "trustPilotRange", 1),
+                          (values) => handleRangeSliderChange(values, setTrustPilotRange, "trustPilotRange"),
                           (val) => `${val}`,
                         )}
 
                         {/* Years in Business */}
-                        {renderSlider(
+                        {renderRangeSlider(
                           "Years in Business",
                           1,
                           15,
                           1,
                           yearsInBusinessRange,
-                          (value) => handleSliderChange(value, setYearsInBusinessRange, "yearsInBusinessRange", 1),
+                          (values) => handleRangeSliderChange(values, setYearsInBusinessRange, "yearsInBusinessRange"),
                           (val) => `${val} Years`,
                         )}
 
                         {/* Loyalty Points */}
-                        {renderSlider(
+                        {renderRangeSlider(
                           "Loyalty Points",
                           0,
                           5000,
                           500,
                           loyaltyPointsRange,
-                          (value) => handleSliderChange(value, setLoyaltyPointsRange, "loyaltyPointsRange", 0),
+                          (values) => handleRangeSliderChange(values, setLoyaltyPointsRange, "loyaltyPointsRange"),
                           (val) => `${val} Points`,
                         )}
                       </div>
