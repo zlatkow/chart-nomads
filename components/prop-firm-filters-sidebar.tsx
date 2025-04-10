@@ -267,10 +267,10 @@ export const PropFirmFiltersSidebar = ({
       <div className="mb-4 bg-[#edb900] p-3 rounded-lg">
         <label className="block mb-2 font-medium">{title}</label>
         <div className="py-2">
-          <div className="relative w-full h-1 bg-[#1a1a1a] rounded-md">
-            {/* Track between thumbs */}
+          <div className="relative w-full h-1 bg-[#c9b100] rounded-md">
+            {/* Track between thumbs - darker color */}
             <div
-              className="absolute h-full bg-[#0f0f0f]"
+              className="absolute h-full bg-[#0f0f0f] rounded-md"
               style={{
                 left: `${((values[0] - min) / (max - min)) * 100}%`,
                 width: `${((values[1] - values[0]) / (max - min)) * 100}%`,
@@ -440,7 +440,7 @@ export const PropFirmFiltersSidebar = ({
               <h2 className="text-xl">Filters</h2>
               {hasActiveFilters && (
                 <button
-                  className="text-sm font-[balboa] hover:underline flex items-center gap-1"
+                  className="text-sm font-medium hover:underline flex items-center gap-1"
                   // Update the Clear All button onClick handler
                   onClick={() =>
                     onFilterChange({
