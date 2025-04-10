@@ -3,7 +3,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Search, ChevronLeft, SlidersHorizontal, X } from "lucide-react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { CustomSwitch } from "@/components/custom-switch"
@@ -57,6 +57,8 @@ export const PropFirmFiltersSidebar = ({
   propFirms,
 }: PropFirmFiltersSidebarProps) => {
   const [sidebarExpanded, setSidebarExpanded] = useState(true)
+  const sidebarRef = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   // Update the initial state values to have proper min/max pairs
   // State for slider values - now using [min, max] pairs
@@ -78,6 +80,33 @@ export const PropFirmFiltersSidebar = ({
   const [loyaltyPointsRange, setLoyaltyPointsRange] = useState<[number, number]>(
     filters.loyaltyPointsRange || [0, 5000],
   )
+
+  // Effect to update sidebar height based on parent container
+  useEffect(() => {
+    const updateSidebarHeight = () => {
+      if (!containerRef.current || !sidebarRef.current) return
+
+      if (!sidebarExpanded) {
+        // When collapsed, set height to 100% of parent
+        const parentHeight = containerRef.current.parentElement?.clientHeight || window.innerHeight
+        sidebarRef.current.style.height = `${parentHeight}px`
+      } else {
+        // When expanded, let it be auto height
+        sidebarRef.current.style.height = "auto"
+      }
+    }
+
+    // Initial update
+    updateSidebarHeight()
+
+    // Update on window resize
+    window.addEventListener("resize", updateSidebarHeight)
+
+    // Cleanup
+    return () => {
+      window.removeEventListener("resize", updateSidebarHeight)
+    }
+  }, [sidebarExpanded])
 
   // Static filter options inside the component
   const staticChallengeTypes = [
@@ -396,11 +425,9 @@ export const PropFirmFiltersSidebar = ({
   }
 
   return (
-    <div
-      className="relative"
-      style={{ position: "sticky", top: "90px", height: "fit-content", alignSelf: "flex-start" }}
-    >
+    <div ref={containerRef} className="relative" style={{ position: "sticky", top: "90px", alignSelf: "flex-start" }}>
       <div
+        ref={sidebarRef}
         className={`${
           sidebarExpanded ? "w-[300px] p-6" : "w-[30px]"
         } transition-all duration-300 ease-in-out overflow-hidden bg-[#edb900] text-[#0f0f0f] p-1 rounded-t-lg lg:rounded-tr-none lg:rounded-l-lg`}
@@ -414,7 +441,7 @@ export const PropFirmFiltersSidebar = ({
           {sidebarExpanded ? <ChevronLeft size={16} /> : <SlidersHorizontal size={16} />}
         </button>
 
-        <div className={`${!sidebarExpanded ? "opacity-0" : "opacity-100"} transition-opacity duration-200`}>
+        <div className={`${!sidebarExpanded ? "opacity-0" : "opacity-100"} transition-opacity duration-200 h-full`}>
           <div className="mb-6">
             <div className="flex bg-[#1a1a1a] p-1 rounded-lg mb-4">
               <button
@@ -446,7 +473,7 @@ export const PropFirmFiltersSidebar = ({
               <h2 className="text-xl">Filters</h2>
               {hasActiveFilters && (
                 <button
-                  className="text-sm font-[balboa] hover:underline flex items-center gap-1"
+                  className="text-sm font-medium hover:underline flex items-center gap-1"
                   // Update the Clear All button onClick handler
                   onClick={() =>
                     onFilterChange({
