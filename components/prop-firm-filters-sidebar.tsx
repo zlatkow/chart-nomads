@@ -424,13 +424,29 @@ export const PropFirmFiltersSidebar = ({
     )
   }
 
+  // Replace the entire return statement with this updated implementation
   return (
-    <div ref={containerRef} className="relative" style={{ position: "sticky", top: "90px", alignSelf: "flex-start" }}>
+    <div
+      ref={containerRef}
+      className="relative"
+      style={{
+        position: "sticky",
+        top: "90px",
+        alignSelf: "stretch",
+        height: sidebarExpanded ? "auto" : "100%",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
       <div
         ref={sidebarRef}
         className={`${
           sidebarExpanded ? "w-[300px] p-6" : "w-[30px]"
-        } transition-all duration-300 ease-in-out overflow-hidden bg-[#edb900] text-[#0f0f0f] p-1 rounded-t-lg lg:rounded-tr-none lg:rounded-l-lg`}
+        } transition-all duration-300 ease-in-out overflow-hidden bg-[#edb900] text-[#0f0f0f] p-1 rounded-t-lg lg:rounded-tr-none lg:rounded-l-lg flex-grow`}
+        style={{
+          height: sidebarExpanded ? "auto" : "100%",
+          minHeight: sidebarExpanded ? "auto" : "calc(100vh - 90px)",
+        }}
       >
         {/* Toggle button for sidebar - positioned on the right side */}
         <button
@@ -474,7 +490,6 @@ export const PropFirmFiltersSidebar = ({
               {hasActiveFilters && (
                 <button
                   className="text-sm font-medium hover:underline flex items-center gap-1"
-                  // Update the Clear All button onClick handler
                   onClick={() =>
                     onFilterChange({
                       challengeTypes: undefined,
