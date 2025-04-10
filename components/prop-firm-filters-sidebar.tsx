@@ -440,7 +440,7 @@ export const PropFirmFiltersSidebar = ({
               <h2 className="text-xl">Filters</h2>
               {hasActiveFilters && (
                 <button
-                  className="text-sm font-medium hover:underline flex items-center gap-1"
+                  className="text-sm font-[balboa] hover:underline flex items-center gap-1"
                   // Update the Clear All button onClick handler
                   onClick={() =>
                     onFilterChange({
@@ -758,7 +758,7 @@ export const PropFirmFiltersSidebar = ({
           <div className="mt-6">
             <button
               onClick={onSearch}
-              className="w-full py-2 bg-[#0f0f0f] text-[#edb900] rounded-[10px] flex items-center justify-center gap-2 hover:bg-[#2a2a2a] transition-colors"
+              className="w-full py-2 bg-[#0f0f0f] text-sm text-[#edb900] rounded-[10px] flex items-center justify-center gap-2 hover:bg-[#2a2a2a] transition-colors"
             >
               <Search size={18} />
               {filters.searchMode === "quick" ? "Search" : "Search"}
