@@ -30,6 +30,12 @@ export interface FilterOptions {
   challengeType?: string
   accountSize?: string
   assetClass?: string
+  priceRange?: [number, number]
+  accountSizeRange?: [number, number]
+  profitSplitRange?: [number, number]
+  profitTargetRange?: [number, number]
+  maxDailyLossRange?: [number, number]
+  maxDrawdownRange?: [number, number]
 }
 
 export interface PropFirmOffer {
@@ -273,6 +279,62 @@ export default function PropFirmComparison() {
       // Implement asset class filtering when data is available
     }
 
+    // Price range filter
+    if (filters.priceRange) {
+      const price = Number.parseFloat(offer.price) || 0
+      if (price < filters.priceRange[0] || price > filters.priceRange[1]) {
+        return false
+      }
+    }
+
+    // Account size range filter
+    if (filters.accountSizeRange) {
+      // Extract numeric value from account size (e.g., "10k" -> 10000)
+      const sizeStr = offer.accountSize.toLowerCase()
+      let size = 0
+      if (sizeStr.includes("k")) {
+        size = Number.parseFloat(sizeStr.replace("k", "")) * 1000
+      } else {
+        size = Number.parseFloat(sizeStr) || 0
+      }
+
+      if (size < filters.accountSizeRange[0] || size > filters.accountSizeRange[1]) {
+        return false
+      }
+    }
+
+    // Profit split range filter
+    if (filters.profitSplitRange) {
+      const profitSplit = offer.profitSplitValue || 0
+      if (profitSplit < filters.profitSplitRange[0] || profitSplit > filters.profitSplitRange[1]) {
+        return false
+      }
+    }
+
+    // Profit target range filter
+    if (filters.profitTargetRange) {
+      const profitTarget = Number.parseFloat(offer.profitTarget) || 0
+      if (profitTarget < filters.profitTargetRange[0] || profitTarget > filters.profitTargetRange[1]) {
+        return false
+      }
+    }
+
+    // Max daily loss range filter
+    if (filters.maxDailyLossRange) {
+      const maxDailyLoss = Number.parseFloat(offer.maxDailyLoss) || 0
+      if (maxDailyLoss < filters.maxDailyLossRange[0] || maxDailyLoss > filters.maxDailyLossRange[1]) {
+        return false
+      }
+    }
+
+    // Max drawdown range filter
+    if (filters.maxDrawdownRange) {
+      const maxDrawdown = Number.parseFloat(offer.maxTotalDrawdown) || 0
+      if (maxDrawdown < filters.maxDrawdownRange[0] || maxDrawdown > filters.maxDrawdownRange[1]) {
+        return false
+      }
+    }
+
     return true
   })
 
@@ -440,11 +502,11 @@ export default function PropFirmComparison() {
   const uniqueFirms = Array.from(new Map(propFirms.map((offer) => [offer.firmId, offer])).values())
 
   // State for controlling the number of items to show
-  const [itemsToShow, setItemsToShow] = useState(10)
+  const [itemsToShow, setItemsToShow] = useState(25)
 
   // Function to handle loading more items
   const handleLoadMore = () => {
-    setItemsToShow((prevItemsToShow) => prevItemsToShow + 10)
+    setItemsToShow((prevItemsToShow) => prevItemsToShow + 25)
   }
 
   // Slice the sorted offers based on the number of items to show
@@ -933,7 +995,7 @@ export default function PropFirmComparison() {
                   <div className="flex justify-center mt-8">
                     <button
                       onClick={handleLoadMore}
-                      className="bg-[#edb900] text-[#0f0f0f] font-medium px-3 py-1 rounded-[10px] text-sm hover:bg-[#c99e00] transition-colors"
+                      className="bg-[#edb900] text-[#0f0f0f] font-medium px-8 py-3 rounded-md hover:bg-[#c99e00] transition-colors"
                     >
                       Load More
                     </button>
