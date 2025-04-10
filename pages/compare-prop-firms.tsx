@@ -210,15 +210,22 @@ export default function PropFirmComparison() {
   // Handle search
   const handleSearch = () => {
     setSearchTerm(filters.searchTerm)
-  }
 
-  // Scroll to results section after a short delay to ensure the DOM has updated
-  setTimeout(() => {
-    const resultsSection = document.querySelector(".table-wrapper")
-    if (resultsSection) {
-        resultsSection.scrollIntoView({ behavior: "smooth", block: "start" })
-    }
-    }, 100)  
+    // Improved scrolling with better positioning
+    setTimeout(() => {
+      const resultsSection = document.querySelector(".sticky-table-container")
+      if (resultsSection) {
+        const headerOffset = 100
+        const elementPosition = resultsSection.getBoundingClientRect().top
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: "smooth",
+        })
+      }
+    }, 100)
+  }
 
   // Toggle company selection for filtering
   const toggleCompanySelection = (firmId: number) => {
@@ -782,26 +789,6 @@ export default function PropFirmComparison() {
                               PROFIT SPLIT
                             </span>
                             {sortColumn === "profitSplit" ? (
-                              sortDirection === "asc" ? (
-                                <ChevronUp size={12} className="text-[#edb900]" />
-                              ) : (
-                                <ChevronDown size={12} className="text-[#edb900]" />
-                              )
-                            ) : (
-                              <ChevronDown size={12} className="opacity-50" />
-                            )}
-                          </button>
-                          <div className="absolute right-0 top-1/4 h-1/2 w-px bg-[#333]"></div>
-                        </th>
-                        <th className="p-3 text-center relative">
-                          <button
-                            onClick={() => handleSort("payoutFrequency")}
-                            className="flex items-center justify-center gap-1 w-full hover:text-[#edb900] transition-colors"
-                          >
-                            <span className="text-[10px] font-[balboa] uppercase font-normal tracking-wider">
-                              PAYOUT FREQ.
-                            </span>
-                            {sortColumn === "payoutFrequency" ? (
                               sortDirection === "asc" ? (
                                 <ChevronUp size={12} className="text-[#edb900]" />
                               ) : (

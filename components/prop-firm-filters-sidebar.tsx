@@ -418,7 +418,10 @@ export const PropFirmFiltersSidebar = ({
           <div className="mb-6">
             <div className="flex bg-[#1a1a1a] p-1 rounded-lg mb-4">
               <button
-                onClick={() => onFilterChange({ searchMode: "quick" })}
+                onClick={(e) => {
+                  e.preventDefault()
+                  onFilterChange({ searchMode: "quick" })
+                }}
                 className={`flex-1 py-2 px-2 rounded-md text-center transition-all duration-200 font-medium text-xs ${
                   filters.searchMode === "quick" ? "bg-[#edb900] text-[#0f0f0f]" : "text-[#edb900] hover:bg-[#1f1f1f]"
                 }`}
@@ -426,7 +429,10 @@ export const PropFirmFiltersSidebar = ({
                 Quick Search
               </button>
               <button
-                onClick={() => onFilterChange({ searchMode: "advanced" })}
+                onClick={(e) => {
+                  e.preventDefault()
+                  onFilterChange({ searchMode: "advanced" })
+                }}
                 className={`flex-1 py-2 px-2 rounded-md text-center transition-all duration-200 font-medium text-xs ${
                   filters.searchMode === "advanced"
                     ? "bg-[#edb900] text-[#0f0f0f]"
@@ -759,16 +765,25 @@ export const PropFirmFiltersSidebar = ({
             <button
               onClick={() => {
                 onSearch()
-                // Scroll to results section
-                const resultsSection = document.querySelector(".table-wrapper")
-                if (resultsSection) {
-                  resultsSection.scrollIntoView({ behavior: "smooth", block: "start" })
-                }
+                // Scroll to results section with better positioning
+                setTimeout(() => {
+                  const resultsSection = document.querySelector(".sticky-table-container")
+                  if (resultsSection) {
+                    const headerOffset = 100
+                    const elementPosition = resultsSection.getBoundingClientRect().top
+                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset
+
+                    window.scrollTo({
+                      top: offsetPosition,
+                      behavior: "smooth",
+                    })
+                  }
+                }, 100)
               }}
               className="w-full py-2 bg-[#0f0f0f] text-sm text-[#edb900] rounded-[10px] flex items-center justify-center gap-2 hover:bg-[#2a2a2a] transition-colors"
             >
               <Search size={18} />
-              {filters.searchMode === "quick" ? "Search" : "Search"}
+              Search
             </button>
           </div>
         </div>
