@@ -532,7 +532,7 @@ export default function PropFirmComparison() {
       <div className="w-full">
         <Navbar />
         <Noise />
-        <div className="relative container max-w-[1280px] mt-[200px] mb-[100px] mx-auto px-4 pt-[50px] pb-[50px] z-50 overflow-hidden">
+        <div className="relative container max-w-[1280px] mt-[200px] mb-[100px] mx-auto px-4 pt-[50px] pb-[50px] z-50">
           <h1 className="text-7xl text-center mb-8 text-white mb-[100px]">COMPARE ALL PROP FIRMS IN ONE PLACE</h1>
 
           <div className="flex flex-col lg:flex-row relative">

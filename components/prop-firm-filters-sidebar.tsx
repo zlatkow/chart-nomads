@@ -403,7 +403,7 @@ export const PropFirmFiltersSidebar = ({
 
   // Update the container and sidebar elements using the new CSS classes
   return (
-    <div className="sidebar-wrapper">
+    <div className="sidebar-container">
       <div className={`sidebar ${sidebarExpanded ? "expanded" : "collapsed"}`}>
         {/* Toggle button for sidebar */}
         <button
