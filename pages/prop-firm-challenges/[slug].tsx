@@ -312,7 +312,7 @@ export default function PropFirmChallengePage({
       <main className="relative container z-20 max-w-[1280px] mt-[100px] mb-[100px] mx-auto">
         <div className="flex items-center mb-8">
           <Link href="/" passHref>
-            <Button variant="ghost" size="sm" className="text-gray-300 hover:text-white">
+            <Button variant="ghost" size="sm" className="text-gray-300 hover:text-white hover:bg-[#1A1A1A]">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back
             </Button>
