@@ -582,8 +582,8 @@ export default function PropFirmChallengePage({
                       </svg>
                     </div>
                     <p className="text-sm text-gray-300">
-                      Note: In order to receive Loyalty Points you must upload documentation of your purchase through{" "}
-                      <span className="text-[#edb900] font-medium">PropFirmFinder.com</span> within your user dashboard.
+                      Note: While your loyalty points or cashback are updated automatically after purchase, we ask you to upload proofs so you can use them later. You can do this on{" "}
+                      <span className="text-[#edb900] font-medium">ChartNomads.com</span> within your user dashboard.
                     </p>
                   </div>
 
