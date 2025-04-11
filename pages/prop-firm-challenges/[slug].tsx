@@ -18,6 +18,8 @@ import { Toaster } from "@/components/ui/toaster"
 import Tippy from "@tippyjs/react"
 import "tippy.js/dist/tippy.css"
 import "tippy.js/themes/light.css"
+import Navbar from "@/components/Navbar"
+import Noise from "@/components/Noise"
 
 // Using the same FontAwesome imports as in AllPropFirms
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -271,8 +273,10 @@ export default function PropFirmChallengePage({
 
   return (
     <div className="min-h-screen bg-[#0f0f0f] text-white py-8 px-4">
+      <Navbar />
+      <Noise />
       {/* Main Content */}
-      <main className="container mx-auto">
+      <main className="container max-w-[1280px] mx-auto">
         <div className="flex items-center mb-8">
           <Link href="/" passHref>
             <Button variant="ghost" size="sm" className="text-gray-300 hover:text-white">
