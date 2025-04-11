@@ -531,20 +531,9 @@ export default function PropFirmChallengePage({
 
           {/* Right Column - Checkout Form */}
           <div>
-            <Card className="bg-[#0f0f0f] border-[#1a1a1a] sticky top-6">
+            <Card className="bg-[#0f0f0f] border-[#1a1a1a] sticky top-[100px]">
               <CardContent className="p-6">
                 <div className="space-y-6">
-                  {/*<div>
-                    <h3 className="font-medium mb-2 text-white">
-                      Would you like to receive loyalty points on this purchase?
-                    </h3>
-                    <div className="flex gap-3">
-                      <Button className="bg-[#edb900] text-[#0f0f0f] hover:bg-[#edb900]/90 px-6">Yes</Button>
-                      <Button variant="outline" className="border-[#1a1a1a] hover:bg-[#1a1a1a] px-6 text-white">
-                        No
-                      </Button>
-                    </div>
-                  </div>*/}
                   <div>
                     <h3 className="font-medium mb-2 text-white">
                       Would you like to receive loyalty points on this purchase?
@@ -600,19 +589,6 @@ export default function PropFirmChallengePage({
 
                   <Separator className="bg-[#1a1a1a]" />
 
-                  {/*<div className="space-y-4">
-                    <div>
-                      <Label htmlFor="email" className="text-sm font-medium text-white">
-                        Email<span className="text-[#edb900]">*</span>
-                      </Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        placeholder="your.email@example.com"
-                        className="mt-1 bg-[#1a1a1a] border-[#1a1a1a] focus-visible:ring-[#edb900]"
-                      />
-                    </div>
-                  </div>*/}
                   {receiveLoyaltyPoints && (
                     <div className="space-y-4">
                       <div>
