@@ -2,7 +2,7 @@
 
 /* eslint-disable */
 import { useRouter } from "next/router"
-import { useState } from "react"
+import { useState, useContext } from "react"
 import type { GetServerSideProps } from "next"
 import { ArrowLeft, Check, Copy, Info, Calendar, ChevronRight } from "lucide-react"
 import Image from "next/image"
@@ -22,6 +22,7 @@ import Navbar from "@/components/Navbar"
 import Noise from "@/components/Noise"
 import { SignedIn, SignedOut } from "@clerk/nextjs"
 import ChallengeDetailsSidebar from "@/components/challenge-details-sidebar"
+import { ModalContext } from "./_app"
 
 // Using the same FontAwesome imports as in AllPropFirms
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -172,6 +173,7 @@ export default function PropFirmChallengePage({
   const [receiveLoyaltyPoints, setReceiveLoyaltyPoints] = useState(true)
   const [email, setEmail] = useState("")
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const { setShowLoginModal } = useContext(ModalContext)
 
   // If the page is still loading the slug, show a simple loading state
   if (router.isFallback) {
@@ -196,10 +198,7 @@ export default function PropFirmChallengePage({
 
   // Handle login modal
   const handleLoginModalOpen = () => {
-    toast({
-      title: "Authentication Required",
-      description: "Please sign in to like this prop firm.",
-    })
+    setShowLoginModal(true)
   }
 
   // Handle copy code
