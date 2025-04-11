@@ -317,7 +317,7 @@ export default function PropFirmChallengePage({
               Back
             </Button>
           </Link>
-          <h1 className="text-2xl font-bold ml-4">Finish Checkout</h1>
+          <h1 className="text-2xl ml-4">Finish Checkout</h1>
         </div>
 
         <div className="grid md:grid-cols-[1fr_400px] gap-8">
@@ -637,7 +637,7 @@ export default function PropFirmChallengePage({
                         id="offers"
                         className="mt-1 text-[#edb900] border-gray-600 data-[state=checked]:bg-[#edb900] data-[state=checked]:text-[#0f0f0f]"
                       />
-                      <Label htmlFor="offers" className="text-sm text-gray-300">
+                      <Label htmlFor="offers" className="text-xs text-gray-300">
                         I would like to receive exclusive offers and valuable updates.
                       </Label>
                     </div>
@@ -649,7 +649,7 @@ export default function PropFirmChallengePage({
                         defaultChecked
                         onCheckedChange={(checked) => setTermsAccepted(checked as boolean)}
                       />
-                      <Label htmlFor="terms" className="text-sm text-gray-300">
+                      <Label htmlFor="terms" className="text-xs text-gray-300">
                         By checking out, I agree to this website's{" "}
                         <Link href="#" className="text-[#edb900] hover:underline">
                           Terms of Service
@@ -677,7 +677,7 @@ export default function PropFirmChallengePage({
                   >
                     <div className="w-full">
                       <Button
-                        className="w-full bg-[#edb900] text-[#0f0f0f] hover:bg-[#edb900]/90 py-6 text-base font-bold"
+                        className="w-full bg-[#edb900] text-[#0f0f0f] hover:bg-[#edb900]/90 py-6 text-base"
                         disabled={!termsAccepted || (receiveLoyaltyPoints && email.trim() === "")}
                         onClick={() => {
                           // Handle checkout logic here
