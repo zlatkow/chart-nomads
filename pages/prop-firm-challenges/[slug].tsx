@@ -1,10 +1,12 @@
-/* eslint-disable */
 "use client"
 
+/* eslint-disable */
+import { useRouter } from "next/router"
 import { useState } from "react"
+import type { GetServerSideProps } from "next"
+import { ArrowLeft, Check, Copy, Info, Calendar, ChevronRight } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowLeft, Check, Copy, Info, Calendar, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -18,7 +20,13 @@ import "tippy.js/dist/tippy.css"
 import "tippy.js/themes/light.css"
 import Navbar from "@/components/Navbar"
 import Noise from "@/components/Noise"
-import PropFirmCard from "@/components/prop-firm-card"
+import { SignedIn, SignedOut } from "@clerk/nextjs"
+
+// Using the same FontAwesome imports as in AllPropFirms
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons"
+import { faHeart as solidHeart } from "@fortawesome/free-solid-svg-icons"
+import { faStar } from "@fortawesome/free-solid-svg-icons"
 
 // Define types for our data
 interface PropFirm {
@@ -57,80 +65,113 @@ interface Discount {
   cashback_bonus: string | null
 }
 
-// Update the PropFirmChallengePage component to properly handle the slug parameter
+// Get server side props to fetch the challenge data
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const { slug } = context.params || {}
+
+  try {
+    // Get the absolute URL for the API endpoint
+    const protocol = context.req.headers["x-forwarded-proto"] || "http"
+    const host = context.req.headers.host
+    const baseUrl = `${protocol}://${host}`
+
+    console.log(`Fetching challenge data for slug: ${slug}`)
+
+    // Use a direct approach instead of relying on the API
+    // This is a temporary solution to bypass the API issue
+
+    // Sample challenge data - replace with actual data from your database
+    const challenge = {
+      id: 1,
+      slug: slug,
+      program_name: "Alpha Pro - 2-Step 100K",
+      size: "100K",
+      steps: "2 Steps",
+      discount_price: 397.6,
+      original_price: 497.0,
+      loyalty_points: 125,
+      prop_firm_id: 1,
+      prop_firm: {
+        id: 1,
+        propfirm_name: "BrightFunded",
+        category: "Gold",
+        rating: 4.6,
+        reviews_count: 4,
+        likes: 35,
+        logo_url: "/placeholder.svg?height=40&width=40",
+        brand_colour: "#0f0f0f",
+      },
+    }
+
+    // Sample discount data
+    const discounts = {
+      limitedTimeOffers: [
+        {
+          id: 1,
+          discount_type: "Limited Time",
+          description: "20%OFF",
+          discount_code: "WELCOME20",
+          no_code: false,
+          expiry_date: "2025-05-30",
+          cashback_bonus: "5% cashback",
+        },
+      ],
+      exclusiveOffers: [
+        {
+          id: 2,
+          discount_type: "Exclusive",
+          description: "10%OFF",
+          discount_code: "EXCLUSIVE10",
+          no_code: false,
+          expiry_date: "2025-06-15",
+          cashback_bonus: null,
+        },
+      ],
+      reviewEarnOffers: [
+        {
+          id: 3,
+          discount_type: "Review & earn",
+          description: "15%OFF",
+          discount_code: "REVIEW15",
+          no_code: false,
+          expiry_date: "2025-07-01",
+          cashback_bonus: "10% cashback",
+        },
+      ],
+    }
+
+    return {
+      props: {
+        challenge,
+        discounts,
+      },
+    }
+  } catch (error) {
+    console.error("Error fetching challenge:", error)
+    return { notFound: true }
+  }
+}
+
 export default function PropFirmChallengePage({
-  params,
+  challenge,
+  discounts,
 }: {
-  params: { slug: string }
+  challenge: Challenge
+  discounts: {
+    limitedTimeOffers: Discount[]
+    exclusiveOffers: Discount[]
+    reviewEarnOffers: Discount[]
+  }
 }) {
   const [showDetails, setShowDetails] = useState(false)
   const [copiedCodes, setCopiedCodes] = useState<Record<string, boolean>>({})
   const { toast } = useToast()
+  const router = useRouter()
   const [userLikedFirms, setUserLikedFirms] = useState<Set<number>>(new Set())
-  const [isLoading, setIsLoading] = useState(false)
 
-  // Use the slug from params directly
-  const slug = params.slug
-
-  // Sample challenge data - in a real app, this would come from an API
-  const challenge: Challenge = {
-    id: 1,
-    slug: slug,
-    program_name: "Alpha Pro - 2-Step 100K",
-    size: "100K",
-    steps: "2 Steps",
-    discount_price: 397.6,
-    original_price: 497.0,
-    loyalty_points: 125,
-    prop_firm_id: 1,
-    prop_firm: {
-      id: 1,
-      propfirm_name: "BrightFunded",
-      category: "Gold",
-      rating: 4.6,
-      reviews_count: 4,
-      likes: 35,
-      logo_url: "/placeholder.svg?height=40&width=40",
-      brand_colour: "#0f0f0f",
-      slug: "brightfunded",
-    },
-  }
-
-  // Sample discount data
-  const discounts = {
-    limitedTimeOffers: [
-      {
-        id: 1,
-        discount_type: "Limited Time",
-        description: "20%OFF",
-        discount_code: "WELCOME20",
-        no_code: false,
-        expiry_date: "2025-05-30",
-        cashback_bonus: "5% cashback",
-      },
-    ],
-    exclusiveOffers: [
-      {
-        id: 2,
-        discount_type: "Exclusive",
-        description: "10%OFF",
-        discount_code: "EXCLUSIVE10",
-        no_code: false,
-        expiry_date: "2025-06-15",
-        cashback_bonus: null,
-      },
-    ],
-    reviewEarnOffers: [
-      {
-        id: 3,
-        discount_type: "Review & earn",
-        description: "15%OFF",
-        discount_code: "REVIEW15",
-        no_code: false,
-        expiry_date: "2025-07-01",
-        cashback_bonus: "10% cashback",
-      },
-    ],
+  // If the page is still loading the slug, show a simple loading state
+  if (router.isFallback) {
+    return <div className="min-h-screen bg-[#0f0f0f] text-white flex items-center justify-center">Loading...</div>
   }
 
   const propFirm = challenge.prop_firm
@@ -261,7 +302,7 @@ export default function PropFirmChallengePage({
       {/* Main Content */}
       <main className="relative container z-20 max-w-[1280px] mt-[200px] mb-[100px] mx-auto">
         <div className="flex items-center mb-8">
-          <Link href="/prop-firms" passHref>
+          <Link href="/" passHref>
             <Button variant="ghost" size="sm" className="text-gray-300 hover:text-white">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back
@@ -275,13 +316,94 @@ export default function PropFirmChallengePage({
           <div>
             <Card className="bg-[#0f0f0f] border-[#1a1a1a]">
               <CardContent className="p-6">
-                {/* Company Card - Using the PropFirmCard component */}
-                <PropFirmCard
-                  firm={propFirm}
-                  userLikedFirms={userLikedFirms}
-                  handleLikeToggle={handleLikeToggle}
-                  handleLoginModalOpen={handleLoginModalOpen}
-                />
+                {/* Company Card - Using the prop firm card component from the first snippet */}
+                <div
+                  key={propFirm.id}
+                  className="z-50 p-4 shadow-lg relative bg-[rgba(255,255,255,0.03)] rounded-[10px] 
+                               hover:bg-[#0f0f0f] py-7 hover:bg-gradient-to-r 
+                               hover:from-[rgba(237,185,0,0.5)] hover:to-[rgba(255,255,255,0.10)] 
+                               transition-transform duration-200 hover:scale-[1.03] cursor-pointer
+                               border border-[#2a2a2a]"
+                >
+                  <div className="flex">
+                    <Tippy
+                      content={
+                        <span className="font-medium">
+                          We use AI to categorize all the companies. You can learn more on our Evaluation process page.
+                        </span>
+                      }
+                      placement="top"
+                      delay={[100, 0]}
+                      className="z-50"
+                      theme="custom" // Apply the custom theme
+                    >
+                      <span
+                        className={`absolute top-3 left-3 px-[5px] border text-xs rounded-[10px] font-medium 
+                          ${propFirm.category === "Gold" ? "text-[#efbf04] border-[#efbf04]" : ""}
+                          ${propFirm.category === "Platinum" ? "text-[#D9D9D9] border-[#D9D9D9]" : ""}
+                          ${propFirm.category === "Diamond" ? "text-[#c8bfe7] border-[#c8bfe7]" : ""}
+                          ${propFirm.category === "Silver" ? "text-[#c4c4c4] border-[#c4c4c4]" : ""}
+                          ${propFirm.category === "Copper" ? "text-[#c68346] border-[#c68346]" : ""}`}
+                      >
+                        {propFirm.category}
+                      </span>
+                    </Tippy>
+                    <SignedOut>
+                      <button
+                        onClick={() => handleLoginModalOpen()}
+                        className="absolute top-3 right-3 hover:animate-[heartbeat_1.5s_infinite_ease-in-out] z-60"
+                        style={{ color: "rgba(237, 185, 0, 0.3)" }}
+                      >
+                        <FontAwesomeIcon icon={regularHeart} style={{ fontSize: "25px" }} />
+                      </button>
+                    </SignedOut>
+
+                    <SignedIn>
+                      <button
+                        onClick={() => handleLikeToggle(propFirm.id)}
+                        className={`absolute top-3 right-3 transition-all duration-200 ${
+                          userLikedFirms.has(propFirm.id)
+                            ? "text-[#EDB900] scale-105 hover:animate-[heartbeat_1.5s_infinite_ease-in-out]"
+                            : "text-[rgba(237,185,0,0.3)] hover:text-[#EDB900] hover:animate-[heartbeat_1.5s_infinite_ease-in-out]"
+                        }`}
+                      >
+                        <FontAwesomeIcon
+                          icon={userLikedFirms.has(propFirm.id) ? solidHeart : regularHeart}
+                          className="text-[25px]"
+                        />
+                      </button>
+                    </SignedIn>
+                  </div>
+                  <Link href={`/prop-firms/${propFirm.slug || ""}`} passHref>
+                    {/* Firm Logo & Info */}
+                    <div className="flex justify-between">
+                      <div
+                        className="w-20 h-20 mb-2 flex items-center justify-center rounded-[10px] p-1 mt-[50px]"
+                        style={{ backgroundColor: propFirm.brand_colour }}
+                      >
+                        <Image
+                          src={propFirm.logo_url || "/placeholder.svg?height=40&width=40"}
+                          alt={propFirm.propfirm_name}
+                          width={48}
+                          height={40}
+                          style={{ maxHeight: "40px", width: "auto" }}
+                        />
+                      </div>
+
+                      <div className="block mt-9 min-w-[150px] justify-center">
+                        <h3 className="text-2xl text-center">{propFirm.propfirm_name}</h3>
+                        <p className="text-center text-2xl text-[#EDB900]">
+                          <FontAwesomeIcon icon={faStar} className="text-lg" />
+                          <span className="text-white"> {propFirm.rating}</span>
+                        </p>
+                        <p className="text-center text-xs text-black bg-yellow-500 px-2 py-[5px] rounded-[8px] mt-2 min-w-[80px] w-fit mx-auto">
+                          {propFirm.reviews_count} reviews
+                        </p>
+                        <p className="absolute top-4 right-[45px] text-center text-xs">{propFirm.likes} Likes</p>
+                      </div>
+                    </div>
+                  </Link>
+                </div>
 
                 {/* Challenge Details Section - Creative design with brand colors */}
                 <div className="relative bg-gradient-to-br from-[#0f0f0f] via-[#1a1a1a] to-[#0f0f0f] rounded-xl p-6 mb-6 overflow-hidden border border-[#2a2a2a]">
