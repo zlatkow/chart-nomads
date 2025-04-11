@@ -66,20 +66,34 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const { slug } = context.params || {}
 
   try {
-    // Fetch all challenges from your API
-    const res = await fetch("/api/prop-firm-challenges")
+    // Get the absolute URL for the API endpoint
+    const protocol = context.req.headers["x-forwarded-proto"] || "http"
+    const host = context.req.headers.host
+    const baseUrl = `${protocol}://${host}`
+
+    console.log(`Fetching challenge data for slug: ${slug}`)
+    console.log(`API URL: ${baseUrl}/api/prop-firm-challenges`)
+
+    // Fetch all challenges from your API with absolute URL
+    const res = await fetch(`${baseUrl}/api/prop-firm-challenges`)
     const data = await res.json()
 
+    console.log(`API response:`, data)
+
     if (!data.challenges) {
+      console.error("No challenges found in API response")
       return { notFound: true }
     }
 
     // Find the challenge with the matching slug
-    const challenge = data.challenges.find((c: Challenge) => c.slug === slug)
+    const challenge = data.challenges.find((c: any) => c.slug === slug)
 
     if (!challenge) {
+      console.error(`Challenge with slug "${slug}" not found`)
       return { notFound: true }
     }
+
+    console.log(`Found challenge:`, challenge)
 
     // Sample discount data - replace with actual data from your API if available
     const discounts = {
