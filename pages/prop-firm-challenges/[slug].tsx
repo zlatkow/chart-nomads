@@ -581,7 +581,7 @@ export default function PropFirmChallengePage({
                         <line x1="12" y1="16" x2="12.01" y2="16"></line>
                       </svg>
                     </div>
-                    <p className="text-sm text-gray-300">
+                    <p className="text-xs text-gray-300">
                       Note: While your loyalty points or cashback are updated automatically after purchase, we ask you to upload proofs so you can use them later. You can do this on{" "}
                       <span className="text-[#edb900] font-medium">ChartNomads.com</span> within your user dashboard.
                     </p>
