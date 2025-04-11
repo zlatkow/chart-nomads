@@ -320,11 +320,11 @@ export default function PropFirmChallengePage({
                 {/* Company Card - Using the prop firm card component with fixed width */}
                 <div
                   key={propFirm.id}
-                  className="z-50 p-4 shadow-lg relative bg-[rgba(255,255,255,0.03)] rounded-[10px] 
-             hover:bg-[#0f0f0f] py-7 hover:bg-gradient-to-r 
+                  className="z-50 px-4 shadow-lg relative bg-[rgba(255,255,255,0.03)] rounded-[10px] 
+             hover:bg-[#0f0f0f] py-3 hover:bg-gradient-to-r 
              hover:from-[rgba(237,185,0,0.5)] hover:to-[rgba(255,255,255,0.10)] 
              transition-transform duration-200 hover:scale-[1.03] cursor-pointer
-             border border-[#2a2a2a] w-[350px]"
+             border border-[#2a2a2a] w-[300px]"
                 >
                   <div className="flex">
                     <Tippy
@@ -406,7 +406,6 @@ export default function PropFirmChallengePage({
                   </Link>
                 </div>
 
-                {/* Challenge Details Section - Creative design with brand colors */}
                 {/* Challenge Details Section - With border instead of gradient */}
                 <div className="relative bg-[#0f0f0f] rounded-xl p-6 mb-6 overflow-hidden border border-[#2a2a2a] mt-6">
                   {/* Gold accent line */}
@@ -417,7 +416,7 @@ export default function PropFirmChallengePage({
                     <Button
                       variant="outline"
                       size="sm"
-                      className="bg-[#edb900] text-[#0f0f0f] hover:bg-[#edb900]/90 rounded-md px-4 flex items-center gap-1"
+                      className="bg-[#edb900] border border-[#edb900] text-[#0f0f0f] hover:bg-[#edb900]/90 rounded-md px-4 flex items-center gap-1"
                     >
                       Show All Details
                       <ChevronRight className="h-4 w-4" />
@@ -516,56 +515,6 @@ export default function PropFirmChallengePage({
                       )}
                   </CardContent>
                 </Card>
-              </CardContent>
-            </Card>
-
-            {/* Offers Component - Restructured to show all types vertically */}
-            <Card className="bg-[#0f0f0f] border-[#1a1a1a] mt-6">
-              <CardContent className="p-6">
-                <h3 className="font-medium mb-4 text-white">Promotions Available for this Account</h3>
-
-                {/* Limited Time Offers Section */}
-                {limitedTimeOffers.length > 0 && (
-                  <div className="mb-8">
-                    <h4 className="text-lg font-medium text-[#edb900] mb-4 flex items-center">
-                      <span className="bg-[#edb900] text-black px-3 py-1 rounded-md mr-2">Limited Time Offers</span>
-                      <span className="text-sm text-gray-400">(Showing {limitedTimeOffers.length} results)</span>
-                    </h4>
-
-                    {limitedTimeOffers.map((offer) => renderDiscountCard(offer))}
-                  </div>
-                )}
-
-                {/* Exclusive Offers Section */}
-                {exclusiveOffers.length > 0 && (
-                  <div className="mb-8">
-                    <h4 className="text-lg font-medium text-white mb-4 flex items-center">
-                      <span className="bg-[#1a1a1a] text-white px-3 py-1 rounded-md mr-2">Exclusive Offers</span>
-                      <span className="text-sm text-gray-400">(Showing {exclusiveOffers.length} results)</span>
-                    </h4>
-
-                    {exclusiveOffers.map((offer) => renderDiscountCard(offer))}
-                  </div>
-                )}
-
-                {/* Review & Earn Offers Section */}
-                {reviewEarnOffers.length > 0 && (
-                  <div>
-                    <h4 className="text-lg font-medium text-white mb-4 flex items-center">
-                      <span className="bg-[#1a1a1a] text-white px-3 py-1 rounded-md mr-2">Review & Earn Offers</span>
-                      <span className="text-sm text-gray-400">(Showing {reviewEarnOffers.length} results)</span>
-                    </h4>
-
-                    {reviewEarnOffers.map((offer) => renderDiscountCard(offer))}
-                  </div>
-                )}
-
-                {/* No offers message */}
-                {limitedTimeOffers.length === 0 && exclusiveOffers.length === 0 && reviewEarnOffers.length === 0 && (
-                  <div className="text-center py-8 text-gray-400">
-                    No promotions are currently available for this challenge.
-                  </div>
-                )}
               </CardContent>
             </Card>
           </div>
