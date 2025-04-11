@@ -401,7 +401,7 @@ export default function PropFirmChallengePage({
                       </div>
 
                       <div className="block mt-9 min-w-[150px] justify-center">
-                        <h3 className="text-2xl text-center">{propFirm.propfirm_name}</h3>
+                        <h3 className="text-2xl text-white text-center">{propFirm.propfirm_name}</h3>
                         <p className="text-center text-2xl text-[#EDB900]">
                           <FontAwesomeIcon icon={faStar} className="text-lg" />
                           <span className="text-white"> {propFirm.rating}</span>
@@ -409,7 +409,7 @@ export default function PropFirmChallengePage({
                         <p className="text-center text-xs text-black bg-yellow-500 px-2 py-[5px] rounded-[8px] mt-2 min-w-[80px] w-fit mx-auto">
                           {propFirm.reviews_count} reviews
                         </p>
-                        <p className="absolute top-4 right-[45px] text-center text-xs">{propFirm.likes} Likes</p>
+                        <p className="absolute top-4 right-[45px] text-center text-xs text-white">{propFirm.likes} Likes</p>
                       </div>
                     </div>
                   </Link>
