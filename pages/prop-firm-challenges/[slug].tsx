@@ -168,6 +168,8 @@ export default function PropFirmChallengePage({
   const { toast } = useToast()
   const router = useRouter()
   const [userLikedFirms, setUserLikedFirms] = useState<Set<number>>(new Set())
+  const [receiveLoyaltyPoints, setReceiveLoyaltyPoints] = useState(true)
+  const [email, setEmail] = useState("")
 
   // If the page is still loading the slug, show a simple loading state
   if (router.isFallback) {
@@ -540,8 +542,24 @@ export default function PropFirmChallengePage({
                       Would you like to receive loyalty points on this purchase?
                     </h3>
                     <div className="flex gap-3">
-                      <Button className="bg-[#edb900] text-[#0f0f0f] hover:bg-[#edb900]/90 px-6">Yes</Button>
-                      <Button variant="outline" className="border-[#edb900] text-[#edb900] hover:bg-[#1a1a1a] px-6">
+                      <Button
+                        onClick={() => setReceiveLoyaltyPoints(true)}
+                        className={
+                          receiveLoyaltyPoints
+                            ? "bg-[#edb900] text-[#0f0f0f] hover:bg-[#edb900]/90 px-6"
+                            : "bg-transparent border border-[#edb900] text-[#edb900] hover:bg-[#1a1a1a] px-6"
+                        }
+                      >
+                        Yes
+                      </Button>
+                      <Button
+                        onClick={() => setReceiveLoyaltyPoints(false)}
+                        className={
+                          !receiveLoyaltyPoints
+                            ? "bg-[#edb900] text-[#0f0f0f] hover:bg-[#edb900]/90 px-6"
+                            : "bg-transparent border border-[#edb900] text-[#edb900] hover:bg-[#1a1a1a] px-6"
+                        }
+                      >
                         No
                       </Button>
                     </div>
@@ -587,7 +605,7 @@ export default function PropFirmChallengePage({
                       />
                     </div>
                   </div>*/}
-                  <SignedOut>
+                  {receiveLoyaltyPoints && (
                     <div className="space-y-4">
                       <div>
                         <Label htmlFor="email" className="text-sm font-medium text-white">
@@ -596,12 +614,14 @@ export default function PropFirmChallengePage({
                         <Input
                           id="email"
                           type="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
                           placeholder="your.email@example.com"
                           className="mt-1 bg-[#1a1a1a] border-[#1a1a1a] focus-visible:ring-[#edb900]"
                         />
                       </div>
                     </div>
-                  </SignedOut>
+                  )}
 
                   <div className="space-y-3">
                     <div className="flex items-start space-x-2">
@@ -634,9 +654,25 @@ export default function PropFirmChallengePage({
                     </div>
                   </div>
 
-                  <Button className="w-full bg-[#edb900] text-[#0f0f0f] hover:bg-[#edb900]/90 py-6 text-base font-bold">
-                    Proceed to checkout
-                  </Button>
+                  <Tippy
+                    content="Please enter your email to receive loyalty points"
+                    disabled={!receiveLoyaltyPoints || (receiveLoyaltyPoints && email.trim() !== "")}
+                    placement="top"
+                    theme="light"
+                  >
+                    <div className="w-full">
+                      <Button
+                        className="w-full bg-[#edb900] text-[#0f0f0f] hover:bg-[#edb900]/90 py-6 text-base font-bold"
+                        disabled={receiveLoyaltyPoints && email.trim() === ""}
+                        onClick={() => {
+                          // Handle checkout logic here
+                          console.log("Proceeding to checkout", { receiveLoyaltyPoints, email })
+                        }}
+                      >
+                        Proceed to checkout
+                      </Button>
+                    </div>
+                  </Tippy>
                 </div>
               </CardContent>
             </Card>
