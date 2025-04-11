@@ -317,13 +317,14 @@ export default function PropFirmChallengePage({
             <Card className="bg-[#0f0f0f] border-[#1a1a1a]">
               <CardContent className="p-6">
                 {/* Company Card - Using the prop firm card component from the first snippet */}
+                {/* Company Card - Using the prop firm card component with fixed width */}
                 <div
                   key={propFirm.id}
                   className="z-50 p-4 shadow-lg relative bg-[rgba(255,255,255,0.03)] rounded-[10px] 
-                               hover:bg-[#0f0f0f] py-7 hover:bg-gradient-to-r 
-                               hover:from-[rgba(237,185,0,0.5)] hover:to-[rgba(255,255,255,0.10)] 
-                               transition-transform duration-200 hover:scale-[1.03] cursor-pointer
-                               border border-[#2a2a2a]"
+             hover:bg-[#0f0f0f] py-7 hover:bg-gradient-to-r 
+             hover:from-[rgba(237,185,0,0.5)] hover:to-[rgba(255,255,255,0.10)] 
+             transition-transform duration-200 hover:scale-[1.03] cursor-pointer
+             border border-[#2a2a2a] w-[350px]"
                 >
                   <div className="flex">
                     <Tippy
@@ -339,11 +340,11 @@ export default function PropFirmChallengePage({
                     >
                       <span
                         className={`absolute top-3 left-3 px-[5px] border text-xs rounded-[10px] font-medium 
-                          ${propFirm.category === "Gold" ? "text-[#efbf04] border-[#efbf04]" : ""}
-                          ${propFirm.category === "Platinum" ? "text-[#D9D9D9] border-[#D9D9D9]" : ""}
-                          ${propFirm.category === "Diamond" ? "text-[#c8bfe7] border-[#c8bfe7]" : ""}
-                          ${propFirm.category === "Silver" ? "text-[#c4c4c4] border-[#c4c4c4]" : ""}
-                          ${propFirm.category === "Copper" ? "text-[#c68346] border-[#c68346]" : ""}`}
+          ${propFirm.category === "Gold" ? "text-[#efbf04] border-[#efbf04]" : ""}
+          ${propFirm.category === "Platinum" ? "text-[#D9D9D9] border-[#D9D9D9]" : ""}
+          ${propFirm.category === "Diamond" ? "text-[#c8bfe7] border-[#c8bfe7]" : ""}
+          ${propFirm.category === "Silver" ? "text-[#c4c4c4] border-[#c4c4c4]" : ""}
+          ${propFirm.category === "Copper" ? "text-[#c68346] border-[#c68346]" : ""}`}
                       >
                         {propFirm.category}
                       </span>
@@ -406,27 +407,20 @@ export default function PropFirmChallengePage({
                 </div>
 
                 {/* Challenge Details Section - Creative design with brand colors */}
-                <div className="relative bg-gradient-to-br from-[#0f0f0f] via-[#1a1a1a] to-[#0f0f0f] rounded-xl p-6 mb-6 overflow-hidden border border-[#2a2a2a]">
+                {/* Challenge Details Section - With border instead of gradient */}
+                <div className="relative bg-[#0f0f0f] rounded-xl p-6 mb-6 overflow-hidden border border-[#2a2a2a] mt-6">
                   {/* Gold accent line */}
-                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#edb900] via-[#c99b00] to-[#edb900]"></div>
-
-                  {/* Gold corner accent */}
-                  <div className="absolute top-0 right-0 w-16 h-16 overflow-hidden">
-                    <div className="absolute top-0 right-0 w-32 h-2 bg-[#edb900] rotate-45 origin-top-right"></div>
-                  </div>
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#edb900]"></div>
 
                   <div className="flex justify-between items-center mb-6">
                     <h3 className="font-medium text-white text-xl">Challenge Details</h3>
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setShowDetails(!showDetails)}
-                      className="text-[#edb900] border-[#edb900] hover:bg-[#edb900]/10 rounded-md px-4 flex items-center gap-1"
+                      className="bg-[#edb900] text-[#0f0f0f] hover:bg-[#edb900]/90 rounded-md px-4 flex items-center gap-1"
                     >
-                      {showDetails ? "Hide Details" : "Show All Details"}
-                      <ChevronRight
-                        className={`h-4 w-4 transition-transform duration-200 ${showDetails ? "rotate-90" : ""}`}
-                      />
+                      Show All Details
+                      <ChevronRight className="h-4 w-4" />
                     </Button>
                   </div>
 
@@ -457,15 +451,71 @@ export default function PropFirmChallengePage({
                     <div className="flex justify-between items-center pt-2">
                       <span className="text-gray-400">Loyalty Points</span>
                       <div className="flex items-center gap-2 bg-gradient-to-r from-[#edb900]/20 to-transparent px-3 py-1 rounded-full">
-                        <Image src="/icons/logo_loyalty_points.png?height=20&width=20" alt="Loyalty Points" width={20} height={20} />
+                        <Image
+                          src="/icons/logo_loyalty_points.png?height=20&width=20"
+                          alt="Loyalty Points"
+                          width={20}
+                          height={20}
+                        />
                         <span className="text-[#edb900] font-medium">{challenge.loyalty_points}</span>
                       </div>
                     </div>
                   </div>
-
-                  {/* Subtle gold pattern overlay */}
-                  <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjEiIGZpbGw9IiNlZGI5MDAiIGZpbGwtb3BhY2l0eT0iMC4wNSIvPjwvc3ZnPg==')] opacity-30 pointer-events-none"></div>
                 </div>
+
+                {/* Offers Component - Restructured to show all types vertically */}
+                <Card className="bg-[#0f0f0f] border-[#1a1a1a] mt-6">
+                  <CardContent className="p-6">
+                    <h3 className="font-medium mb-4 text-white">Promotions Available for this Account</h3>
+
+                    {/* Limited Time Offers Section */}
+                    {limitedTimeOffers.length > 0 && (
+                      <div className="mb-8">
+                        <h4 className="text-lg font-medium text-[#edb900] mb-4 flex items-center">
+                          <span className="bg-[#edb900] text-black px-3 py-1 rounded-md mr-2">Limited Time Offers</span>
+                          <span className="text-sm text-gray-400">(Showing {limitedTimeOffers.length} results)</span>
+                        </h4>
+
+                        {limitedTimeOffers.map((offer) => renderDiscountCard(offer))}
+                      </div>
+                    )}
+
+                    {/* Exclusive Offers Section */}
+                    {exclusiveOffers.length > 0 && (
+                      <div className="mb-8">
+                        <h4 className="text-lg font-medium text-white mb-4 flex items-center">
+                          <span className="bg-[#1a1a1a] text-white px-3 py-1 rounded-md mr-2">Exclusive Offers</span>
+                          <span className="text-sm text-gray-400">(Showing {exclusiveOffers.length} results)</span>
+                        </h4>
+
+                        {exclusiveOffers.map((offer) => renderDiscountCard(offer))}
+                      </div>
+                    )}
+
+                    {/* Review & Earn Offers Section */}
+                    {reviewEarnOffers.length > 0 && (
+                      <div>
+                        <h4 className="text-lg font-medium text-white mb-4 flex items-center">
+                          <span className="bg-[#1a1a1a] text-white px-3 py-1 rounded-md mr-2">
+                            Review & Earn Offers
+                          </span>
+                          <span className="text-sm text-gray-400">(Showing {reviewEarnOffers.length} results)</span>
+                        </h4>
+
+                        {reviewEarnOffers.map((offer) => renderDiscountCard(offer))}
+                      </div>
+                    )}
+
+                    {/* No offers message */}
+                    {limitedTimeOffers.length === 0 &&
+                      exclusiveOffers.length === 0 &&
+                      reviewEarnOffers.length === 0 && (
+                        <div className="text-center py-8 text-gray-400">
+                          No promotions are currently available for this challenge.
+                        </div>
+                      )}
+                  </CardContent>
+                </Card>
               </CardContent>
             </Card>
 
@@ -525,13 +575,24 @@ export default function PropFirmChallengePage({
             <Card className="bg-[#0f0f0f] border-[#1a1a1a] sticky top-6">
               <CardContent className="p-6">
                 <div className="space-y-6">
-                  <div>
+                  {/*<div>
                     <h3 className="font-medium mb-2 text-white">
                       Would you like to receive loyalty points on this purchase?
                     </h3>
                     <div className="flex gap-3">
                       <Button className="bg-[#edb900] text-[#0f0f0f] hover:bg-[#edb900]/90 px-6">Yes</Button>
                       <Button variant="outline" className="border-[#1a1a1a] hover:bg-[#1a1a1a] px-6 text-white">
+                        No
+                      </Button>
+                    </div>
+                  </div>*/}
+                  <div>
+                    <h3 className="font-medium mb-2 text-white">
+                      Would you like to receive loyalty points on this purchase?
+                    </h3>
+                    <div className="flex gap-3">
+                      <Button className="bg-[#edb900] text-[#0f0f0f] hover:bg-[#edb900]/90 px-6">Yes</Button>
+                      <Button variant="outline" className="border-[#edb900] text-[#edb900] hover:bg-[#1a1a1a] px-6">
                         No
                       </Button>
                     </div>
@@ -564,7 +625,7 @@ export default function PropFirmChallengePage({
 
                   <Separator className="bg-[#1a1a1a]" />
 
-                  <div className="space-y-4">
+                  {/*<div className="space-y-4">
                     <div>
                       <Label htmlFor="email" className="text-sm font-medium text-white">
                         Email<span className="text-[#edb900]">*</span>
@@ -576,36 +637,51 @@ export default function PropFirmChallengePage({
                         className="mt-1 bg-[#1a1a1a] border-[#1a1a1a] focus-visible:ring-[#edb900]"
                       />
                     </div>
-
-                    <div className="space-y-3">
-                      <div className="flex items-start space-x-2">
-                        <Checkbox
-                          id="offers"
-                          className="mt-1 text-[#edb900] border-gray-600 data-[state=checked]:bg-[#edb900] data-[state=checked]:text-[#0f0f0f]"
-                        />
-                        <Label htmlFor="offers" className="text-sm text-gray-300">
-                          I would like to receive exclusive offers and valuable updates.
+                  </div>*/}
+                  <SignedOut>
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="email" className="text-sm font-medium text-white">
+                          Email<span className="text-[#edb900]">*</span>
                         </Label>
-                      </div>
-
-                      <div className="flex items-start space-x-2">
-                        <Checkbox
-                          id="terms"
-                          className="mt-1 text-[#edb900] border-gray-600 data-[state=checked]:bg-[#edb900] data-[state=checked]:text-[#0f0f0f]"
-                          defaultChecked
+                        <Input
+                          id="email"
+                          type="email"
+                          placeholder="your.email@example.com"
+                          className="mt-1 bg-[#1a1a1a] border-[#1a1a1a] focus-visible:ring-[#edb900]"
                         />
-                        <Label htmlFor="terms" className="text-sm text-gray-300">
-                          By checking out, I agree to this website's{" "}
-                          <Link href="#" className="text-[#edb900] hover:underline">
-                            Terms of Service
-                          </Link>{" "}
-                          and{" "}
-                          <Link href="#" className="text-[#edb900] hover:underline">
-                            Privacy Policy
-                          </Link>
-                          .
-                        </Label>
                       </div>
+                    </div>
+                  </SignedOut>
+
+                  <div className="space-y-3">
+                    <div className="flex items-start space-x-2">
+                      <Checkbox
+                        id="offers"
+                        className="mt-1 text-[#edb900] border-gray-600 data-[state=checked]:bg-[#edb900] data-[state=checked]:text-[#0f0f0f]"
+                      />
+                      <Label htmlFor="offers" className="text-sm text-gray-300">
+                        I would like to receive exclusive offers and valuable updates.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start space-x-2">
+                      <Checkbox
+                        id="terms"
+                        className="mt-1 text-[#edb900] border-gray-600 data-[state=checked]:bg-[#edb900] data-[state=checked]:text-[#0f0f0f]"
+                        defaultChecked
+                      />
+                      <Label htmlFor="terms" className="text-sm text-gray-300">
+                        By checking out, I agree to this website's{" "}
+                        <Link href="#" className="text-[#edb900] hover:underline">
+                          Terms of Service
+                        </Link>{" "}
+                        and{" "}
+                        <Link href="#" className="text-[#edb900] hover:underline">
+                          Privacy Policy
+                        </Link>
+                        .
+                      </Label>
                     </div>
                   </div>
 
