@@ -22,7 +22,7 @@ import Navbar from "@/components/Navbar"
 import Noise from "@/components/Noise"
 import { SignedIn, SignedOut } from "@clerk/nextjs"
 import ChallengeDetailsSidebar from "@/components/challenge-details-sidebar"
-import { ModalContext } from "./_app"
+import { ModalContext } from "../_app"
 
 // Using the same FontAwesome imports as in AllPropFirms
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
