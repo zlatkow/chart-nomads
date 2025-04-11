@@ -457,7 +457,7 @@ export default function PropFirmChallengePage({
                     <div className="flex justify-between items-center pt-2">
                       <span className="text-gray-400">Loyalty Points</span>
                       <div className="flex items-center gap-2 bg-gradient-to-r from-[#edb900]/20 to-transparent px-3 py-1 rounded-full">
-                        <Image src="/placeholder.svg?height=20&width=20" alt="Loyalty Points" width={20} height={20} />
+                        <Image src="/icons/logo_loyalty_points.png?height=20&width=20" alt="Loyalty Points" width={20} height={20} />
                         <span className="text-[#edb900] font-medium">{challenge.loyalty_points}</span>
                       </div>
                     </div>
