@@ -348,7 +348,7 @@ export default function PropFirmChallengePage({
                       theme="custom" // Apply the custom theme
                     >
                       <span
-                        className={`absolute top-3 left-3 px-[5px] border text-xs rounded-[10px] font-medium 
+                        className={`absolute top-3 left-3 px-[5px] border text-xs rounded-[10px] font-[balboa]
           ${propFirm.category === "Gold" ? "text-[#efbf04] border-[#efbf04]" : ""}
           ${propFirm.category === "Platinum" ? "text-[#D9D9D9] border-[#D9D9D9]" : ""}
           ${propFirm.category === "Diamond" ? "text-[#c8bfe7] border-[#c8bfe7]" : ""}
