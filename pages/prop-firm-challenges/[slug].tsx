@@ -1,12 +1,9 @@
-/* eslint-disable */
 "use client"
 
-import { useRouter } from "next/router"
 import { useState } from "react"
-import type { GetServerSideProps } from "next"
-import { ArrowLeft, Check, Copy, Info, Calendar, ChevronRight } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
+import { ArrowLeft, Check, Copy, Info, Calendar, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -20,11 +17,7 @@ import "tippy.js/dist/tippy.css"
 import "tippy.js/themes/light.css"
 import Navbar from "@/components/Navbar"
 import Noise from "@/components/Noise"
-
-// Using the same FontAwesome imports as in AllPropFirms
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons"
-import { faStar } from "@fortawesome/free-solid-svg-icons"
+import PropFirmCard from "@/components/prop-firm-card"
 
 // Define types for our data
 interface PropFirm {
@@ -63,116 +56,100 @@ interface Discount {
   cashback_bonus: string | null
 }
 
-// Get server side props to fetch the challenge data
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const { slug } = context.params || {}
-
-  try {
-    // Get the absolute URL for the API endpoint
-    const protocol = context.req.headers["x-forwarded-proto"] || "http"
-    const host = context.req.headers.host
-    const baseUrl = `${protocol}://${host}`
-
-    console.log(`Fetching challenge data for slug: ${slug}`)
-
-    // Use a direct approach instead of relying on the API
-    // This is a temporary solution to bypass the API issue
-
-    // Sample challenge data - replace with actual data from your database
-    const challenge = {
-      id: 1,
-      slug: slug,
-      program_name: "Alpha Pro - 2-Step 100K",
-      size: "100K",
-      steps: "2 Steps",
-      discount_price: 397.6,
-      original_price: 497.0,
-      loyalty_points: 125,
-      prop_firm_id: 1,
-      prop_firm: {
-        id: 1,
-        propfirm_name: "BrightFunded",
-        category: "Gold",
-        rating: 4.6,
-        reviews_count: 4,
-        likes: 35,
-        logo_url: "/placeholder.svg?height=40&width=40",
-        brand_colour: "#0f0f0f",
-      },
-    }
-
-    // Sample discount data
-    const discounts = {
-      limitedTimeOffers: [
-        {
-          id: 1,
-          discount_type: "Limited Time",
-          description: "20%OFF",
-          discount_code: "WELCOME20",
-          no_code: false,
-          expiry_date: "2025-05-30",
-          cashback_bonus: "5% cashback",
-        },
-      ],
-      exclusiveOffers: [
-        {
-          id: 2,
-          discount_type: "Exclusive",
-          description: "10%OFF",
-          discount_code: "EXCLUSIVE10",
-          no_code: false,
-          expiry_date: "2025-06-15",
-          cashback_bonus: null,
-        },
-      ],
-      reviewEarnOffers: [
-        {
-          id: 3,
-          discount_type: "Review & earn",
-          description: "15%OFF",
-          discount_code: "REVIEW15",
-          no_code: false,
-          expiry_date: "2025-07-01",
-          cashback_bonus: "10% cashback",
-        },
-      ],
-    }
-
-    return {
-      props: {
-        challenge,
-        discounts,
-      },
-    }
-  } catch (error) {
-    console.error("Error fetching challenge:", error)
-    return { notFound: true }
-  }
-}
-
 export default function PropFirmChallengePage({
-  challenge,
-  discounts,
+  params,
 }: {
-  challenge: Challenge
-  discounts: {
-    limitedTimeOffers: Discount[]
-    exclusiveOffers: Discount[]
-    reviewEarnOffers: Discount[]
-  }
+  params: { slug: string }
 }) {
   const [showDetails, setShowDetails] = useState(false)
   const [copiedCodes, setCopiedCodes] = useState<Record<string, boolean>>({})
   const { toast } = useToast()
-  const router = useRouter()
+  const [userLikedFirms, setUserLikedFirms] = useState<Set<number>>(new Set())
 
-  // If the page is still loading the slug, show a simple loading state
-  if (router.isFallback) {
-    return <div className="min-h-screen bg-[#0f0f0f] text-white flex items-center justify-center">Loading...</div>
+  // Sample challenge data - in a real app, this would come from an API
+  const challenge: Challenge = {
+    id: 1,
+    slug: params.slug,
+    program_name: "Alpha Pro - 2-Step 100K",
+    size: "100K",
+    steps: "2 Steps",
+    discount_price: 397.6,
+    original_price: 497.0,
+    loyalty_points: 125,
+    prop_firm_id: 1,
+    prop_firm: {
+      id: 1,
+      propfirm_name: "BrightFunded",
+      category: "Gold",
+      rating: 4.6,
+      reviews_count: 4,
+      likes: 35,
+      logo_url: "/placeholder.svg?height=40&width=40",
+      brand_colour: "#0f0f0f",
+      slug: "brightfunded",
+    },
+  }
+
+  // Sample discount data
+  const discounts = {
+    limitedTimeOffers: [
+      {
+        id: 1,
+        discount_type: "Limited Time",
+        description: "20%OFF",
+        discount_code: "WELCOME20",
+        no_code: false,
+        expiry_date: "2025-05-30",
+        cashback_bonus: "5% cashback",
+      },
+    ],
+    exclusiveOffers: [
+      {
+        id: 2,
+        discount_type: "Exclusive",
+        description: "10%OFF",
+        discount_code: "EXCLUSIVE10",
+        no_code: false,
+        expiry_date: "2025-06-15",
+        cashback_bonus: null,
+      },
+    ],
+    reviewEarnOffers: [
+      {
+        id: 3,
+        discount_type: "Review & earn",
+        description: "15%OFF",
+        discount_code: "REVIEW15",
+        no_code: false,
+        expiry_date: "2025-07-01",
+        cashback_bonus: "10% cashback",
+      },
+    ],
   }
 
   const propFirm = challenge.prop_firm
   const { limitedTimeOffers, exclusiveOffers, reviewEarnOffers } = discounts
+
+  // Handle like toggle
+  const handleLikeToggle = (firmId: number) => {
+    setUserLikedFirms((prev) => {
+      const newSet = new Set(prev)
+      if (newSet.has(firmId)) {
+        newSet.delete(firmId)
+      } else {
+        newSet.add(firmId)
+      }
+      return newSet
+    })
+  }
+
+  // Handle login modal
+  const handleLoginModalOpen = () => {
+    toast({
+      title: "Authentication Required",
+      description: "Please sign in to like this prop firm.",
+    })
+  }
 
   // Handle copy code
   const handleCopyCode = (code: string, discountId: number) => {
@@ -278,7 +255,7 @@ export default function PropFirmChallengePage({
       {/* Main Content */}
       <main className="relative container z-20 max-w-[1280px] mt-[200px] mb-[100px] mx-auto">
         <div className="flex items-center mb-8">
-          <Link href="/" passHref>
+          <Link href="/prop-firms" passHref>
             <Button variant="ghost" size="sm" className="text-gray-300 hover:text-white">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back
@@ -292,41 +269,13 @@ export default function PropFirmChallengePage({
           <div>
             <Card className="bg-[#0f0f0f] border-[#1a1a1a]">
               <CardContent className="p-6">
-                {/* Company Card - Copied directly from AllPropFirms */}
-                <div className="z-50 relative bg-[rgba(26,26,26,1)] rounded-[10px] border border-[#2a2a2a] overflow-hidden p-4 mb-6">
-                  <div className="flex">
-                    <span className="absolute top-3 left-3 px-[5px] border text-xs rounded-[10px] font-medium text-[#efbf04] border-[#efbf04]">
-                      {propFirm.category || "Gold"}
-                    </span>
-
-                    <button className="absolute top-3 right-3 text-[rgba(237,185,0,0.3)]">
-                      <span className="mr-1 text-xs">{propFirm.likes || 0} Likes</span>
-                      <FontAwesomeIcon icon={regularHeart} style={{ fontSize: "18px" }} />
-                    </button>
-
-                    <div className="w-full mt-8 flex flex-col items-center">
-                      <div className="w-16 h-16 bg-[#0a0a0a] rounded-md flex items-center justify-center mb-2">
-                        <Image
-                          src={propFirm.logo_url || "/placeholder.svg?height=40&width=40"}
-                          alt={propFirm.propfirm_name}
-                          width={40}
-                          height={40}
-                        />
-                      </div>
-
-                      <h3 className="text-xl text-center text-white">{propFirm.propfirm_name}</h3>
-
-                      <p className="text-center text-lg">
-                        <FontAwesomeIcon icon={faStar} className="text-[#EDB900]" />
-                        <span className="text-white ml-1">{propFirm.rating}</span>
-                      </p>
-
-                      <p className="text-center text-xs text-black bg-[#EDB900] px-2 py-[5px] rounded-[8px] mt-1 min-w-[80px] w-fit mx-auto">
-                        {propFirm.reviews_count} reviews
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                {/* Company Card - Using the PropFirmCard component */}
+                <PropFirmCard
+                  firm={propFirm}
+                  userLikedFirms={userLikedFirms}
+                  handleLikeToggle={handleLikeToggle}
+                  handleLoginModalOpen={handleLoginModalOpen}
+                />
 
                 {/* Challenge Details Section - Creative design with brand colors */}
                 <div className="relative bg-gradient-to-br from-[#0f0f0f] via-[#1a1a1a] to-[#0f0f0f] rounded-xl p-6 mb-6 overflow-hidden border border-[#2a2a2a]">
@@ -380,7 +329,7 @@ export default function PropFirmChallengePage({
                     <div className="flex justify-between items-center pt-2">
                       <span className="text-gray-400">Loyalty Points</span>
                       <div className="flex items-center gap-2 bg-gradient-to-r from-[#edb900]/20 to-transparent px-3 py-1 rounded-full">
-                        <Image src="/images/logo_loyalty_points.png" alt="Loyalty Points" width={20} height={20} />
+                        <Image src="/placeholder.svg?height=20&width=20" alt="Loyalty Points" width={20} height={20} />
                         <span className="text-[#edb900] font-medium">{challenge.loyalty_points}</span>
                       </div>
                     </div>
