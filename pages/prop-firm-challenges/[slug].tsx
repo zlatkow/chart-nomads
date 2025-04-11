@@ -22,7 +22,7 @@ import Navbar from "@/components/Navbar"
 import Noise from "@/components/Noise"
 import { SignedIn, SignedOut } from "@clerk/nextjs"
 import ChallengeDetailsSidebar from "@/components/challenge-details-sidebar"
-import { ModalContext } from "../_app"
+import { ModalContext } from "./_app"
 
 // Using the same FontAwesome imports as in AllPropFirms
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -174,6 +174,7 @@ export default function PropFirmChallengePage({
   const [email, setEmail] = useState("")
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const { setShowLoginModal } = useContext(ModalContext)
+  const [termsAccepted, setTermsAccepted] = useState(true)
 
   // If the page is still loading the slug, show a simple loading state
   if (router.isFallback) {
@@ -646,6 +647,7 @@ export default function PropFirmChallengePage({
                         id="terms"
                         className="mt-1 text-[#edb900] border-gray-600 data-[state=checked]:bg-[#edb900] data-[state=checked]:text-[#0f0f0f]"
                         defaultChecked
+                        onCheckedChange={(checked) => setTermsAccepted(checked as boolean)}
                       />
                       <Label htmlFor="terms" className="text-sm text-gray-300">
                         By checking out, I agree to this website's{" "}
@@ -662,18 +664,24 @@ export default function PropFirmChallengePage({
                   </div>
 
                   <Tippy
-                    content="Please enter your email to receive loyalty points"
-                    disabled={!receiveLoyaltyPoints || (receiveLoyaltyPoints && email.trim() !== "")}
+                    content={
+                      !termsAccepted
+                        ? "Please accept the Terms of Service and Privacy Policy"
+                        : receiveLoyaltyPoints && email.trim() === ""
+                          ? "Please enter your email to receive loyalty points"
+                          : ""
+                    }
+                    disabled={termsAccepted && (!receiveLoyaltyPoints || (receiveLoyaltyPoints && email.trim() !== ""))}
                     placement="top"
-                    theme="light"
+                    theme="custom"
                   >
                     <div className="w-full">
                       <Button
                         className="w-full bg-[#edb900] text-[#0f0f0f] hover:bg-[#edb900]/90 py-6 text-base font-bold"
-                        disabled={receiveLoyaltyPoints && email.trim() === ""}
+                        disabled={!termsAccepted || (receiveLoyaltyPoints && email.trim() === "")}
                         onClick={() => {
                           // Handle checkout logic here
-                          console.log("Proceeding to checkout", { receiveLoyaltyPoints, email })
+                          console.log("Proceeding to checkout", { receiveLoyaltyPoints, email, termsAccepted })
                         }}
                       >
                         Proceed to checkout
