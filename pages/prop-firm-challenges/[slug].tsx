@@ -276,7 +276,7 @@ export default function PropFirmChallengePage({
       <Navbar />
       <Noise />
       {/* Main Content */}
-      <main className="container max-w-[1280px] mx-auto">
+      <main className="relative container z-20 max-w-[1280px] mt-[200px] mb-[100px] mx-auto">
         <div className="flex items-center mb-8">
           <Link href="/" passHref>
             <Button variant="ghost" size="sm" className="text-gray-300 hover:text-white">
