@@ -537,6 +537,31 @@ export default function PropFirmChallengePage({
                     </div>
                   </div>
 
+                  {/* Notification about loyalty points */}
+                  <div className="bg-[#1a1a1a] border-l-4 border-[#edb900] rounded-md p-3 flex items-start gap-3">
+                    <div className="text-[#edb900] mt-0.5">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                      </svg>
+                    </div>
+                    <p className="text-sm text-gray-300">
+                      Note: In order to receive Loyalty Points you must upload documentation of your purchase through{" "}
+                      <span className="text-[#edb900] font-medium">PropFirmFinder.com</span> within your user dashboard.
+                    </p>
+                  </div>
+
                   <Separator className="bg-[#1a1a1a]" />
 
                   <div className="space-y-4">
