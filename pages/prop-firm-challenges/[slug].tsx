@@ -21,6 +21,7 @@ import "tippy.js/themes/light.css"
 import Navbar from "@/components/Navbar"
 import Noise from "@/components/Noise"
 import { SignedIn, SignedOut } from "@clerk/nextjs"
+import ChallengeDetailsSidebar from "@/components/challenge-details-sidebar"
 
 // Using the same FontAwesome imports as in AllPropFirms
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -170,6 +171,7 @@ export default function PropFirmChallengePage({
   const [userLikedFirms, setUserLikedFirms] = useState<Set<number>>(new Set())
   const [receiveLoyaltyPoints, setReceiveLoyaltyPoints] = useState(true)
   const [email, setEmail] = useState("")
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
   // If the page is still loading the slug, show a simple loading state
   if (router.isFallback) {
@@ -209,6 +211,11 @@ export default function PropFirmChallengePage({
     setTimeout(() => {
       setCopiedCodes((prev) => ({ ...prev, [`${code}-${discountId}`]: false }))
     }, 2000)
+  }
+
+  // Handle opening the challenge details sidebar
+  const handleShowDetails = () => {
+    setIsSidebarOpen(true)
   }
 
   // Tooltip content
@@ -419,6 +426,7 @@ export default function PropFirmChallengePage({
                       variant="outline"
                       size="sm"
                       className="bg-[#edb900] border border-[#edb900] text-[#0f0f0f] hover:bg-[#edb900]/90 rounded-md px-4 flex items-center gap-1"
+                      onClick={handleShowDetails}
                     >
                       Show All Details
                       <ChevronRight className="h-4 w-4" />
@@ -678,6 +686,48 @@ export default function PropFirmChallengePage({
             </Card>
           </div>
         </div>
+        {/* Challenge Details Sidebar */}
+        <ChallengeDetailsSidebar
+          challenge={{
+            id: challenge.id,
+            firmId: challenge.prop_firm_id,
+            firm: {
+              id: propFirm.id,
+              name: propFirm.propfirm_name,
+              logo: propFirm.logo_url,
+              color: propFirm.brand_colour,
+              rating: propFirm.rating,
+              reviews: propFirm.reviews_count,
+              yearsInOperation: 5, // Default value
+              availablePlatforms: ["MT4", "MT5", "cTrader"], // Default platforms
+            },
+            price: challenge.discount_price,
+            originalPrice: challenge.original_price,
+            accountSize: challenge.size,
+            maxDrawdown: "10%", // Default value
+            profitTarget: {
+              step1: "8%", // Default value
+              step2: "5%", // Default value
+            },
+            dailyLoss: "5%", // Default value
+            programName: challenge.program_name,
+            payoutOverview: {
+              profitSplit: "80%", // Default value
+              refundableFee: "No",
+              payoutFrequency: "Weekly", // Default value
+            },
+            tradingOverview: [
+              { label: "Max Leverage", value: "1:100" },
+              { label: "News-Trading", value: "Yes" },
+              { label: "Copy-Trading", value: "Yes" },
+              { label: "EA's", value: "Allowed" },
+              { label: "Weekend Holding", value: "Yes" },
+              { label: "Overnight Holding", value: "Yes" },
+            ],
+          }}
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+        />
       </main>
       <Toaster />
     </div>
