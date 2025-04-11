@@ -57,6 +57,7 @@ interface Discount {
   cashback_bonus: string | null
 }
 
+// Update the PropFirmChallengePage component to properly handle the slug parameter
 export default function PropFirmChallengePage({
   params,
 }: {
@@ -66,11 +67,15 @@ export default function PropFirmChallengePage({
   const [copiedCodes, setCopiedCodes] = useState<Record<string, boolean>>({})
   const { toast } = useToast()
   const [userLikedFirms, setUserLikedFirms] = useState<Set<number>>(new Set())
+  const [isLoading, setIsLoading] = useState(false)
+
+  // Use the slug from params directly
+  const slug = params.slug
 
   // Sample challenge data - in a real app, this would come from an API
   const challenge: Challenge = {
     id: 1,
-    slug: params.slug,
+    slug: slug,
     program_name: "Alpha Pro - 2-Step 100K",
     size: "100K",
     steps: "2 Steps",
