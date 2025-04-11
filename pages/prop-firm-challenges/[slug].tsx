@@ -235,10 +235,10 @@ export default function PropFirmChallengePage({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 items-center">
         {/* Discount Description */}
         <div className="text-center">
-          <div className="relative p-5 to-transparent rounded-lg border border-[rgba(237,185,0,0.15)]">
+          <div className="relative p-3 to-transparent rounded-lg border border-[rgba(237,185,0,0.15)]">
             <div className="flex flex-col items-center">
-              <div className="text-5xl font-extrabold text-[#edb900] mb-1 leading-tight">{offer.description}</div>
-              <div className="text-sm text-gray-300 mb-2">(on first purchase only)</div>
+              <div className="text-3xl font-extrabold text-[#edb900] mb-1 leading-tight">{offer.description}</div>
+              <div className="text-xs text-gray-300 mb-2">(on first purchase only)</div>
 
               {offer.cashback_bonus && (
                 <Tippy content={bonusTooltipContent} theme="custom" placement="top" arrow={true}>
@@ -475,7 +475,7 @@ export default function PropFirmChallengePage({
                 {/* Offers Component - Restructured to show all types vertically */}
                 <Card className="bg-[#0f0f0f] border-[#1a1a1a] mt-6">
                   <CardContent className="p-6">
-                    <h3 className="font-medium mb-4 text-white">Promotions Available for this Account</h3>
+                    <h3 className="text-lg mb-4 text-white">Promotions Available for this Account</h3>
 
                     {/* Limited Time Offers Section */}
                     {limitedTimeOffers.length > 0 && (
